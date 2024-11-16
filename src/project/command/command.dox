@@ -1,0 +1,12 @@
+/** \defgroup command Commands
+ 
+The commands used internally can be grouped into these destinct groups:
+
+  - Parameter manipulation. 
+  - Material design.
+  - Upper design.
+
+Parametermanipulation is the catch-all for everything, that is done inside 
+the text-boxes.  
+   
+**/

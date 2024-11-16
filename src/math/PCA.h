@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_PCA_H_
-#define SRC_MATH_PCA_H_
+#ifndef MATH_PCA_H
+#define MATH_PCA_H
 /*!\class PCA
  * \brief Principal component analysis for Vector3 point-clouds
  *
@@ -69,4 +69,4 @@ public:
 	double zz; //!< Sum of Z*Z values
 };
 
-#endif /* SRC_MATH_PCA_H_ */
+#endif /* MATH_PCA_H */

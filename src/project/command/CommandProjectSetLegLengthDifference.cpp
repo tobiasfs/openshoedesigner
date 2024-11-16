@@ -27,28 +27,27 @@
 #include "CommandProjectSetLegLengthDifference.h"
 
 CommandProjectSetLegLengthDifference::CommandProjectSetLegLengthDifference(
-		const wxString& name, Project* project, wxString value)
-		: wxCommand(true, name), project(project), value(value)
-{
+		const wxString &name, Project *project, std::string value) :
+		wxCommand(true, name), project(project), value(value) {
 }
 
-bool CommandProjectSetLegLengthDifference::Do(void)
-{
-	if(project == NULL) return false;
-	oldValue = project->legLengthDifference.formula;
-	project->legLengthDifference.formula = value;
-	project->measL.Modify(true);
-	project->measR.Modify(true);
+bool CommandProjectSetLegLengthDifference::Do(void) {
+	if (project == NULL)
+		return false;
+	oldValue = project->legLengthDifference->GetFormula();
+	project->legLengthDifference->SetFormula(value);
+//	project->measL.Modify(true);
+//	project->measR.Modify(true);
 	project->Update();
 	return true;
 }
 
-bool CommandProjectSetLegLengthDifference::Undo(void)
-{
-	if(project == NULL) return false;
-	project->legLengthDifference.formula = oldValue;
-	project->measL.Modify(true);
-	project->measR.Modify(true);
+bool CommandProjectSetLegLengthDifference::Undo(void) {
+	if (project == NULL)
+		return false;
+	project->legLengthDifference->SetFormula(oldValue);
+//	project->measL.Modify(true);
+//	project->measR.Modify(true);
 	project->Update();
 	return true;
 }

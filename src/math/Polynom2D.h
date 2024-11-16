@@ -24,16 +24,17 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef POLYNOM2D_H_
-#define POLYNOM2D_H_
+#ifndef POLYNOM2D_H
+#define POLYNOM2D_H
 
 /*!\class Polynom2D
  * \brief Polynom in 2 dimensions
  *
- * Calculates and stores a polynom in 2 dimenstions. The polynom is defined by
+ * Calculates and stores a polynom in 2 dimensions. The polynom is defined by
  * four points and four normal vectors.
  *
- * For real 3D surfaces defined by Vertex3 with normal vectors refer to NagataPatch.
+ * For real 3D surfaces defined by Vertex3 with normal vectors refer to
+ * NagataPatch.
  */
 
 struct Vector3;
@@ -54,4 +55,4 @@ public:
 
 };
 
-#endif /* POLYNOM2D_H_ */
+#endif /* POLYNOM2D_H */

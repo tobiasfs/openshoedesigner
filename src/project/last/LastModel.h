@@ -7,7 +7,7 @@
 // Author             : Tobias Schaefer
 // Created            : 02.03.2019
 // Copyright          : (C) 2019 Tobias Schaefer <tobiassch@users.sourceforge.net>
-// Licence            : GNU General Public License version 3.0 (GPLv3)
+// License            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,52 +24,71 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_PROJECT_LAST_LASTMODEL_H_
-#define SRC_PROJECT_LAST_LASTMODEL_H_
+#ifndef PROJECT_LAST_LASTMODEL_H
+#define PROJECT_LAST_LASTMODEL_H
 /*!\class LastModel
  * \brief Rescales and handles a last
  *
  * This class reads in a list from a STL or OBJ (Wavefront) file and displays the result.
- * It analyses and normalises the form of the last. This last is the rescaled and adapted
+ * It analysis and normalizes the form of the last. This last is the rescaled and adapted
  * to the foot measurements and the shoe form.
  *
  * This last is used as the starting point for the upper pattern and the sole generation.
  *
  * Alternatively this class takes over the data from the bone model and provides the data
- * to the abovementioned steps. In this case the data is not transformed and adapted. This
+ * to the above-mentioned steps. In this case the data is not transformed and adapted. This
  * step has already been done on the foot-model.
  */
 
 #include <stddef.h>
+#include <cmath>
 #include <functional>
 #include <string>
 #include <vector>
 
 #include "../../3D/AffineTransformMatrix.h"
-#include "../../3D/Hull.h"
+#include "../../3D/Geometry.h"
 #include "../../3D/Polygon3.h"
 #include "../../3D/TestGrid.h"
 #include "../../3D/Vector3.h"
 #include "../../math/FormFinder.h"
+#include "../../math/Polynomial.h"
 #include "../../math/Symmetry.h"
+#include "LastRaw.h"
 
 class Insole;
 class OpenGLText;
 class FootMeasurements;
 class Shoe;
 
-class LastModel {
+class LastModel: public LastRaw {
+	friend class LastAnalyse;
+
 public:
-	std::string filename;
+	LastModel();
+	LastModel(const Geometry &geo);
+	virtual ~LastModel() = default;
 
-private:
-	Hull raw;
-	BoundingBox rawBB;
+	void Transform(std::function<Vector3(Vector3)> func);
+	void Mirror();
 
-	Polygon3 loop;
+	void UpdateForm(const Insole &insole, const FootMeasurements &measurements);
+
+	void Paint() const;
+	void PaintMarker(const size_t idx, const OpenGLText &font,
+			const std::string &text) const;
+
+protected:
+
+	void MarkMeasurements();
+	void UpdateRawBoundingBox();
 
 	Polygon3 planeXZ;
 	DependentVector angleXZ;
+
+public:
+	BoundingBox rawBB;
+
 	Polygon3 bottomleft;
 	Polygon3 bottomright;
 
@@ -81,14 +100,9 @@ private:
 	Polygon3 LittleToeGirth;
 	Polygon3 BigToeGirth;
 
-	std::vector <double> scalevalues;
-	Symmetry symmetry;
-	FormFinder formfinder;
-	AffineTransformMatrix coordsys;
+	std::vector<double> scalevalues;
 
-private:
-	// Class-global for debugging / painting during development
-	KernelDensityEstimator kde;
+	FormFinder formfinder;
 
 	size_t idxZero = 0;
 	size_t idxHeel = 0;
@@ -118,68 +132,10 @@ private:
 
 	TestGrid tg;
 
-public:
-
 	double param_soleangle = 35 * M_PI / 180;
 
-	Hull resized;
-	bool mirrored = false;
+	Polynomial height08;
 
-private:
-	struct Cut {
-		Polygon3 p;
-		AffineTransformMatrix m;
-	};
-
-	void PaintMarker(const size_t idx, const OpenGLText &font,
-			const std::string & text) const;
-	Cut CalculateCut(const Hull & hull, const Vector3 & p0, const Vector3 & p1);
-	AffineTransformMatrix RotatedScale(const Cut & c, double target) const;
-	BoundingBox CalculateBoundingBox(const Polygon3 & polygon) const;
-public:
-	LastModel();
-	virtual ~LastModel() = default;
-
-	bool LoadModel(std::string filename);
-
-	void Transform(std::function <Vector3(Vector3)> func);
-
-	void UpdateForm(const Insole & insole,
-			const FootMeasurements & measurements);
-
-	void Paint(void) const;
-	void PaintAnalysis(void) const;
-
-	void Mirror(void);
-
-	bool IsModified(void) const;
-	void Modify(bool modified = true);
-
-private:
-	bool modified = true;
-
-	bool AnalyseForm(void);
-
-	void ReorientPCA(void);
-	bool ReorientSymmetry(void);
-	bool ReorientSole(void);
-	void ReorientFrontBack(void);
-	void ReorientLeftRight(void);
-	void FindAndReorientCenterplane(void);
-
-	bool FindMarker(void);
-
-	void FindOutline(void);
-
-	void MarkMeasurements(void);
-
-	void UpdateRawBoundingBox(void);
-	DependentVector OrthogonalPoint(const Vector3 & p) const;
-	size_t FindTopPoint(size_t idx, size_t idxStart, size_t idxEnd) const;
-
-	static double RelValAt(const DependentVector & est, double x);
-
-	static bool Vector3XLess(const Vector3 a, const Vector3 b);
 };
 
-#endif /* SRC_PROJECT_LAST_LASTMODEL_H_ */
+#endif /* PROJECT_LAST_LASTMODEL_H */

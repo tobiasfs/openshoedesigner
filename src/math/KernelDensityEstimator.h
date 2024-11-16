@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_KERNELDENSITYESTIMATOR_H_
-#define SRC_MATH_KERNELDENSITYESTIMATOR_H_
+#ifndef KERNELDENSITYESTIMATOR_H
+#define KERNELDENSITYESTIMATOR_H
 
 /*!\class KernelDensityEstimator
  * \brief Kernel density estimation
@@ -40,7 +40,7 @@
 
 #include "DependentVector.h"
 
-class KernelDensityEstimator:public DependentVector {
+class KernelDensityEstimator: public DependentVector {
 public:
 	KernelDensityEstimator() = default;
 
@@ -50,12 +50,12 @@ public:
 	void Attenuate(double pos, double kernel(double), double weight = 1.0,
 			double sigma = 1.0);
 
-	void Normalize(void);
-	void NormalizeByWeightSum(void);
+	void Normalize();
+	void NormalizeByWeightSum();
 
 private:
 	size_t count = 0;
 	double weightsum = 0.0;
 };
 
-#endif /* SRC_MATH_KERNELDENSITYESTIMATOR_H_ */
+#endif /* KERNELDENSITYESTIMATOR_H */

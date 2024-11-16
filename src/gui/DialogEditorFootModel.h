@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_DIALOGEDITORFOOTMODEL_H_
-#define SRC_GUI_DIALOGEDITORFOOTMODEL_H_
+#ifndef GUI_DIALOGEDITORFOOTMODEL_H
+#define GUI_DIALOGEDITORFOOTMODEL_H
 
 /*!\class DialogEditorFootModel
  * \brief ...
@@ -65,4 +65,4 @@ private:
 	std::shared_ptr <MidiDevice> device;
 };
 
-#endif /* SRC_GUI_DIALOGEDITORFOOTMODEL_H_ */
+#endif /* GUI_DIALOGEDITORFOOTMODEL_H */

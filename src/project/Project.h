@@ -24,10 +24,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_H_
-#define PROJECT_H_
+#ifndef PROJECT_H
+#define PROJECT_H
 
 /*!\class Project
+ * \ingroup project
+ * \code #include "Project.h"\endcode
  * \brief Project container
  *
  * Data part of the Data View Model.
@@ -58,19 +60,21 @@
 #include <wx/string.h>
 #include <wx/thread.h>
 #include <iostream>
+#include <memory>
 
 #include "../3D/OrientedMatrix.h"
 #include "../3D/PointCloud.h"
 #include "../3D/Polygon3.h"
+#include "CoordinateSystem.h"
 //#include "../3D/Volume.h"
 
-#include "foot/FootMeasurements.h"
+#include "FootMeasurements.h"
 #include "foot/FootModel.h"
 #include "Insole.h"
-#include "last/Last.h"
 #include "last/LastModel.h"
-#include "Shoe.h"
+#include "Configuration.h"
 #include "pattern/Pattern.h"
+#include "ParameterEvaluator.h"
 
 class WorkerThread;
 
@@ -82,74 +86,26 @@ typedef wxInputStream DocumentIstream;
 typedef wxOutputStream DocumentOstream;
 #endif // wxUSE_STD_IOSTREAM/!wxUSE_STD_IOSTREAM
 
-class Project:public wxDocument {
+class Project: public wxDocument {
 	friend class WorkerThread;
 public:
-
-	// +++ Measurements +++
-	bool measurementsSymmetric;
-
-	enum class MeasurementSource {
-		fromMeasurements, fromFootScan
-	} measurementsource;
-
-	FootMeasurements measL;
-	FootMeasurements measR;
-	ParameterFormula legLengthDifference; // Distance the right leg is shorter than the left.
-
-	PointCloud footScan;
-
-	enum class ModelType {
-		boneBased, lastBased
-	} modeltype;
-	FootModel footL;
-	FootModel footR;
-
-	LastModel lastModelL;
-	LastModel lastModelR;
-
-	// +++ Shoe +++
-	Shoe shoe;
-	Insole insoleL;
-	Insole insoleR;
-
-	// Last to generate
-	Last lastL;
-	Last lastR;
-
-	// Pattern for the upper of the shoe
-	Pattern pattern;
-
-	// +++ Generator +++
-	enum class Generator {
-		Experimental, //!< Default generator for development of algorithms
-		Welted, //!< Welt sewn shoes: Generates last, insole, sole, upper pattern and cutout
-		Cemented, //!< for cemented soles (simple, glued-together shoes)
-		Molded, //!< for industrial shoes, where the sole is injection-molded to the upper
-		Dutch, //!< Generator for dutch wooden clogs: Generates last, insole and clog
-		Geta   //!< Japanese Geta generator
-	} generator;
-
-	// Generated products / debugging structures
-
-	//	Volume vol;
-	OrientedMatrix xray;
-	OrientedMatrix heightfield;
-	Polygon3 bow;
+	enum class Side : unsigned int {
+		LEFT = 0, RIGHT = 1
+	};
 
 public:
 	Project();
 	virtual ~Project();
 	void StopAllThreads(void); //!< Call from OnClose; the event loop has to be running.
 
-	DocumentOstream& SaveObject(DocumentOstream& ostream);
-	DocumentIstream& LoadObject(DocumentIstream& istream);
+	DocumentOstream& SaveObject(DocumentOstream &ostream);
+	DocumentIstream& LoadObject(DocumentIstream &istream);
 
-	bool LoadFootModel(wxString fileName);
-	bool SaveFootModel(wxString fileName);
-	bool LoadLastModel(wxString fileName);
-	bool SaveLast(wxString fileName, bool left, bool right);
-	bool SaveSkin(wxString fileName, bool left, bool right);
+	void LoadFootModel(wxString fileName);
+	void SaveFootModel(wxString fileName);
+	void LoadLastModel(wxString fileName);
+	void SaveLast(wxString fileName, bool left, bool right);
+	void SaveSkin(wxString fileName, bool left, bool right);
 
 	void Update(void);
 
@@ -158,12 +114,51 @@ protected:
 	bool UpdateRight(void);
 
 private:
-	void OnCalculationDone(wxThreadEvent& event);
-	void OnRefreshViews(wxThreadEvent& event);
+	void OnCalculationDone(wxThreadEvent &event);
+	void OnRefreshViews(wxThreadEvent &event);
+
+public:
+
+	Configuration config;
+
+	FootMeasurements footL;
+	FootMeasurements footR;
+
+
+	ParameterEvaluator parameter;
+
+
+
+//	FootModel footL;
+//	FootModel footR;
+//
+//	LastModel lastModelL;
+//	LastModel lastModelR;
+//
+//	// +++ Shoe +++
+//	Shoe shoe;
+//	Insole insoleL;
+//	Insole insoleR;
+//
+//	// Last to generate
+//	Last lastL;
+//	Last lastR;
+//
+//	// Pattern for the upper of the shoe
+//	CoordinateSystem csL;
+//	CoordinateSystem csR;
+//
+//	// Generated products / debugging structures
+//
+//	//	Volume vol;
+//	OrientedMatrix xray;
+//	OrientedMatrix heightfield;
+//	Polygon3 bow;
 
 private:
-	WorkerThread* thread0;
-	WorkerThread* thread1;
+	bool useMultiThreading = false;
+	WorkerThread *thread0;
+	WorkerThread *thread1;
 
 	wxCriticalSection CS;
 	wxCriticalSection CSLeft;
@@ -173,4 +168,4 @@ DECLARE_DYNAMIC_CLASS(Project)
 
 };
 
-#endif /* PROJECT_H_ */
+#endif /* PROJECT_H */

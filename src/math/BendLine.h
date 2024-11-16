@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_BENDLINE_H_
-#define SRC_3D_BENDLINE_H_
+#ifndef L3D_BENDLINE_H
+#define L3D_BENDLINE_H
 
 /*!\class BendLine
  * \brief Bend line with kernels for smooth bending
@@ -33,11 +33,11 @@
 
 #include "KernelDensityEstimator.h"
 
-class BendLine:public KernelDensityEstimator {
+class BendLine: public KernelDensityEstimator {
 public:
 	BendLine() = default;
 
-	void AngleToPos(void);
+	void AngleToPos();
 };
 
-#endif /* SRC_3D_BENDLINE_H_ */
+#endif /* L3D_BENDLINE_H */

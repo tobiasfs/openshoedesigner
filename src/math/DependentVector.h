@@ -24,22 +24,21 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_DEPENDENTVECTOR_H_
-#define SRC_MATH_DEPENDENTVECTOR_H_
+#ifndef MATH_DEPENDENTVECTOR_H
+#define MATH_DEPENDENTVECTOR_H
 
 /*!\class DependentVector
  * \brief
  *
- * ...
+ * http://www.parashift.com/c++-faq-lite/operator-overloading.html
+ *
+ * http://courses.cms.caltech.edu/cs11/material/cpp/donnie/cpp-ops.html
  */
 
-// http://www.parashift.com/c++-faq-lite/operator-overloading.html
-// http://courses.cms.caltech.edu/cs11/material/cpp/donnie/cpp-ops.html
-//
 #include <cfloat>
 #include <cmath>
 #include <cstddef>
-#include <string>
+#include <functional>
 #include <vector>
 
 class DependentVector {
@@ -56,9 +55,8 @@ public:
 
 	struct Point {
 		Point() = default;
-		Point(size_t idx, double x, double y)
-				: idx(idx), x(x), y(y)
-		{
+		Point(size_t idx, double x, double y) :
+				idx(idx), x(x), y(y) {
 		}
 		size_t idx = 0;
 		double x = 0.0;
@@ -68,26 +66,41 @@ public:
 	DependentVector() = default;
 	virtual ~DependentVector() = default;
 
-	void Clear(void);
+	void Clear();
 	void Resize(size_t N);
 	void PushBack(double x, double y);
-	size_t Size(void) const; //!< Size of the array
+	size_t Size() const; //!< Size of the array
 
-	void XLinspace(double x0, double x1, size_t N = 0);
+	void XLinspace(double x0, double x1, size_t N = (size_t) -1);
 	void XSetCyclic(double cyclelength);
-	void XSetLinear(void);
-	bool IsCyclic(void) const;
-	double CycleLength(void) const;
+	void XSetLinear();
+	bool IsCyclic() const;
+	double CycleLength() const;
 
 	void YInit(double value = 0.0);
 	void YLinspace(double y0, double y1);
+	void YFill(std::function<double(double)> func);
 
-	double YatX(const double xval) const;
-	double XatY(const double yval, Direction direction, size_t xstart = 0,
-			size_t xend = (size_t) -1) const;
+	/*\brief Index of a value
+	 *
+	 * Returns the first point of the interval the value is in. If
+	 * the value is outside the range of values, the first point or the last
+	 * point respectively is returned.
+	 */
 	size_t IatX(const double xval) const;
-	size_t IatY(const double yval, Direction direction, size_t xstart = 0,
-			size_t xend = (size_t) -1) const;
+	size_t IatY(const double yval, Direction direction =
+			Direction::first_risingabove, size_t xstart = 0, size_t xend =
+			(size_t) -1) const;
+
+	/*!\brief Interpolation of the array
+	 *
+	 * The output of this function is the same as Matlabs/Octaves interp1 with
+	 * the 'extrap' option enables. The extrapolation is linear.
+	 */
+	double YatX(const double xval) const;
+	double XatY(const double yval, Direction direction =
+			Direction::first_risingabove, size_t xstart = 0, size_t xend =
+			(size_t) -1) const;
 
 	double& X(size_t index);
 	const double& X(size_t index) const;
@@ -98,10 +111,9 @@ public:
 	double& operator[](size_t index); //!< Access operator to the Y array
 	double operator[](size_t index) const; //!< Read-only access operator to the Y array
 
-	DependentVector& operator-=(const DependentVector& a);
+	DependentVector& operator-=(const DependentVector &a);
 	friend DependentVector operator-(DependentVector a,
-			const DependentVector& b)
-	{
+			const DependentVector &b) {
 		a -= b;
 		return a;
 	}
@@ -115,40 +127,39 @@ public:
 	void YLimit(double ymin, double ymax);
 
 	DependentVector Range(size_t xstart = 0, size_t xend = (size_t) -1) const;
-	void Sort(void);
-	void Reverse(void);
+	void Sort();
+	void Reverse();
 	void Resample(size_t Nnew);
 	void Unwrap(double tol = M_PI);
 
-	void CumSum(void);
-	void CumProd(void);
-	void Integrate(void);
-	void Derive(void);
+	void CumSum();
+	void CumProd();
+	void Integrate();
+	void Derive();
 
 	void Normalize(size_t xstart = 0, size_t xend = (size_t) -1);
 	Point Max(size_t xstart = 0, size_t xend = (size_t) -1) const;
 	Point Min(size_t xstart = 0, size_t xend = (size_t) -1) const;
-	double Mean(void) const;
-	double Area(void) const;
+	double Mean() const;
+	double Area() const;
 
-	std::vector <Point> FindPeaks(const double minvalue = -DBL_MAX,
+	std::vector<Point> FindPeaks(const double minvalue = -DBL_MAX,
 			size_t xstart = 0, size_t xend = (size_t) -1);
-	std::vector <Point> FindValleys(const double maxvalue = DBL_MAX,
+	std::vector<Point> FindValleys(const double maxvalue = DBL_MAX,
 			size_t xstart = 0, size_t xend = (size_t) -1);
 
-	void Paint(void) const;
+	void Paint() const;
 	static void PaintCircle(double radius); //TODO This function is in the wrong place/class (again). It needs a better "home".
-
-	void Export(std::string filename) const; ///< Export as a Matlab/Octave .mat file.
 
 private:
 	bool cyclic = false;
 	double cyclelength = 0;
-	std::vector <double> x;
-	std::vector <double> y;
+	std::vector<double> x;
+	std::vector<double> y;
 
 private:
 	mutable size_t searchspeedup = 0;
 };
 
-#endif /* SRC_MATH_DEPENDENTVECTOR_H_ */
+#endif /* MATH_DEPENDENTVECTOR_H */
+

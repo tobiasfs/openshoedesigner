@@ -26,14 +26,12 @@
 
 #include "ParameterLimits.h"
 
-void ParameterLimits::Clear()
-{
+void ParameterLimits::Clear() {
 	limits.clear();
 }
 
 void ParameterLimits::AddLimit(size_t index, double min, double max, double a,
-		double b)
-{
+		double b) {
 	Limit temp;
 	temp.index = index;
 	temp.minval = min;
@@ -43,8 +41,8 @@ void ParameterLimits::AddLimit(size_t index, double min, double max, double a,
 	limits.push_back(temp);
 }
 
-void ParameterLimits::AddLimitMin(size_t index, double min, double a, double b)
-{
+void ParameterLimits::AddLimitMin(size_t index, double min, double a,
+		double b) {
 	Limit temp;
 	temp.index = index;
 	temp.minval = min;
@@ -53,8 +51,8 @@ void ParameterLimits::AddLimitMin(size_t index, double min, double a, double b)
 	limits.push_back(temp);
 }
 
-void ParameterLimits::AddLimitMax(size_t index, double max, double a, double b)
-{
+void ParameterLimits::AddLimitMax(size_t index, double max, double a,
+		double b) {
 	Limit temp;
 	temp.index = index;
 	temp.maxval = max;
@@ -63,16 +61,16 @@ void ParameterLimits::AddLimitMax(size_t index, double max, double a, double b)
 	limits.push_back(temp);
 }
 
-double ParameterLimits::Evaluate(const std::vector <double>& param) const
-{
+double ParameterLimits::Evaluate(const std::vector<double> &param) const {
 	double temp = 0.0;
-	for(size_t n = 0; n < limits.size(); ++n){
-		if(limits[n].index >= param.size()) continue;
-		if(param[limits[n].index] > limits[n].maxval){
+	for (size_t n = 0; n < limits.size(); ++n) {
+		if (limits[n].index >= param.size())
+			continue;
+		if (param[limits[n].index] > limits[n].maxval) {
 			temp += (param[limits[n].index] - limits[n].maxval) * limits[n].a
 					+ limits[n].b;
 		}
-		if(param[limits[n].index] < limits[n].minval){
+		if (param[limits[n].index] < limits[n].minval) {
 			temp += (param[limits[n].minval - limits[n].index]) * limits[n].a
 					+ limits[n].b;
 		}

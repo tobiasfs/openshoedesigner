@@ -27,8 +27,7 @@
 
 #include "../3D/Vector3.h"
 
-double Polynom2D::Evaluate(double x, double y)
-{
+double Polynom2D::Evaluate(double x, double y) {
 	const double T0 = ((a[3] * x + a[2]) * x + a[1]) * x + a[0];
 	const double T1 = ((a[7] * x + a[6]) * x + a[5]) * x + a[4];
 	const double T2 = ((a[11] * x + a[10]) * x + a[9]) * x + a[8];
@@ -36,10 +35,9 @@ double Polynom2D::Evaluate(double x, double y)
 	return ((T3 * y + T2) * y + T1) * y + T0;
 }
 
-void Polynom2D::Set44(const double v0, const Vector3& n0, const double v1,
-		const Vector3& n1, const double v2, const Vector3& n2, const double v3,
-		const Vector3& n3)
-{
+void Polynom2D::Set44(const double v0, const Vector3 &n0, const double v1,
+		const Vector3 &n1, const double v2, const Vector3 &n2, const double v3,
+		const Vector3 &n3) {
 	const double T2 = -3 * v0;
 	const double T3 = 2 * n0.y;
 	const double T4 = 3 * n3.x;

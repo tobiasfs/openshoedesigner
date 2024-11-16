@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_OPENGLSHADER_H_
-#define SRC_3D_OPENGLSHADER_H_
+#ifndef L3D_OPENGLSHADER_H
+#define L3D_OPENGLSHADER_H
 
 /*!\class OpenGLShader
  * \brief Contains shaders and the compiled shader program
@@ -34,23 +34,27 @@
  * Function to add several shaders together to a shaderprogramm.
  */
 
-#include <GL/gl.h>
+#include "Vector3.h"
+#include "AffineTransformMatrix.h"
+#include "OpenGL.h"
+
 #include <map>
 #include <string>
-#include "Vector3.h"
 
 class OpenGLShader {
 public:
-	OpenGLShader();
+	OpenGLShader() = default;
 	virtual ~OpenGLShader();
 
 	void Reset();
-	bool AddShader(GLenum type, const std::string &program);
+	void AddShader(GLenum type, const std::string &program_);
+	void AddShaderFromFile(GLenum type, const std::string &filename_);
+
 	bool LinkShader(void);
 
 	bool SetUniformBool(const std::string &name, const GLboolean x) const;
 	bool SetUniformInt(const std::string &name, const GLint x) const;
-	bool SetUniform(const std::string &name, const Vector3 & x) const;
+	bool SetUniform(const std::string &name, const Vector3 &x) const;
 	bool SetUniform(const std::string &name, const GLfloat x) const;
 	bool SetUniform(const std::string &name, const GLfloat x,
 			const GLfloat y) const;
@@ -59,18 +63,19 @@ public:
 	bool SetUniform(const std::string &name, const GLfloat x, const GLfloat y,
 			const GLfloat z, const GLfloat w) const;
 
-	bool SetUniformMatrix(const std::string &name, const GLfloat *M,
-			size_t size) const;
+	bool SetUniformMatrix4(const std::string &name,
+			const AffineTransformMatrix &M) const;
+	bool SetUniformMatrix3(const std::string &name,
+			const AffineTransformMatrix &M) const;
 
 	GLint GetUniformLocation(const std::string &name) const;
 
-	bool Start(void);
+	virtual bool Start(void);
 	static void Stop(void);
 
 private:
-	std::map <GLenum, GLuint> shader;
-	GLuint program;
-	bool showErrors;
+	std::map<GLenum, GLuint> shader;
+	GLuint program = 0;
 };
 
-#endif /* SRC_3D_OPENGLSHADER_H_ */
+#endif /* L3D_OPENGLSHADER_H */

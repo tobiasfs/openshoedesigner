@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef TRIANGLE_H_
-#define TRIANGLE_H_
+#ifndef L3D_TRIANGLE_H
+#define L3D_TRIANGLE_H
 
 /*!\class Triangle
  * \ingroup Base3D
@@ -38,25 +38,41 @@
 #include "Vector3.h"
 
 #include <string>
+#include <array>
 
 class AffineTransformMatrix;
-
-struct Triangle {
+class Triangle {
 public:
 	Triangle() = default;
-	explicit Triangle(const std::string & string);
+	explicit Triangle(const std::string &string);
 	virtual ~Triangle() = default;
 
-	Vector3 p[3]; //!< Position of vertices.
-	Vector3 n[3]; //!< Normal vectors.
-	Vector3 c[3]; //!< Color vectors.
-
-	std::string ToString(void) const;
-	bool FromString(const std::string & string);
-
-	void Paint(bool useNormals = true, bool useColors = false) const;
-	void CalculateNormal();
 	void ApplyTransformation(const AffineTransformMatrix &matrix);
+
+	/*!\brief Calculates normals for the corners of a triangle.
+	 *
+	 *  If no normals can be provided from elsewhere, this function
+	 *  can generate a set. The normal vectors n[0] to n[2] are all
+	 *  set normal to the plane of the triangle. Orientation is
+	 *  right handed.
+	 */
+	void CalculateNormal();
+
+	bool FromString(const std::string &string);
+	std::string ToString() const;
+
+	/*!\brief Puts a triangle in the OpenGL queue.
+	 *
+	 * This function does not call glBegin(GL_TRIANGLES); and
+	 * glEnd();. This has to be done by the calling function.
+	 * (Allows to save on OpenGL calls.)
+	 */
+	void Paint(bool useNormals = true, bool useColors = false) const;
+
+public:
+	std::array<Vector3, 3> p; //!< Position of vertices.
+	std::array<Vector3, 3> n; //!< Normal vectors.
+	std::array<Vector3, 3> c; //!< Color vectors.
 };
 
-#endif /* TRIANGLE_H_ */
+#endif /* L3D_TRIANGLE_H */

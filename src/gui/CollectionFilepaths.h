@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_COLLECTIONFILEPATHS_H_
-#define SRC_GUI_COLLECTIONFILEPATHS_H_
+#ifndef COLLECTIONFILEPATHS_H
+#define COLLECTIONFILEPATHS_H
 
 /*!\class CollectionFilepaths
  * \brief Collection of paths
@@ -50,4 +50,4 @@ public:
 	bool Save(wxConfig * config);
 };
 
-#endif /* SRC_GUI_COLLECTIONFILEPATHS_H_ */
+#endif /* COLLECTIONFILEPATHS_H */

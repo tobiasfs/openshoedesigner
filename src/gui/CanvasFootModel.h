@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_CANVASFOOTMODEL_H_
-#define SRC_GUI_CANVASFOOTMODEL_H_
+#ifndef GUI_CANVASFOOTMODEL_H
+#define GUI_CANVASFOOTMODEL_H
 /*!\class CanvasFootModel
  * \brief ...
  *
@@ -48,4 +48,4 @@ public:
 	FootModel model;
 };
 
-#endif /* SRC_GUI_CANVASFOOTMODEL_H_ */
+#endif /* GUI_CANVASFOOTMODEL_H */

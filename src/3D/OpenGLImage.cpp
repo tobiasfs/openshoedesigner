@@ -28,8 +28,9 @@
 
 #include "OpenGL.h"
 
-OpenGLImage::OpenGLImage()
-{
+#include <vector>
+
+OpenGLImage::OpenGLImage() {
 	refresh = true;
 	textureID = 0;
 	isOGLInit = false;
@@ -39,9 +40,8 @@ OpenGLImage::OpenGLImage()
 	tex_h = 0;
 }
 
-OpenGLImage::OpenGLImage(const OpenGLImage& other) :
-		wxImage(other)
-{
+OpenGLImage::OpenGLImage(const OpenGLImage &other) :
+		wxImage(other) {
 	refresh = true;
 	textureID = 0;
 	isOGLInit = false;
@@ -51,9 +51,8 @@ OpenGLImage::OpenGLImage(const OpenGLImage& other) :
 	tex_h = 0;
 }
 
-OpenGLImage::OpenGLImage(const wxImage& other) :
-		wxImage(other)
-{
+OpenGLImage::OpenGLImage(const wxImage &other) :
+		wxImage(other) {
 	refresh = true;
 	textureID = 0;
 	isOGLInit = false;
@@ -63,14 +62,14 @@ OpenGLImage::OpenGLImage(const wxImage& other) :
 	tex_h = 0;
 }
 
-OpenGLImage::~OpenGLImage()
-{
-	if(isOGLInit) glDeleteTextures(1, &textureID);
+OpenGLImage::~OpenGLImage() {
+	if (isOGLInit)
+		glDeleteTextures(1, &textureID);
 }
 
-OpenGLImage& OpenGLImage::operator=(const OpenGLImage& other)
-{
-	if(&other == this) return *this;
+OpenGLImage& OpenGLImage::operator=(const OpenGLImage &other) {
+	if (&other == this)
+		return *this;
 	wxImage::operator=(other);
 	refresh = true;
 	w = 0;
@@ -80,10 +79,10 @@ OpenGLImage& OpenGLImage::operator=(const OpenGLImage& other)
 	return *this;
 }
 
-OpenGLImage& OpenGLImage::operator=(const wxImage& other)
-{
+OpenGLImage& OpenGLImage::operator=(const wxImage &other) {
 	wxImage::operator=(other);
-	if(&other == this) return *this;
+	if (&other == this)
+		return *this;
 	refresh = true;
 	w = 0;
 	h = 0;
@@ -92,46 +91,42 @@ OpenGLImage& OpenGLImage::operator=(const wxImage& other)
 	return *this;
 }
 
-bool OpenGLImage::LoadFile(const wxString& name, wxBitmapType type, int index)
-{
+bool OpenGLImage::LoadFile(const wxString &name, wxBitmapType type, int index) {
 	bool temp = wxImage::LoadFile(name, type, index);
 	refresh = true;
 	return temp;
 }
 
-bool OpenGLImage::LoadFile(const wxString& name, const wxString& mimetype,
-		int index)
-{
+bool OpenGLImage::LoadFile(const wxString &name, const wxString &mimetype,
+		int index) {
 	bool temp = wxImage::LoadFile(name, mimetype, index);
 	refresh = true;
 	return temp;
 }
 
-bool OpenGLImage::LoadFile(wxInputStream& stream, wxBitmapType type, int index)
-{
+bool OpenGLImage::LoadFile(wxInputStream &stream, wxBitmapType type,
+		int index) {
 	bool temp = wxImage::LoadFile(stream, type, index);
 	refresh = true;
 	return temp;
 }
 
-bool OpenGLImage::LoadFile(wxInputStream& stream, const wxString& mimetype,
-		int index)
-{
+bool OpenGLImage::LoadFile(wxInputStream &stream, const wxString &mimetype,
+		int index) {
 	bool temp = wxImage::LoadFile(stream, mimetype, index);
 	refresh = true;
 	return temp;
 }
 
-void OpenGLImage::Update(void) const
-{
-	if(!isOGLInit){
+void OpenGLImage::Update() const {
+	if (!isOGLInit) {
 		glEnable(GL_TEXTURE_2D);
 		glGenTextures(1, &textureID);
 		glDisable(GL_TEXTURE_2D);
 		isOGLInit = true;
 		refresh = true;
 	}
-	if(refresh){
+	if (refresh) {
 		GLint maxTexture;
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexture);
 		maxTexture >>= 1;
@@ -139,9 +134,9 @@ void OpenGLImage::Update(void) const
 		uint32_t w = GetWidth();
 		uint32_t h = GetHeight();
 
-		uint32_t tex_w = NextPowerOfTwo(w);
-		uint32_t tex_h = NextPowerOfTwo(h);
-		while(tex_w > maxTexture || tex_h > maxTexture){
+		int tex_w = (int) NextPowerOfTwo(w);
+		int tex_h = (int) NextPowerOfTwo(h);
+		while (tex_w > maxTexture || tex_h > maxTexture) {
 			tex_w >>= 1;
 			tex_h >>= 1;
 			w >>= 1;
@@ -150,10 +145,10 @@ void OpenGLImage::Update(void) const
 
 		this->tex_w = (GLfloat) w / (GLfloat) tex_w;
 		this->tex_h = (GLfloat) h / (GLfloat) tex_h;
-		if(w > h){
+		if (w > h) {
 			this->w = 1.0;
 			this->h = (GLfloat) h / (GLfloat) w;
-		}else{
+		} else {
 			this->w = (GLfloat) w / (GLfloat) h;
 			this->h = 1.0;
 		}
@@ -162,12 +157,13 @@ void OpenGLImage::Update(void) const
 		temp.Rescale(w, h);
 		temp.Resize(wxSize(tex_w, tex_h), wxPoint(0, 0), 255, 255, 100);
 
-		if(HasAlpha()){
+		if (HasAlpha()) {
 
-			unsigned char * rgba = new unsigned char[tex_w * tex_h * 4];
+			std::vector<GLubyte> rgba;
+			rgba.resize(tex_w * tex_h * 4);
 			size_t i = 0;
-			for(size_t y = 0; y < tex_h; y++){
-				for(size_t x = 0; x < tex_w; x++){
+			for (int y = 0; y < tex_h; y++) {
+				for (int x = 0; x < tex_w; x++) {
 					rgba[i++] = GetRed(x, y);
 					rgba[i++] = GetGreen(x, y);
 					rgba[i++] = GetBlue(x, y);
@@ -178,13 +174,12 @@ void OpenGLImage::Update(void) const
 			glEnable( GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, textureID);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_w, tex_h, 0, GL_RGBA,
-			GL_UNSIGNED_BYTE, rgba);
+			GL_UNSIGNED_BYTE, rgba.data());
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glDisable( GL_TEXTURE_2D);
-			delete[] rgba;
 
-		}else{
+		} else {
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, textureID);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB,
@@ -198,23 +193,22 @@ void OpenGLImage::Update(void) const
 }
 
 void OpenGLImage::SetAlphaColor(unsigned char red, unsigned char green,
-		unsigned char blue)
-{
-	if(!HasAlpha()) InitAlpha();
-	for(int i = 0; i < GetWidth(); i++){
-		for(int j = 0; j < GetHeight(); j++){
-			if(GetRed(i, j) == red && GetGreen(i, j) == green
-					&& GetBlue(i, j) == blue){
+		unsigned char blue) {
+	if (!HasAlpha())
+		InitAlpha();
+	for (int i = 0; i < GetWidth(); i++) {
+		for (int j = 0; j < GetHeight(); j++) {
+			if (GetRed(i, j) == red && GetGreen(i, j) == green
+					&& GetBlue(i, j) == blue) {
 				SetAlpha(i, j, 0);
-			}else{
+			} else {
 				SetAlpha(i, j, 255);
 			}
 		}
 	}
 }
 
-uint32_t OpenGLImage::NextPowerOfTwo(uint32_t v)
-{
+uint32_t OpenGLImage::NextPowerOfTwo(uint32_t v) {
 	// Algorithm by Sean Anderson (September 2001) and William Lewis (February 1997).
 	// From http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 	v--;
@@ -227,8 +221,7 @@ uint32_t OpenGLImage::NextPowerOfTwo(uint32_t v)
 	return v;
 }
 
-void OpenGLImage::Paint(void) const
-{
+void OpenGLImage::Paint() const {
 	Update();
 
 	glColor3f(1, 1, 1);

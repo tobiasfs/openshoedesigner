@@ -24,24 +24,27 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _MATH_FOURIERTRANSFORM_H_
-#define _MATH_FOURIERTRANSFORM_H_
+#ifndef MATH_FOURIERTRANSFORM_H
+#define MATH_FOURIERTRANSFORM_H
 
 /*!\class FourierTransform
  * \brief Fourier Transform for non-uniformly sampled data
  *
- * Applies a Fourier Transform for arbitrarily sampled data. A time vector has to be passed
- * to the function additionally to the (complex) input samples. Functions for rescaling the
- * input time vector are available. The frequencies generated can be choosen arbitrarily as
- * well. Also a fft-like result can be requested (FLikeFFT).
+ * Applies a Fourier Transform for arbitrarily sampled data. A time vector has
+ * to be passed to the function additionally to the (complex) input samples.
+ * Functions for rescaling the input time vector are available. The frequencies
+ * generated can be chosen arbitrarily as well. Also a fft-like result can be
+ * requested (FLikeFFT).
  *
- * Note: The result is calculated to return the correct result with a symmetric spectrum.
+ * Note: The result is calculated to return the correct result with a symmetric
+ * spectrum.
  *
- * Example: A x(t)=cos(2*pi*10*t) Fourier-transformed results in two peaks in the spektrum.
- * One at -10 Hz and one at +10 Hz. Both with a height of 1/2. Because the synthesis
- * function would be xx(t) = 0.5*exp(j*2*pi*-10*t) + 0.5*exp(j*2*pi*10*t).
- * Therefore a single sided has to be doubled in amplitude to return the right results.
- * The function SingleSidedResult takes care of this.
+ * Example: A x(t)=cos(2*pi*10*t) Fourier-transformed results in two peaks in
+ * the spectrum. One at -10 Hz and one at +10 Hz. Both with a height of 1/2.
+ * Because the synthesis function would be
+ * xx(t) = 0.5*exp(j*2*pi*-10*t) + 0.5*exp(j*2*pi*10*t).
+ * Therefore a single sided has to be doubled in amplitude to return the right
+ * results. The function SingleSidedResult takes care of this.
  */
 
 #include <cstddef>
@@ -53,10 +56,10 @@ public:
 	FourierTransform() = default;
 	virtual ~FourierTransform() = default;
 
-	void TReset(void);
+	void TReset();
 
 	void TSetSize(size_t N);
-	size_t TGetSize(void) const;
+	size_t TGetSize() const;
 
 	/**\brief Fills the T vector with equidistant points like Matlabs/Octaves linspace command.
 	 *
@@ -81,21 +84,21 @@ public:
 	void FLikeFFT(size_t N);
 
 	//!\brief Do the Fourier Transform and store the results in OutRe and OutIm
-	void Transform(void);
+	void Transform();
 
-	//!\brief Double all results in OutRe and OutIm exept for f == 0
-	void SingleSidedResult(void);
+	//!\brief Double all results in OutRe and OutIm except for f == 0
+	void SingleSidedResult();
 
 	//!\brief Scale the full spectrum
 	void YScale(const double scale);
 
-	std::vector <double> t;
-	std::vector <double> InRe;
-	std::vector <double> InIm;
+	std::vector<double> t;
+	std::vector<double> InRe;
+	std::vector<double> InIm;
 
-	std::vector <double> f;
-	std::vector <double> OutRe;
-	std::vector <double> OutIm;
+	std::vector<double> f;
+	std::vector<double> OutRe;
+	std::vector<double> OutIm;
 };
 
-#endif /* _MATH_FOURIERTRANSFORM_H_ */
+#endif /* MATH_FOURIERTRANSFORM_H */

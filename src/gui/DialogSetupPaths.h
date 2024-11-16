@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_DIALOGSETUPPATHS_H_
-#define SRC_GUI_DIALOGSETUPPATHS_H_
+#ifndef GUI_DIALOGSETUPPATHS_H
+#define GUI_DIALOGSETUPPATHS_H
 
 /*!\class DialogSetupPaths
  * \brief ...
@@ -44,4 +44,4 @@ public:
 	void UpdateCollection(CollectionFilepaths * collection) const;
 };
 
-#endif /* SRC_GUI_DIALOGSETUPPATHS_H_ */
+#endif /* GUI_DIALOGSETUPPATHS_H */

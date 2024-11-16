@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_COLLECTIONUNITS_H_
-#define SRC_GUI_COLLECTIONUNITS_H_
+#ifndef COLLECTIONUNITS_H
+#define COLLECTIONUNITS_H
 
 /*!\class CollectionUnits
  * \brief Collection of available units
@@ -35,36 +35,43 @@
  * internally.
  */
 
-#include <wx/config.h>
 #include "../math/Unit.h"
-#include "DialogSetupUnits.h"
+
+#include <wx/config.h>
+
+#include <array>
+
+enum class typeUnit {
+	unitNone,
+	unitTime,
+	unitDistance,
+	unitSmallDistance,
+	unitTolerance,
+	unitLinearSpeed,
+	unitRotationalSpeed,
+	unitAngle,
+	unitPercent
+};
 
 class CollectionUnits {
 public:
 	friend class DialogSetupUnits;
 	CollectionUnits();
-	virtual ~CollectionUnits();
 
 	Unit Time;
 	Unit Distance;
 	Unit SmallDistance;
 	Unit Tolerance;
 	Unit Angle;
-	Unit Percent;
+	Unit Percentage;
 
 	bool Load(wxConfig * config);
 	bool Save(wxConfig * config);
 
 protected:
-	// TODO: Put the unit lists into the Unit class, or at least the factors.
-	wxArrayString unitsOfLength;
-	wxArrayString unitsOfTime;
-	wxArrayString unitsOfAngle;
-
-	double * factorofLength;
-	double * factorofTime;
-	double * factorofAngle;
-
+	std::array<Unit, 4> unitsOfTime;
+	std::array<Unit, 7> unitsOfLength;
+	std::array<Unit, 3> unitsOfAngle;
 };
 
-#endif /* SRC_GUI_COLLECTIONUNITS_H_ */
+#endif /* COLLECTIONUNITS_H */

@@ -26,103 +26,95 @@
 
 #include "CollectionUnits.h"
 
-CollectionUnits::CollectionUnits()
-{
-	Distance.Setup(_T("m"), _T("cm"), (double) 10e-3);
-	Time.Setup(_T("s"), _T("min"), (double) 60);
-	SmallDistance.Setup(_T("m"), _T("mm"), (double) 1e-3);
-	Tolerance.Setup(_T("m"), _T("um"), (double) 1e-6);
-	Angle.Setup(_T("rad"), _T("deg"), (double) M_PI / 180.0);
-	Percent.Setup(_T("-"), _T("%"), (double) 0.01);
+#include <algorithm>
+
+#include <cmath>
+
+CollectionUnits::CollectionUnits() {
 
 	// Setup available units
-	factorofLength = new double[7];
-	unitsOfLength.Add(_T("um"));
-	factorofLength[0] = 1e-6; // m
-	unitsOfLength.Add(_T("mil"));
-	factorofLength[1] = 25.4e-6; // m
-	unitsOfLength.Add(_T("mm"));
-	factorofLength[2] = 1e-3; // m
-	unitsOfLength.Add(_T("cm"));
-	factorofLength[3] = 10e-3; // m
-	unitsOfLength.Add(_T("in"));
-	factorofLength[4] = 25.4e-3; // m
-	unitsOfLength.Add(_T("ft"));
-	factorofLength[5] = 12 * 25.4e-3; // m
-	unitsOfLength.Add(_T("m"));
-	factorofLength[6] = 1; // m
 
-	factorofTime = new double[4];
-	unitsOfTime.Add(_T("s"));
-	factorofTime[0] = 1; // s
-	unitsOfTime.Add(_T("min"));
-	factorofTime[1] = 60; // s
-	unitsOfTime.Add(_T("h"));
-	factorofTime[2] = 3600; // s
-	unitsOfTime.Add(_T("d"));
-	factorofTime[3] = 86400; // s
+	unitsOfTime[0] = Unit("s", 1, Unit::Base::s, 1);
+	unitsOfTime[1] = Unit("min", 60, Unit::Base::s, 1);
+	unitsOfTime[2] = Unit("h", 3600, Unit::Base::s, 1);
+	unitsOfTime[3] = Unit("d", 86400, Unit::Base::s, 1);
 
-	factorofAngle = new double[3];
-	unitsOfAngle.Add(_T("rad"));
-	factorofAngle[0] = 1.0; // rad
-	unitsOfAngle.Add(_T("deg"));
-	factorofAngle[1] = M_PI / 180.0; // rad
-	unitsOfAngle.Add(_T("gon"));
-	factorofAngle[2] = M_PI / 200.0; // rad
+	unitsOfLength[0] = Unit("um", 1e-6, Unit::Base::m, 1);
+	unitsOfLength[1] = Unit("mil", 25.4e-6, Unit::Base::m, 1);
+	unitsOfLength[2] = Unit("mm", 1e-3, Unit::Base::m, 1);
+	unitsOfLength[3] = Unit("cm", 1e-2, Unit::Base::m, 1);
+	unitsOfLength[4] = Unit("in", 25.4e-3, Unit::Base::m, 1);
+	unitsOfLength[5] = Unit("ft", 12 * 25.4e-3, Unit::Base::m, 1);
+	unitsOfLength[6] = Unit("m", 1, Unit::Base::m, 1);
+	
+	unitsOfAngle[0] = Unit("rad", 1, "rad");
+	unitsOfAngle[1] = Unit("deg", M_PI / 180.0, "rad");
+	unitsOfAngle[2] = Unit("gon", M_PI / 200.0, "rad");
+
+	Time = unitsOfTime[1];
+	Distance = unitsOfLength[3];
+	SmallDistance = unitsOfLength[2];
+	Tolerance = unitsOfLength[0];
+	Angle = unitsOfAngle[1];
+	Percentage = Unit("%", (double) 0.01, "-");
 }
 
-CollectionUnits::~CollectionUnits()
-{
-	delete[] factorofTime;
-	delete[] factorofLength;
-	delete[] factorofAngle;
-}
-
-bool CollectionUnits::Load(wxConfig* config)
-{
+bool CollectionUnits::Load(wxConfig* config) {
 	wxASSERT(config!=NULL);
-	if(config == NULL) return false;
+	if (config == NULL)
+		return false;
 
 	wxString temp;
-	int i;
-
-	config->Read(_T("UnitTime"), &temp, _T("min"));
-	i = unitsOfTime.Index(temp);
-	if(i != wxNOT_FOUND) Time.Setup(_T("s"), unitsOfTime[i], factorofTime[i]);
-
-	config->Read(_T("UnitDistance"), &temp, _T("cm"));
-	i = unitsOfLength.Index(temp);
-	if(i != wxNOT_FOUND) Distance.Setup(_T("m"), unitsOfLength[i],
-			factorofLength[i]);
-
-	config->Read(_T("UnitSmallDistance"), &temp, _T("cm"));
-	i = unitsOfLength.Index(temp);
-	if(i != wxNOT_FOUND) SmallDistance.Setup(_T("m"), unitsOfLength[i],
-			factorofLength[i]);
-
-	config->Read(_T("UnitTolerance"), &temp, _T("um"));
-	i = unitsOfLength.Index(temp);
-	if(i != wxNOT_FOUND) Tolerance.Setup(_T("m"), unitsOfLength[i],
-			factorofLength[i]);
-
-	config->Read(_T("UnitAngle"), &temp, _T("deg"));
-	i = unitsOfAngle.Index(temp);
-	if(i != wxNOT_FOUND) Angle.Setup(_T("rad"), unitsOfAngle[i],
-			factorofAngle[i]);
-
+	{
+		config->Read(_T("UnitTime"), &temp, _T("min"));
+		auto i = std::find(unitsOfTime.begin(), unitsOfTime.end(),
+				temp.ToStdString());
+		if (i != unitsOfTime.end())
+			Time = *i;
+	}
+	{
+		config->Read(_T("UnitDistance"), &temp, _T("cm"));
+		auto i = std::find(unitsOfLength.begin(), unitsOfLength.end(),
+				temp.ToStdString());
+		if (i != unitsOfLength.end())
+			Distance = *i;
+	}
+	{
+		config->Read(_T("UnitSmallDistance"), &temp, _T("cm"));
+		auto i = std::find(unitsOfLength.begin(), unitsOfLength.end(),
+				temp.ToStdString());
+		if (i != unitsOfLength.end())
+			SmallDistance = *i;
+	}
+	{
+		config->Read(_T("UnitTolerance"), &temp, _T("um"));
+		auto i = std::find(unitsOfLength.begin(), unitsOfLength.end(),
+				temp.ToStdString());
+		if (i != unitsOfLength.end())
+			Tolerance = *i;
+	}
+	{
+		config->Read(_T("UnitAngle"), &temp, _T("deg"));
+		auto i = std::find(unitsOfAngle.begin(), unitsOfAngle.end(),
+				temp.ToStdString());
+		if (i != unitsOfAngle.end())
+			Angle = *i;
+	}
+	// unitsOfPercentage is not saved in config file.
 	return true;
 }
 
-bool CollectionUnits::Save(wxConfig* config)
-{
+bool CollectionUnits::Save(wxConfig* config) {
 	wxASSERT(config!=NULL);
-	if(config == NULL) return false;
+	if (config == NULL)
+		return false;
 
-	config->Write(_T("UnitTime"), Time.GetOtherName());
-	config->Write(_T("UnitDistance"), Distance.GetOtherName());
-	config->Write(_T("UnitSmallDistance"), SmallDistance.GetOtherName());
-	config->Write(_T("UnitTolerance"), Tolerance.GetOtherName());
-	config->Write(_T("UnitAngle"), Angle.GetOtherName());
-
+	config->Write(_T("UnitTime"), wxString(Time.GetOtherName()));
+	config->Write(_T("UnitDistance"), wxString(Distance.GetOtherName()));
+	config->Write(_T("UnitSmallDistance"),
+			wxString(SmallDistance.GetOtherName()));
+	config->Write(_T("UnitTolerance"), wxString(Tolerance.GetOtherName()));
+	config->Write(_T("UnitAngle"), wxString(Angle.GetOtherName()));
+	// unitsOfPercentage is not loaded from config file.
 	return true;
 }

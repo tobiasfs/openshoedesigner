@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_OPENGLMATERIAL_H_
-#define SRC_3D_OPENGLMATERIAL_H_
+#ifndef L3D_OPENGLMATERIAL_H
+#define L3D_OPENGLMATERIAL_H
 
 /*!\class OpenGLMaterial
  * \brief Simple Material definition for OpenGL
@@ -43,6 +43,7 @@
  */
 
 #include "Vector3.h"
+
 #include <string.h>
 
 class OpenGLMaterial {
@@ -91,7 +92,7 @@ public:
 	}; //<! Preset materials
 
 	OpenGLMaterial();
-	OpenGLMaterial(Preset preset, float emit = 0.0);
+	explicit OpenGLMaterial(Preset preset, float emit = 0.0);
 	OpenGLMaterial(float r, float g, float b, float emit = 0.0);
 	virtual ~OpenGLMaterial() = default;
 
@@ -101,12 +102,14 @@ public:
 	void SetSimpleColor(float r, float g, float b, float emit = 0.0); ///< Equivalent to using the glColor command.
 	void SetSimpleColor(Vector3 c, float emit = 0.0); ///< Uses x,y,z of a vector as the color components.
 
-	void UseMaterial(float opacity = 1.0) const; ///< Start using this material. Turns off glColor command.
-	void UseColor(void) const; ///< Activates glColor and sets the diffuse color of this material.
+	void UseMaterial() const; ///< Start using this material. Turns off glColor command.
+	void UseColor() const; ///< Activates glColor and sets the diffuse color of this material.
 	void UseColor(float emit) const; ///< Activates glColor and sets the diffuse color of this material.
-	static void EnableColors(void); ///< Switch back to using glColor.
+	static void EnableColors(); ///< Switch back to using glColor.
 
-	static bool ColorsAllowed(void); ///< Test, if colores are allowed to use.
+	static bool ColorsAllowed(); ///< Test, if colores are allowed to use.
+
+	std::string ToString() const;
 
 	Vector3 ambient;
 	Vector3 diffuse;
@@ -115,4 +118,5 @@ public:
 	float shininess;
 };
 
-#endif /* SRC_3D_OPENGLMATERIAL_H_ */
+#endif /* L3D_OPENGLMATERIAL_H */
+

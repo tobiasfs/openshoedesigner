@@ -24,18 +24,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_FORMFINDER_H_
-#define SRC_MATH_FORMFINDER_H_
+#ifndef FORMFINDER_H
+#define FORMFINDER_H
 /*!\class FormFinder
  * \brief Finds forms in a Polygon3
  *
  * This is used to identify shapes.
  */
 
-#include <vector>
+#include "PolyFilter.h"
 #include "../3D/Polygon3.h"
 #include "../3D/Vector3.h"
-#include "PolyFilter.h"
+
+#include <vector>
 
 class FormFinder {
 public:
@@ -46,14 +47,14 @@ public:
 
 	void Paint(void) const;
 
-	std::vector <Vector3> a;
-	std::vector <Vector3> b;
-	std::vector <Vector3> c;
-	std::vector <Vector3> d;
+	std::vector<Vector3> a;
+	std::vector<Vector3> b;
+	std::vector<Vector3> c;
+	std::vector<Vector3> d;
 
-	std::vector <double> bend;
+	std::vector<double> bend;
 
 	PolyFilter pf;
 };
 
-#endif /* SRC_MATH_FORMFINDER_H_ */
+#endif /* FORMFINDER_H */

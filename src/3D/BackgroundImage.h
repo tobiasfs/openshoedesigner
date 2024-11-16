@@ -24,16 +24,16 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BACKGROUNDIMAGE_H_
-#define BACKGROUNDIMAGE_H_
+#ifndef L3D_BACKGROUNDIMAGE_H
+#define L3D_BACKGROUNDIMAGE_H
+
 /*!\class BackgroundImage
  * \brief Image in 3D space for loading reference images
- *
  */
 
 #include "OpenGLImage.h"
 
-class BackgroundImage:public OpenGLImage {
+class BackgroundImage: public OpenGLImage {
 public:
 	enum class Orientation {
 		Front, Back, Right, Left, Top, Bottom
@@ -54,4 +54,4 @@ public:
 	float rotate = 0.1;
 };
 
-#endif /* BACKGROUNDIMAGE_H_ */
+#endif /* L3D_BACKGROUNDIMAGE_H */

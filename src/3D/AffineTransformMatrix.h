@@ -24,16 +24,16 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef AFFINETRANSFORMMATRIX_H_
-#define AFFINETRANSFORMMATRIX_H_
+#ifndef L3D_AFFINETRANSFORMMATRIX_H
+#define L3D_AFFINETRANSFORMMATRIX_H
 
 /** \class AffineTransformMatrix
  * 	\code #include "AffineTransformMatrix.h"\endcode
  * 	\ingroup Base3D
  *  \brief A class to store a 3D affine transform matrix and provide operations upon.
  *
- * This class stores and manages a 4x4 matrix. This matrix is organized the same way,
- * the transformation matrices of OpenGL are:
+ * This class stores and manages a 4x4 matrix. This matrix is organized the
+ * same way, the transformation matrices of OpenGL are:
  *
  * <table>
  * <tr><td>R11</td><td>R12</td><td>R13</td><td>Tx</td></tr>
@@ -60,7 +60,7 @@
  *
  */
 
-// https://en.cppreference.com/w/cpp/language/operators
+#include <array>
 #include <string>
 
 class Vector3;
@@ -71,61 +71,98 @@ public:
 		RHS, //!< Right-handed system
 		LHS //!< Left-handed system
 	};
+	enum class Style {
+		Lines, BasePlane, Planes, Cylinder, Box, BoxWithoutColors
+	};
 
-	AffineTransformMatrix(Orientation orientation = Orientation::RHS);
-	AffineTransformMatrix(const Vector3& ex, const Vector3& ey,
-			const Vector3& ez, const Vector3& center);
+	AffineTransformMatrix();
+	explicit AffineTransformMatrix(Orientation orientation_);
+	AffineTransformMatrix(const Vector3 &ex, const Vector3 &ey,
+			const Vector3 &ez, const Vector3 &center);
+	explicit AffineTransformMatrix(const std::string &numbers);
 
 private:
-	double a[16]; //!< Transformation matrix
-	Orientation side; //!< Handedness of the coordinate system
+	std::array<double, 16> a; //!< Transformation matrix
+	Orientation orientation = Orientation::RHS; //!< Handedness of the coordinate system
 
 public:
-	void SetOrientation(Orientation side); //!< Preset the behavior for future Set and Calculate operations
-	Orientation GetOrientation(void) const; //!< Return the orientation flag
-	Orientation CheckOrientation(void) const; //!< Calculate the orientations of the coordinate system by analysing the matrix
-	void UpdateOrientation(void); //!< Set the orientation flag according the the matrix values
+	void SetOrientation(Orientation orientation_); //!< Preset the behavior for future Set and Calculate operations
+	Orientation GetOrientation() const; //!< Return the orientation flag
+	Orientation CheckOrientation() const; //!< Calculate the orientations of the coordinate system by analyzing the matrix
+	void UpdateOrientation(); //!< Set the orientation flag according the the matrix values
 
-	void SetIdentity(void); //!< Resets the matrix to the identity matrix.
-	void ResetRotationAndScale(void); //!< Resets the rotation and scale, but keeps the translation
+	void SetIdentity(); //!< Resets the matrix to the identity matrix.
+	void SetZero(); //!< Set the matrix to all zeros.
+	void ResetRotationAndScale(); //!< Resets the rotation and scale, but keeps the translation
 
-	void SetOrigin(const Vector3& center);
+	void SetOrigin(const Vector3 &center);
 
-	void SetEx(const Vector3& ex);
-	void SetEy(const Vector3& ey);
-	void SetEz(const Vector3& ez);
-	void CalculateEx(void);
-	void CalculateEy(void);
-	void CalculateEz(void);
-	AffineTransformMatrix Normal(void) const;
-	void Normalize(void);
+	void SetEx(const Vector3 &ex);
+	void SetEy(const Vector3 &ey);
+	void SetEz(const Vector3 &ez);
+	void CalculateEx();
+	void CalculateEy();
+	void CalculateEz();
+	AffineTransformMatrix Normal() const;
+	void Normalize();
 
-	Vector3 GetOrigin(void) const; //!< Returns the center point of the matrix.
-	Vector3 GetEx(void) const;
-	Vector3 GetEy(void) const;
-	Vector3 GetEz(void) const;
+	Vector3 GetOrigin() const; //!< Returns the center point of the matrix.
+	Vector3 GetEx() const;
+	Vector3 GetEy() const;
+	Vector3 GetEz() const;
 
-	AffineTransformMatrix& operator*=(const AffineTransformMatrix& b); //!< Overloaded operator to allow correct multiplication of two matrices.
-	const AffineTransformMatrix operator*(const AffineTransformMatrix& b) const; //!< Overloaded operator to allow correct multiplication of two matrices.
+	/**\brief Axis of rotation
+	 * Not normalized vector of the axis of rotation.
+	 *
+	 * The length of the vector is 2*sin(angle).
+	 *
+	 * If there is no rotation the length of the vector is 0.0.
+	 */
+	Vector3 GetVectorOfRotation() const;
+
+	/**\brief Return the so called "Normal-Matrix"
+	 *
+	 * The Normal-Matrix only rotates a vector. The vector is not scaled or
+	 * translated.
+	 *
+	 * The Normal-matrix is the transpose of the inverse of the upper left
+	 * 3x3-matrix. The rest is set to zero.
+	 *
+	 * (see also [Article](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/))
+	 *
+	 * \return Normal-Matrix
+	 */
+	AffineTransformMatrix GetNormalMatrix() const;
+
+	AffineTransformMatrix& operator*=(const AffineTransformMatrix &b); //!< Overloaded operator to allow correct multiplication of two matrices.
+	AffineTransformMatrix operator*(const AffineTransformMatrix &b) const; //!< Overloaded operator to allow correct multiplication of two matrices.
 	/*!\brief  Overloaded operator to allow correct division of two matrices.
 	 *
 	 * The division is done by inverting the second matrix and the multiplying both.
 	 */
-	AffineTransformMatrix& operator/=(const AffineTransformMatrix& b);
-	const AffineTransformMatrix operator/(const AffineTransformMatrix& b) const; //!< Overloaded operator to allow correct division of two matrices.
+	AffineTransformMatrix& operator/=(const AffineTransformMatrix &b);
+	AffineTransformMatrix operator/(const AffineTransformMatrix &b) const; //!< Overloaded operator to allow correct division of two matrices.
 
-	void Invert(void); //!< Inverts the matrix itself
+	void Invert(); //!< Inverts the matrix itself
 
-	/*! \brief Returns an inverted matrix
+	/*! \brief Returns the inverted matrix
 	 *
-	 * The transform used in here is optimized for matrices with 0,0,0,1 in the last row.
-	 * It would not give the correct results for other matrices,
+	 * The transform used in here is optimized for matrices with 0,0,0,1 in the
+	 * last row. It would not give the correct results for other matrices.
 	 *
 	 * \return Inverted matrix.
 	 */
-	const AffineTransformMatrix Inverse(void) const;
+	AffineTransformMatrix Inverse() const;
 
 	static AffineTransformMatrix Identity(); //!< Function returning an identity matrix.
+	static AffineTransformMatrix Zero(); //!< Function returning an identity matrix.
+
+	static AffineTransformMatrix Translation(double x, double y, double z);
+	static AffineTransformMatrix Translation(Vector3 translation);
+
+	static AffineTransformMatrix Scaling(double scale);
+	static AffineTransformMatrix Scaling(double x, double y, double z);
+	static AffineTransformMatrix Scaling(Vector3 scale);
 
 	/*!\brief Rotation matrix around a given vector.
 	 *
@@ -134,8 +171,8 @@ public:
 	 * \param phi Angle of rotation.
 	 * \return Rotation matrix.
 	 */
-	static AffineTransformMatrix RotationAroundVector(Vector3 const& vector,
-			double const& phi);
+	static AffineTransformMatrix RotationAroundVector(Vector3 const &vector,
+			double phi);
 
 	/*!\brief An interwoven rotation matrix.
 	 *
@@ -148,25 +185,24 @@ public:
 	 * This results in a rotation as expected from a 6 DOF controller.
 	 */
 
-	static AffineTransformMatrix RotationInterwoven(double const& x,
-			double const& y, double const& z);
+	static AffineTransformMatrix RotationInterwoven(double x, double y,
+			double z);
 
 	/*! \brief Rotation matrix for rotation by mouse.
 	 *
-	 * This function is only a drop in until the RotateByTrackball function works.
+	 * This function is only a drop in until the RotateByTrackball function
+	 * works.
 	 *
 	 * \param x Movement of mouse in x direction (=xnew-xold).
 	 * \param y Movement of mouse in y direction (=ynew-yold).
 	 * \param scale Scaling of the movement.
 	 * \return Rotation matrix.
 	 */
-	static AffineTransformMatrix RotationXY(int const& x, int const& y,
-			double const& scale);
+	static AffineTransformMatrix RotationXY(int x, int y, double scale);
 
 	/*! \brief Rotation matrix composed by the Z,Y,X rule.
 	 */
-	static AffineTransformMatrix RotationXYZ(double const& x, double const& y,
-			double const& z);
+	static AffineTransformMatrix RotationXYZ(double x, double y, double z);
 
 	/*!\brief Rotation matrix around a virtual trackball.
 	 *
@@ -177,62 +213,72 @@ public:
 	 * @param r Radius of a sphere in screen units.
 	 * @return Rotational Matrix
 	 */
-	static AffineTransformMatrix RotationTrackball(double const& x1,
-			double const& y1, double const& x2, double const& y2,
-			double const& r);
+	static AffineTransformMatrix RotationTrackball(const double x1,
+			const double y1, const double x2, const double y2, const double r);
 
-	void TranslateGlobal(double const& x, double const& y, double const& z); //!< Translate matrix in the global coordinate system.
-	void TranslateLocal(double const& x, double const& y, double const& z); //!< Translate matrix in the local, rotated coordinate system.
+	/**\brief Projection matrix for perspective projection.
+	 *
+	 * This matrix has element #11 set to -1 for perspective distortion.
+	 * This matrix cannot be used with most operations in this class as
+	 * the lowest row of the matrix is not [0, 0, 0, 1] but [0, 0, -1, 1].
+	 *
+	 * [Matrices - projection, view, model](https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/)
+	 */
+	static AffineTransformMatrix Perspective(double fovy, double aspect,
+			double znear, double zfar);
 
-	void ScaleGlobal(double const& x, double const& y, double const& z); //!< Scale matrix in the global coordinate system.
-	void ScaleLocal(double const& x, double const& y, double const& z); //!< Scale matrix in the local coordinate system.
+	/**\brief Projection matrix for orthogonal projection.
+	 *
+	 * [Matrices - projection, view, model](https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/)
+	 */
+	static AffineTransformMatrix Orthogonal(double left, double right,
+			double bottom, double top, double znear, double zfar);
 
-	void ShiftTransformPosition(const Vector3 & p); //!< Previous rotations and scalings will be transform around the given point p.
+	void TranslateGlobal(double x, double y, double z); //!< Translate matrix in the global coordinate system.
+	void TranslateLocal(double x, double y, double z); //!< Translate matrix in the local, rotated coordinate system.
 
-	Vector3 Transform(Vector3 const& v) const; //!< Apply the transformation matrix on a given vector.
+	void ScaleGlobal(double x, double y, double z); //!< Scale matrix in the global coordinate system.
+	void ScaleLocal(double x, double y, double z); //!< Scale matrix in the local coordinate system.
+
+	void ShiftTransformPosition(const Vector3 &p); //!< Previous rotations and scalings will be transform around the given point p.
+
+	Vector3 Transform(const Vector3 &v) const; //!< Apply the transformation matrix on a given vector.
 	Vector3 Transform(const double x, const double y = 0.0,
 			const double z = 0.0) const;
-	Vector3 TransformNoShift(Vector3 const& v) const; //!< Apply the transformation matrix on a given vector without shifting the vector.
-	Vector3 TransformNoShift(const double x, const double y = 0.0,
+	Vector3 TransformWithoutShift(const Vector3 &v) const; //!< Apply the transformation matrix on a given vector without shifting the vector.
+	Vector3 TransformWithoutShift(const double x, const double y = 0.0,
 			const double z = 0.0) const;
-	Vector3 operator*(const Vector3& v) const;
-	double &operator[](unsigned char index);
-	double operator[](unsigned char index) const;
-	Vector3 operator()(const Vector3& v) const; //!< Operator reference for Vector3 transformations.
+	Vector3 operator*(const Vector3 &v) const;
+	Vector3 operator()(const Vector3 &v) const; //!< Operator reference for Vector3 transformations.
 	Vector3 operator()(const double x, const double y = 0.0, const double z =
 			0.0) const;
 
-	double LocalX(const Vector3& v) const; ///< Maps a global point onto the local coordinate system, returns the local x.
-	double LocalY(const Vector3& v) const; ///< Maps a global point onto the local coordinate system, returns the local y.
-	double LocalZ(const Vector3& v) const; ///< Maps a global point onto the local coordinate system, returns the local z.
+	double& operator[](unsigned char index);
+	double operator[](unsigned char index) const;
+
+	double LocalX(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local x.
+	double LocalY(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local y.
+	double LocalZ(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local z.
 	double GlobalX(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global x, given a local point.
 	double GlobalY(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global y, given a local point.
 	double GlobalZ(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global z, given a local point.
 
 	double Distance(const AffineTransformMatrix &other) const;
 
-	std::string ToString(); //!< Generate a string containing the matrix.
+	std::string ToString(); //!< Output the 16 values of the matrix as a vector: "[a0, a1, a2, ..., a15]"
 
-	void GLMultMatrix(void) const; //!< Multiply the matrix onto the active OpenGL matrix (right multiply)
-	void Paint(const double scale = 1.0) const; //!< Display the coordinate system in OpenGL
+	void GLMultMatrix() const; //!< Multiply the matrix onto the active OpenGL matrix (right multiply)
+	void GLSetUniformMatrix4(int location) const; //!< Set the mat4 as an uniform in a shader.
+	void GLSetUniformMatrix3(int location) const; //!< Set the mat3 as an uniform in a shader.
+	void Paint(const Style style, const double param0 = 1.0,
+			const double param1 = 1.0, const double param2 = 1.0) const; //!< Display the coordinate system in OpenGL
+private:
+	static void SetColor(const bool useColors, const unsigned char color,
+			const double alpha = 1.0, bool bright = false); ///< 0 = red, 1 = green, 2 = blue
+	static void GLVertex(const Vector3 &v);
+	static void GLNormal(const Vector3 &n);
+
 };
 
-struct AffineTransformMatrixComponents {
-	AffineTransformMatrixComponents() = default;
+#endif /* L3D_AFFINETRANSFORMMATRIX_H */
 
-	double rx = 0.0; //!< Rotation in rad
-	double ry = 0.0; //!< Rotation in rad
-	double rz = 0.0; //!< Rotation in rad
-	double tx = 0.0; //!< Translation
-	double ty = 0.0; //!< Translation
-	double tz = 0.0; //!< Translation
-	double sx = 1.0; //!< Scaling
-	double sy = 1.0; //!< Scaling
-	double sz = 1.0; //!< Scaling
-
-	AffineTransformMatrixComponents & operator=(
-			const AffineTransformMatrix & matrix); //!< Calculate rx,ry,rz,tx,ty,tz and sx,sy,sz from the matrix.
-	AffineTransformMatrix GetMatrix(void) const; //!< Calculate the matrix from rx,ry,rz,tx,ty,tz and sx,sy,sz.
-};
-
-#endif /* AFFINETRANSFORMMATRIX_H_ */

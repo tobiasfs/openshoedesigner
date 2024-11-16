@@ -28,20 +28,24 @@
  *  and the structure can be found here (_DEBUG_ for example).
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#define _LASTGENERATOR_VERSION "0.1"
+#define _LASTGENERATOR_VERSION "0.2"
 #define _LASTGENERATOR_AUTHORS "Tobias Schaefer"
 
-#define _LASTGENERATOR_USEMULTITHREADING
+#ifdef DEBUG
+#define DEBUGOUT std::cout
+#else
+#define DEBUGOUT if(false) std::cout
+#endif
 
-//	#define _DEBUGMODE
+//#define USE_PORTMIDI
+//#define USE_GLAD
+#define USE_UNIT
+#define USE_3DPICKING
+//#define USE_6DOFCONTROLLER
 
-// Components used in this project:
-#define _USE_3DPICKING
-//#define _USE_6DOFCONTROLLER
-#define _USE_UNIT
-//#define _USE_MIDI
+//#define _LASTGENERATOR_USEMULTITHREADING
 
-#endif /* CONFIG_H_ */
+#endif /* CONFIG_H */

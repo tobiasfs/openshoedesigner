@@ -33,7 +33,7 @@ CommandProjectSetParameter::CommandProjectSetParameter(const wxString& name,
 		: wxCommand(true, name), project(project), parameter(parameter), value(
 				value)
 {
-	std::cout << "CommandProjectSetParameter: " << name << "\n";
+	DEBUGOUT << "CommandProjectSetParameter: " << name << "\n";
 	oldValue = 0;
 }
 
@@ -62,7 +62,7 @@ bool CommandProjectSetParameter::Do(void)
 	default:
 		return false;
 	}
-	std::cout << "Do.\n";
+	DEBUGOUT << "Do.\n";
 	project->Update();
 	return true;
 }
@@ -88,7 +88,7 @@ bool CommandProjectSetParameter::Undo(void)
 	default:
 		return false;
 	}
-	std::cout << "Undo.\n";
+	DEBUGOUT << "Undo.\n";
 	project->Update();
 	return true;
 }

@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef FRAMEDEBUGPARSER_H_
-#define FRAMEDEBUGPARSER_H_
+#ifndef FRAMEDEBUGPARSER_H
+#define FRAMEDEBUGPARSER_H
 
 /*!\class FrameDebugParser
  * \brief ...
@@ -46,4 +46,4 @@ public:
 	MathParser parser;
 };
 
-#endif /* FRAMEDEBUGPARSER_H_ */
+#endif /* FRAMEDEBUGPARSER_H */

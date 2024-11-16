@@ -25,8 +25,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef PANELSUPPORT_H_
-#define PANELSUPPORT_H_
+#ifndef PANELSUPPORT_H
+#define PANELSUPPORT_H
 
 /*!\class PanelSupport
  * \brief ...
@@ -61,4 +61,4 @@ private:
 	void OnLeftDown(wxMouseEvent& event);
 };
 
-#endif /* PANELSUPPORT_H_ */
+#endif /* PANELSUPPORT_H */

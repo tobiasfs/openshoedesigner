@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_DIALOGFORMULAEDITOR_H_
-#define SRC_GUI_DIALOGFORMULAEDITOR_H_
+#ifndef GUI_DIALOGFORMULAEDITOR_H
+#define GUI_DIALOGFORMULAEDITOR_H
 
 /*!\class DialogFormulaEditor
  * \brief ...
@@ -45,4 +45,4 @@ public:
 	void OnCopyResultToFormula(wxCommandEvent& event);
 };
 
-#endif /* SRC_GUI_DIALOGFORMULAEDITOR_H_ */
+#endif /* GUI_DIALOGFORMULAEDITOR_H */

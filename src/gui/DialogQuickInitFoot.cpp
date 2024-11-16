@@ -26,53 +26,75 @@
 
 #include "DialogQuickInitFoot.h"
 
-DialogQuickInitFoot::DialogQuickInitFoot(wxWindow* parent)
-		: GUIDialogQuickInitFoot(parent)
-{
-	parser.ResetVariables(false);
-	parser.autoEvaluate = true;
+DialogQuickInitFoot::DialogQuickInitFoot(wxWindow *parent) :
+		GUIDialogQuickInitFoot(parent) {
+//	parser.ResetVariables(false);
+//	parser.autoEvaluate = true;
 	length = 0;
 	width = 0;
 }
 
-DialogQuickInitFoot::~DialogQuickInitFoot()
-{
+DialogQuickInitFoot::~DialogQuickInitFoot() {
 }
 
-void DialogQuickInitFoot::OnTextEnter(wxCommandEvent& event)
-{
-	ParseText(event.GetString());
+void DialogQuickInitFoot::OnTextEnter(wxCommandEvent &event) {
+	ParseText(event.GetString().ToStdString());
 
 	//	m_textCtrlShoeSize->Navigate();
-	m_buttonInit->SetFocus();
+	// m_buttonInit->SetFocus();
 }
 
-void DialogQuickInitFoot::OnClose(wxCommandEvent& event)
-{
-	ParseText(m_textCtrlShoeSize->GetValue());
+void DialogQuickInitFoot::OnClose(wxCommandEvent &event) {
+	ParseText(m_textCtrlShoeSize->GetValue().ToStdString());
 	event.Skip();
 }
 
-void DialogQuickInitFoot::ParseText(wxString text)
-{
-	parser.SetString(text.ToStdString());
-	const double num = parser.GetNumber();
-	m_textCtrlShoeSize->SetValue(wxString::Format(_T("%g"), num));
-	if(parser.HasUnit()){
-		wxString unit = parser.GetUnit();
-		if(unit.CmpNoCase(_T("EU")) == 0) m_choiceUnit->SetSelection(0);
-		if(unit.CmpNoCase(_T("US")) == 0) m_choiceUnit->SetSelection(1);
-		if(unit.CmpNoCase(_T("CN")) == 0) m_choiceUnit->SetSelection(2);
-		if(unit.CmpNoCase(_T("UK")) == 0) m_choiceUnit->SetSelection(3);
-		if(unit.CmpNoCase(_T("JP")) == 0) m_choiceUnit->SetSelection(4);
-		if(unit.CmpNoCase(_T("AU")) == 0) m_choiceUnit->SetSelection(5);
-		if(unit.CmpNoCase(_T("mm")) == 0) m_choiceUnit->SetSelection(6);
-		if(unit.CmpNoCase(_T("cm")) == 0) m_choiceUnit->SetSelection(7);
-		if(unit.CmpNoCase(_T("in")) == 0) m_choiceUnit->SetSelection(8);
-		if(unit.CmpNoCase(_T("ft")) == 0) m_choiceUnit->SetSelection(9);
+void DialogQuickInitFoot::ParseText(std::string text) {
+
+	const auto idx = text.find_last_not_of("EUSCNKJPA");
+	if (idx == std::string::npos) {
+		//Error: No Number found.
+		return;
+	}
+	std::string unit;
+	if ((idx + 1) < text.size()) {
+		unit = text.substr(idx+1, std::string::npos);
+		text = text.substr(0, idx+1);
 	}
 
-	switch(m_choiceUnit->GetSelection()){
+	MathParser parser;
+	parser.ParseExpression(text);
+
+	parser.InitMachine();
+	parser.Run();
+	const double num = parser.GetStack(0).ToDouble();
+	const Unit unit_2 = parser.GetStack(0).GetUnit();
+
+	m_textCtrlShoeSize->SetValue(wxString::Format(_T("%g"), num));
+	if (!unit.empty()) {
+		if (unit.compare("EU") == 0)
+			m_choiceUnit->SetSelection(0);
+		if (unit.compare("US") == 0)
+			m_choiceUnit->SetSelection(1);
+		if (unit.compare("CN") == 0)
+			m_choiceUnit->SetSelection(2);
+		if (unit.compare("UK") == 0)
+			m_choiceUnit->SetSelection(3);
+		if (unit.compare("JP") == 0)
+			m_choiceUnit->SetSelection(4);
+		if (unit.compare("AU") == 0)
+			m_choiceUnit->SetSelection(5);
+		if (unit.compare("mm") == 0)
+			m_choiceUnit->SetSelection(6);
+		if (unit.compare("cm") == 0)
+			m_choiceUnit->SetSelection(7);
+		if (unit.compare("in") == 0)
+			m_choiceUnit->SetSelection(8);
+		if (unit.compare("ft") == 0)
+			m_choiceUnit->SetSelection(9);
+	}
+
+	switch (m_choiceUnit->GetSelection()) {
 	case 0:
 		length = num / 150 - 1.5e-2;
 		break;
@@ -106,6 +128,8 @@ void DialogQuickInitFoot::ParseText(wxString text)
 	}
 
 	width = 1.0;
-	if(m_radioBtnSmall->GetValue()) width = 0.9;
-	if(m_radioBtnWide->GetValue()) width = 1.1;
+	if (m_radioBtnSmall->GetValue())
+		width = 0.9;
+	if (m_radioBtnWide->GetValue())
+		width = 1.1;
 }

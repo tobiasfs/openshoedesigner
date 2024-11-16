@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _INIFILE_H_
-#define _INIFILE_H_
+#ifndef INIFILE_H
+#define INIFILE_H
 
 /*!\class IniFile
  * \brief ...
@@ -70,4 +70,4 @@ private:
 	wxString CleanString(wxString text);
 };
 
-#endif /* _INIFILE_H_ */
+#endif /* INIFILE_H */

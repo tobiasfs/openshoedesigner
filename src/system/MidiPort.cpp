@@ -29,90 +29,82 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <sstream>
 
 size_t MidiPort::instancecounter = 0;
 
-MidiDevice::MidiDevice(const std::string & name)
-		: name(name)
-{
+MidiDevice::MidiDevice(const std::string &name) :
+		name(name) {
 	cc.fill(0);
 	ccold.fill(0);
 }
 
-MidiDevice::~MidiDevice()
-{
+MidiDevice::~MidiDevice() {
 	Close();
 }
 
-void MidiDevice::Close(void)
-{
-#ifdef _USE_MIDI
-	if(input != NULL) Pm_Close(input);
+void MidiDevice::Close() {
+#ifdef USE_PORTMIDI
+	if (input != NULL)
+		Pm_Close(input);
 	input = NULL;
-	if(output != NULL) Pm_Close(output);
+	if (output != NULL)
+		Pm_Close(output);
 	output = NULL;
 #endif
 }
 
-bool MidiDevice::operator ==(const std::string& name)const
-{
+bool MidiDevice::operator ==(const std::string &name) const {
 	return name.compare(this->name) == 0;
 }
 
-bool MidiDevice::IsOpen(void) const
-{
-#ifdef _USE_MIDI
+bool MidiDevice::IsOpen() const {
+#ifdef USE_PORTMIDI
 	return (input != NULL) || (output != NULL);
 #else
 	return false;
 #endif
 }
 
-bool MidiDevice::IsInput(void) const
-{
-#ifdef _USE_MIDI
+bool MidiDevice::IsInput() const {
+#ifdef USE_PORTMIDI
 	return input != NULL;
 #else
 	return false;
 #endif
 }
 
-bool MidiDevice::IsOutput(void) const
-{
-#ifdef _USE_MIDI
+bool MidiDevice::IsOutput() const {
+#ifdef USE_PORTMIDI
 	return output != NULL;
 #else
 	return false;
 #endif
 }
 
-bool MidiDevice::IsBidirectional(void) const
-{
-#ifdef _USE_MIDI
+bool MidiDevice::IsBidirectional() const {
+#ifdef USE_PORTMIDI
 	return (input != NULL) && (output != NULL);
 #else
 	return false;
 #endif
 }
 
-std::string MidiDevice::GetName(void) const
-{
+std::string MidiDevice::GetName() const {
 	return name;
 }
 
-void MidiDevice::Send(uint8_t from, uint8_t to)
-{
-	for(size_t n = from; n < to; ++n)
+void MidiDevice::Send(uint8_t from, uint8_t to) {
+	for (size_t n = from; n <= to; ++n)
 		ccold[n] = cc[n] + 1;
 }
 
-bool MidiDevice::Poll(void)
-{
+bool MidiDevice::Poll() {
 	bool flag = false;
-#ifdef _USE_MIDI
-	if(output != NULL){
-		for(size_t n = 0; n < cc.size(); ++n){
-			if(cc[n] != ccold[n]){
+#ifdef USE_PORTMIDI
+	if (output != NULL) {
+		for (size_t n = 0; n < cc.size(); ++n) {
+			if (cc[n] != ccold[n]) {
 				buffer[0].message = Pm_Message(0xB0, n, cc[n]);
 				buffer[0].timestamp = 0;
 				Pm_Write(output, buffer, 1);
@@ -120,9 +112,9 @@ bool MidiDevice::Poll(void)
 			}
 		}
 	}
-	if(input != NULL){
-		while(Pm_Poll(input)){
-			if(Pm_Read(input, buffer, 1) > 0){
+	if (input != NULL) {
+		while (Pm_Poll(input)) {
+			if (Pm_Read(input, buffer, 1) > 0) {
 				uint8_t ch = Pm_MessageData1(buffer[0].message);
 				uint8_t val = Pm_MessageData2(buffer[0].message);
 				flag |= (val != cc[ch]);
@@ -134,22 +126,23 @@ bool MidiDevice::Poll(void)
 	return flag;
 }
 
-void MidiDevice::Flush(void)
-{
-#ifdef _USE_MIDI
-	if(input == NULL) return;
+void MidiDevice::Flush() {
+#ifdef USE_PORTMIDI
+	if (input == NULL)
+		return;
 	//	Pm_SetFilter(midi, PM_FILT_CONTROL);
-	while(Pm_Poll(input))
+	while (Pm_Poll(input))
 		Pm_Read(input, buffer, 1);
 #endif
 }
 
-bool MidiDevice::PollEvent(uint8_t* data0, uint8_t* data1, uint8_t* data2)
-{
-#ifdef _USE_MIDI
-	if(input == NULL) return false;
-	if(!Pm_Poll(input)) return false;
-	if(Pm_Read(input, buffer, 1) > 0){
+bool MidiDevice::PollEvent(uint8_t *data0, uint8_t *data1, uint8_t *data2) {
+#ifdef USE_PORTMIDI
+	if (input == NULL)
+		return false;
+	if (!Pm_Poll(input))
+		return false;
+	if (Pm_Read(input, buffer, 1) > 0) {
 		*data0 = Pm_MessageStatus(buffer[0].message);
 		*data1 = Pm_MessageData1(buffer[0].message);
 		*data2 = Pm_MessageData2(buffer[0].message);
@@ -159,74 +152,72 @@ bool MidiDevice::PollEvent(uint8_t* data0, uint8_t* data1, uint8_t* data2)
 	return false;
 }
 
-MidiPort::MidiPort()
-{
-#ifdef _USE_MIDI
+MidiPort::MidiPort() {
+#ifdef USE_PORTMIDI
 	status = pmNoError;
 	length = pmNoData;
 #endif
 
 	instancecounter++;
-#ifdef _USE_MIDI
-	if(instancecounter == 1) Pm_Initialize();
+#ifdef USE_PORTMIDI
+	if (instancecounter == 1)
+		Pm_Initialize();
 #endif
 }
 
-MidiPort::~MidiPort()
-{
-#ifdef _USE_MIDI
+MidiPort::~MidiPort() {
+#ifdef USE_PORTMIDI
 	CloseAll();
 
-	if(instancecounter == 1) Pm_Terminate();
+	if (instancecounter == 1)
+		Pm_Terminate();
 #endif
 	assert(instancecounter > 0);
 	instancecounter--;
 }
 
-inline bool operator==(const std::shared_ptr <MidiDevice>& device,
-		const std::string & name)
-{
+inline bool operator==(const std::shared_ptr<MidiDevice> &device,
+		const std::string &name) {
 	return ((*device) == name);
 }
 
-std::shared_ptr <MidiDevice> MidiPort::Open(const std::string& name,
-		Direction direction)
-{
-	std::shared_ptr <MidiDevice> temp(nullptr);
-#ifdef _USE_MIDI
+std::shared_ptr<MidiDevice> MidiPort::Open(const std::string &name,
+		Direction direction) {
+	std::shared_ptr<MidiDevice> temp(nullptr);
+#ifdef USE_PORTMIDI
 	auto it = std::find(devices.begin(), devices.end(), name);
-	if(it == devices.end()){
-		temp = std::make_shared <MidiDevice>(name);
+	if (it == devices.end()) {
+		temp = std::make_shared<MidiDevice>(name);
 		devices.push_back(temp);
-	}else{
+	} else {
 		temp = *it;
 	}
 
 	PmDeviceID id = 0;
-	const PmDeviceInfo * info = Pm_GetDeviceInfo(id);
-	while(info != NULL){
-		if(name.compare(info->name) == 0 && info->input
+	const PmDeviceInfo *info = Pm_GetDeviceInfo(id);
+	while (info != NULL) {
+		if (name.compare(info->name) == 0 && info->input
 				&& (direction == Direction::Input
-						|| direction == Direction::Bidirectional)){
-			if(temp->input == NULL){
+						|| direction == Direction::Bidirectional)) {
+			if (temp->input == NULL) {
 				PmError err = Pm_OpenInput(&(temp->input), id, NULL, 100, NULL,
 				NULL);
-				if(err != pmNoError){
-					std::cout << "Error opening MIDI input: "
+				if (err != pmNoError) {
+					std::cerr << "Error opening MIDI input: "
 							<< DecodeError(err) << '\n';
 					temp->input = NULL;
 				}
 			}
 		}
-		if(name.compare(info->name) == 0 && info->output
+		if (name.compare(info->name) == 0 && info->output
 				&& (direction == Direction::Output
-						|| direction == Direction::Bidirectional)){
-			if(temp->output == NULL){
+						|| direction == Direction::Bidirectional)) {
+			if (temp->output == NULL) {
 				PmError err = Pm_OpenOutput(&(temp->output), id, NULL, 100,
 				NULL,
 				NULL, 0);
-				if(err != pmNoError){
-					std::cout << "Error opening MIDI output: "
+				if (err != pmNoError) {
+					std::cerr << "Error opening MIDI output: "
 							<< DecodeError(err) << '\n';
 					temp->output = NULL;
 				}
@@ -239,16 +230,15 @@ std::shared_ptr <MidiDevice> MidiPort::Open(const std::string& name,
 	return temp;
 }
 
-bool MidiPort::IsLastInstance(void) const
-{
+bool MidiPort::IsLastInstance() const {
 	return (instancecounter == 1);
 }
 
-//void MidiPort::CycleLibrary(void)
+//void MidiPort::CycleLibrary()
 //{
 //	this->Close();
 //	if(instancecounter == 1){
-//#ifdef _USE_MIDI
+//#ifdef USE_PORTMIDI
 //		Pm_Terminate();
 //		Pm_Initialize();
 //#endif
@@ -257,31 +247,28 @@ bool MidiPort::IsLastInstance(void) const
 //	}
 //}
 
-int MidiPort::GetDefaultInputDevice(void) const
-{
-#ifdef _USE_MIDI
+int MidiPort::GetDefaultInputDevice() const {
+#ifdef USE_PORTMIDI
 	return Pm_GetDefaultInputDeviceID();
 #else
 	return -1;
 #endif
 }
 
-int MidiPort::GetDefaultOutputDevice(void) const
-{
-#ifdef _USE_MIDI
+int MidiPort::GetDefaultOutputDevice() const {
+#ifdef USE_PORTMIDI
 	return Pm_GetDefaultOutputDeviceID();
 #else
 	return -1;
 #endif
 }
 
-std::set <std::string> MidiPort::GetDeviceNames(void) const
-{
-	std::set <std::string> temp;
-#ifdef _USE_MIDI
+std::set<std::string> MidiPort::GetDeviceNames() const {
+	std::set<std::string> temp;
+#ifdef USE_PORTMIDI
 	int idx = 0;
-	const PmDeviceInfo* info = Pm_GetDeviceInfo(idx);
-	while(info != NULL){
+	const PmDeviceInfo *info = Pm_GetDeviceInfo(idx);
+	while (info != NULL) {
 		temp.insert(info->name);
 		++idx;
 		info = Pm_GetDeviceInfo(idx);
@@ -290,21 +277,19 @@ std::set <std::string> MidiPort::GetDeviceNames(void) const
 	return temp;
 }
 
-int MidiPort::GetDeviceCount(void) const
-{
+int MidiPort::GetDeviceCount() const {
 	int temp = 0;
-#ifdef _USE_MIDI
-	while(Pm_GetDeviceInfo(temp) != NULL)
+#ifdef USE_PORTMIDI
+	while (Pm_GetDeviceInfo(temp) != NULL)
 		temp++;
 #endif
 	return temp;
 }
 
-std::string MidiPort::GetDeviceName(int nr) const
-{
-#ifdef _USE_MIDI
-	const PmDeviceInfo* temp = Pm_GetDeviceInfo(nr);
-	if(temp == NULL){
+std::string MidiPort::GetDeviceName(int nr) const {
+#ifdef USE_PORTMIDI
+	const PmDeviceInfo *temp = Pm_GetDeviceInfo(nr);
+	if (temp == NULL) {
 		return std::string("");
 	}
 	std::string name = temp->name;
@@ -314,11 +299,10 @@ std::string MidiPort::GetDeviceName(int nr) const
 #endif
 }
 
-std::string MidiPort::GetDeviceInterfaceName(int nr) const
-{
-#ifdef _USE_MIDI
-	const PmDeviceInfo* temp = Pm_GetDeviceInfo(nr);
-	if(temp == NULL){
+std::string MidiPort::GetDeviceInterfaceName(int nr) const {
+#ifdef USE_PORTMIDI
+	const PmDeviceInfo *temp = Pm_GetDeviceInfo(nr);
+	if (temp == NULL) {
 		return std::string("");
 	}
 	std::string name = temp->interf;
@@ -328,78 +312,77 @@ std::string MidiPort::GetDeviceInterfaceName(int nr) const
 #endif
 }
 
-bool MidiPort::IsDeviceInput(int nr) const
-{
-#ifdef _USE_MIDI
-	const PmDeviceInfo* temp = Pm_GetDeviceInfo(nr);
-	if(temp == NULL) return false;
+bool MidiPort::IsDeviceInput(int nr) const {
+#ifdef USE_PORTMIDI
+	const PmDeviceInfo *temp = Pm_GetDeviceInfo(nr);
+	if (temp == NULL)
+		return false;
 	return temp->input;
 #else
 	return false;
 #endif
 }
 
-bool MidiPort::IsDeviceOutput(int nr) const
-{
-#ifdef _USE_MIDI
-	const PmDeviceInfo* temp = Pm_GetDeviceInfo(nr);
-	if(temp == NULL) return false;
+bool MidiPort::IsDeviceOutput(int nr) const {
+#ifdef USE_PORTMIDI
+	const PmDeviceInfo *temp = Pm_GetDeviceInfo(nr);
+	if (temp == NULL)
+		return false;
 	return temp->output;
 #else
 	return false;
 #endif
 }
 
-bool MidiPort::IsDeviceAvailable(int nr) const
-{
-#ifdef _USE_MIDI
-	const PmDeviceInfo* temp = Pm_GetDeviceInfo(nr);
-	if(temp == NULL) return false;
+bool MidiPort::IsDeviceAvailable(int nr) const {
+#ifdef USE_PORTMIDI
+	const PmDeviceInfo *temp = Pm_GetDeviceInfo(nr);
+	if (temp == NULL)
+		return false;
 	return !temp->opened;
 #else
 	return false;
 #endif
 }
 
-void MidiPort::Close(const std::string& name)
-{
+void MidiPort::Close(const std::string &name) {
 	auto it = std::find(devices.begin(), devices.end(), name);
-	if(it != devices.end()) (*it)->Close();
+	if (it != devices.end())
+		(*it)->Close();
 }
 
-void MidiPort::Close(size_t idx)
-{
+void MidiPort::Close(size_t idx) {
 	devices[idx]->Close();
 }
 
-void MidiPort::CloseAll(void)
-{
-	for(auto & device : devices)
+void MidiPort::CloseAll() {
+	for (auto &device : devices)
 		device->Close();
 }
 
-std::shared_ptr <MidiDevice> MidiPort::GetFirstOpenDevice(Direction direction)
-{
-#ifdef _USE_MIDI
-	if(direction == Direction::Input){
-		for(auto & device : devices)
-			if(device->input != NULL) return device;
+std::shared_ptr<MidiDevice> MidiPort::GetFirstOpenDevice(Direction direction) {
+#ifdef USE_PORTMIDI
+	if (direction == Direction::Input) {
+		for (auto &device : devices)
+			if (device->input != NULL)
+				return device;
 	}
-	if(direction == Direction::Output){
-		for(auto & device : devices)
-			if(device->output != NULL) return device;
+	if (direction == Direction::Output) {
+		for (auto &device : devices)
+			if (device->output != NULL)
+				return device;
 	}
-	if(direction == Direction::Bidirectional){
-		for(auto & device : devices)
-			if(device->input != NULL && device->output != NULL) return device;
+	if (direction == Direction::Bidirectional) {
+		for (auto &device : devices)
+			if (device->input != NULL && device->output != NULL)
+				return device;
 	}
 #endif
 	return nullptr;
 }
 
-#ifdef _USE_MIDI
-std::string MidiPort::DecodeError(PmError err)
-{
+#ifdef USE_PORTMIDI
+std::string MidiPort::DecodeError(PmError err) {
 	return std::string(Pm_GetErrorText(err));
 //	switch(err){
 //	case pmNoError:
@@ -425,5 +408,23 @@ std::string MidiPort::DecodeError(PmError err)
 //	}
 //	return "";
 }
-
 #endif
+
+std::string MidiPort::ToString() const {
+	std::ostringstream buf;
+#ifdef USE_PORTMIDI
+	int idx = 0;
+	const PmDeviceInfo *info = Pm_GetDeviceInfo(idx);
+	while (info != NULL) {
+		buf << "#" << idx << " ";
+		buf << "Name: \"" << info->name << "\" ";
+		buf << "Interface: \"" << info->interf << "\" ";
+		buf << "I:" << info->input << " O:" << info->output;
+		buf << "\n";
+		++idx;
+		info = Pm_GetDeviceInfo(idx);
+	}
+#endif
+	return buf.str();
+}
+

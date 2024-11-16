@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENGLIMAGE_H_
-#define OPENGLIMAGE_H_
+#ifndef OPENGLIMAGE_H
+#define OPENGLIMAGE_H
 
 /*!\class OpenGLImage
  * \brief Displaying an image in 3D space.
@@ -41,31 +41,32 @@
 
 #include <wx/image.h>
 #include <wx/string.h>
+
 #include <stdint.h>
 
-class OpenGLImage:public wxImage {
+class OpenGLImage: public wxImage {
 public:
 	OpenGLImage();
-	OpenGLImage(const OpenGLImage& other);
-	OpenGLImage(const wxImage& other);
+	OpenGLImage(const OpenGLImage &other);
+	explicit OpenGLImage(const wxImage &other);
 	virtual ~OpenGLImage();
-	OpenGLImage& operator =(const OpenGLImage& other);
-	OpenGLImage& operator =(const wxImage& other);
+	OpenGLImage& operator =(const OpenGLImage &other);
+	OpenGLImage& operator =(const wxImage &other);
 
-	bool LoadFile(const wxString& name, wxBitmapType type = wxBITMAP_TYPE_ANY,
+	bool LoadFile(const wxString &name, wxBitmapType type = wxBITMAP_TYPE_ANY,
 			int index = -1);
-	bool LoadFile(const wxString& name, const wxString& mimetype,
+	bool LoadFile(const wxString &name, const wxString &mimetype,
 			int index = -1);
-	bool LoadFile(wxInputStream& stream, wxBitmapType type, int index = -1);
-	bool LoadFile(wxInputStream& stream, const wxString& mimetype, int index =
+	bool LoadFile(wxInputStream &stream, wxBitmapType type, int index = -1);
+	bool LoadFile(wxInputStream &stream, const wxString &mimetype, int index =
 			-1);
 
 	void SetAlphaColor(unsigned char red, unsigned char green,
 			unsigned char blue);
 
-	void Paint(void) const;
+	void Paint() const;
 protected:
-	void Update(void) const;
+	void Update() const;
 	mutable bool refresh;
 	mutable float w;
 	mutable float h;
@@ -77,4 +78,4 @@ private:
 	static uint32_t NextPowerOfTwo(uint32_t v);
 };
 
-#endif /* OPENGLIMAGE_H_ */
+#endif /* OPENGLIMAGE_H */

@@ -24,15 +24,33 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_OPENGL_H_
-#define SRC_3D_OPENGL_H_
+#ifndef L3D_OPENGL_H
+#define L3D_OPENGL_H
+
+#ifdef USE_GLAD
+
+#if defined(__gl_h_) || defined(__GL_H__) || defined(_GL_H) || defined(__X_GL_H)
+    #error "Please do not include gl.h before this file."
+#endif
+
+#ifdef __APPLE__
+    // Suppress warnings when including gl3.h
+    #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+    #include <OpenGL/gl3.h> // For Core Profile
+#else
+
+#include "glad/glad.h"
+
+#endif
+
+#else
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__)
 #define __WIN
 #elif defined(linux) || defined(__linux)
 #define __LINUX
 #else
-#error "Neither a Linux nor a Windows system was found!"
+#error "Neither a Linux nor a Windows system was identified!"
 #endif
 
 #ifdef __WIN
@@ -47,9 +65,22 @@
 #endif
 #endif
 
-#ifdef __LINUX
-#include <GL/glu.h>
-#include <GL/gl.h>
+#ifdef __WXMAC__
+#include "OpenGL/gl.h"
+#ifdef GL_GLEXT_PROTOTYPES
+#include "OpenGL/glext.h"
+#endif
 #endif
 
-#endif /* SRC_3D_OPENGL_H_ */
+#ifdef __LINUX
+#include <GL/glew.h>
+#include <GL/gl.h>
+#ifdef GL_GLEXT_PROTOTYPES
+#include <GL/glext.h>
+#endif
+#endif
+
+#endif
+
+#endif /* L3D_OPENGL_H */
+

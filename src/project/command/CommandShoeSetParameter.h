@@ -24,43 +24,55 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __COMMANDSHOESETPARAMETER_H__
-#define __COMMANDSHOESETPARAMETER_H__
+#ifndef COMMANDSHOESETPARAMETER_H
+#define COMMANDSHOESETPARAMETER_H
 
 /*!\class CommandShoeSetParameter
+ * \ingroup command
  * \brief Command to set the parameters of the shoe
  *
  * ...
  */
 
 #include <wx/cmdproc.h>
-#include <map>
 #include <string>
+#include <vector>
 
-class ParameterFormula;
+class Parameter;
 class Project;
-class Shoe;
 
-class CommandShoeSetParameter:public wxCommand {
+class CommandShoeSetParameter: public wxCommand {
 public:
-	CommandShoeSetParameter(const wxString& name, Project* project);
+	CommandShoeSetParameter(const wxString &name, Project *project);
+	CommandShoeSetParameter(const wxString &name, Project *project,
+			const size_t key, const std::string &newFormula);
 
-	void AddValue(const int key, const std::string value);
+	void AddValue(const size_t key, const std::string &newFormula);
+	void AddValue(const size_t key, const size_t group,
+			const std::string &newFormula);
 
 	bool Do(void);
 	bool Undo(void);
 
-protected:
-	bool SetNew(const std::pair <int, std::string> & kv, ParameterFormula & pf);
-	void SetOld(const std::pair <int, std::string> & kv, ParameterFormula & pf);
+//protected:
+//	bool SetNew(const std::pair<int, std::string> &kv, Parameter &pf);
+//	void SetOld(const std::pair<int, std::string> &kv, Parameter &pf);
 
 //	ParameterFormula* GetParameterByID(Shoe *shoe, int id);
 
-	Project* project;
+private:
+	struct Change {
+	public:
+		size_t id = (size_t) -1;
+		size_t group = (size_t) -1;
+		std::string oldFormula;
+		std::string newFormula;
+	};
 
-	std::map <int, std::string> newParameter;
-	std::map <int, std::string> oldParameter;
+	Project *project;
+
+	std::vector<Change> changes;
 };
 
-#endif /* __COMMANDSHOESETPARAMETER_H__ */
+#endif /* COMMANDSHOESETPARAMETER_H */
 

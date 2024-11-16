@@ -38,7 +38,7 @@ void CanvasFootModel::Render()
 	mat1.UseMaterial();
 	model.PaintBones();
 	OpenGLMaterial mat2(OpenGLMaterial::Preset::YellowRubber);
-	mat2.UseMaterial(0.8);
+	mat2.UseMaterial(); // 0.8
 	model.PaintSkin();
 }
 

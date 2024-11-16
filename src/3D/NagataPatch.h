@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_NAGATAPATCH_H_
-#define SRC_3D_NAGATAPATCH_H_
+#ifndef L3D_NAGATAPATCH_H
+#define L3D_NAGATAPATCH_H
 /*!\class NagataPatch
  * \brief 3D Quad Patch as devised by Takashi Nagata
  *
@@ -65,4 +65,4 @@ private:
 	static Vector3 c(const Vector3 & d, const Vector3 & n0, const Vector3 n1);
 };
 
-#endif /* SRC_3D_NAGATAPATCH_H_ */
+#endif /* L3D_NAGATAPATCH_H */

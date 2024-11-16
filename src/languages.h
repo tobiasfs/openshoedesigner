@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef LANGUAGES_H_
-#define LANGUAGES_H_
+#ifndef LANGUAGES_H
+#define LANGUAGES_H
 
 /*!\class languages
  * \brief Definition of the languages provided in the i18n directory.
@@ -45,4 +45,4 @@ const wxString langNames[] =
 wxCOMPILE_TIME_ASSERT(WXSIZEOF(langNames) == WXSIZEOF(langIds),
 		LangArraysMismatch);
 
-#endif /* LANGUAGES_H_ */
+#endif /* LANGUAGES_H */

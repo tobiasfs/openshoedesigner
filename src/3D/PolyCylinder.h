@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_PROJECT_LAST_POLYCYLINDER_H_
-#define SRC_PROJECT_LAST_POLYCYLINDER_H_
+#ifndef POLYCYLINDER_H
+#define POLYCYLINDER_H
 
 /*!\class PolyCylinder
  * \brief DEPRECATED: Stores sections of polygonwise defined shapes
@@ -43,7 +43,7 @@
 
 #include "Geometry.h"
 #include "Vector3.h"
-#include "../math/Polynom.h"
+#include "../math/Polynomial.h"
 
 class PolyCylinder {
 public:
@@ -51,37 +51,38 @@ public:
 	public:
 		class Segment {
 		public:
-			Polynom y0;
-			Polynom z0;
-			Polynom y;
-			Polynom z;
-			Polynom dy;
-			Polynom dz;
-			Segment();
+			Polynomial y0;
+			Polynomial z0;
+			Polynomial y;
+			Polynomial z;
+			Polynomial dy;
+			Polynomial dz;
+			Segment() = default;
 			void Scale(double sy = 1.0, double sz = 1.0);
 			void Paint(void) const;
 			double GetLength(void) const;
 		};
-		std::vector <Segment> segments;
-		CircleSection();
+		std::vector<Segment> segments;
+		CircleSection() = default;
 		void Scale(double sy = 1.0, double sz = 1.0);
-		Vector3 Evaluate(double r);
+		Vector3 Evaluate(double r) const;
 		double GetLength(void) const;
 		void Paint(void) const;
 	};
-	std::vector <CircleSection> sections;
-	double dx;
-	PolyCylinder();
+	std::vector<CircleSection> sections;
+	double dx = 1.0;
+	PolyCylinder() = default;
 
 	void Scale(double sx, double sy = 1.0, double sz = 1.0);
 
-	bool Load(std::string filename);
+	void Load(std::string filename);
 
 	void Paint(void) const;
-	void GenerateGeometry(Geometry &geometry, bool mirrored = false);
-	// TODO: Write this function, if this class is really used.
-	// void GenerateHull(Hull &hull, bool mirrored = false);
-	void Test(void);
+	Geometry GenerateGeometry(bool mirrored = false) const;
+	// void Test(void);
+
+	// TODO: Write the following function, if this class is really used:
+	// void GenerateHull(Geometry &hull, bool mirrored = false);
 };
 
-#endif /* SRC_PROJECT_LAST_POLYCYLINDER_H_ */
+#endif /* POLYCYLINDER_H */

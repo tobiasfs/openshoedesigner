@@ -26,31 +26,30 @@
 
 #include "OpenGLMaterial.h"
 
+#include <sstream>
+
 #include "OpenGL.h"
 
-OpenGLMaterial::OpenGLMaterial()
-{
+OpenGLMaterial::OpenGLMaterial() {
 	ambient.Set(0.2, 0.2, 0.2);
 	diffuse.Set(0.8, 0.8, 0.8);
 	specular.Set(0.7, 0.7, 0.7);
+	emission.Set(0.0, 0.0, 0.0);
 	shininess = 32;
 }
 
-OpenGLMaterial::OpenGLMaterial(Preset preset, float emit)
-{
+OpenGLMaterial::OpenGLMaterial(Preset preset, float emit) {
 	Set(preset);
 	emission = diffuse * emit;
 }
 
-OpenGLMaterial::OpenGLMaterial(float r, float g, float b, float emit)
-{
+OpenGLMaterial::OpenGLMaterial(float r, float g, float b, float emit) {
 	SetSimpleColor(r, g, b, emit);
 }
 
-void OpenGLMaterial::Set(Preset preset)
-{
+void OpenGLMaterial::Set(Preset preset) {
 	// Preset-materials from http://devernay.free.fr/cours/opengl/materials.html
-	switch(preset){
+	switch (preset) {
 	case Preset::Emerald:
 		ambient.Set(0.0215, 0.1745, 0.0215);
 		diffuse.Set(0.07568, 0.61424, 0.07568);
@@ -297,9 +296,8 @@ void OpenGLMaterial::Set(Preset preset)
 	emission.Zero();
 }
 
-std::string OpenGLMaterial::GetPresetName(OpenGLMaterial::Preset preset)
-{
-	switch(preset){
+std::string OpenGLMaterial::GetPresetName(OpenGLMaterial::Preset preset) {
+	switch (preset) {
 	case Preset::Emerald:
 		return ("Emerald");
 	case Preset::Jade:
@@ -384,8 +382,7 @@ std::string OpenGLMaterial::GetPresetName(OpenGLMaterial::Preset preset)
 	return ("");
 }
 
-void OpenGLMaterial::SetSimpleColor(float r, float g, float b, float emit)
-{
+void OpenGLMaterial::SetSimpleColor(float r, float g, float b, float emit) {
 	ambient.Set(r, g, b);
 	diffuse.Set(r, g, b);
 	specular.Zero();
@@ -393,21 +390,22 @@ void OpenGLMaterial::SetSimpleColor(float r, float g, float b, float emit)
 	shininess = 0;
 }
 
-void OpenGLMaterial::SetSimpleColor(Vector3 c, float emit)
-{
+void OpenGLMaterial::SetSimpleColor(Vector3 c, float emit) {
 	SetSimpleColor(c.x, c.y, c.z, emit);
 }
 
-bool OpenGLMaterial::ColorsAllowed(void)
-{
+bool OpenGLMaterial::ColorsAllowed() {
 	GLboolean colormask[4];
 	glGetBooleanv(GL_COLOR_WRITEMASK, colormask);
 	return (colormask[0] && colormask[1] && colormask[2] && colormask[3]);
 }
 
-void OpenGLMaterial::UseMaterial(float opacity) const
-{
-	if(!ColorsAllowed()) return;
+void OpenGLMaterial::UseMaterial() const {
+	if (!ColorsAllowed())
+		return;
+
+	double opacity = 1.0;
+
 	glDisable(GL_COLOR_MATERIAL);
 	GLfloat buffer[4];
 	buffer[0] = ambient.x;
@@ -433,11 +431,11 @@ void OpenGLMaterial::UseMaterial(float opacity) const
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 }
 
-void OpenGLMaterial::UseColor(float emit) const
-{
-	if(!ColorsAllowed()) return;
+void OpenGLMaterial::UseColor(float emit) const {
+	if (!ColorsAllowed())
+		return;
 	glEnable(GL_COLOR_MATERIAL);
-	GLfloat buffer[] = {0, 0, 0, 1};
+	GLfloat buffer[] = { 0, 0, 0, 1 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buffer);
 	buffer[0] = diffuse.x * emit;
 	buffer[1] = diffuse.y * emit;
@@ -447,11 +445,11 @@ void OpenGLMaterial::UseColor(float emit) const
 	glColor3f(diffuse.x, diffuse.y, diffuse.z);
 }
 
-void OpenGLMaterial::UseColor(void) const
-{
-	if(!ColorsAllowed()) return;
+void OpenGLMaterial::UseColor() const {
+	if (!ColorsAllowed())
+		return;
 	glEnable(GL_COLOR_MATERIAL);
-	GLfloat buffer[] = {0, 0, 0, 1};
+	GLfloat buffer[] = { 0, 0, 0, 1 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buffer);
 	buffer[0] = emission.x;
 	buffer[1] = emission.y;
@@ -461,13 +459,28 @@ void OpenGLMaterial::UseColor(void) const
 	glColor3f(diffuse.x, diffuse.y, diffuse.z);
 }
 
-void OpenGLMaterial::EnableColors(void)
-{
-	if(!ColorsAllowed()) return;
+void OpenGLMaterial::EnableColors() {
+	if (!ColorsAllowed())
+		return;
 	glEnable(GL_COLOR_MATERIAL);
-	GLfloat buffer[] = {0, 0, 0, 1};
+	GLfloat buffer[] = { 0, 0, 0, 1 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buffer);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buffer);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0);
 }
 
+std::string OpenGLMaterial::ToString() const {
+	std::ostringstream out;
+	out << "{ambient:[";
+	out << ambient.x << ',' << ambient.y << ',' << ambient.z;
+	out << "],diffuse:[";
+	out << diffuse.x << ',' << diffuse.y << ',' << diffuse.z;
+	out << "],specular:[";
+	out << specular.x << ',' << specular.y << ',' << specular.z;
+	out << "],emission:[";
+	out << emission.x << ',' << emission.y << ',' << emission.z;
+	out << "],shininess:";
+	out << shininess;
+	out << "]}";
+	return out.str();
+}

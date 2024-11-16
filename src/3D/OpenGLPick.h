@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENGLPICK_H_
-#define OPENGLPICK_H_
+#ifndef OPENGLPICK_H
+#define OPENGLPICK_H
 
 /*!\class OpenGLPick
  * \brief Storage for the result of an OpenGL picking operation
@@ -62,47 +62,87 @@
  * interface in this class.
  */
 
+#include <cstddef>
+#include <string>
+#include <vector>
+
 #include "OpenGL.h"
 
 class OpenGLPick {
 	friend class OpenGLCanvas;
 public:
-	OpenGLPick(GLsizei bufferSize = 512);
-	virtual ~OpenGLPick();
-
-	bool SetBufferSize(GLsizei newSize); //!< Initialize the pick buffer
-
-	bool HasHits(void); //!< Are there any hits at this position at all
-	unsigned int GetCount(void); //!< Number of hits recorded
-	void SortByNear(void); //!< Sort the results by the Near value
-	int NearestWithLevel0(unsigned int L0); //!< Find the nearest result with level0 == L0. Returns -1, if there is nothing found.
-	int NearestWithLevel01(unsigned int L0, unsigned int L1); //!< Find the nearest result with Name0 == L0 and Name1 = L1. Returns -1, if there is nothing found.
-	int Get(unsigned int level, unsigned int hit = 0); //!< Return the levels of the namestack. Returns -1, if nothing is at this level.
-	unsigned int Near(unsigned int hit); //!< Return the Near value of the hit
-	unsigned int Far(unsigned int hit); //!< Return the Far value of the hit
+	explicit OpenGLPick(size_t bufferSize = 512);
 
 protected:
-	// By protecting the copy- and addignment constructor, this class
-	// cannot be directly copied.
-	OpenGLPick(const OpenGLPick&);
-	OpenGLPick& operator=(const OpenGLPick&);
+//	bool SetBufferSize(GLsizei newSize); //!< Initialize the pick buffer
 
-protected:
+	GLsizei GetBufferSize() const; //!< OpenGLCanvas requests the size of the buffer
+	GLuint* GetBuffer(); //!< OpenGLCanvas requests the pointer to the buffer
 	void SetHits(GLuint hits); //!< OpenGLCanvas tells this class the number of hits found
-	GLuint * GetBuffer(); //!< OpenGLCanvas requests the pointer to the buffer
-	GLsizei GetBufferSize(); //!< OpenGLCanvas requests the size of the buffer
+
+public:
+	/**\brief Sort the results by the Near value
+	 *
+	 * Sorts the values in the result buffer by the near value, so that the
+	 * closests hit are first.
+	 */
+	void SortByNear();
+
+	/**\brief Check if something was hit
+	 *
+	 * Are there any hits for the checked position at all?
+	 *
+	 * \return bool
+	 */
+	bool HasHits() const;
+
+	/**\brief Number of recorded hits
+	 *
+	 * \return Count
+	 */
+	size_t HitCount() const;
+
+	/**\brief Number of IDs a hit has
+	 *
+	 * As each object hit, can have a different number of IDs assigned, this
+	 * is returned from this function.
+	 *
+	 * If an hitIdx outside of the results, a 0 is returned.
+	 *
+	 * \param idxHit Hit to check.
+	 * \return Number of IDs.
+	 */
+	size_t IDCount(size_t idxHit) const;
+
+	/**\brief Get the IDs on the namestack.
+	 *
+	 * \return the Value
+	 */
+	GLuint Get(size_t idxHit, size_t idxID);
+	GLuint Near(size_t idxHit); //!< Return the Near value of the hit
+	GLuint Far(size_t idxHit); //!< Return the Far value of the hit
+
+//	/**\brief Find the nearest result with level0 == L0.
+//	 *
+//	 * Returns -1, if there is nothing found.
+//	 */
+//	size_t NearestWithLevel0(size_t idxHit);
+//	size_t NearestWithLevel01(size_t idxHit, size_t idxID); //!< Find the nearest result with Name0 == L0 and Name1 = L1. Returns -1, if there is nothing found.
+
+	std::string ToString() const;
 
 private:
-	void MoveBufferPos(GLuint hit); //!< Move the pointer in the result buffer.
+	void MoveBufferPos(size_t idxHit) const; //!< Move the pointer in the result buffer.
 
 private:
-	GLsizei bufferSize;
-	GLuint * buffer;
-	GLuint * sort;
-	bool bufferAssigned;
-	GLuint results;
-	GLuint pos;
-	GLuint hitpos;
+	std::vector<GLuint> buffer;
+	std::vector<GLuint> sort;
+	bool bufferAssigned = false;
+	size_t results = 0;
+	mutable size_t pos = 0;
+	mutable size_t hitpos = 0;
+
 };
 
-#endif /* OPENGLPICK_H_ */
+#endif /* OPENGLPICK_H */
+

@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef POLYGON25_H_
-#define POLYGON25_H_
+#ifndef POLYGON25_H
+#define POLYGON25_H
 
 /*!\class Polygon25
  * \brief Planar polygon in 3D
@@ -38,29 +38,30 @@
 
 #include "Polygon3.h"
 
-class Polygon25:public Polygon3 {
+class Polygon25: public Polygon3 {
 public:
-	Polygon25();
-	virtual ~Polygon25();
+	Polygon25() = default;
+	virtual ~Polygon25() = default;
 
-	// Methods
 public:
 	/*! \brief Returns the length, as if the polygon was flat in the XY plane
 	 */
-	double GetLengthXY(void) const;
+	double GetLengthXY() const;
 
 	/*! \brief Searches for points below z -0.5 and replaces them with the average value of the point above -0.5
 	 *
 	 * (Very domain specific function for a very specific problem. Should probably be elsewhere.)
 	 */
-	void PolygonFillHoles(void);
+	void PolygonFillHoles();
 
 	/*! \brief MA Filter for polygons with the size of 3
 	 *
 	 * Replaces every vertex i with the average of the vertices i-1, i, i+1.
+	 *
 	 * \todo Move to the more general Polygon3
+	 * todo This is broken, if the function Finish() is called on the Polygon.
 	 */
-	void PolygonSmooth(void);
+	void PolygonSmooth();
 
 	/*! \brief Move the point of the Polygon to the right (outside)
 	 *
@@ -76,15 +77,17 @@ public:
 	 *
 	 * Uses PolygonExpand with negative parameter.
 	 *
-	 * \todo Remove, as it is covered by PolygonExpand
+	 * \todo Remove, as it is covered by Shift()
 	 *
 	 * @param r Distance to move the points of the polygon
 	 */
 	void PolygonDiminish(double r);
 
-	/*! \brief Determins if a point is inside or outside the polygon in the XY plane
+	/*! \brief Determines if a point is inside or outside the polygon in the XY plane
 	 *
 	 * Searches the XY plane, if a point is inside or outside the polygon projected onto this plane.
+	 *
+	 * \todo Remove, as it is covered by Shift()
 	 *
 	 * @param v Vector3 point
 	 * @return Boolean, if point is inside
@@ -125,10 +128,12 @@ public:
 	 *
 	 * (Assumes a closed polygon.)
 	 *
+	 * \todo Remove: This was introduced for CAM operations. Not needed elsewhere.
+	 *
 	 * @param x X Coordinate of the point
 	 * @param y Y Coordinate of the point
 	 */
 	void RotatePolygonStart(double x, double y);
 };
 
-#endif /* POLYGON25_H_ */
+#endif /* POLYGON25_H */

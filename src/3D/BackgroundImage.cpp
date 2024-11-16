@@ -28,15 +28,18 @@
 
 #include "OpenGL.h"
 
-void BackgroundImage::Paint(void) const
-{
-	if(showFront && showBack) glDisable(GL_CULL_FACE);
-	if(showFront && !showBack) glCullFace(GL_BACK);
-	if(!showFront && showBack) glCullFace(GL_FRONT);
-	if(!showFront && !showBack) glCullFace(GL_FRONT_AND_BACK);
+void BackgroundImage::Paint(void) const {
+	if (showFront && showBack)
+		glDisable(GL_CULL_FACE);
+	if (showFront && !showBack)
+		glCullFace(GL_BACK);
+	if (!showFront && showBack)
+		glCullFace(GL_FRONT);
+	if (!showFront && !showBack)
+		glCullFace(GL_FRONT_AND_BACK);
 
 	glPushMatrix();
-	switch(orientation){
+	switch (orientation) {
 	case Orientation::Top:
 		break;
 	case Orientation::Bottom:
@@ -65,6 +68,7 @@ void BackgroundImage::Paint(void) const
 	OpenGLImage::Paint();
 	glPopMatrix();
 
-	if(showFront && showBack) glEnable(GL_CULL_FACE);
+	if (showFront && showBack)
+		glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 }

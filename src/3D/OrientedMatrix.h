@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef ORIENTEDMATRIX_H_
-#define ORIENTEDMATRIX_H_
+#ifndef ORIENTEDMATRIX_H
+#define ORIENTEDMATRIX_H
 
 /*!\class OrientedMatrix
  * \brief Field in 3D-space
@@ -33,10 +33,10 @@
  * This matrix has an origin and a size.
  */
 
-#include "../math/MathMatrix.h"
+#include "../math/Matrix.h"
 #include "Vector3.h"
 
-class OrientedMatrix:public MathMatrix {
+class OrientedMatrix: public Matrix {
 public:
 	enum class Display3D {
 		Points3D
@@ -130,4 +130,4 @@ public:
 	double surface = 0.5; ///< Value of the surface: values greater than surface are inside the Volume
 };
 
-#endif /* ORIENTEDMATRIX_H_ */
+#endif /* ORIENTEDMATRIX_H */

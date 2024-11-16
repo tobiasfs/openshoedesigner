@@ -27,24 +27,23 @@
 #include "CommandShoePreset.h"
 #include "../../gui/gui.h"
 
-CommandShoePreset::CommandShoePreset(const wxString& name, Project* project,
-		int preset)
-		: wxCommand(true, name)
-{
+CommandShoePreset::CommandShoePreset(const wxString &name, Project *project,
+		int preset) :
+		wxCommand(true, name) {
 	this->project = project;
 	this->preset = preset;
 }
 
-bool CommandShoePreset::Do(void)
-{
-	if(project == NULL) return false;
+bool CommandShoePreset::Do(void) {
+	if (project == NULL)
+		return false;
 
-	oldHeelHeight = project->shoe.heelHeight.formula;
-	oldBallHeight = project->shoe.ballHeight.formula;
-	oldToeAngle = project->shoe.toeSpring.formula;
+	oldHeelHeight = project->shoe.heelHeight->GetFormula();
+	oldBallHeight = project->shoe.ballHeight->GetFormula();
+	oldToeAngle = project->shoe.toeSpring->GetFormula();
 
 	// 0.26 m is the average footlength (= size EU 39).
-	switch(preset){
+	switch (preset) {
 //	case ID_PRESETFLATS:
 //		project->shoe.exprHeelHeight = _T("0 cm");
 //		project->shoe.exprBallHeight = _T("0 cm");
@@ -97,13 +96,13 @@ bool CommandShoePreset::Do(void)
 	return true;
 }
 
-bool CommandShoePreset::Undo(void)
-{
-	if(project == NULL) return false;
+bool CommandShoePreset::Undo(void) {
+	if (project == NULL)
+		return false;
 
-	project->shoe.heelHeight.formula = oldHeelHeight;
-	project->shoe.ballHeight.formula = oldBallHeight;
-	project->shoe.toeSpring.formula = oldToeAngle;
+	project->shoe.heelHeight->SetFormula(oldHeelHeight);
+	project->shoe.ballHeight->SetFormula(oldBallHeight);
+	project->shoe.toeSpring->SetFormula(oldToeAngle);
 
 //	project->Update(Project::UpdateFoot, Project::Both);
 	return true;

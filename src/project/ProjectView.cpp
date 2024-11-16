@@ -40,9 +40,8 @@
 
 IMPLEMENT_DYNAMIC_CLASS(ProjectView, wxView)
 
-ProjectView::ProjectView()
-		: wxView()
-{
+ProjectView::ProjectView() :
+		wxView() {
 	active = Side::Both;
 
 	showLeft = false;
@@ -65,17 +64,16 @@ ProjectView::ProjectView()
 
 }
 
-ProjectView::~ProjectView()
-{
+ProjectView::~ProjectView() {
 	printf("ProjectView: Destructor called...\n");
 }
 
-bool ProjectView::OnCreate(wxDocument* doc, long flags)
-{
+bool ProjectView::OnCreate(wxDocument *doc, long flags) {
 	printf("ProjectView::OnCreate(...) called...\n");
 
-	if(!wxView::OnCreate(doc, flags)) return false;
-	wxFrame* frame = wxGetApp().CreateChildFrame(this, FrameType::mainframe);
+	if (!wxView::OnCreate(doc, flags))
+		return false;
+	wxFrame *frame = wxGetApp().CreateChildFrame(this, FrameType::mainframe);
 	wxASSERT(frame == GetFrame());
 
 	BackgroundImage temp;
@@ -89,11 +87,10 @@ bool ProjectView::OnCreate(wxDocument* doc, long flags)
 	return true;
 }
 
-void ProjectView::Paint(bool usePicking) const
-{
+void ProjectView::Paint(bool usePicking) const {
 	const bool shiftapart = (showLeft && showRight);
 
-	Project* project = wxStaticCast(this->GetDocument(), Project);
+	Project *project = wxStaticCast(this->GetDocument(), Project);
 
 //	glColor3f(0.8, 0.5, 0.0);
 	OpenGLMaterial matBones(OpenGLMaterial::Preset::Pearl);
@@ -172,198 +169,209 @@ void ProjectView::Paint(bool usePicking) const
 //	s.Paint();
 //	glPopMatrix();
 
-	if(showLeft){
-
-		glPushMatrix();
-		if(shiftapart) glTranslatef(0,
-				project->measL.littleToeGirth.value / M_PI, 0);
-
-		glLoadName(0); // Left
-
-		if(project->measurementsource
-				== Project::MeasurementSource::fromFootScan && showFootScan){
-			glPushName(0);
-			matScan.UseColor(0.5);
-			glNormal3f(1, 0, 0);
-			project->footScan.Paint();
-			glPopName();
-		}
-
-		if(project->measurementsource
-				== Project::MeasurementSource::fromMeasurements && showBones){
-			glPushName(1);
-			matBones.UseMaterial();
-			project->footL.PaintBones();
-			glPopName();
-		}
-
-		if(project->modeltype == Project::ModelType::boneBased && showSkin
-				&& !usePicking){
-			glPushName(2);
-			matFoot.UseMaterial();
-			project->footL.PaintSkin();
-			glPopName();
-		}
-
-		if(project->modeltype == Project::ModelType::lastBased && showLast){
-			glPushName(3);
-			matScan.UseMaterial();
-			project->lastModelL.Paint();
-			glPopName();
-		}
-
-//		if(showLast){
-//			glPushName(3);
-//			matLast.UseMaterial();
-//			project->lastL.Paint();
+//	if (showLeft) {
+//
+//		glPushMatrix();
+//		if (shiftapart)
+//			glTranslatef(0, project->measL.littleToeGirth->ToDouble() / M_PI,
+//					0);
+//
+//		glLoadName(0); // Left
+//
+//		if (project->measurementsource
+//				== Project::MeasurementSource::fromFootScan && showFootScan) {
+//			glPushName(0);
+//			matScan.UseColor(0.5);
+//			glNormal3f(1, 0, 0);
+//			project->footScan.Paint();
 //			glPopName();
 //		}
-
-		if(showInsole){
-			glPushName(4);
-//			matLines.UseMaterial();
-//			project->bow.Paint();
-			matInsole.UseMaterial();
-			project->insoleL.Paint();
-			glPopName();
-		}
-
-		if(showSole){
-			glPushName(12);
-			PaintSole();
-			glPopName();
-		}
-		if(showUpper){
-			glPushName(13);
-			PaintUpper();
-			glPopName();
-		}
-
-		if(showCutaway){
-			OpenGLMaterial::EnableColors();
-			glPushName(14);
-			PaintCutaway();
-			glPopName();
-		}
-
-		glPopMatrix();
-	}
-	if(showRight){
-		glPushMatrix();
-		if(shiftapart) glTranslatef(0,
-				-project->measR.littleToeGirth.value / M_PI, 0);
-
-		glLoadName(1); // Right
-
-		if(project->measurementsource
-				== Project::MeasurementSource::fromFootScan && showFootScan){
-			glPushName(0);
-			matScan.UseColor(0.5);
-			glNormal3f(1, 0, 0);
-			project->footScan.Paint();
-			glPopName();
-		}
-
-		if(project->measurementsource
-				== Project::MeasurementSource::fromMeasurements && showBones){
-			glPushName(1);
-			matBones.UseMaterial();
-			project->footR.PaintBones();
-			glPopName();
-		}
-
-		if(project->modeltype == Project::ModelType::boneBased && showSkin
-				&& !usePicking){
-			glPushName(2);
-			matFoot.UseMaterial();
-			project->footR.PaintSkin();
-			glPopName();
-		}
-
-		if(project->modeltype == Project::ModelType::lastBased && showLast){
-			glPushName(3);
-			matScan.UseMaterial();
-			project->lastModelR.Paint();
-			glPopName();
-		}
-
-//		if(showLast){
-//			glPushName(3);
-//			matLast.UseMaterial();
-//			project->lastR.Paint();
+//
+//		if (project->measurementsource
+//				== Project::MeasurementSource::fromMeasurements && showBones) {
+//			glPushName(1);
+//			matBones.UseMaterial();
+//			project->footL.PaintBones();
 //			glPopName();
 //		}
+//
+//		if (project->modeltype == Project::ModelType::boneBased && showSkin
+//				&& !usePicking) {
+//			glPushName(2);
+//			matFoot.UseMaterial();
+//			project->footL.PaintSkin();
+//			glPopName();
+//		}
+//
+//		if (project->modeltype == Project::ModelType::lastBased && showLast) {
+//			glPushName(3);
+//			matScan.UseMaterial();
+//			project->lastModelL.Paint();
+//			glPopName();
+//		}
+//
+////		if(showLast){
+////			glPushName(3);
+////			matLast.UseMaterial();
+////			project->lastL.Paint();
+////			glPopName();
+////		}
+//
+//		if (showInsole) {
+//			glPushName(4);
+////			matLines.UseMaterial();
+////			project->bow.Paint();
+//			matInsole.UseMaterial();
+//			project->insoleL.Paint();
+//			glPopName();
+//		}
+//
+//		if (showSole) {
+//			glPushName(12);
+//			PaintSole();
+//			glPopName();
+//		}
+//		if (showUpper) {
+//			glPushName(13);
+//			PaintUpper();
+//			glPopName();
+//		}
+//
+//		if (showCutaway) {
+//			OpenGLMaterial::EnableColors();
+//			glPushName(14);
+//			PaintCutaway();
+//			glPopName();
+//		}
+//
+//		if (showCoordinateSystem) {
+//			glPushName(15);
+//			project->csL.Paint();
+//			glPopName();
+//		}
+//
+//		glPopMatrix();
+//	}
+//	if (showRight) {
+//		glPushMatrix();
+//		if (shiftapart)
+//			glTranslatef(0, -project->measR.littleToeGirth->ToDouble() / M_PI,
+//					0);
+//
+//		glLoadName(1); // Right
+//
+//		if (project->measurementsource
+//				== Project::MeasurementSource::fromFootScan && showFootScan) {
+//			glPushName(0);
+//			matScan.UseColor(0.5);
+//			glNormal3f(1, 0, 0);
+//			project->footScan.Paint();
+//			glPopName();
+//		}
+//
+//		if (project->measurementsource
+//				== Project::MeasurementSource::fromMeasurements && showBones) {
+//			glPushName(1);
+//			matBones.UseMaterial();
+//			project->footR.PaintBones();
+//			glPopName();
+//		}
+//
+//		if (project->modeltype == Project::ModelType::boneBased && showSkin
+//				&& !usePicking) {
+//			glPushName(2);
+//			matFoot.UseMaterial();
+//			project->footR.PaintSkin();
+//			glPopName();
+//		}
+//
+//		if (project->modeltype == Project::ModelType::lastBased && showLast) {
+//			glPushName(3);
+//			matScan.UseMaterial();
+//			project->lastModelR.Paint();
+//			glPopName();
+//		}
+//
+////		if(showLast){
+////			glPushName(3);
+////			matLast.UseMaterial();
+////			project->lastR.Paint();
+////			glPopName();
+////		}
+//
+//		if (showInsole) {
+//			glPushName(4);
+//			matInsole.UseMaterial();
+//			project->insoleR.Paint();
+//			glPopName();
+//		}
+//
+//		if (showSole) {
+//			glPushName(12);
+//			PaintSole();
+//			glPopName();
+//		}
+//		if (showUpper) {
+//			glPushName(13);
+//			PaintUpper();
+//			glPopName();
+//		}
+//
+//		if (showCutaway) {
+//			OpenGLMaterial::EnableColors();
+//			glPushName(14);
+//			PaintCutaway();
+//			glPopName();
+//		}
+//
+//		if (showCoordinateSystem) {
+//			glPushName(15);
+//			project->csR.Paint();
+//			glPopName();
+//		}
+//
+//		glPopMatrix();
+//	}
 
-		if(showInsole){
-			glPushName(4);
-			matInsole.UseMaterial();
-			project->insoleR.Paint();
-			glPopName();
-		}
-
-		if(showSole){
-			glPushName(12);
-			PaintSole();
-			glPopName();
-		}
-		if(showUpper){
-			glPushName(13);
-			PaintUpper();
-			glPopName();
-		}
-
-		if(showCutaway){
-			OpenGLMaterial::EnableColors();
-			glPushName(14);
-			PaintCutaway();
-			glPopName();
-		}
-
-		glPopMatrix();
-	}
-
-	if(!usePicking){
+	if (!usePicking) {
 		glLoadName(16);
 		matFloor.UseMaterial();
-		if(showFloor) PaintFloor();
+		if (showFloor)
+			PaintFloor();
 		glLoadName(17);
 		OpenGLMaterial::EnableColors();
-		if(showBackground) PaintBackground(false);
+		if (showBackground)
+			PaintBackground(false);
 	}
 	OpenGLMaterial::EnableColors();
 }
 
-void ProjectView::PaintLast(void) const
-{
+void ProjectView::PaintLast(void) const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
 
 //	project->lastvol.Paint();
 //	project->lastvol.PaintSurface();
 }
 
-void ProjectView::PaintSole(void) const
-{
+void ProjectView::PaintSole(void) const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
 
 //	project->sole.Paint();
 }
 
-void ProjectView::PaintUpper(void) const
-{
-	Project* project = wxStaticCast(this->GetDocument(), Project);
+void ProjectView::PaintUpper(void) const {
+	Project *project = wxStaticCast(this->GetDocument(), Project);
 	glColor3f(0.1, 0.4, 0.0);
-	project->lastModelL.PaintAnalysis();
+//	project->lastModelL.PaintAnalysis();
 
 }
 
-void ProjectView::PaintCutaway(void) const
-{
-	Project* project = wxStaticCast(this->GetDocument(), Project);
-	project->xray.Paint();
+void ProjectView::PaintCutaway(void) const {
+	Project *project = wxStaticCast(this->GetDocument(), Project);
+//	project->xray.Paint();
 }
 
-void ProjectView::PaintFloor(void) const
-{
+void ProjectView::PaintFloor(void) const {
 	const float d = 0.5;
 	const int N = 10;
 	const float dd = d / (float) N;
@@ -372,8 +380,8 @@ void ProjectView::PaintFloor(void) const
 
 	glBegin(GL_QUADS);
 
-	for(int n = -N; n < N; ++n){
-		for(int m = -N; m < N; ++m){
+	for (int n = -N; n < N; ++n) {
+		for (int m = -N; m < N; ++m) {
 
 			glVertex3f((n - 1) * dd, (m - 1) * dd, 0);
 			glVertex3f((n + 1) * dd, (m - 1) * dd, 0);
@@ -386,74 +394,72 @@ void ProjectView::PaintFloor(void) const
 	glEnd();
 }
 
-void ProjectView::PaintBackground(bool showBehind) const
-{
-	if(!showBackground) return;
-	for(std::vector <BackgroundImage>::const_iterator image =
-			background.begin(); image != background.end(); ++image){
-		if(image->showBehindGeometry == showBehind) image->Paint();
+void ProjectView::PaintBackground(bool showBehind) const {
+	if (!showBackground)
+		return;
+	for (std::vector<BackgroundImage>::const_iterator image =
+			background.begin(); image != background.end(); ++image) {
+		if (image->showBehindGeometry == showBehind)
+			image->Paint();
 	}
 }
 
-const FootMeasurements* ProjectView::GetActiveFootMeasurements(void) const
-{
-	const Project* project = wxStaticCast(this->GetDocument(), Project);
-	switch(active){
-	case Side::Both:
-	case Side::Left:
-		return &(project->measL);
-	case Side::Right:
-		return &(project->measR);
-	}
+const FootMeasurements* ProjectView::GetActiveFootMeasurements(
+		void) const {
+	const Project *project = wxStaticCast(this->GetDocument(), Project);
+//	switch (active) {
+//	case Side::Both:
+//	case Side::Left:
+//		return &(project->measL);
+//	case Side::Right:
+//		return &(project->measR);
+//	}
 	return NULL;
 }
 
-void ProjectView::OnDraw(wxDC* dc)
-{
+void ProjectView::OnDraw(wxDC *dc) {
 	printf("ProjectView::OnDraw(...) called...\n");
 
 }
 
-void ProjectView::OnUpdate(wxView* sender, wxObject* hint)
-{
-	FrameMain* temp = wxStaticCast(GetFrame(), FrameMain);
+void ProjectView::OnUpdate(wxView *sender, wxObject *hint) {
+	FrameMain *temp = wxStaticCast(GetFrame(), FrameMain);
 	temp->TransferDataToWindow();
 	temp->Refresh();
 	wxView::OnUpdate(sender, hint);
 }
 
-void ProjectView::OnUpdate3D(void)
-{
-	FrameMain* frame = wxStaticCast(GetFrame(), FrameMain);
-	FrameParent* parentframe = wxStaticCast(frame->GetParent(), FrameParent);
+void ProjectView::OnUpdate3D(void) {
+	FrameMain *frame = wxStaticCast(GetFrame(), FrameMain);
+	FrameParent *parentframe = wxStaticCast(frame->GetParent(), FrameParent);
 	parentframe->settingsStereo3D.WriteToCanvas(frame->m_canvas3D);
 	frame->m_canvas3D->Refresh();
 }
 
-bool ProjectView::OnClose(bool deleteWindow)
-{
+bool ProjectView::OnClose(bool deleteWindow) {
 	printf("ProjectView::OnClose(%s) called...\n",
-			deleteWindow? "true" : "false");
-	wxDocument* doc = GetDocument();
-	wxDocManager* manager = doc->GetDocumentManager();
+			deleteWindow ? "true" : "false");
+	wxDocument *doc = GetDocument();
+	wxDocManager *manager = doc->GetDocumentManager();
 	wxList tempDocs = manager->GetDocuments();
 	wxList tempViews = doc->GetViews();
 
 	printf("ProjectView: %lu docs, %lu views\n", tempDocs.GetCount(),
 			tempViews.GetCount());
 
-	if(!wxView::OnClose(deleteWindow)) return false;
+	if (!wxView::OnClose(deleteWindow))
+		return false;
 	Activate(false);
 //	GetDocument()->DeleteContents();
-	wxWindow* frame = this->GetFrame();
-	if(tempDocs.GetCount() <= 1 && tempViews.GetCount() <= 1 && frame != NULL){
-		wxWindow* parent = frame->GetParent();
+	wxWindow *frame = this->GetFrame();
+	if (tempDocs.GetCount() <= 1 && tempViews.GetCount() <= 1 && frame != NULL) {
+		wxWindow *parent = frame->GetParent();
 		printf("ProjectView: Posting wxID_EXIT to parent\n");
 		wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, wxID_EXIT);
 		wxPostEvent(parent, event);
 	}
 
-	if(deleteWindow){
+	if (deleteWindow) {
 		printf("ProjectView: Request destruction of associated Frame\n");
 		frame->Destroy();
 		SetFrame(NULL);

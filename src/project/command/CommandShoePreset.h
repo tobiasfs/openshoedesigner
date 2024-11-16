@@ -24,17 +24,17 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __COMMANDSHOEPRESET_H__
-#define __COMMANDSHOEPRESET_H__
+#ifndef COMMANDSHOEPRESET_H
+#define COMMANDSHOEPRESET_H
 
 /*!\class CommandShoePreset
+ * \ingroup command
  * \brief Command to select a preset for the shoe
  *
  * ...
  */
 
 #include <wx/cmdproc.h>
-#include <wx/string.h>
 #include "../Project.h"
 
 class CommandShoePreset:public wxCommand {
@@ -48,9 +48,9 @@ protected:
 	Project* project;
 	int preset;
 
-	wxString oldHeelHeight;
-	wxString oldBallHeight;
-	wxString oldToeAngle;
+	std::string oldHeelHeight;
+	std::string oldBallHeight;
+	std::string oldToeAngle;
 };
 
-#endif /* __COMMANDSHOEPRESET_H__ */
+#endif /* COMMANDSHOEPRESET_H */

@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef DIALOGSETUPUNITS_H_
-#define DIALOGSETUPUNITS_H_
+#ifndef DIALOGSETUPUNITS_H
+#define DIALOGSETUPUNITS_H
 
 /*!\class DialogSetupUnits
  * \brief ...
@@ -33,25 +33,21 @@
  * ...
  */
 
-#include "../StdInclude.h"
+#include "CollectionUnits.h"
 #include "gui.h"
 
-class CollectionUnits;
 class DialogSetupUnits:public GUIFrameSetupUnits {
-	// Constructor/ Destructor
-
 public:
 	DialogSetupUnits(wxWindow* parent, CollectionUnits * units);
-	virtual ~DialogSetupUnits();
-	// Member variables
-private:
+	virtual ~DialogSetupUnits() = default;
 
+private:
 	CollectionUnits * units;
 
 	// Methods
 private:
-	bool TransferDataToWindow(void);
-	bool TransferDataFromWindow(void);
+	bool TransferDataToWindow();
+	bool TransferDataFromWindow();
 
 private:
 	void OnClose(wxCommandEvent& event);
@@ -59,4 +55,4 @@ private:
 	void OnChangeUnit(wxCommandEvent& event);
 };
 
-#endif /* DIALOGSETUPUNITS_H_ */
+#endif /* DIALOGSETUPUNITS_H */

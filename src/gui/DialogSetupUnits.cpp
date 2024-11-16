@@ -24,79 +24,73 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DialogSetupUnits.h"
-#include "CollectionUnits.h"
-#include "IDs.h"
 #include "../StdInclude.h"
+#include "DialogSetupUnits.h"
+#include "IDs.h"
 
-DialogSetupUnits::DialogSetupUnits(wxWindow* parent, CollectionUnits * units)
-		: GUIFrameSetupUnits(parent)
-{
+DialogSetupUnits::DialogSetupUnits(wxWindow *parent, CollectionUnits *units) :
+		GUIFrameSetupUnits(parent) {
 	this->units = units;
 
 	TransferDataToWindow();
 }
 
-DialogSetupUnits::~DialogSetupUnits()
-{
-}
-
-void DialogSetupUnits::OnClose(wxCommandEvent& event)
-{
+void DialogSetupUnits::OnClose(wxCommandEvent &event) {
 	Hide();
 }
 
-bool DialogSetupUnits::TransferDataToWindow(void)
-{
+bool DialogSetupUnits::TransferDataToWindow() {
 	int i;
 
 	m_choiceUnitLength->Clear();
-	m_choiceUnitLength->Append(units->unitsOfLength);
+	for (const Unit &unit : units->unitsOfLength)
+		m_choiceUnitLength->Append(wxString(unit.GetOtherName()));
 	i = m_choiceUnitLength->FindString(units->Distance.GetOtherName());
-	if(i == wxNOT_FOUND) i = 6;
+	if (i == wxNOT_FOUND)
+		i = 6;
 	m_choiceUnitLength->SetSelection(i);
 
 	m_choiceUnitSmallDistance->Clear();
-	m_choiceUnitSmallDistance->Append(units->unitsOfLength);
+	for (const Unit &unit : units->unitsOfLength)
+		m_choiceUnitSmallDistance->Append(wxString(unit.GetOtherName()));
+
 	i = m_choiceUnitSmallDistance->FindString(
 			units->SmallDistance.GetOtherName());
-	if(i == wxNOT_FOUND) i = 6;
+	if (i == wxNOT_FOUND)
+		i = 6;
 	m_choiceUnitSmallDistance->SetSelection(i);
 
 	m_choiceUnitAngle->Clear();
-	m_choiceUnitAngle->Append(units->unitsOfAngle);
+	for (const Unit &unit : units->unitsOfAngle)
+		m_choiceUnitAngle->Append(wxString(unit.GetOtherName()));
 	i = m_choiceUnitAngle->FindString(units->Angle.GetOtherName());
-	if(i == wxNOT_FOUND) i = 0;
+	if (i == wxNOT_FOUND)
+		i = 0;
 	m_choiceUnitAngle->SetSelection(i);
 
 	return true;
 }
-bool DialogSetupUnits::TransferDataFromWindow(void)
-{
-	int i;
 
-	i = m_choiceUnitLength->GetSelection();
-	units->Distance.Setup(_T("m"), units->unitsOfLength[i],
-			units->factorofLength[i]);
+bool DialogSetupUnits::TransferDataFromWindow() {
+	int idx;
 
-	i = m_choiceUnitSmallDistance->GetSelection();
-	units->SmallDistance.Setup(_T("m"), units->unitsOfLength[i],
-			units->factorofLength[i]);
+	idx = m_choiceUnitLength->GetSelection();
+	units->Distance = units->unitsOfLength[idx];
 
-	i = m_choiceUnitAngle->GetSelection();
-	units->Angle.Setup(_T("rad"), units->unitsOfAngle[i],
-			units->factorofAngle[i]);
+	idx = m_choiceUnitSmallDistance->GetSelection();
+	units->SmallDistance = units->unitsOfLength[idx];
+
+	idx = m_choiceUnitAngle->GetSelection();
+	units->Angle = units->unitsOfAngle[idx];
 
 	return true;
 }
 
-void DialogSetupUnits::OnCloseX(wxCloseEvent& event)
-{
+void DialogSetupUnits::OnCloseX(wxCloseEvent &event) {
 	Hide();
 }
 
-void DialogSetupUnits::OnChangeUnit(wxCommandEvent& event)
-{
+void DialogSetupUnits::OnChangeUnit(wxCommandEvent &event) {
 	TransferDataFromWindow();
 	wxCommandEvent selectEvent(wxEVT_COMMAND_MENU_SELECTED, ID_REFRESHALL);
 	ProcessEvent(selectEvent);

@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_PROJECT_JSON_H_
-#define SRC_PROJECT_JSON_H_
+#ifndef SYSTEM_JSON_H
+#define SYSTEM_JSON_H
 
 /*!\class JSON
  * \brief JSON handling class
@@ -33,7 +33,8 @@
  * Reads and writes JSON files
  * and stores the data.
  *
- * Uses only standard libraries (stl & the other normal ones, i.e. only what is found on http://www.cplusplus.com/reference/ )
+ * Uses only standard libraries (stl & the other normal ones, i.e. only what
+ * is found on http://www.cplusplus.com/reference/ )
  */
 
 // https://esprima.org/
@@ -43,6 +44,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <array>
 
 class JSON {
 private:
@@ -52,32 +54,33 @@ private:
 public:
 	JSON() = default;
 
-	static JSON Load(std::string filename);
+	static JSON Load(const std::string &filename);
 	static JSON Load(std::istream &in);
-	void Save(std::string filename);
-	void Save(std::ostream &out);
+	void Save(const std::string &filename, bool usenewline = true,
+			size_t indent = 0);
+	void Save(std::ostream &out, bool usenewline = true, size_t indent = 0);
 
-	const JSON & Begin(void) const;
+	const JSON& Begin() const;
 
-	JSON & operator[](const std::string &key);
-	const JSON & operator[](const std::string &key) const;
-	JSON & operator[](size_t index);
-	const JSON & operator[](size_t index) const;
+	JSON& operator[](const std::string &key);
+	const JSON& operator[](const std::string &key) const;
+	JSON& operator[](size_t index);
+	const JSON& operator[](size_t index) const;
 
-	bool IsNull(void) const;
-	Type GetType(void) const;
+	bool IsNull() const;
+	Type GetType() const;
 	bool GetBool(const bool defaultvalue = false) const;
 	double GetNumber(const double defaultvalue = 0.0) const;
 	std::string GetString(
 			const std::string &defaultvalue = std::string("")) const;
-	bool IsArray(void) const;
-	bool IsObject(void) const;
+	bool IsArray() const;
+	bool IsObject() const;
 	// A Null has the size 1, because it is not empty.
-	size_t Size(void) const;
-	bool HasKey(std::string key) const;
+	size_t Size() const;
+	bool HasKey(const std::string &key) const;
 	std::string GetKey(size_t index) const;
 
-	void SetNull(void);
+	void SetNull();
 	void SetBool(const bool value);
 	void SetNumber(const double value);
 	void SetString(const std::string &value);
@@ -89,13 +92,13 @@ private:
 	bool valueBoolean = false;
 	double valueNumber = 0.0;
 	std::string valueString;
-	std::vector <JSON> valueArray;
-	std::map <std::string, JSON> valueObject;
+	std::vector<JSON> valueArray;
+	std::map<std::string, JSON> valueObject;
 
 	class Token {
 	public:
 		Token() = default;
-		std::string Lower(void) const;
+		std::string Lower() const;
 		enum class Type {
 			_Null, _Boolean, _Char, _String, _Number
 		} type = Type::_Null;
@@ -107,30 +110,50 @@ private:
 
 	class FileTokenizer {
 	public:
-		explicit FileTokenizer(std::istream * in);
+		explicit FileTokenizer(std::istream *in);
 		FileTokenizer(const FileTokenizer&) = delete;
 		FileTokenizer& operator=(const FileTokenizer&) = delete;
-		virtual ~FileTokenizer();
-		void SetupTables(void);
-		void NextToken(void);
+		virtual ~FileTokenizer() = default;
+
+		void NextToken();
 		Token token;
 
-		std::istream * in;
-		char * buffer;
+		std::istream *in;
+		std::vector<char> buffer;
 		char nextc;
 		size_t charsread;
 		size_t position;
 		size_t linenumber;
 		size_t column;
 		size_t buffersize;
-		unsigned char * statetable;
-		unsigned char * actiontable;
 	};
 
 	static JSON Parse(FileTokenizer &ft, int maxRecursion);
-	void ToStream(std::ostream &out, bool usenewline = true,
-			size_t indent = 0) const;
+	void ToStream(std::ostream &out, bool usenewline, size_t indent) const;
 	static std::string EscapeString(const std::string &txt);
+
+private:
+	static const size_t stateCount = 27;
+	static const size_t charWidth = 256; // Normal 8-bit bytes
+	static std::array<unsigned char, stateCount * charWidth * 2> lexerTables;
+
+	/**\brief Generate table for the turbo-lexer.
+	 *
+	 * This static function generates the (actually two) tables for the
+	 * turbo-lexer. The tables are sitting side by side in an 6 kByte array.
+	 * The first table is the state transition table. It cuts the text fed to
+	 * it up in the lexems for the JSON language. The second table is an action
+	 * table. It describes special handling for some incoming chars, like
+	 * building up numbers or adding characters to IDs.
+	 *
+	 * The decision to side both tables is due to the fact, that the action-
+	 * table relies on the decisions in the state-table and cannot be created
+	 * separately with this approach.
+	 *
+	 * \todo Change approach to use separate tables. (x<<8 is a little faster than x<<9)
+	 */
+	static std::array<unsigned char, stateCount * charWidth * 2> InitTables();
 };
 
-#endif /* SRC_PROJECT_JSON_H_ */
+#endif /* SYSTEM_JSON_H */
+

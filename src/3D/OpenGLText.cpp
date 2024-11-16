@@ -29,21 +29,19 @@
 #include "font.xpm"
 
 OpenGLText::OpenGLText() :
-		OpenGLImage(font_xpm)
-{
+		OpenGLImage(wxImage(font_xpm)) {
 	nx = 16;
 	ny = 8;
 	rx = 1.0 / (double) nx;
 	ry = 1.0 / (double) ny;
 }
 
-OpenGLText::~OpenGLText()
-{
+OpenGLText::~OpenGLText() {
 }
 
-void OpenGLText::Paint(wxString text) const
-{
-	if(text.IsEmpty()) return;
+void OpenGLText::Paint(wxString text) const {
+	if (text.IsEmpty())
+		return;
 	Update();
 
 	glBindTexture(GL_TEXTURE_2D, textureID);
@@ -51,8 +49,10 @@ void OpenGLText::Paint(wxString text) const
 	glNormal3f(0, 0, 1);
 	glBegin(GL_QUADS);
 
-	for(size_t n = 0; n < text.length(); n++){
+	for (size_t n = 0; n < text.length(); n++) {
 		const unsigned char c = text.GetChar(n);
+		if (c >= 128)
+			continue;
 		const double x = ((double) (c % nx) * rx);
 		const double y = ((double) (c / nx) * ry);
 		glTexCoord2f(this->tex_w * (x), this->tex_h * (y));

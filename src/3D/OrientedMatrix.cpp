@@ -32,37 +32,32 @@
 #include <cassert>
 
 void OrientedMatrix::SetSize(unsigned int nx, unsigned int ny, unsigned int nz,
-		float resolution)
-{
-	MatlabMatrix::SetSize(nx, ny, nz);
+		float resolution) {
+	Matrix::SetSize(nx, ny, nz);
 	dx = resolution;
 	dy = resolution;
 	dz = resolution;
 }
 
-void OrientedMatrix::SetExtent(float x, float y, float z, float resolution)
-{
+void OrientedMatrix::SetExtent(float x, float y, float z, float resolution) {
 	size_t nx = (unsigned int) ceil(x / resolution);
 	size_t ny = (unsigned int) ceil(y / resolution);
 	size_t nz = (unsigned int) ceil(z / resolution);
-	MatlabMatrix::SetSize(nx, ny, nz);
+	Matrix::SetSize(nx, ny, nz);
 	dx = resolution;
 	dy = resolution;
 	dz = resolution;
 }
 
-void OrientedMatrix::SetOrigin(Vector3 origin)
-{
+void OrientedMatrix::SetOrigin(Vector3 origin) {
 	this->origin = origin;
 }
 
-double OrientedMatrix::GetValue(Vector3 p) const
-{
+double OrientedMatrix::GetValue(Vector3 p) const {
 	return GetValue(p.x, p.y, p.z);
 }
 
-double OrientedMatrix::GetValue(double x, double y, double z) const
-{
+double OrientedMatrix::GetValue(double x, double y, double z) const {
 	const size_t Nx = Size(1);
 	const size_t Ny = Size(2);
 	const size_t Nz = Size(3);
@@ -78,22 +73,22 @@ double OrientedMatrix::GetValue(double x, double y, double z) const
 	const int ix = (int) px;
 	const int iy = (int) py;
 	const int iz = (int) pz;
-	if(ix < 0 || iy < 0 || iz < 0 || ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz) return 0.0;
+	if (ix < 0 || iy < 0 || iz < 0 || ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz)
+		return 0.0;
 	const int pos = ix + (iy + iz * Ny) * Nx;
 	double v = 0.0;
-	v += buffer[pos] * (1 - mx) * (1 - my) * (1 - mz);
-	v += buffer[pos + 1] * (mx) * (1 - my) * (1 - mz);
-	v += buffer[pos + Nx] * (1 - mx) * (my) * (1 - mz);
-	v += buffer[pos + 1 + Nx] * (mx) * (my) * (1 - mz);
-	v += buffer[pos + Nx * Ny] * (1 - mx) * (1 - my) * (mz);
-	v += buffer[pos + 1 + Nx * Ny] * (mx) * (1 - my) * (mz);
-	v += buffer[pos + Nx + Nx * Ny] * (1 - mx) * (my) * (mz);
-	v += buffer[pos + 1 + Nx + Nx * Ny] * (mx) * (my) * (mz);
+	v += values[pos] * (1 - mx) * (1 - my) * (1 - mz);
+	v += values[pos + 1] * (mx) * (1 - my) * (1 - mz);
+	v += values[pos + Nx] * (1 - mx) * (my) * (1 - mz);
+	v += values[pos + 1 + Nx] * (mx) * (my) * (1 - mz);
+	v += values[pos + Nx * Ny] * (1 - mx) * (1 - my) * (mz);
+	v += values[pos + 1 + Nx * Ny] * (mx) * (1 - my) * (mz);
+	v += values[pos + Nx + Nx * Ny] * (1 - mx) * (my) * (mz);
+	v += values[pos + 1 + Nx + Nx * Ny] * (mx) * (my) * (mz);
 	return v;
 }
 
-Vector3 OrientedMatrix::GetGrad(Vector3 p) const
-{
+Vector3 OrientedMatrix::GetGrad(Vector3 p) const {
 	const size_t Nx = Size(1);
 	const size_t Ny = Size(2);
 	const size_t Nz = Size(3);
@@ -111,16 +106,17 @@ Vector3 OrientedMatrix::GetGrad(Vector3 p) const
 	const int iz = (int) pz;
 
 	Vector3 temp;
-	if(ix < 0 || iy < 0 || iz < 0 || ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz) return temp;
+	if (ix < 0 || iy < 0 || iz < 0 || ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz)
+		return temp;
 	const size_t pos = ix + (iy + iz * Ny) * Nx;
-	const double v0 = buffer[pos];
-	const double v1 = buffer[pos + 1];
-	const double v2 = buffer[pos + Nx];
-	const double v3 = buffer[pos + 1 + Nx];
-	const double v4 = buffer[pos + Nx * Ny];
-	const double v5 = buffer[pos + 1 + Nx * Ny];
-	const double v6 = buffer[pos + Nx + Nx * Ny];
-	const double v7 = buffer[pos + 1 + Nx + Nx * Ny];
+	const double v0 = values[pos];
+	const double v1 = values[pos + 1];
+	const double v2 = values[pos + Nx];
+	const double v3 = values[pos + 1 + Nx];
+	const double v4 = values[pos + Nx * Ny];
+	const double v5 = values[pos + 1 + Nx * Ny];
+	const double v6 = values[pos + Nx + Nx * Ny];
+	const double v7 = values[pos + 1 + Nx + Nx * Ny];
 
 	//  Maxima:
 	//  v(x,y,z):= v0*(1-x)*(1-y)*(1-z)+v1*x*(1-y)*(1-z)+v2*(1-x)*y*(1-z)+v3*x*y*(1-z)+v4*(1-x)*(1-y)*z+v5*x*(1-y)*z+v6*(1-x)*y*z+v7*x*y*z;
@@ -141,8 +137,7 @@ Vector3 OrientedMatrix::GetGrad(Vector3 p) const
 	return temp;
 }
 
-OrientedMatrix OrientedMatrix::SurfaceField(void) const
-{
+OrientedMatrix OrientedMatrix::SurfaceField(void) const {
 	const size_t Nx = Size(1);
 	const size_t Ny = Size(2);
 	const size_t Nz = Size(3);
@@ -152,234 +147,221 @@ OrientedMatrix OrientedMatrix::SurfaceField(void) const
 	temp.SetOrigin(Vector3(origin.x, origin.y, origin.z));
 	temp.SetInsertPosition(0);
 
-	if(buffer == NULL) return temp;
-
 	const size_t h = Nx * Ny;
-	for(size_t i = 0; i < h; i++){
-		double v0 = buffer[i];
+	for (size_t i = 0; i < h; i++) {
+		double v0 = values[i];
 		size_t j = i;
 		double v = DBL_MAX;
-		for(size_t k = 1; k < Nz; k++){
+		for (size_t k = 1; k < Nz; k++) {
 			j += h;
-			if(buffer[j] > 0.5){
-				if(v0 > 0.5){
+			if (values[j] > 0.5) {
+				if (v0 > 0.5) {
 					v = (double) (k - 1) * dz;
-				}else{
+				} else {
 					const double c = fmin(
-							fmax((0.5 - v0) / (buffer[j] - v0), 0), 1);
+							fmax((0.5 - v0) / (values[j] - v0), 0), 1);
 					v = ((double) (k - 1) + c) * dz;
 				}
 				break;
 			}
-			v0 = buffer[j];
+			v0 = values[j];
 		}
 		temp.Insert(v);
 	}
 	return temp;
 }
 
-void OrientedMatrix::Paint(void) const
-{
+void OrientedMatrix::Paint(void) const {
 	const size_t Nx = Size(1);
 	const size_t Ny = Size(2);
 	const size_t Nz = Size(3);
 
-	const uint_fast8_t NDim = ((Nx > 1)? 1 : 0) + ((Ny > 1)? 1 : 0)
-			+ ((Nz > 1)? 1 : 0);
+	const uint_fast8_t NDim = ((Nx > 1) ? 1 : 0) + ((Ny > 1) ? 1 : 0)
+			+ ((Nz > 1) ? 1 : 0);
 
 	glPushMatrix();
 	glTranslatef(origin.x, origin.y, origin.z);
 
-	if(NDim == 2){
-		switch(display2D){
-		case Display2D::Points2D:
-			{
-				glPointSize(2.0);
-				glBegin(GL_POINTS);
-				Vector3 p(0, 0, 0);
-				unsigned int c = 0;
-				for(size_t k = 0; k < Nz; k++){
-					for(size_t j = 0; j < Ny; j++){
-						for(size_t i = 0; i < Nx; i++){
-							const double v0 = buffer[c];
-							if(v0 > surface){
-								glColor3f(v0 * 5, v0 * 5, v0 * 5);
-								glVertex3f(p.x, p.y, p.z);
-							}
-							p.x += dx;
-							c++;
+	if (NDim == 2) {
+		switch (display2D) {
+		case Display2D::Points2D: {
+			glPointSize(2.0);
+			glBegin(GL_POINTS);
+			Vector3 p(0, 0, 0);
+			unsigned int c = 0;
+			for (size_t k = 0; k < Nz; k++) {
+				for (size_t j = 0; j < Ny; j++) {
+					for (size_t i = 0; i < Nx; i++) {
+						const double v0 = values[c];
+						if (v0 > surface) {
+							glColor3f(v0 * 5, v0 * 5, v0 * 5);
+							glVertex3f(p.x, p.y, p.z);
 						}
-						p.x = 0;
-						p.y += dy;
+						p.x += dx;
+						c++;
 					}
-					p.y = 0;
-					p.z += dz;
+					p.x = 0;
+					p.y += dy;
 				}
-				glEnd();
-				break;
+				p.y = 0;
+				p.z += dz;
 			}
-		case Display2D::Grid:
-			{
-				glDisable(GL_CULL_FACE);
-				glBegin(GL_QUADS);
-				glColor3f(1, 1, 1);
-				if(Ny == 1){
-					for(size_t x = 0; x < (Nx - 1); x++){
-						for(size_t z = 0; z < (Nz - 1); z++){
-							const double v0 = MatlabMatrix::operator()(x, 0, z);
-							const double v1 = MatlabMatrix::operator()(x, 0,
-									z + 1);
-							const double v2 = MatlabMatrix::operator()(x + 1, 0,
-									z + 1);
-							const double v3 = MatlabMatrix::operator()(x + 1, 0,
-									z);
-							if(v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
-									|| v3 == DBL_MAX) continue;
-							glNormal3f(0, 0, 1);
-							glVertex3f((x) * dx, v0, (z) * dz);
-							glVertex3f((x) * dx, v3, (z + 1) * dz);
-							glVertex3f((x + 1) * dx, v2, (z + 1) * dz);
-							glVertex3f((x + 1) * dx, v1, (z) * dz);
-						}
+			glEnd();
+			break;
+		}
+		case Display2D::Grid: {
+			glDisable(GL_CULL_FACE);
+			glBegin(GL_QUADS);
+			glColor3f(1, 1, 1);
+			if (Ny == 1) {
+				for (size_t x = 0; x < (Nx - 1); x++) {
+					for (size_t z = 0; z < (Nz - 1); z++) {
+						const double v0 = Matrix::operator()(x, 0, z);
+						const double v1 = Matrix::operator()(x, 0, z + 1);
+						const double v2 = Matrix::operator()(x + 1, 0, z + 1);
+						const double v3 = Matrix::operator()(x + 1, 0, z);
+						if (v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
+								|| v3 == DBL_MAX)
+							continue;
+						glNormal3f(0, 0, 1);
+						glVertex3f((x) * dx, v0, (z) * dz);
+						glVertex3f((x) * dx, v3, (z + 1) * dz);
+						glVertex3f((x + 1) * dx, v2, (z + 1) * dz);
+						glVertex3f((x + 1) * dx, v1, (z) * dz);
 					}
 				}
-				if(Nz == 1){
-					for(size_t x = 0; x < (Nx - 1); x++){
-						for(size_t y = 0; y < (Ny - 1); y++){
-							const double v0 = MatlabMatrix::operator()(x, y, 0);
-							const double v1 = MatlabMatrix::operator()(x + 1, y,
-									0);
-							const double v2 = MatlabMatrix::operator()(x + 1,
-									y + 1, 0);
-							const double v3 = MatlabMatrix::operator()(x, y + 1,
-									0);
-							if(v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
-									|| v3 == DBL_MAX) continue;
-							glNormal3f(0, 0, 1);
-							glVertex3f((x) * dx, (y) * dy, v0);
-							glVertex3f((x + 1) * dx, (y) * dy, v1);
-							glVertex3f((x + 1) * dx, (y + 1) * dy, v2);
-							glVertex3f((x) * dx, (y + 1) * dy, v3);
-						}
-					}
-				}
-				glEnd();
-				glEnable(GL_CULL_FACE);
-				break;
 			}
-		case Display2D::Image:
-			{
-				const double min = this->Min();
-				const double max = this->Max();
-				const double a = (max != min)? (1 / (max - min)) : 1.0;
-				const double b = -min * a;
-				glNormal3f(0, 0, 1);
-				glBegin(GL_QUADS);
-				if(Ny == 1){
-					for(size_t x = 0; x < (Nx - 1); x++){
-						for(size_t z = 0; z < (Nz - 1); z++){
-							const double v0 = MatlabMatrix::operator()(x, 0, z);
-							const double v1 = MatlabMatrix::operator()(x, 0,
-									z + 1);
-							const double v2 = MatlabMatrix::operator()(x + 1, 0,
-									z + 1);
-							const double v3 = MatlabMatrix::operator()(x + 1, 0,
-									z);
-							if(v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
-									|| v3 == DBL_MAX) continue;
-							const double c0 = a * v0 + b;
-							const double c1 = a * v1 + b;
-							const double c2 = a * v2 + b;
-							const double c3 = a * v3 + b;
-							glNormal3f(0, 0, 1);
-							glColor3d(c0, c0, c0);
-							glVertex3f((x) * dx, 0, (z) * dz);
-							glColor3d(c1, c1, c1);
-							glVertex3f((x) * dx, 0, (z + 1) * dz);
-							glColor3d(c2, c2, c2);
-							glVertex3f((x + 1) * dx, 0, (z + 1) * dz);
-							glColor3d(c3, c3, c3);
-							glVertex3f((x + 1) * dx, 0, (z) * dz);
-						}
+			if (Nz == 1) {
+				for (size_t x = 0; x < (Nx - 1); x++) {
+					for (size_t y = 0; y < (Ny - 1); y++) {
+						const double v0 = Matrix::operator()(x, y, 0);
+						const double v1 = Matrix::operator()(x + 1, y, 0);
+						const double v2 = Matrix::operator()(x + 1, y + 1, 0);
+						const double v3 = Matrix::operator()(x, y + 1, 0);
+						if (v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
+								|| v3 == DBL_MAX)
+							continue;
+						glNormal3f(0, 0, 1);
+						glVertex3f((x) * dx, (y) * dy, v0);
+						glVertex3f((x + 1) * dx, (y) * dy, v1);
+						glVertex3f((x + 1) * dx, (y + 1) * dy, v2);
+						glVertex3f((x) * dx, (y + 1) * dy, v3);
 					}
 				}
-				if(Nz == 1){
-					for(size_t x = 0; x < (Nx - 1); x++){
-						for(size_t y = 0; y < (Ny - 1); y++){
-							const double v0 = MatlabMatrix::operator()(x, y, 0);
-							const double v1 = MatlabMatrix::operator()(x + 1, y,
-									0);
-							const double v2 = MatlabMatrix::operator()(x + 1,
-									y + 1, 0);
-							const double v3 = MatlabMatrix::operator()(x, y + 1,
-									0);
-							if(v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
-									|| v3 == DBL_MAX) continue;
-							const double c0 = a * v0 + b;
-							const double c1 = a * v1 + b;
-							const double c2 = a * v2 + b;
-							const double c3 = a * v3 + b;
-							glColor3d(c0, c0, c0);
-							glVertex3f((x) * dx, (y) * dy, 0);
-							glColor3d(c1, c1, c1);
-							glVertex3f((x + 1) * dx, (y) * dy, 0);
-							glColor3d(c2, c2, c2);
-							glVertex3f((x + 1) * dx, (y + 1) * dy, 0);
-							glColor3d(c3, c3, c3);
-							glVertex3f((x) * dx, (y + 1) * dy, 0);
-						}
-					}
-				}
-				glEnd();
-				break;
 			}
+			glEnd();
+			glEnable(GL_CULL_FACE);
+			break;
+		}
+		case Display2D::Image: {
+			const double min = this->Min();
+			const double max = this->Max();
+			const double a = (max != min) ? (1 / (max - min)) : 1.0;
+			const double b = -min * a;
+			glNormal3f(0, 0, 1);
+			glBegin(GL_QUADS);
+			if (Ny == 1) {
+				for (size_t x = 0; x < (Nx - 1); x++) {
+					for (size_t z = 0; z < (Nz - 1); z++) {
+						const double v0 = Matrix::operator()(x, 0, z);
+						const double v1 = Matrix::operator()(x, 0, z + 1);
+						const double v2 = Matrix::operator()(x + 1, 0, z + 1);
+						const double v3 = Matrix::operator()(x + 1, 0, z);
+						if (v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
+								|| v3 == DBL_MAX)
+							continue;
+						const double c0 = a * v0 + b;
+						const double c1 = a * v1 + b;
+						const double c2 = a * v2 + b;
+						const double c3 = a * v3 + b;
+						glNormal3f(0, 0, 1);
+						glColor3d(c0, c0, c0);
+						glVertex3f((x) * dx, 0, (z) * dz);
+						glColor3d(c1, c1, c1);
+						glVertex3f((x) * dx, 0, (z + 1) * dz);
+						glColor3d(c2, c2, c2);
+						glVertex3f((x + 1) * dx, 0, (z + 1) * dz);
+						glColor3d(c3, c3, c3);
+						glVertex3f((x + 1) * dx, 0, (z) * dz);
+					}
+				}
+			}
+			if (Nz == 1) {
+				for (size_t x = 0; x < (Nx - 1); x++) {
+					for (size_t y = 0; y < (Ny - 1); y++) {
+						const double v0 = Matrix::operator()(x, y, 0);
+						const double v1 = Matrix::operator()(x + 1, y, 0);
+						const double v2 = Matrix::operator()(x + 1, y + 1, 0);
+						const double v3 = Matrix::operator()(x, y + 1, 0);
+						if (v0 == DBL_MAX || v1 == DBL_MAX || v2 == DBL_MAX
+								|| v3 == DBL_MAX)
+							continue;
+						const double c0 = a * v0 + b;
+						const double c1 = a * v1 + b;
+						const double c2 = a * v2 + b;
+						const double c3 = a * v3 + b;
+						glColor3d(c0, c0, c0);
+						glVertex3f((x) * dx, (y) * dy, 0);
+						glColor3d(c1, c1, c1);
+						glVertex3f((x + 1) * dx, (y) * dy, 0);
+						glColor3d(c2, c2, c2);
+						glVertex3f((x + 1) * dx, (y + 1) * dy, 0);
+						glColor3d(c3, c3, c3);
+						glVertex3f((x) * dx, (y + 1) * dy, 0);
+					}
+				}
+			}
+			glEnd();
+			break;
+		}
 		}
 	}
 
-	if(NDim == 3){
-		switch(display3D){
-		case Display3D::Points3D:
-			{
-				glPointSize(2.0);
-				glBegin(GL_POINTS);
-				Vector3 p(0, 0, 0);
-				size_t c = 0;
-				for(size_t k = 0; k < Nz; k++){
-					for(size_t j = 0; j < Ny; j++){
-						for(size_t i = 0; i < Nx; i++){
-							const double v0 = buffer[c];
-							if(v0 > surface){
-								glColor3f(v0 * 5, v0 * 5, v0 * 5);
-								glVertex3f(p.x, p.y, p.z);
-							}
-							p.x += dx;
-							c++;
+	if (NDim == 3) {
+		switch (display3D) {
+		case Display3D::Points3D: {
+			glPointSize(2.0);
+			glBegin(GL_POINTS);
+			Vector3 p(0, 0, 0);
+			size_t c = 0;
+			for (size_t k = 0; k < Nz; k++) {
+				for (size_t j = 0; j < Ny; j++) {
+					for (size_t i = 0; i < Nx; i++) {
+						const double v0 = values[c];
+						if (v0 > surface) {
+							glColor3f(v0 * 5, v0 * 5, v0 * 5);
+							glVertex3f(p.x, p.y, p.z);
 						}
-						p.x = 0;
-						p.y += dy;
+						p.x += dx;
+						c++;
 					}
-					p.y = 0;
-					p.z += dz;
+					p.x = 0;
+					p.y += dy;
 				}
-				glEnd();
-				break;
+				p.y = 0;
+				p.z += dz;
 			}
+			glEnd();
+			break;
+		}
 		}
 	}
 
 	glPopMatrix();
 }
 
-void OrientedMatrix::Rotate(Axis a, int quarters)
-{
-	MathMatrix::Rotate(a, quarters);
+void OrientedMatrix::Rotate(Axis a, int quarters) {
+	Matrix::Rotate(a, quarters);
 
 	quarters %= 4;
-	if(quarters < 0) quarters += 4;
-	if(quarters == 0) return;
-	if(quarters == 2) return;
+	if (quarters < 0)
+		quarters += 4;
+	if (quarters == 0)
+		return;
+	if (quarters == 2)
+		return;
 	assert(quarters == 1 || quarters == 3);
-	switch(a){
+	switch (a) {
 	case Axis::X:
 		std::swap(dy, dz);
 		break;
@@ -392,14 +374,13 @@ void OrientedMatrix::Rotate(Axis a, int quarters)
 	}
 }
 
-OrientedMatrix OrientedMatrix::XRay(Method method) const
-{
+OrientedMatrix OrientedMatrix::XRay(Method method) const {
 	OrientedMatrix temp;
 
 	// The trick in the next line is, that the XRay Method of the MathMatrix class returns a
 	// MathMatrix object. To assign this object to an OrientedMatrix object. The MathMatrix
 	// part of the object to be returned is extracted and the result assigned to it.
-	*(MathMatrix*) &temp = MathMatrix::XRay(method);
+	*(Matrix*) &temp = Matrix::XRay(method);
 
 	// Then the rest is assigned over.
 	temp.dx = this->dx;

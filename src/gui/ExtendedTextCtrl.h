@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_EXTENDEDTEXTCTRL_H_
-#define SRC_GUI_EXTENDEDTEXTCTRL_H_
+#ifndef GUI_EXTENDEDTEXTCTRL_H
+#define GUI_EXTENDEDTEXTCTRL_H
 
 /*!\class ExtendedTextCtrl
  * \brief TODO: Not yet sure if needed
@@ -59,4 +59,4 @@ private:
 DECLARE_EVENT_TABLE()
 };
 
-#endif /* SRC_GUI_EXTENDEDTEXTCTRL_H_ */
+#endif /* GUI_EXTENDEDTEXTCTRL_H */

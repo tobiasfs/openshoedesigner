@@ -29,22 +29,89 @@
 CanvasStereoTest::CanvasStereoTest(wxWindow* parent, wxWindowID id,
 		const wxPoint& pos, const wxSize& size, long style,
 		const wxString& name) :
-		OpenGLCanvas(parent, id, pos, size, style, name)
-{
-	box.SetSize(0.4, 0.4, 0.4);
-	box -= BooleanBox(0.1, 0.1, 0.0, 0.3, 0.3, 0.4);
-	box -= BooleanBox(0.0, 0.0, 0.0, 0.3, 0.3, 0.1);
+		OpenGLCanvas(parent, id, pos, size, style, name) {
+	scale = 0.1;
 }
 
-CanvasStereoTest::~CanvasStereoTest()
-{
-}
-
-void CanvasStereoTest::Render()
-{
+void CanvasStereoTest::Render() {
 	::glPushMatrix();
 	::glColor3f(0.8, 0.8, 0.8);
-	::glTranslatef(-0.2, -0.2, -0.2);
-	box.Paint();
+
+	Vector3 v0, v1, v2, v3;
+	const float dt = (double) 2 / 40;
+	glBegin(GL_QUADS);
+	for (size_t i = 0; i < 40; ++i) {
+		for (size_t j = 0; j < 40; ++j) {
+			const float x = -1.0 + (double) i * dt;
+			const float y = -1.0 + (double) j * dt;
+			v0.Set(x, y, CalculateFront(x, y));
+			v1.Set(x + dt, y, CalculateFront(x + dt, y));
+			v2.Set(x + dt, y + dt, CalculateFront(x + dt, y + dt));
+			v3.Set(x, y + dt, CalculateFront(x, y + dt));
+			Vector3 n = (v1 - v0 + v2 - v3) * (v3 - v0 + v2 - v1);
+			n.Normalize();
+
+			glNormal3f(n.x, n.y, n.z);
+			glVertex3f(v0.x, v0.y, v0.z);
+			glVertex3f(v1.x, v1.y, v1.z);
+			glVertex3f(v2.x, v2.y, v2.z);
+			glVertex3f(v3.x, v3.y, v3.z);
+
+		}
+	}
+
+	for (size_t i = 0; i < 40; ++i) {
+		for (size_t j = 0; j < 40; ++j) {
+			const float x = -1.0 + (double) i * dt;
+			const float y = -1.0 + (double) j * dt;
+			v0.Set(x, y, CalculateZBack(x, y));
+			v1.Set(x, y + dt, CalculateZBack(x, y + dt));
+			v2.Set(x + dt, y + dt, CalculateZBack(x + dt, y + dt));
+			v3.Set(x + dt, y, CalculateZBack(x + dt, y));
+			Vector3 n = (v1 - v0 + v2 - v3) * (v3 - v0 + v2 - v1);
+			n.Normalize();
+
+			glNormal3f(n.x, n.y, n.z);
+			glVertex3f(v0.x, v0.y, v0.z);
+			glVertex3f(v1.x, v1.y, v1.z);
+			glVertex3f(v2.x, v2.y, v2.z);
+			glVertex3f(v3.x, v3.y, v3.z);
+
+		}
+	}
+
+	glNormal3f(1, 0, 0);
+	glVertex3f(1, -1, -0.5);
+	glVertex3f(1, 1, -0.5);
+	glVertex3f(1, 1, 0);
+	glVertex3f(1, -1, 0);
+
+	glNormal3f(-1, 0, 0);
+	glVertex3f(-1, -1, -0.5);
+	glVertex3f(-1, -1, 0);
+	glVertex3f(-1, 1, 0);
+	glVertex3f(-1, 1, -0.5);
+
+	glNormal3f(0, 1, 0);
+	glVertex3f(1, 1, -0.5);
+	glVertex3f(-1, 1, -0.5);
+	glVertex3f(-1, 1, 0);
+	glVertex3f(1, 1, 0);
+
+	glNormal3f(0, -1, 0);
+	glVertex3f(1, -1, -0.5);
+	glVertex3f(1, -1, 0);
+	glVertex3f(-1, -1, 0);
+	glVertex3f(-1, -1, -0.5);
+
+	glEnd();
+
 	::glPopMatrix();
+}
+
+float CanvasStereoTest::CalculateFront(float x, float y) {
+	return cos(M_PI * x / 2) * cos(M_PI * y / 2);
+}
+float CanvasStereoTest::CalculateZBack(float x, float y) {
+	return -0.5 - (cos(M_PI * x / 2 * 3) * cos(M_PI * y / 2 * 3)) / 2;
 }

@@ -3,7 +3,7 @@
 // Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
-// Compiler Options   :
+// Compiler Options   : -std=c++14 or greater
 // Author             : Tobias Schaefer
 // Created            : 07.07.2011
 // Copyright          : (C) 2011 Tobias Schaefer <tobiassch@users.sourceforge.net>
@@ -24,197 +24,290 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef POLYGON3_H_
-#define POLYGON3_H_
+#ifndef L3D_POLYGON3_H
+#define L3D_POLYGON3_H
 
-/*!\class Polygon3
+/**\class Polygon3
  * \brief Polygon in 3D space.
  *
- * Vector of Vector3 objects that form a polygon. The polygon may be closed.
- * The points of the polygon may have optional normal vectors.
- * Normal vectors can be (re-)calculated.
+ * Overload of the Geometry class with special functions for polygon(s) in
+ * 3D-space.
+ *
+ * A polygon is stored as a list of vertices and a list of edges referencing the
+ * vertices.
+ *
+ * In contrast to Geometry objects, the lists are not sorted and duplicated
+ * vertices are not identified to keep the structure of the polygons as they
+ * are.
+ *
+ * Each vertex (and edge) belongs to a group. Groups start with index 0.
+ *
+ * The normal, and the color is stored in the vertex. These attributes in the edges are
+ * ignored.
  */
 
+#include "Geometry.h"
+
 #include <stddef.h>
-#include <vector>
 #include <functional>
+#include <map>
+#include <vector>
 
-#include "AffineTransformMatrix.h"
-#include "Vector3.h"
-
-class Polygon3 {
-	// Constructor / Destructor
+class Polygon3: public Geometry {
 public:
-	Polygon3();
-
-	struct Point {
-		size_t idx = 0;
-		double rel = 0.0;
-		Vector3 p;
-		Vector3 n;
-		Vector3 d;
-	};
-
-	// Member variables
-public:
-
-	AffineTransformMatrix matrix; ///< Global Transformation of the polygon points
-
-	size_t dotSize; ///< If > 0, dots (GL_POINTS) of this size are shown at the vertices
-	enum class CalculateNormal {
+	enum class CalculateNormalMethod {
 		ByCenter, ///< Calculate normals with respect to the center of the polygon
 		ByBends, ///< Calculate normals by examining the bends in the polygon
-		InPlayXY, ///< ...
-		InPlayYZ, ///< ...
-		InPlayZX ///< ...
+		InPlaneXY, ///< Calculate the normal as if the polygon is projected into the XY plane
+		InPlaneYZ, ///< Calculate the normal as if the polygon is projected into the YZ plane
+		InPlaneZX ///< Calculate the normal as if the polygon is projected into the ZX plane
 	};
-	CalculateNormal method;
-protected:
-	std::vector <Vector3> elements; ///< Points that make up the polygon
-	bool isClosed; ///< Boolean: Closed or open polygon
-	std::vector <Vector3> normals; ///< One normal per vertex
 
-	// Methods
+	/**\brief Result for the At() method.
+	 *
+	 * When a point on the polygon is requested, this function returns info on
+	 * that point.
+	 */
+	struct Result {
+		Geometry::Vertex pos; //< Position
+		Vector3 normal;
+		Vector3 dir;
+		size_t idx = 0;
+		size_t group = 0;
+		double rel = 0.0;
+	};
+
+	Polygon3();
+
 public:
+	void Clear(); ///< Clear all points from the Polygon
 
-	void Clear(void); ///< Clear all points from the Polygon
+	/**
+	 * \name Initializing
+	 *
+	 * Adding vertices to the polygon.
+	 *
+	 * The functions NextGroup() and CloseLoopNextGroup() are optional, if the
+	 * current line should loop back to the start and/or another line should be
+	 * started.
+	 * \{
+	 */
 
-	void InsertPoint(double x = 0.0, double y = 0.0, double z = 0.0); ///< Insert a point at the end of the polygon
-	void InsertPoint(const Vector3 &x); ///< Insert a point at the end of the polygon
-	void InsertPoint(double x, double y, double z, double nx, double ny,
-			double nz); ///< Insert a point with normal at the end of the polygon
-	void InsertPoint(const Vector3 &x, const Vector3 &n); ///< Insert a point with normal at the end of the polygon
+	/**\brief Adds a vertex and an edge to the polygon
+	 *
+	 * If not the first vertex in a group or in the polygon, it also adds an
+	 * edge from the last vertex to the given vertex.
+	 *
+	 * \param vertex Vertex with position and optionally normal vector and color.
+	 *
+	 */
+	void AddEdgeToVertex(const Geometry::Vertex &vertex);
 
-	Polygon3 & operator+=(const Polygon3 &a); ///< Append another Polygon3 to this one
+	/**\brief Closes the current group
+	 *
+	 * Closes the current group and starts the next by incrementing the group
+	 * counter.
+	 *
+	 * This function has no effect, if there is no intention to add further
+	 * vertices.
+	 */
+	void NextGroup();
+
+	/** \brief Closes the current group and adds an edge to the start
+	 *
+	 * It closes the current group by adding an additional edge from the last
+	 * vertex to the first vertex of the current group.
+	 *
+	 * Increments the group counter.
+	 *
+	 * If no further vertices are added, this function has only the effect of
+	 * adding an additional edge from the end of line to the start.
+	 */
+	void CloseLoopNextGroup();
+
+	/**\}
+	 * \name Modification
+	 * \{
+	 */
+
+	Polygon3& operator+=(const Polygon3 &a); ///< Append another Polygon3 to this one
 	const Polygon3 operator+(const Polygon3 &a) const; ///< Append two Polygon3%s
+//	Polygon3& operator*=(const double val);
+//	const Polygon3 operator*(const double val);
+//	Polygon3& operator/=(const double val);
+//	const Polygon3 operator/(const double val);
 
-	Polygon3 & operator+=(const Vector3 &a); ///< Add a Vector3 to this Polygon3
-	const Polygon3 operator+(const Vector3 &a) const; ///< Add a Vector3 to a Polygon3
+	size_t Size() const; //<Get the number of vertices
+	Vertex& operator[](size_t index); //< Manipulate a vertex
+	const Vertex& operator[](size_t index) const; //< Const inspect a vertex
 
-	/*! \brief Close (or open) the polygon to a cyclic polygon
-	 * @param close Boolean: true (default) to close the polygon, false to open it.
-	 */
-	void Close(bool close = true);
-	bool IsClosed(void) const;
-
-	void Reverse(void); ///< Reverse the direction of the polygon
-
-	size_t ClosestPoint(const Vector3 & p) const; ///< Returns the closest index for the given point.
-	void RotateOrigin(const Vector3 & p); ///< Rotate the first point of the polygon close to the given point.
-	void RemoveZeroLength(void); ///< Remove all segments from the polygon, that have a length of zero
-
-	/*! \brief Apply the transformation matrix to the points in the polygon.
+	/** \brief Direction away from a vertex
 	 *
-	 * The transformation matrix is reset to the identity matrix afterwards.
-	 * This command results in no change on the output of the Paint command.
-	 */
-	void ApplyTransformation(void);
-
-	/*! \brief Apply an AffineTransformMatrix to the points in the polygon
+	 *  Returns a zero vector, if the vertex is the last in a group or in the
+	 *  polygon.
 	 *
-	 * The matrix belonging to the polygon itself stays unchanged.
-	 * @param matrix AffineTransformMatrix with the transform operation
+	 *  If there are two or more edges away from a given vertex, the first edge
+	 *  found is used to calculate the direction.
+	 *
+	 *  The returned vector is not normalized. Its length is exactly the length
+	 *  of the edge to the next vertex.
+	 *
+	 * \param index Index of vertex
+	 * \return Not-normalized vector pointing to the next vertex in line
 	 */
-	void Transform(const AffineTransformMatrix &matrix);
-	void ApplyTransformation(const std::function <Vector3(Vector3)> transform);
-
-	Polygon3 & operator/=(const double val);
-	const Polygon3 operator/(const double val);
-	Polygon3 & operator*=(const double val);
-	const Polygon3 operator*(const double val);
-
-	/*! \brief Returns the length of the polygon
-	 */
-	double GetLength(void) const;
-
-	/*! \brief Get the number of elements
-	 */
-	size_t Size(void) const;
-
-	Vector3& operator[](size_t index);
-	const Vector3& operator[](size_t index) const;
+	Vector3 Direction(size_t index) const;
 	Vector3& Normal(size_t index);
 	const Vector3& Normal(size_t index) const;
-	Vector3 Direction(size_t index) const;
 
-	Point At(double L) const;
-
-	/*! \brief Get the center of the Polygon.
+	/**\brief Recalculate the normals
 	 *
-	 * This function integrates over the length of the polygon.
-	 * This means, that the number of points on a line do not matter.
+	 * The normals of the edges are recalculated using the method indicated by
+	 * the parameter. The vertices have their normals interpolated between the
+	 * adjacent edges.
 	 */
-	Vector3 GetCenter(void) const;
-
-	/*! \brief Get rotational axis
+	void CalculateNormals(const CalculateNormalMethod method =
+			CalculateNormalMethod::ByCenter);
+	/**\brief Recalculate the normals by giving the normal of a plane.
 	 *
-	 * This function calculates the axis of rotation of the polygon.
+	 * Assuming the normals are running mathematically positive in the plane
+	 * (counter clockwise), the normals are calculated by multiplying the
+	 * direction of the edge by the given plane normal and re-normalizing the
+	 * resulting vector.
+	 *
+	 * The vertex normals are interpolated between the adjacent edges.
 	 */
-	Vector3 GetRotationalAxis(void) const;
+	void CalculateNormalsAroundVector(const Vector3 &planenormal);
 
-	/*! \brief Calculates the area of the polygon
-	 *
-	 * This function assumes the polygon is closed and uses the vectorproduct to calculate the area of the polygon.
-	 */
-	double GetArea(void) const;
+	void Shift(double distance); ///< Move the polygon along the normals.
 
-	/*! \brief Returns a std::vector with all x values of the polygon.
-	 *
-	 * \note The datatype is converted from float to double upon export.
-	 *
-	 * @return std::vector \<double\> with all x values.
-	 */
-	std::vector <double> GetXVectorD(void) const;
+	void RemoveZeroLength(); ///< Remove all segments from the polygon, that have a length of zero
 
-	/*! \brief Returns a std::vector with all y values of the polygon.
-	 *
-	 * \note The datatype is converted from float to double upon export.
-	 *
-	 * @return std::vector \<double\> with all y values.
-	 */
-	std::vector <double> GetYVectorD(void) const;
+	void Reverse(); ///< Reverse all groups.
+	void Reverse(size_t group); ///< Reverse the direction of one group
+	void RotateOrigin(const Vector3 &p);
+	void RotateOrigin(const Vector3 &p, size_t group); ///< Rotate the first point of the polygon close to the given point.
 
-	/*! \brief Returns a std::vector with all z values of the polygon.
-	 *
-	 * \note The datatype is converted from float to double upon export.
-	 *
-	 * @return std::vector \<double\> with all z values.
-	 */
-	std::vector <double> GetZVectorD(void) const;
+	void Triangulate();
 
-	/*! \brief Resample the point in the polygon.
-	 *
-	 * The polygon is resampled into a polygon with N points. This can be an over- or undersampling of the original polygon.
-	 * @param Nnew New number of points
-	 */
-	void Resample(unsigned int Nnew);
+//	/** \brief Resample the point in the polygon.
+//	 *
+//	 * The polygon is resampled into a polygon with N points. This can be an over- or undersampling of the original polygon.
+//	 * @param Nnew New number of points
+//	 */
+//	void Resample(unsigned int Nnew);
 
-	/*! \brief Moving-average filter for the points of the polygon
+	/** \brief Moving-average filter for the points of the polygon
 	 *
 	 * Use a simple MA FIR filter to filter the points of the polygon in all three dimensions.
-	 * The filter length is choosen symmetric around the point filtered. E.g. if N = 3, the point
+	 * The filter length is chosen symmetric around the point filtered. E.g. if N = 3, the point
 	 * n is averages to the mean value of n-1, n, n+1. For even numbers the extra point is take from the
 	 * negative part. E.g. N = 4 results in the mean value of n-2, n-1, n, n+1.
 	 *
-	 *\todo: Revisit and check, if everything is implemented according to the description.
+	 *\todo Revisit and check, if everything is implemented according to the description.
 	 *
 	 * @param width length of the MA filter.
 	 */
 	void Filter(unsigned int width);
 
-	/*! \brief Init the normal vector
-	 * This function is needed, if the normals will be set externally. If CalculateAndStoreNormals is called,
-	 * the vector is initialized as well.
+	/**
+	 * \}
+	 * \name Polygon properties
+	 * \{
 	 */
-	void InitNormals(void); ///< Prepare the normal vector for each vertex.
-	void CalculateNormals(void); ///< Calculate normals once and store them. (InitNormals not needed.)
-	void ClearNormals(void); ///< Clear the normal storage.
 
-	void Export(std::string filename) const; ///< Export as a Matlab/Octave .mat file.
+	/** \brief Returns the length of the polygon
+	 */
+	double GetLength() const;
+	/** \brief
+	 *
+	 * \param group
+	 * \return
+	 */
+	double GetLength(size_t group) const;
 
-	void Paint(bool withNormals = true, double normalLength = -1) const; ///< Render the Polygon to OpenGL
+	/** \brief Returns a std::vector with all x values of the polygon.
+	 *
+	 * \note The datatype is converted from float to double upon export.
+	 *
+	 * @return std::vector \<double\> with all x values.
+	 */
+	std::vector<double> GetXVectorD() const;
+
+	/** \brief Returns a std::vector with all y values of the polygon.
+	 *
+	 * \note The datatype is converted from float to double upon export.
+	 *
+	 * @return std::vector \<double\> with all y values.
+	 */
+	std::vector<double> GetYVectorD() const;
+
+	/** \brief Returns a std::vector with all z values of the polygon.
+	 *
+	 * \note The datatype is converted from float to double upon export.
+	 *
+	 * @return std::vector \<double\> with all z values.
+	 */
+	std::vector<double> GetZVectorD() const;
+
+	/** \brief Get the center of the polygon.
+	 *
+	 * This function integrates over the length of the polygon.
+	 * This means, that the number of points on a line do not matter.
+	 *
+	 * \return Center of polygon.
+	 */
+	Vector3 GetCenter() const;
+	/** \brief Get center of one group in the polygon.
+	 *
+	 * \param group Group to calculate the center for.
+	 * \return Center for the given group.
+	 */
+	Vector3 GetCenter(size_t group) const;
+
+	/** \brief Calculates the area of the polygon
+	 *
+	 * This function assumes the polygon is closed and uses the vectorproduct
+	 * to calculate the area of the polygon. This approach works correctly
+	 * with holes in the polygon.
+	 *
+	 * Counter-clockwise (=mathematically positive) loops add to the area,
+	 * clockwise ones (=mathematically negative) subtract.
+	 *
+	 * This approach stops working, if the hole is outside the area. In this
+	 * case it is still subtracted.
+	 */
+	double GetArea() const;
+
+	/** \brief Get rotational axis
+	 *
+	 * This function calculates the axis of rotation of the polygon.
+	 */
+	Vector3 GetRotationalAxis() const;
+
+	Result At(double L) const;
+	std::tuple<size_t, size_t> ClosestPoint(const Vector3 &p) const;
+	size_t ClosestPoint(const Vector3 &p, size_t group) const; ///< Returns the closest index for the given point.
+
+	/**\}
+	 */
+
+	std::string ToString() const;
+
 private:
-	std::vector <Vector3> pCalculateNormals(void) const; ///< Extra private function, because const.
+	/** \brief Add a triangle reusing an already existing edge.
+	 *
+	 * This is low-level, needed for the Triangulate() function.
+	 *
+	 * \param idx0 Indices of the corners
+	 * \param idx1 Indices of the corners
+	 * \param idx2 Indices of the corners
+	 */
+	void AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2);
+
+protected:
+	size_t groupCount = 0;
+	size_t firstIndex = 0;
+	size_t lastIndex = 0;
 };
 
-#endif /* POLYGON3_H_ */
+#endif /* L3D_POLYGON3_H */

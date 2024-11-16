@@ -24,123 +24,134 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define _USE_MATH_DEFINES
-
 #include "BoundingBox.h"
 
-#include "Geometry.h"
 #include "AffineTransformMatrix.h"
 #include "Triangle.h"
 #include "Vector3.h"
 
 #include <cstdint>
-#include <cmath>
 #include <sstream>
 #include <regex>
+
 #include "OpenGL.h"
 
-BoundingBox::BoundingBox(const Vector3 & v1, const Vector3 & v2)
-{
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+// TODO: Insert this elsewhere. The BoundingBox class should not know the Geometry class.
+//! Insert a Geometry object into the box.
+//	void Insert(const Geometry& geometry, const AffineTransformMatrix& matrix = AffineTransformMatrix::Identity());
+//#include "Geometry.h"
+//void BoundingBox::Insert(const Geometry &geometry,
+//		const AffineTransformMatrix &matrix)
+//{
+//	for(auto tri : geometry.triangles){
+//		tri.ApplyTransformation(matrix * geometry.matrix);
+//		this->Insert(tri);
+//	}
+//}
+
+BoundingBox::BoundingBox(const Vector3 &v1, const Vector3 &v2) {
 	this->Set(v1, v2);
 }
 
-void BoundingBox::Clear(void)
-{
+void BoundingBox::Empty() {
 	xmax = ymax = zmax = -DBL_MAX;
 	xmin = ymin = zmin = DBL_MAX;
 }
 
-void BoundingBox::Set(const Vector3& v1, const Vector3& v2)
-{
-	if(v1.x < v2.x){
+void BoundingBox::Set(const Vector3 &v1, const Vector3 &v2) {
+	if (v1.x < v2.x) {
 		xmin = v1.x;
 		xmax = v2.x;
-	}else{
+	} else {
 		xmin = v2.x;
 		xmax = v1.x;
 	}
-	if(v1.y < v2.y){
+	if (v1.y < v2.y) {
 		ymin = v1.y;
 		ymax = v2.y;
-	}else{
+	} else {
 		ymin = v2.y;
 		ymax = v1.y;
 	}
-	if(v1.z < v2.z){
+	if (v1.z < v2.z) {
 		zmin = v1.z;
 		zmax = v2.z;
-	}else{
+	} else {
 		zmin = v2.z;
 		zmax = v1.z;
 	}
 }
 
-void BoundingBox::Insert(const BoundingBox& bbox)
-{
-	if(bbox.xmin < xmin) xmin = bbox.xmin;
-	if(bbox.xmax > xmax) xmax = bbox.xmax;
-	if(bbox.ymin < ymin) ymin = bbox.ymin;
-	if(bbox.ymax > ymax) ymax = bbox.ymax;
-	if(bbox.zmin < zmin) zmin = bbox.zmin;
-	if(bbox.zmax > zmax) zmax = bbox.zmax;
+void BoundingBox::Insert(const BoundingBox &bbox) {
+	if (bbox.xmin < xmin)
+		xmin = bbox.xmin;
+	if (bbox.xmax > xmax)
+		xmax = bbox.xmax;
+	if (bbox.ymin < ymin)
+		ymin = bbox.ymin;
+	if (bbox.ymax > ymax)
+		ymax = bbox.ymax;
+	if (bbox.zmin < zmin)
+		zmin = bbox.zmin;
+	if (bbox.zmax > zmax)
+		zmax = bbox.zmax;
 }
 
-void BoundingBox::Insert(const Vector3& point)
-{
-	if(point.x > xmax) xmax = point.x;
-	if(point.x < xmin) xmin = point.x;
-	if(point.y > ymax) ymax = point.y;
-	if(point.y < ymin) ymin = point.y;
-	if(point.z > zmax) zmax = point.z;
-	if(point.z < zmin) zmin = point.z;
+void BoundingBox::Insert(const Vector3 &point) {
+	if (point.x > xmax)
+		xmax = point.x;
+	if (point.x < xmin)
+		xmin = point.x;
+	if (point.y > ymax)
+		ymax = point.y;
+	if (point.y < ymin)
+		ymin = point.y;
+	if (point.z > zmax)
+		zmax = point.z;
+	if (point.z < zmin)
+		zmin = point.z;
 }
 
-void BoundingBox::Insert(const Triangle &tri)
-{
-	for(auto & p : tri.p){
+void BoundingBox::Insert(const Triangle &tri) {
+	for (auto &p : tri.p) {
 		this->Insert(p);
 	}
 }
 
-void BoundingBox::Insert(const Geometry &geometry,
-		const AffineTransformMatrix &matrix)
-{
-	for(auto tri : geometry.triangles){
-		tri.ApplyTransformation(matrix * geometry.matrix);
-		this->Insert(tri);
-	}
-}
-
-BoundingBox& BoundingBox::operator +=(const BoundingBox& rhs)
-{
+BoundingBox& BoundingBox::operator +=(const BoundingBox &rhs) {
 	this->Insert(rhs);
 	return *this;
 }
 
-const BoundingBox BoundingBox::operator +(const BoundingBox& rhs) const
-{
+const BoundingBox BoundingBox::operator +(const BoundingBox &rhs) const {
 	BoundingBox temp = *this;
 	temp += rhs;
 	return temp;
 }
-bool BoundingBox::IsEmpty(void) const
-{
-	if(xmax < xmin) return true;
-	if(ymax < ymin) return true;
-	if(zmax < zmin) return true;
+bool BoundingBox::IsEmpty() const {
+	if (xmax < xmin)
+		return true;
+	if (ymax < ymin)
+		return true;
+	if (zmax < zmin)
+		return true;
 	return false;
 }
 
-bool BoundingBox::IsVolumeZero(void) const
-{
-	if(xmax <= xmin) return true;
-	if(ymax <= ymin) return true;
-	if(zmax <= zmin) return true;
+bool BoundingBox::IsVolumeZero() const {
+	if (xmax <= xmin)
+		return true;
+	if (ymax <= ymin)
+		return true;
+	if (zmax <= zmin)
+		return true;
 	return false;
 }
 
-void BoundingBox::Transform(const AffineTransformMatrix & matrix)
-{
+void BoundingBox::Transform(const AffineTransformMatrix &matrix) {
 	const Vector3 p0(this->xmin, this->ymin, this->zmin);
 	const Vector3 p1(this->xmax, this->ymin, this->zmin);
 	const Vector3 p2(this->xmin, this->ymax, this->zmin);
@@ -149,7 +160,7 @@ void BoundingBox::Transform(const AffineTransformMatrix & matrix)
 	const Vector3 p5(this->xmax, this->ymin, this->zmax);
 	const Vector3 p6(this->xmin, this->ymax, this->zmax);
 	const Vector3 p7(this->xmax, this->ymax, this->zmax);
-	this->Clear();
+	this->Empty();
 	this->Insert(matrix.Transform(p0));
 	this->Insert(matrix.Transform(p1));
 	this->Insert(matrix.Transform(p2));
@@ -161,8 +172,7 @@ void BoundingBox::Transform(const AffineTransformMatrix & matrix)
 }
 
 void BoundingBox::SetSize(float sx, float sy, float sz, float origx,
-		float origy, float origz)
-{
+		float origy, float origz) {
 	xmin = origx;
 	ymin = origy;
 	zmin = origz;
@@ -171,8 +181,7 @@ void BoundingBox::SetSize(float sx, float sy, float sz, float origx,
 	zmax = zmin + sz;
 }
 
-void BoundingBox::SetOrigin(float origx, float origy, float origz)
-{
+void BoundingBox::SetOrigin(float origx, float origy, float origz) {
 	xmax = xmax - xmin + origx;
 	ymax = ymax - ymin + origy;
 	zmax = zmax - zmin + origz;
@@ -181,21 +190,21 @@ void BoundingBox::SetOrigin(float origx, float origy, float origz)
 	zmin = origz;
 }
 
-void BoundingBox::SetOrigin(const Vector3& orig)
-{
+void BoundingBox::SetOrigin(const Vector3 &orig) {
 	SetOrigin(orig.x, orig.y, orig.z);
 }
 
-double BoundingBox::GetVolume(void) const
-{
-	if(xmax <= xmin) return 0.0;
-	if(ymax <= ymin) return 0.0;
-	if(zmax <= zmin) return 0.0;
+double BoundingBox::GetVolume() const {
+	if (xmax <= xmin)
+		return 0.0;
+	if (ymax <= ymin)
+		return 0.0;
+	if (zmax <= zmin)
+		return 0.0;
 	return (xmax - xmin) * (ymax - ymin) * (zmax - zmin);
 }
 
-AffineTransformMatrix BoundingBox::GetCoordinateSystem(void) const
-{
+AffineTransformMatrix BoundingBox::GetCoordinateSystem() const {
 	AffineTransformMatrix temp;
 	temp.SetEx(Vector3(xmax - xmin, 0, 0));
 	temp.SetEy(Vector3(0, ymax - ymin, 0));
@@ -204,11 +213,13 @@ AffineTransformMatrix BoundingBox::GetCoordinateSystem(void) const
 	return temp;
 }
 
-void BoundingBox::Paint(double overlap) const
-{
-	if(xmax < xmin) return;
-	if(ymax < ymin) return;
-	if(zmax < zmin) return;
+void BoundingBox::Paint(double overlap) const {
+	if (xmax < xmin)
+		return;
+	if (ymax < ymin)
+		return;
+	if (zmax < zmin)
+		return;
 
 	glPushName(0);
 	glBegin(GL_QUADS);
@@ -253,11 +264,14 @@ void BoundingBox::Paint(double overlap) const
 	glPopName();
 }
 
-void BoundingBox::PaintEdges(double cornerLength, unsigned int edgewidth) const
-{
-	if(xmax < xmin) return;
-	if(ymax < ymin) return;
-	if(zmax < zmin) return;
+void BoundingBox::PaintEdges(double cornerLength,
+		unsigned int edgewidth) const {
+	if (xmax < xmin)
+		return;
+	if (ymax < ymin)
+		return;
+	if (zmax < zmin)
+		return;
 
 	const double dx = GetSizeX() * cornerLength;
 	const double dy = GetSizeY() * cornerLength;
@@ -336,12 +350,26 @@ void BoundingBox::PaintEdges(double cornerLength, unsigned int edgewidth) const
 	glPopName();
 }
 
+Vector3 BoundingBox::GetSize() const {
+	return Vector3(GetSizeX(), GetSizeY(), GetSizeZ());
+}
+
+double BoundingBox::GetSize(const Vector3 &n) const {
+
+	double dx = fabs(n.x) > FLT_EPSILON ? (GetSizeX() / fabs(n.x)) : 1e8;
+	double dy = fabs(n.y) > FLT_EPSILON ? (GetSizeY() / fabs(n.y)) : 1e8;
+	double dz = fabs(n.z) > FLT_EPSILON ? (GetSizeZ() / fabs(n.z)) : 1e8;
+	return fmin(fmin(dx, dy), dz) / 2.0;
+}
+
 void BoundingBox::PaintVertices(unsigned int extrapoints,
-		unsigned int pointsize) const
-{
-	if(xmax < xmin) return;
-	if(ymax < ymin) return;
-	if(zmax < zmin) return;
+		unsigned int pointsize) const {
+	if (xmax < xmin)
+		return;
+	if (ymax < ymin)
+		return;
+	if (zmax < zmin)
+		return;
 	const double dx = GetSizeX() / (1 + extrapoints);
 	const double dy = GetSizeY() / (1 + extrapoints);
 	const double dz = GetSizeZ() / (1 + extrapoints);
@@ -351,12 +379,12 @@ void BoundingBox::PaintVertices(unsigned int extrapoints,
 	unsigned int c = 0;
 	glPushName(c);
 	double z = zmin;
-	for(unsigned int k = 0; k <= N; ++k){
+	for (unsigned int k = 0; k <= N; ++k) {
 		double y = ymin;
-		for(unsigned int j = 0; j <= N; ++j){
+		for (unsigned int j = 0; j <= N; ++j) {
 			double x = xmin;
-			for(unsigned int i = 0; i <= N; ++i){
-				if(i == 0 || j == 0 || k == 0 || i == N || j == N || k == N){
+			for (unsigned int i = 0; i <= N; ++i) {
+				if (i == 0 || j == 0 || k == 0 || i == N || j == N || k == N) {
 					glLoadName(c);
 					glBegin(GL_POINTS);
 					glVertex3d(x, y, z);
@@ -373,8 +401,7 @@ void BoundingBox::PaintVertices(unsigned int extrapoints,
 	glPointSize(1);
 }
 
-std::string BoundingBox::ToString(void) const
-{
+std::string BoundingBox::ToString() const {
 	std::ostringstream os;
 	os << "{x:[" << xmin << ',' << xmax << "],";
 	os << "y:[" << ymin << ',' << ymax << "],";
@@ -382,14 +409,14 @@ std::string BoundingBox::ToString(void) const
 	return os.str();
 }
 
-bool BoundingBox::FromString(const std::string & string)
-{
+bool BoundingBox::FromString(const std::string &string) {
 	//TODO: Move the regex into a global static variable when it is really used a lot.
 	std::regex e(
 			"^\\{x:\\[([^,\\]]+),([^,\\]]+)\\],y:\\[([^,\\]]+),([^,\\]]+)\\],z:\\[([^,\\]]+),([^,\\]]+)\\]\\}");
 	std::smatch sm;
 	std::regex_match(string.begin(), string.end(), sm, e);
-	if(sm.size() != 6) return false;
+	if (sm.size() != 6)
+		return false;
 	xmin = std::stof(sm[0]);
 	xmax = std::stof(sm[1]);
 	ymin = std::stof(sm[2]);
@@ -399,25 +426,39 @@ bool BoundingBox::FromString(const std::string & string)
 	return true;
 }
 
-bool BoundingBox::Overlaps(const BoundingBox& other) const
-{
-	if(other.xmin > xmax) return false;
-	if(other.xmax < xmin) return false;
-	if(other.ymin > ymax) return false;
-	if(other.ymax < ymin) return false;
-	if(other.zmin > zmax) return false;
-	if(other.zmax < zmin) return false;
+bool BoundingBox::Overlaps(const BoundingBox &other) const {
+	if (other.xmin > xmax)
+		return false;
+	if (other.xmax < xmin)
+		return false;
+	if (other.ymin > ymax)
+		return false;
+	if (other.ymax < ymin)
+		return false;
+	if (other.zmin > zmax)
+		return false;
+	if (other.zmax < zmin)
+		return false;
 	return true;
 }
 
-bool BoundingBox::IsInside(const Vector3& v) const
-{
-	if(v.x < xmin) return false;
-	if(v.x > xmax) return false;
-	if(v.y < ymin) return false;
-	if(v.y > ymax) return false;
-	if(v.z < zmin) return false;
-	if(v.z > zmax) return false;
+bool BoundingBox::IsInside(const Vector3 &v) const {
+	if (v.x < xmin)
+		return false;
+	if (v.x > xmax)
+		return false;
+	if (v.y < ymin)
+		return false;
+	if (v.y > ymax)
+		return false;
+	if (v.z < zmin)
+		return false;
+	if (v.z > zmax)
+		return false;
 	return true;
 }
 
+Vector3 BoundingBox::GetCenter() const {
+	return Vector3((xmin + xmax) / 2.0, (ymin + ymax) / 2.0,
+			(zmin + zmax) / 2.0);
+}

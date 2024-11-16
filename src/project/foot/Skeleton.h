@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_PROJECT_FOOT_SKELETON_H_
-#define SRC_PROJECT_FOOT_SKELETON_H_
+#ifndef PROJECT_FOOT_SKELETON_H
+#define PROJECT_FOOT_SKELETON_H
 
 /*!\class Skeleton
  * \brief Collection of bones.
@@ -47,31 +47,31 @@ class Skeleton {
 public:
 	Skeleton() = default;
 	virtual ~Skeleton();
-	Skeleton(const Skeleton& other) = delete;
-	Skeleton& operator=(const Skeleton& other);
+	Skeleton(const Skeleton &other);
+	Skeleton& operator=(const Skeleton &other);
 
 	void LoadJSON(std::string filename);
 	bool SaveJSON(std::string filename);
 
-	void AddBone(const std::string & name);
-	bool Connect(const std::string & parent, const std::string & child);
+	void AddBone(const std::string &name);
+	bool Connect(const std::string &parent, const std::string &child);
 
 	void Update(void);
 	void Render(void) const;
 
-	std::shared_ptr <Bone> GetBone(const std::string & name);
+	std::shared_ptr<Bone> GetBone(const std::string &name);
 
 	size_t GetBoneCount(void) const;
 
-	void UpdateBonesFromFormula(MathParser & parser);
+	void UpdateBonesFromFormula(MathParser &parser);
 
 	void ResetRotation(void);
 	void RestoreRotation(void);
 
-	std::vector <std::shared_ptr <Bone>> bones;
+	std::vector<std::shared_ptr<Bone>> bones;
 private:
 	mutable GLuint m_gllist = 0;
 	mutable bool update = true;
 };
 
-#endif /* SRC_PROJECT_FOOT_SKELETON_H_ */
+#endif /* PROJECT_FOOT_SKELETON_H */

@@ -24,21 +24,21 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef MATLABFILE_H_
-#define MATLABFILE_H_
+#ifndef MATH_MATLABFILE_H
+#define MATH_MATLABFILE_H
 
 /*!\class MatlabFile
  * \brief Matlab MAT file
  *
  * With this class MatlabMatrix%s can be read and written to Matlab MAT files.
  *
- *  \warning{In V4 only 2 dimenstional double matrices can be stored.}
+ *  \warning{In V4 only 2 dimensional double matrices can be stored.}
  */
 
-#include "MatlabMatrix.h"
+#include "Matrix.h"
 
+#include <cstdio>
 #include <string>
-#include <stdio.h>
 
 class MatlabFile {
 public:
@@ -48,35 +48,36 @@ public:
 
 public:
 	MatlabFile() = default; //!< Constructor
-	MatlabFile(const MatlabFile& other); //!< Copy constructor
-	MatlabFile& operator=(const MatlabFile& other); //!< Assignment constructor
-	MatlabFile(const std::string& filename, Version version = Version::V4); //!< Constructor with setting filename
+	MatlabFile(const MatlabFile &other); //!< Copy constructor
+	MatlabFile& operator=(const MatlabFile &other); //!< Assignment constructor
+	explicit MatlabFile(const std::string &filename, Version version = Version::V4); //!< Constructor with setting filename
 	virtual ~MatlabFile(); //!< Destructor
 
 	void SetVersion(Version version);
-	Version GetVersion(void) const;
+	Version GetVersion() const;
 
-	void SetFilename(const std::string& filename); //!< Set a new filename
-	bool IsOpen(void) const; //!< Test if file is open
-	void Close(void); //!< Close the file. This is also done by the Destructor.
+	void SetFilename(const std::string &filename); //!< Set a new filename
+	bool IsOpen() const; //!< Test if file is open
+	void Close(); //!< Close the file. This is also done by the Destructor.
 	/*! \brief Read a MatlabMatrix from the file
 	 *
 	 * @param M Pointer to a MatlabMatrix
 	 * @param matrixname Search for this matrix in the file.
 	 */
-	void ReadMatrix(MatlabMatrix* M, const std::string& matrixname = "");
+	void ReadMatrix(Matrix *M, const std::string &matrixname = "");
 	/*! \brief Write Matrix to file
 	 *
 	 * If the file is open, append the matrix, otherwise open the file and overwrite the
 	 * data with this matrix.
 	 * @param M Pointer to a MatlabMatrix
 	 */
-	void WriteMatrix(const MatlabMatrix& M);
+	void WriteMatrix(const Matrix &M);
 
 private:
 	Version version = Version::V6;
-	FILE* fhd = NULL;
+	FILE *fhd = NULL;
 	std::string filename;
 };
 
-#endif /* MATLABFILE_H_ */
+#endif /* MATH_MATLABFILE_H */
+

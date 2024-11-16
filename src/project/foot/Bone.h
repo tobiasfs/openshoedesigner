@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BONE_H_
-#define BONE_H_
+#ifndef BONE_H
+#define BONE_H
 /*!\class Bone
  * \brief Simple bone approximated by a capsule.
  *
@@ -126,4 +126,4 @@ private:
 	double CalculateAnchorPoint(const Vector3 & p) const;
 };
 
-#endif /* BONE_H_ */
+#endif /* BONE_H */

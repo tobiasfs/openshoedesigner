@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECTVIEW_H_
-#define PROJECTVIEW_H_
+#ifndef PROJECTVIEW_H
+#define PROJECTVIEW_H
 /*!\class ProjectView
  * \brief Project view options
  *
@@ -36,16 +36,17 @@
 #include <stddef.h>
 #include <wx/docview.h>
 #include <wx/object.h>
+#include <memory>
 #include <vector>
 
 #include "../3D/BackgroundImage.h"
 
 class FootMeasurements;
 
-class ProjectView:public wxView {
+class ProjectView: public wxView {
 public:
-	enum class Side {
-		Left, Right, Both
+	enum class Side : size_t {
+		Both = 0, Left = 10, Right = 20
 	};
 	enum class FrameType {
 		mainframe, patternframe, walkcycleframe
@@ -56,7 +57,7 @@ public:
 	void Paint(bool usePicking) const;
 	void PaintBackground(bool showBehind = true) const;
 
-	std::vector <BackgroundImage> background;
+	std::vector<BackgroundImage> background;
 
 	Side active;
 
@@ -80,7 +81,7 @@ public:
 
 	const FootMeasurements* GetActiveFootMeasurements(void) const;
 
-	bool OnCreate(wxDocument* doc, long flags);
+	bool OnCreate(wxDocument *doc, long flags);
 	void OnDraw(wxDC *dc);
 	void OnUpdate(wxView *sender, wxObject *hint = NULL);
 	void OnUpdate3D(void);
@@ -97,4 +98,4 @@ DECLARE_DYNAMIC_CLASS(ProjectView)
 
 };
 
-#endif /* PROJECTVIEW_H_ */
+#endif /* PROJECTVIEW_H */

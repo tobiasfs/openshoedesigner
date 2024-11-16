@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef HEIGHTFIELD_H_
-#define HEIGHTFIELD_H_
+#ifndef HEIGHTFIELD_H
+#define HEIGHTFIELD_H
 
 /*!\class HeightField
  * \brief DEPRECATED: Planar 2.5D heightfield
@@ -40,7 +40,7 @@
 class HeightField {
 public:
 	HeightField();
-	HeightField(const HeightField& other);
+	HeightField(const HeightField &other);
 	virtual ~HeightField();
 
 	void SetCount(unsigned int nx, unsigned int ny, float resolution);
@@ -56,7 +56,7 @@ public:
 
 private:
 
-	double * value;
+	double *value;
 
 	unsigned int N;
 	unsigned int Nx;
@@ -69,4 +69,4 @@ public:
 	AffineTransformMatrix matrix;
 };
 
-#endif /* HEIGHTFIELD_H_ */
+#endif /* HEIGHTFIELD_H */

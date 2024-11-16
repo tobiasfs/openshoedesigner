@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_TESTGRID_H_
-#define SRC_3D_TESTGRID_H_
+#ifndef L3D_TESTGRID_H
+#define L3D_TESTGRID_H
 
 /*!\class TestGrid
  * \brief ...
@@ -40,24 +40,24 @@
 #include "BoundingBox.h"
 #include "Vector3.h"
 
-class TestGrid:public BoundingBox {
+class TestGrid: public BoundingBox {
 public:
 	TestGrid() = default;
-	TestGrid(const Vector3 & v1, const Vector3 & v2);
+	TestGrid(const Vector3 &v1, const Vector3 &v2);
 	virtual ~TestGrid() = default;
 
-	void SetCellSize(double d);
-	void Reset(void);
-	void Transform(std::function <Vector3(Vector3)> func);
+	void SetCellSize(double d_);
+	void Reset();
+	void Transform(std::function<Vector3(Vector3)> func);
 
-	void PaintPoints(void) const;
-	void PaintLines(void) const;
+	void PaintPoints() const;
+	void PaintLines() const;
 
-	std::vector <Vector3> p;
+	std::vector<Vector3> p;
 	size_t U = 0;
 	size_t V = 0;
 	size_t W = 0;
 	double d = 0.0;
 };
 
-#endif /* SRC_3D_TESTGRID_H_ */
+#endif /* L3D_TESTGRID_H */

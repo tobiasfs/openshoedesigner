@@ -26,92 +26,82 @@
 
 #include "OpenGLLight.h"
 
-OpenGLLight::OpenGLLight(GLenum lightsource)
-		: lightsource(lightsource)
-{
+OpenGLLight::OpenGLLight(GLenum _lightsource_) :
+		lightsource(_lightsource_) {
 	moveWithCamera = false;
 }
 
-void OpenGLLight::SetAmbient(GLfloat r, GLfloat g, GLfloat b)
-{
+void OpenGLLight::SetAmbient(GLfloat r, GLfloat g, GLfloat b) {
 	buffer[0] = r;
 	buffer[1] = g;
 	buffer[2] = b;
 	buffer[3] = 1;
-	glLightfv(lightsource, GL_AMBIENT, buffer);
+	glLightfv(lightsource, GL_AMBIENT, buffer.data());
 }
 
-void OpenGLLight::SetAmbient(Vector3 c)
-{
+void OpenGLLight::SetAmbient(const Vector3 &c) {
 	buffer[0] = c.x;
 	buffer[1] = c.y;
 	buffer[2] = c.z;
 	buffer[3] = 1;
-	glLightfv(lightsource, GL_AMBIENT, buffer);
+	glLightfv(lightsource, GL_AMBIENT, buffer.data());
 }
 
-void OpenGLLight::SetDiffuse(GLfloat r, GLfloat g, GLfloat b)
-{
+void OpenGLLight::SetDiffuse(GLfloat r, GLfloat g, GLfloat b) {
 	buffer[0] = r;
 	buffer[1] = g;
 	buffer[2] = b;
 	buffer[3] = 1;
-	glLightfv(lightsource, GL_DIFFUSE, buffer);
+	glLightfv(lightsource, GL_DIFFUSE, buffer.data());
 }
 
-void OpenGLLight::SetDiffuse(Vector3 c)
-{
+void OpenGLLight::SetDiffuse(const Vector3 &c) {
 	buffer[0] = c.x;
 	buffer[1] = c.y;
 	buffer[2] = c.z;
 	buffer[3] = 1;
-	glLightfv(lightsource, GL_DIFFUSE, buffer);
+	glLightfv(lightsource, GL_DIFFUSE, buffer.data());
 }
 
-void OpenGLLight::SetSpecular(GLfloat r, GLfloat g, GLfloat b)
-{
+void OpenGLLight::SetSpecular(GLfloat r, GLfloat g, GLfloat b) {
 	buffer[0] = r;
 	buffer[1] = g;
 	buffer[2] = b;
 	buffer[3] = 1;
-	glLightfv(lightsource, GL_SPECULAR, buffer);
+	glLightfv(lightsource, GL_SPECULAR, buffer.data());
 }
 
-void OpenGLLight::SetSpecular(Vector3 c)
-{
+void OpenGLLight::SetSpecular(const Vector3 &c) {
 	buffer[0] = c.x;
 	buffer[1] = c.y;
 	buffer[2] = c.z;
 	buffer[3] = 1;
-	glLightfv(lightsource, GL_SPECULAR, buffer);
+	glLightfv(lightsource, GL_SPECULAR, buffer.data());
 }
 
-void OpenGLLight::SetPosition(GLfloat x, GLfloat y, GLfloat z)
-{
+void OpenGLLight::SetPosition(GLfloat x, GLfloat y, GLfloat z) {
 	position.Set(x, y, z);
 	Update();
 }
 
-void OpenGLLight::SetPosition(Vector3 p)
-{
+void OpenGLLight::SetPosition(const Vector3 &p) {
 	position = p;
 	Update();
 }
 
-void OpenGLLight::Enable(bool on)
-{
-	if(on)
+void OpenGLLight::Enable(bool on) {
+	if (on)
 		glEnable(lightsource);
 	else
 		glDisable(lightsource);
 }
 
-void OpenGLLight::Update(bool preRender)
-{
-	if(preRender && moveWithCamera) return;
+void OpenGLLight::Update(bool preRender) {
+	if (preRender && moveWithCamera)
+		return;
 	buffer[0] = position.x;
 	buffer[1] = position.y;
 	buffer[2] = position.z;
 	buffer[3] = 0;
-	glLightfv(lightsource, GL_POSITION, buffer);
+	glLightfv(lightsource, GL_POSITION, buffer.data());
 }

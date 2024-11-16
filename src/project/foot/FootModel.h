@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef FOOTMODEL_H_
-#define FOOTMODEL_H_
+#ifndef FOOTMODEL_H
+#define FOOTMODEL_H
 
 /*!\class FootModel
  * \brief Bone-based model of a foot
@@ -89,17 +89,19 @@
  *
  */
 
-#include <wx/txtstrm.h>
-#include "../../3D/Polygon3.h"
 #include "../../3D/BoundingBox.h"
+#include "../../3D/Polygon3.h"
 #include "../../3D/Volume.h"
 #include "../../math/NelderMeadOptimizer.h"
-#include "../foot/FootMeasurements.h"
-#include "../foot/Skeleton.h"
+
+#include "Skeleton.h"
+#include "../FootMeasurements.h"
+
+#include <wx/txtstrm.h>
 
 class Shoe;
 
-class FootModel:public Skeleton {
+class FootModel: public Skeleton {
 public:
 
 	FootModel() = default;
@@ -121,8 +123,6 @@ public:
 //	bool SaveModel(wxTextOutputStream* stream);
 
 	void UpdateForm(const FootMeasurements &measurements);
-	void UpdatePosition(const Shoe &shoe, double offset = 0.0, double mixing =
-			0.05);
 
 	void CalculateBones(void);
 	void CalculateSkin(void);
@@ -154,4 +154,4 @@ private:
 	NelderMeadOptimizer optiPos;
 };
 
-#endif /* FOOTMODEL_H_ */
+#endif /* FOOTMODEL_H */

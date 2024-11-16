@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _DIALOGSETUPMIDI_H_
-#define _DIALOGSETUPMIDI_H_
+#ifndef DIALOGSETUPMIDI_H
+#define DIALOGSETUPMIDI_H
 
 /*!\class DialogSetupMidi
  * \brief ...
@@ -52,4 +52,4 @@ public:
 
 };
 
-#endif /* SRC_GUI_DIALOGSETUPMIDI_H_ */
+#endif /* DIALOGSETUPMIDI_H */

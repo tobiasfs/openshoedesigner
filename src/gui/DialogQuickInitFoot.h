@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef DIALOGQUICKINITFOOT_H_
-#define DIALOGQUICKINITFOOT_H_
+#ifndef DIALOGQUICKINITFOOT_H
+#define DIALOGQUICKINITFOOT_H
 
 /*!\class DialogQuickInitFoot
  * \brief Dialog to initialize foot and last settings
@@ -41,7 +41,6 @@ public:
 	DialogQuickInitFoot(wxWindow* parent);
 	virtual ~DialogQuickInitFoot();
 
-	MathParser parser;
 	virtual void OnTextEnter(wxCommandEvent& event);
 	virtual void OnClose(wxCommandEvent& event);
 
@@ -49,7 +48,7 @@ public:
 	double width;
 
 private:
-	void ParseText(wxString text);
+	void ParseText(std::string text);
 };
 
-#endif /* DIALOGQUICKINITFOOT_H_ */
+#endif /* DIALOGQUICKINITFOOT_H */

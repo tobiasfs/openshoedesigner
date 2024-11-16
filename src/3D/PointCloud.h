@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_POINTCLOUD_H_
-#define SRC_3D_POINTCLOUD_H_
+#ifndef L3D_POINTCLOUD_H
+#define L3D_POINTCLOUD_H
 
 /*!\class PointCloud
  * \brief ...
@@ -48,4 +48,4 @@ public:
 	std::vector <Vector3> p;
 };
 
-#endif /* SRC_3D_POINTCLOUD_H_ */
+#endif /* L3D_POINTCLOUD_H */

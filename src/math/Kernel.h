@@ -24,13 +24,49 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_KERNEL_H_
-#define SRC_MATH_KERNEL_H_
+#ifndef MATH_KERNEL_H
+#define MATH_KERNEL_H
 
 /*!\struct Kernel
  * \brief Collection of mathematical kernel and their integrals
  *
- * Usage:
+ * The kernels in this class have the following properties:
+ *
+ *  * %Unit area: \f$ \int K(x)\cdot dx = 1 \f$
+ *    All Kernel%s are unit-kernels that have an area of 1.
+ *
+ *  * %Symmetry: \f$ K(x) = K(-x)  \f$
+ *
+ *  * All kernels in this collection are of kernel-order 2.
+ *
+ *
+ * %Kernel order k: \f$ \int x^n \cdot K(x)\cdot x = 0 \f$ for \f$ 0 < n < k \f$ and \f$ \int x^k \cdot K(x)\cdot x \neq 0\f$
+ *
+ * Available Kernels:
+ *
+ * %Kernel:     | Efficiency: | Bounded support: |
+ * -------------|-------------|------------------|
+ * Epanechnikov | 100   %     | Yes              |
+ * Cosine       |  99.9 %     | Yes              |
+ * Tricube      |  99.8 %     | Yes              |
+ * Quartic      |  99.4 %     | Yes              |
+ * Triweight    |  98.7 %     | Yes              |
+ * Triangular   |  98.6 %     | Yes              |
+ * Gaussian     |  95.1 %     | No               |
+ * Uniform      |  92.9 %     | Yes              |
+ * Logistic     |  88.7 %     | No               |
+ * Sigmoid      |  84.3 %     | No               |
+ * Silverman    |             | No               |
+ * Picard       |             | No               |
+ * Cauchy       |             | No               |
+ *
+ * Kernel with bounded support evaluate to 0 for x < -1 or x > +1
+ *
+ * Every kernel and integrated kernel is a function with one parameter
+ *
+ *      double kernelname(double x)
+ *
+ * Use
  *
  * 		Kernel::Epanechnikov
  *
@@ -38,54 +74,22 @@
  *
  * 		Kernel::Integrated::Epanechnikov
  *
- * Every kernel and integrated kernel is a function with one parameter
+ * For the kernel with bounded support also the second integral exists:
  *
- *      double kernelname(double x)
+ * 		Kernel::Integrated2::Epanechnikov
  *
- * All Kernel%s are unit-kernels that have an area of 1.
- *
- * Common properties for Kernels are:
- *
- *  * %Symmetry: \f$ K(x) = K(-x)  \f$
- *
- *  * %Unit area: \f$ \int K(x)\cdot dx = 1 \f$
- *
- *  * %Kernel order k: \f$ \int x^n \cdot K(x)\cdot x = 0 \f$ for \f$ 0 < n < k \f$ and \f$ \int x^k \cdot K(x)\cdot x \neq 0\f$
- *
- * Common kernels of order k = 2:
- *  * Uniform
- *  * Triangle
- *  * Epanechnikov
- *  * Quartic
- *  * Triweight
- *  * Gaussian
+ * \note Unbounded kernel have an 2nd integral -> infinity. There seems to be no
+ * sensible integration constant to use. Maybe the function -> f(x) = x for
+ * x > 0 or something.
  *
  * https://en.wikipedia.org/wiki/Kernel_(statistics)
- *
- * %Kernel:     | Efficiency: | %Unit support: |
- * -------------|-------------|----------------|
- * Epanechnikov | 100   %     | Yes            |
- * Cosine       |  99.9 %     | Yes            |
- * Tricube      |  99.8 %     | Yes            |
- * Quartic      |  99.4 %     | Yes            |
- * Triweight    |  98.7 %     | Yes            |
- * Triangular   |  98.6 %     | Yes            |
- * Gaussian     |  95.1 %     | No             |
- * Uniform      |  92.9 %     | Yes            |
- * Logistic     |  88.7 %     | No             |
- * Sigmoid      |  84.3 %     | No             |
- * Silverman    |             | No             |
- * Picard       |             | No             |
- * Cauchy       |             | No             |
- *
- * Kernel with unit support evaluate to 0 for x < -1 or x > +1
  *
  *
  * * Epanechnikov (sharp, compact support)
  *
  * 		ke = @(x) 3/4*max((1-x.^2),0);
  *
- * * Gaussian Kernel (standard normal distributed kernel)
+ * * Gaussian Kernel (standard, normal distributed kernel)
  *
  * 		kg = @(x) exp(-(x.^2)/2)/sqrt(2*pi);
  *
@@ -96,19 +100,22 @@
  * * Cauchy Kernel (wide support)
  *
  * 		kc = @(x) 1./(pi*(1+x.^2));
- *
  */
 
 #include <cmath>
 #include <functional>
 
 struct Kernel {
-	typedef std::function <double(double)> Function;
+	typedef std::function<double(double)> Function;
+
+	/**\name Modification of Kernel
+	 * \{
+	 */
 
 	/**\brief Shift the kernel in x and y-direction.
 	 *
-	 * The shift in x-direction does not change the area under the kernel. A shift in y-direction immediately
-	 * sets the area to + or - infinity.
+	 * The shift in x-direction does not change the area under the kernel. A
+	 * shift in y-direction immediately sets the area to + or - infinity.
 	 *
 	 * \htmlonly
 	 <svg width="40mm" height="40mm"> <g transform="translate(0,-946.06299)">
@@ -133,7 +140,8 @@ struct Kernel {
 
 	/**\brief Scales the kernel in x- and y-direction
 	 *
-	 * The kernel is widened by x and the height is changed by y. The area of the kernel is multiplyd by x*y.
+	 * The kernel is widened by x and the height is changed by y. The area of
+	 * the kernel is multiplied by x*y.
 	 *
 	 * \htmlonly
 	 <svg width="40mm" height="40mm">  <g
@@ -164,8 +172,8 @@ struct Kernel {
 
 	/**\brief Stretches the kernel in x-direction
 	 *
-	 * At the same time as the kernel is stretched in x-direction, it is shrinked in y-direction.
-	 * The area of the kernel stays unchanged.
+	 * At the same time as the kernel is stretched in x-direction, it is
+	 * shrunk in y-direction. The area of the kernel stays unchanged.
 	 *
 	 * \htmlonly
 	 <svg width="40mm" height="40mm"><g transform="translate(0,-946.06299)">
@@ -193,7 +201,8 @@ struct Kernel {
 	/**\brief Normalize the kernel to return the value 1 at the center.
 	 *
 	 * The kernel is scaled in y-direction to return a value of 1 at position 0.
-	 * Integrated kernels will be scaled by 2 in y if this function is applied. (Because an integrated Kernel has the value 0.5 at x=0.)
+	 * Integrated kernels will be scaled by 2 in y if this function is applied.
+	 * (Because an integrated Kernel has the value 0.5 at x=0.)
 	 *
 	 * \htmlonly
 	 <svg width="40mm" height="40mm"><g transform="translate(0,-946.06299)">
@@ -218,228 +227,332 @@ struct Kernel {
 	 */
 	static Function NormalizeY(Function func);
 
-	/**\brief Multiplication and addition on x.
+	/**\brief Subtraction and Division on x.
 	 *
-	 * Transforms the x value linearly before it is passed to the function.
+	 * Transforms the x-value linearly before it is passed to the function.
+	 * The transformation is written with a substraction, so that a becomes
+	 * the new center of the kernel and b is the width of the kernel. The height
+	 * stays unchanged. The variable b defaults to 1.0, so the width stays
+	 * unchanged for this case.
 	 *
-	 * y = F(x) becomes y = F((x - a) * b)
+	 * y = F(x) becomes y = F((x - a) / b)
 	 */
-	static Function SubMul(Function func, double a, double b = 1.0);
+	static Function SubDiv(Function func, double a, double b = 1.0);
 
-	static double Epanechnikov(double x)
-	{
-		if(x < -1.0 || x > 1.0) return 0.0;
+	/**\}
+	 * \name Kernel
+	 * \{
+	 */
+
+	static double Epanechnikov(double x) {
+		if (x < -1.0 || x > 1.0)
+			return 0.0;
 		return (1.0 - x * x) * 0.75;
 	}
 
-	static double Cosine(double x)
-	{
-		if(x < -1.0 || x > 1.0) return 0.0;
+	static double Cosine(double x) {
+		if (x < -1.0 || x > 1.0)
+			return 0.0;
 		return ((M_PI_4) * cos(M_PI_2 * x));
 	}
 
-	static double Tricube(double x)
-	{
-		if(x < -1.0 || x > 1.0) return 0.0;
+	static double Tricube(double x) {
+		if (x < -1.0 || x > 1.0)
+			return 0.0;
 		const double b = fabs(x);
 		const double a = (1.0 - b * b * b);
 		return (70.0 / 81.0 * a * a * a);
 	}
 
-	static double Quartic(double x)
-	{
-		if(x < -1.0 || x > 1.0) return 0.0;
+	static double Quartic(double x) {
+		if (x < -1.0 || x > 1.0)
+			return 0.0;
 		const double a = (1.0 - x * x);
 		return (15.0 / 16.0 * a * a);
 	}
 
-	static double Triweight(double x)
-	{
-		if(x < -1.0 || x > 1.0) return 0.0;
+	static double Triweight(double x) {
+		if (x < -1.0 || x > 1.0)
+			return 0.0;
 		const double a = (1.0 - x * x);
 		return (35.0 / 32.0 * a * a * a);
 	}
 
-	static double Triangular(double x)
-	{
-		if(x < -1.0 || x > 1.0) return 0.0;
+	static double Triangular(double x) {
+		if (x < -1.0 || x > 1.0)
+			return 0.0;
 		return (1 - fabs(x));
 	}
 
-	static double Gaussian(double x)
-	{
+	static double Gaussian(double x) {
 		return (1 / sqrt(2 * M_PI) * exp(-x * x / 2.0));
 	}
 
-	static double Uniform(double x)
-	{
-		return (x >= -1 && x <= 1)? 0.5 : 0;
+	static double Uniform(double x) {
+		return (x >= -1 && x <= 1) ? 0.5 : 0;
 	}
 
-	static double Logistic(double x)
-	{
+	static double Logistic(double x) {
 		const double b = exp(x);
 		const double a = 1 + b;
 		return (b / (a * a));
 	}
 
-	static double Sigmoid(double x)
-	{
+	static double Sigmoid(double x) {
 		const double b = exp(x);
 		return (M_2_PI * 1 / (b + 1 / b));
 	}
 
-	static double Silverman(double x)
-	{
+	static double Silverman(double x) {
 		const double a = fabs(x) / M_SQRT2;
 		return exp(-a) / 2.0 * sin(a + M_PI_4);
 	}
 
-	static double Picard(double x)
-	{
+	static double Picard(double x) {
 		return exp(-fabs(x)) / 2.0;
 	}
 
-	static double Cauchy(double x)
-	{
+	static double Cauchy(double x) {
 		return 1.0 / (M_PI * (1.0 + x * x));
 	}
 
+	/**\}
+	 * \name Integrated Kernel
+	 * \{
+	 */
+
 	struct Integrated {
-		static double Epanechnikov(double x)
-		{
-			if(x <= -1.0) return 0.0;
-			if(x >= 1.0) return 1.0;
+		static double Epanechnikov(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return 1.0;
 			return ((-x * x + 3.0) * x + 2.0) / 4.0;
 		}
 
-		static double Cosine(double x)
-		{
-			if(x <= -1.0) return 0.0;
-			if(x >= 1.0) return 1.0;
+		static double Cosine(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return 1.0;
 			return (1.0 + sin(M_PI_2 * x)) / 2.0;
 		}
 
-		static double Tricube(double x)
-		{
-			if(x <= -1.0) return 0.0;
-			if(x >= 1.0) return 1.0;
-			if(x <= 0.0){
+		static double Tricube(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return 1.0;
+			if (x <= 0.0) {
 				const double h = (1.0 + x);
 				const double a = h * h * h * h;
 				const double b = (((((14.0 * x - 56.0) * x + 140.0) * x - 220.0)
 						* x + 250.0) * x - 184.0) * x + 81.0;
 				return (a * b) / 162.0;
+			} else {
+				const double h = x * x * x;
+				return 0.5
+						- ((((14.0 * h - 60.0) * h + 105.0) * h - 140.0) * x)
+								/ 162.0;
 			}
-			const double h = x * x * x;
-			return 0.5
-					- ((((14.0 * h - 60.0) * h + 105.0) * h - 140.0) * x)
-							/ 162.0;
 		}
 
-		static double Quartic(double x)
-		{
-			if(x <= -1.0) return 0.0;
-			if(x >= 1.0) return 1.0;
+		static double Quartic(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return 1.0;
 			const double h = (1.0 + x);
 			const double a = h * h * h;
 			const double b = (3.0 * x - 9.0) * x + 8.0;
 			return (a * b) / 16.0;
 		}
 
-		static double Triweight(double x)
-		{
-			if(x <= -1.0) return 0.0;
-			if(x >= 1.0) return 1.0;
+		static double Triweight(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return 1.0;
 			const double h = (1.0 + x);
 			const double a = h * h * h * h;
 			const double b = ((-5.0 * x + 20.0) * x - 29.0) * x + 16;
 			return (a * b) / 32.0;
 		}
 
-		static double Triangular(double x)
-		{
-			if(x <= -1.0) return 0.0;
-			if(x >= 1.0) return 1.0;
-			if(x <= 0.0){
+		static double Triangular(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return 1.0;
+			if (x <= 0.0) {
 				return ((2.0 + x) * x + 1.0) / 2.0;
 			}
 			return ((2.0 - x) * x + 1.0) / 2.0;
 		}
 
-		static double Gaussian(double x)
-		{
+		static double Gaussian(double x) {
 			return (erf(x * M_SQRT1_2) + 1.0) / 2.0;
 		}
 
-		static double Uniform(double x)
-		{
-			if(x <= -1.0) return 0.0;
-			if(x >= 1.0) return 1.0;
+		static double Uniform(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return 1.0;
 			return (x + 1.0) / 2.0;
 		}
 
-		static double Logistic(double x)
-		{
+		static double Logistic(double x) {
 			const double a = exp(x);
 			return a / (1.0 + a);
 		}
 
-		static double Sigmoid(double x)
-		{
+		static double Sigmoid(double x) {
 			return 2.0 * atan(exp(x)) / M_PI;
 		}
 
-		static double Silverman(double x)
-		{
+		static double Silverman(double x) {
 			const double a = x / M_SQRT2;
-			if(x < 0.0){
+			if (x < 0.0) {
 				const double b = exp(a);
 				return b * (cos(a - M_PI_4) - sin(a - M_PI_4)) / (2.0 * M_SQRT2);
+			} else {
+				const double b = exp(-a);
+				return 1.0
+						- (b * (cos(a + M_PI_4) + sin(a + M_PI_4))
+								/ (2.0 * M_SQRT2));
 			}
-			const double b = exp(-a);
-			return 1.0
-					- (b * (cos(a + M_PI_4) + sin(a + M_PI_4)) / (2.0 * M_SQRT2));
 		}
 
-		static double Picard(double x)
-		{
-			if(x < 0.0) return 0.5 * exp(x);
+		static double Picard(double x) {
+			if (x < 0.0)
+				return 0.5 * exp(x);
 			return 1.0 - 0.5 * exp(-x);
 		}
 
-		static double Cauchy(double x)
-		{
+		static double Cauchy(double x) {
 			return 0.5 + atan(x) / M_PI;
 		}
 	};
+	/**\}
+	 * \name Double - Integrated Kernel
+	 *
+	 * (Only for the bounded kernels.)
+	 *
+	 * \{
+	 */
+	struct Integrated2 {
+		static double Epanechnikov(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return x;
+			return (3.0 - x * x * x * x) / 16.0 + 3.0 * x * x / 8.0 + x / 2.0;
+		}
 
+		static double Cosine(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return x;
+			return (x + 1) / 2 - cos(M_PI_2 * x) / (2.0 * M_PI);
+		}
+
+		static double Tricube(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return x;
+			if (x <= 0.0) {
+				const double h = (1.0 + x);
+				const double a = h * h * h * h * h;
+				const double b =
+						(((((28.0 * x - 140.0) * x + 420.0) * x - 815.0) * x
+								+ 1135.0) * x - 1053.0) * x + 567.0;
+				return (a * b) / 3564.0;
+			} else {
+				const double h = x * x * x;
+				return (((((-28.0 * h + 165.0) * h - 462.0) * h + 1540.0) * x
+						+ 1782.0) * x + 567.0) / 3564.0;
+			}
+		}
+
+		static double Quartic(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return x;
+			const double h = x * x;
+			return (((h - 5.0) * h + 15.0) * h + 5.0) / 16.0 + x / 2.0;
+		}
+
+		static double Triweight(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return x;
+			const double h = (1.0 + x);
+			const double a = -(h * h * h * h * h);
+			const double b = ((5.0 * x - 25.0) * x + 47.0) * x - 35.0;
+			return (a * b) / 256.0;
+		}
+
+		static double Triangular(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return x;
+			if (x <= 0.0) {
+				return (((x + 3.0) * x + 3.0) * x + 1.0) / 6.0;
+			}
+			return (((-x + 3.0) * x - 3.0) * x - 1.0) / 6.0;
+		}
+
+		static double Uniform(double x) {
+			if (x <= -1.0)
+				return 0.0;
+			if (x >= 1.0)
+				return x;
+			return ((x + 2.0) * x + 1.0) / 4.0;
+		}
+
+	};
+	/**\}
+	 */
 };
 
-inline Kernel::Function Kernel::Shift(Kernel::Function func, double x, double y)
-{
-	return [func,x,y](double v){return func(v-x)+y;};
+inline Kernel::Function Kernel::Shift(Kernel::Function func, double x,
+		double y) {
+	return [func, x, y](double v) {
+		return func(v - x) + y;
+	};
 }
 
-inline Kernel::Function Kernel::Scale(Kernel::Function func, double x, double y)
-{
-	return [func,x,y](double v){return func(v/x)*y;};
+inline Kernel::Function Kernel::Scale(Kernel::Function func, double x,
+		double y) {
+	return [func, x, y](double v) {
+		return func(v / x) * y;
+	};
 }
 
-inline Kernel::Function Kernel::Stretch(Kernel::Function func, double x)
-{
-	return [func,x](double v){return func(v/x)/x;};
+inline Kernel::Function Kernel::Stretch(Kernel::Function func, double x) {
+	return [func, x](double v) {
+		return func(v / x) / x;
+	};
 }
 
-inline Kernel::Function Kernel::NormalizeY(Kernel::Function func)
-{
-	return [func](double v){return func(v)/func(0);};
+inline Kernel::Function Kernel::NormalizeY(Kernel::Function func) {
+	return [func](double v) {
+		return func(v) / func(0);
+	};
 }
 
-inline Kernel::Function Kernel::SubMul(Kernel::Function func, double a,
-		double b)
-{
-	return [func,a,b](double v){return func((v-a)*b);};
+inline Kernel::Function Kernel::SubDiv(Kernel::Function func, double a,
+		double b) {
+	return [func, a, b](double v) {
+		return func((v - a) / b);
+	};
 }
 
-#endif /* SRC_MATH_KERNEL_H_ */
+#endif /* MATH_KERNEL_H */
+

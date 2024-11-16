@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SPLINE3_H_
-#define SPLINE3_H_
+#ifndef SPLINE3_H
+#define SPLINE3_H
 
 /*!\class Spline3
  * \brief Spline interpolation of a number of points in 3D space.
@@ -38,7 +38,7 @@
  * can also be scaled to unity or in direct or interpoloated coordinates.
  */
 
-#include "../math/Polynom.h"
+#include "../math/Polynomial.h"
 #include "Vector3.h"
 
 #include <vector>
@@ -49,9 +49,9 @@ public:
 	class Point:public Vector3 {
 	public:
 		Point() = default;
-		Polynom px;
-		Polynom py;
-		Polynom pz;
+		Polynomial px;
+		Polynomial py;
+		Polynomial pz;
 		double r0 = 0.0;
 		double length = 1.0;
 		double dvx = 0.0;
@@ -85,5 +85,5 @@ public:
 	void Paint(void) const;
 };
 
-#endif /* SPLINE3_H_ */
+#endif /* SPLINE3_H */
 

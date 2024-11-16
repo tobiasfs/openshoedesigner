@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CANVAS3D_H_
-#define CANVAS3D_H_
+#ifndef CANVAS3D_H
+#define CANVAS3D_H
 
 /*!\class Canvas3D
  * \brief Connection between display and ProjectView
@@ -56,4 +56,4 @@ private:
 
 };
 
-#endif /* CANVAS3D_H_ */
+#endif /* CANVAS3D_H */

@@ -24,29 +24,33 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DialogSetupStereo3D.h"
-
-#include "../gui/CanvasStereoTest.h"
 #include "../math/Unit.h"
-#include "../gui/IDs.h"
-
 #include "../StdInclude.h"
+
 #include "CollectionUnits.h"
+
+#include "../gui/IDs.h"
+#include "DialogSetupStereo3D.h"
+#include "../gui/CanvasStereoTest.h"
 #include "SettingsStereo3D.h"
 
+#include "../math/MathParser.h"
+
 DialogSetupStereo3D::DialogSetupStereo3D(wxWindow* parent,
-		SettingsStereo3D * settings, CollectionUnits * units)
-		: GUISetupStereo3D(parent)
-{
+		SettingsStereo3D * settings, CollectionUnits * units) :
+		GUISetupStereo3D(parent) {
 	this->settings = settings;
 	this->units = units;
 
 	m_canvas->stereoMode = OpenGLCanvas::Stereo3D::Anaglyph;
+
+	eyedistance.Set(m_textCtrlEyeDistance, m_staticTextUnitEyeDistance);
+	focaldistance.Set(m_textCtrlFocalDistance, m_staticTextUnitFocalDistance);
+
 	TransferDataToWindow();
 }
 
-bool DialogSetupStereo3D::TransferDataToWindow(void)
-{
+bool DialogSetupStereo3D::TransferDataToWindow() {
 
 	m_sliderLR->SetValue(settings->leftEyeR);
 	m_sliderLG->SetValue(settings->leftEyeG);
@@ -76,32 +80,31 @@ bool DialogSetupStereo3D::TransferDataToWindow(void)
 	m_sliderFocalDistance->SetValue(
 			(int) round((settings->focalDistance * 50.0)));
 
-	m_textCtrlEyeDistance->SetValue(
-			units->Distance.TextFromSI(settings->eyeDistance));
-	m_textCtrlFocalDistance->SetValue(
-			units->Distance.TextFromSI(settings->focalDistance));
-
-	m_staticTextUnitEyeDistance->SetLabel(units->Distance.GetOtherName());
-	m_staticTextUnitFocalDistance->SetLabel(units->Distance.GetOtherName());
+	eyedistance.ToTextCtrl(settings->eyeDistance, units->Distance);
+	focaldistance.ToTextCtrl(settings->focalDistance, units->Distance);
+//	m_textCtrlEyeDistance->SetValue(
+//			units->Distance.TextFromSI(settings->eyeDistance));
+//	m_textCtrlFocalDistance->SetValue(
+//			units->Distance.TextFromSI(settings->focalDistance));
+//
+//	m_staticTextUnitEyeDistance->SetLabel(units->Distance.GetOtherName());
+//	m_staticTextUnitFocalDistance->SetLabel(units->Distance.GetOtherName());
 
 	settings->WriteToCanvas(m_canvas);
 	m_canvas->Refresh();
 	return true;
 }
 
-bool DialogSetupStereo3D::TransferDataFromWindow(void)
-{
+bool DialogSetupStereo3D::TransferDataFromWindow() {
 	return true;
 }
 
-void DialogSetupStereo3D::OnXClose(wxCloseEvent& event)
-{
+void DialogSetupStereo3D::OnXClose(wxCloseEvent& event) {
 	this->Hide();
 }
 
-void DialogSetupStereo3D::OnScroll(wxScrollEvent& event)
-{
-	switch(event.GetId()){
+void DialogSetupStereo3D::OnScroll(wxScrollEvent& event) {
+	switch (event.GetId()) {
 	case ID_COLORLR:
 		settings->leftEyeR = m_sliderLR->GetValue();
 		settings->rightEyeR = 0;
@@ -144,24 +147,23 @@ void DialogSetupStereo3D::OnScroll(wxScrollEvent& event)
 	ProcessEvent(selectEvent);
 }
 
-void DialogSetupStereo3D::OnColorChanged(wxColourPickerEvent& event)
-{
+void DialogSetupStereo3D::OnColorChanged(wxColourPickerEvent& event) {
 	wxColour temp;
-	switch(event.GetId()){
+	switch (event.GetId()) {
 	case ID_COLORLEFT:
 		temp = m_colourPickerLeft->GetColour();
 		settings->leftEyeR = temp.Red();
 		settings->leftEyeG = temp.Green();
 		settings->leftEyeB = temp.Blue();
-		if(settings->leftEyeR > 10)
+		if (settings->leftEyeR > 10)
 			settings->rightEyeR = 0;
 		else
 			settings->leftEyeR = 0;
-		if(settings->leftEyeG > 10)
+		if (settings->leftEyeG > 10)
 			settings->rightEyeG = 0;
 		else
 			settings->leftEyeG = 0;
-		if(settings->leftEyeB > 10)
+		if (settings->leftEyeB > 10)
 			settings->rightEyeB = 0;
 		else
 			settings->leftEyeB = 0;
@@ -171,15 +173,15 @@ void DialogSetupStereo3D::OnColorChanged(wxColourPickerEvent& event)
 		settings->rightEyeR = temp.Red();
 		settings->rightEyeG = temp.Green();
 		settings->rightEyeB = temp.Blue();
-		if(settings->rightEyeR > 10)
+		if (settings->rightEyeR > 10)
 			settings->leftEyeR = 0;
 		else
 			settings->rightEyeR = 0;
-		if(settings->rightEyeG > 10)
+		if (settings->rightEyeG > 10)
 			settings->leftEyeG = 0;
 		else
 			settings->rightEyeG = 0;
-		if(settings->rightEyeB > 10)
+		if (settings->rightEyeB > 10)
 			settings->leftEyeB = 0;
 		else
 			settings->rightEyeB = 0;
@@ -190,43 +192,51 @@ void DialogSetupStereo3D::OnColorChanged(wxColourPickerEvent& event)
 	ProcessEvent(selectEvent);
 }
 
-void DialogSetupStereo3D::OnTextChange(wxCommandEvent& event)
-{
+void DialogSetupStereo3D::OnTextChange(wxCommandEvent& event) {
 	long temp;
 	event.GetString().ToLong(&temp);
 
-	switch(event.GetId()){
+	switch (event.GetId()) {
 	case ID_TEXTLR:
 		settings->leftEyeR = temp;
-		if(settings->leftEyeR > 0) settings->rightEyeR = 0;
+		if (settings->leftEyeR > 0)
+			settings->rightEyeR = 0;
 		break;
 	case ID_TEXTLG:
 		settings->leftEyeG = temp;
-		if(settings->leftEyeG > 0) settings->rightEyeG = 0;
+		if (settings->leftEyeG > 0)
+			settings->rightEyeG = 0;
 		break;
 	case ID_TEXTLB:
 		settings->leftEyeB = temp;
-		if(settings->leftEyeB > 0) settings->rightEyeB = 0;
+		if (settings->leftEyeB > 0)
+			settings->rightEyeB = 0;
 		break;
 	case ID_TEXTRR:
 		settings->rightEyeR = temp;
-		if(settings->rightEyeR > 0) settings->leftEyeR = 0;
+		if (settings->rightEyeR > 0)
+			settings->leftEyeR = 0;
 		break;
 	case ID_TEXTRG:
 		settings->rightEyeG = temp;
-		if(settings->rightEyeG > 0) settings->leftEyeG = 0;
+		if (settings->rightEyeG > 0)
+			settings->leftEyeG = 0;
 		break;
 	case ID_TEXTRB:
 		settings->rightEyeB = temp;
-		if(settings->rightEyeB > 0) settings->leftEyeB = 0;
+		if (settings->rightEyeB > 0)
+			settings->leftEyeB = 0;
 		break;
 	case ID_EYEDISTANCE:
-		settings->eyeDistance = units->Distance.SIFromString(
-				event.GetString());
+		settings->eyeDistance = eyedistance.ToVariable(event.GetString(),
+				units->Distance);
+//		settings->eyeDistance = units->Distance.SIFromString(event.GetString());
 		break;
 	case ID_FOCALDISTANCE:
-		settings->focalDistance = units->Distance.SIFromString(
-				event.GetString());
+		settings->focalDistance = focaldistance.ToVariable(event.GetString(),
+				units->Distance);
+//		settings->focalDistance = units->Distance.SIFromString(
+//				event.GetString());
 		break;
 	}
 	TransferDataToWindow();
@@ -235,8 +245,7 @@ void DialogSetupStereo3D::OnTextChange(wxCommandEvent& event)
 	ProcessEvent(selectEvent);
 }
 
-void DialogSetupStereo3D::OnSwap(wxCommandEvent& event)
-{
+void DialogSetupStereo3D::OnSwap(wxCommandEvent& event) {
 	std::swap(settings->leftEyeR, settings->rightEyeR);
 	std::swap(settings->leftEyeG, settings->rightEyeG);
 	std::swap(settings->leftEyeB, settings->rightEyeB);

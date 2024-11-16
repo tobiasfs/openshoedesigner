@@ -26,129 +26,115 @@
 
 #include "Polygon25.h"
 
-#include <wx/log.h>
-
 #include <float.h>
 #include <stdint.h>
 #include "OpenGL.h"
 
-Polygon25::Polygon25()
-{
-}
-
-Polygon25::~Polygon25()
-{
-}
-
-double Polygon25::GetLengthXY(void) const
-{
-	if(elements.size() <= 1) return 0.0;
+double Polygon25::GetLengthXY() const {
+	//FIXME: This function assumes, that there is only one polygon in data.
+	if (v.size() <= 1)
+		return 0.0;
 	double d = 0.0;
-	size_t i;
-	Vector3 temp, temp2;
 
-	temp = elements[0];
-	for(i = 1; i < elements.size(); i++){
-		temp2 = temp - elements[i];
+	Vertex temp = v[0];
+	for (size_t i = 1; i < v.size(); i++) {
+		Vector3 temp2 = temp - v[i];
 		temp2.z = 0;
 		d += temp2.Abs();
-		temp = elements[i];
+		temp = v[i];
 	}
-	if(isClosed){
-		temp2 = temp - elements[0];
+	if (IsClosed()) {
+		Vector3 temp2 = temp - v[0];
 		temp2.z = 0;
 		d += temp2.Abs();
 	}
 	return d;
 }
 
-void Polygon25::PolygonFillHoles(void)
-{
+void Polygon25::PolygonFillHoles() {
 	//TODO: This is crude! Find a better way.
-	size_t i;
-	size_t nrp;
-	double m;
-	m = 0.0;
-	nrp = 0;
-	for(i = 0; i < elements.size(); i++){
-		if(elements[i].z > -0.5){
+	double m = 0.0;
+	size_t nrp = 0;
+	for (size_t i = 0; i < v.size(); i++) {
+		if (v[i].z > -0.5) {
 			nrp++;
-			m += elements[i].z;
+			m += v[i].z;
 		}
 	}
-	if(nrp == 0) return;
+	if (nrp == 0)
+		return;
 	m /= (double) nrp;
-	for(i = 0; i < elements.size(); i++){
-		if(elements[i].z < -0.5){
-			elements[i].z = m;
+	for (size_t i = 0; i < v.size(); i++) {
+		if (v[i].z < -0.5) {
+			v[i].z = m;
 		}
 	}
 }
 
-void Polygon25::PolygonSmooth(void)
-{
-	std::vector <Vector3> temp = elements;
+void Polygon25::PolygonSmooth() {
+	auto temp = v;
 
-	for(size_t i = 0; i < elements.size(); i++){
+
+
+	for (size_t i = 0; i < v.size(); i++) {
 		Vector3 d;
-		if(i == 0)
-			d = elements[elements.size() - 1];
+		if (i == 0)
+			d = v[v.size() - 1];
 		else
-			d = elements[i - 1];
-		d += elements[i];
-		if(i + 1 < elements.size())
-			d += elements[i + 1];
+			d = v[i - 1];
+		d += v[i];
+		if (i + 1 < v.size())
+			d += v[i + 1];
 		else
-			d += elements[0];
+			d += v[0];
 		temp[i] = d / 3;
 	}
-	elements = temp;
+	v.swap(temp);
 }
 
-void Polygon25::PolygonExpand(double r)
-{
-	if(elements.size() < 2) return;
+void Polygon25::PolygonExpand(double r) {
+	if (v.size() < 2)
+		return;
 	size_t i;
 	Vector3 o, n, d;
-	o = elements[0];
-	for(i = 1; i < elements.size(); i++){
-		n = elements[i];
+	o = v[0];
+	for (i = 1; i < v.size(); i++) {
+		n = v[i];
 		o = n - o;
 		o.Normalize();
 		d.x = o.y;
 		d.y = -o.x;
 		d.z = o.z;
 		o = n;
-		elements[i] = n + d * r;
+		v[i] = n + d * r;
 	}
 }
 
-void Polygon25::PolygonDiminish(double r)
-{
+void Polygon25::PolygonDiminish(double r) {
 	this->PolygonExpand(-r);
 }
 
-bool Polygon25::IsElementInside(const Vector3 &v) const
-{
+bool Polygon25::IsElementInside(const Vector3 &vTest) const {
 	// Using the Jordan Polygon Theorem
 
 	int_fast8_t c = 1;
-	size_t E = elements.size();
-	for(size_t i = 0; i < E; i++){
-		Vector3 p0 = elements[i];
+	size_t E = v.size();
+	for (size_t i = 0; i < E; i++) {
+		Vector3 p0 = v[i];
 		Vector3 p1;
-		if(i + 1 == E)
-			p1 = elements[0];
+		if (i + 1 == E)
+			p1 = v[0];
 		else
-			p1 = elements[i + 1];
-		if(v.y == p0.y && v.y == p1.y){
-			if((p0.x <= v.x && v.x <= p1.x) || (p0.x >= v.x && v.x >= p1.x)){
+			p1 = v[i + 1];
+		if (vTest.y == p0.y && vTest.y == p1.y) {
+			if ((p0.x <= vTest.x && vTest.x <= p1.x)
+					|| (p0.x >= vTest.x && vTest.x >= p1.x)) {
 				c = 0;
 				break;
 			}
 			continue;
 		}
-		if(p0.y > p1.y){
+		if (p0.y > p1.y) {
 			float h = p0.x;
 			p0.x = p1.x;
 			p1.x = h;
@@ -156,70 +142,74 @@ bool Polygon25::IsElementInside(const Vector3 &v) const
 			p0.y = p1.y;
 			p1.y = h;
 		}
-		if(v.x == p0.x && v.y == p0.y){
+		if (vTest.x == p0.x && vTest.y == p0.y) {
 			c = 0;
 			break;
 		}
-		if(v.y <= p0.y || v.y > p1.y) continue;
-		const float delta = (p0.x - v.x) * (p1.y - v.y)
-				- (p0.y - v.y) * (p1.x - v.x);
-		if(delta > 0){
+		if (vTest.y <= p0.y || vTest.y > p1.y)
+			continue;
+		const float delta = (p0.x - vTest.x) * (p1.y - vTest.y)
+				- (p0.y - vTest.y) * (p1.x - vTest.x);
+		if (delta > 0) {
 			c = -c;
 			continue;
 		}
-		if(delta < 0) continue;
+		if (delta < 0)
+			continue;
 		c = 0;
 		break;
 	}
-	if(c <= 0) return true;
+	if (c <= 0)
+		return true;
 	return false;
 }
 
-bool Polygon25::IsPolygonInside(const Polygon25& other) const
-{
-	for(size_t i = 0; i < other.elements.size(); i++){
-		if(!IsElementInside(other.elements[i])){
+bool Polygon25::IsPolygonInside(const Polygon25 &other) const {
+	for (size_t i = 0; i < other.v.size(); i++) {
+		if (!IsElementInside(other.v[i])) {
 			return false;
 		}
 	}
 	return true;
 }
 
-void Polygon25::SortPolygonsFromOutside(std::vector <Polygon25> *array)
-{
+void Polygon25::SortPolygonsFromOutside(std::vector<Polygon25> *array) {
 	const int N = array->size();
-	if(N == 0) return;
-	std::vector <Polygon25> temp;
+	if (N == 0)
+		return;
+	std::vector<Polygon25> temp;
 	temp.push_back(array->operator [](0));
-	for(int i = 1; i < N; i++){
+	for (int i = 1; i < N; i++) {
 		int pos = -1;
 		const int M = temp.size();
-		for(int j = M; j > 0; j--){
-			if(temp[j - 1].IsPolygonInside(array->operator [](i))){
+		for (int j = M; j > 0; j--) {
+			if (temp[j - 1].IsPolygonInside(array->operator [](i))) {
 				pos = j - 1;
 				break;
 			}
 		}
-		if(pos == -1) temp.insert(temp.begin(), array->operator [](i));
-		if(pos >= 0 && pos < M - 1) temp.insert(temp.begin() + pos + 1,
-				array->operator [](i));
-		if(pos >= M - 1) temp.push_back(array->operator [](i));
+		if (pos == -1)
+			temp.insert(temp.begin(), array->operator [](i));
+		if (pos >= 0 && pos < M - 1)
+			temp.insert(temp.begin() + pos + 1, array->operator [](i));
+		if (pos >= M - 1)
+			temp.push_back(array->operator [](i));
 	}
 	*array = temp;
 }
 
 double Polygon25::DistanceToElement(const size_t elementInPolygon,
-		const double x, const double y, const double vx, const double vy) const
-{
+		const double x, const double y, const double vx,
+		const double vy) const {
 	double qx, qy, px, py;
-	px = elements[elementInPolygon].x;
-	py = elements[elementInPolygon].y;
-	if(elementInPolygon + 1 == elements.size()){
-		qx = elements[0].x;
-		qy = elements[0].y;
-	}else{
-		qx = elements[elementInPolygon + 1].x;
-		qy = elements[elementInPolygon + 1].y;
+	px = v[elementInPolygon].x;
+	py = v[elementInPolygon].y;
+	if (elementInPolygon + 1 == v.size()) {
+		qx = v[0].x;
+		qy = v[0].y;
+	} else {
+		qx = v[elementInPolygon + 1].x;
+		qy = v[elementInPolygon + 1].y;
 	}
 
 	// From axiom code:
@@ -230,51 +220,52 @@ double Polygon25::DistanceToElement(const size_t elementInPolygon,
 	//	solve([x1=x2,y1=y2],[r,s])
 
 	double denom = (qx - px) * vy + (-qy + py) * vx;
-	if(denom == 0.0) return DBL_MAX;
+	if (denom == 0.0)
+		return DBL_MAX;
 	double r = (-vx * y + vy * x - px * vy + py * vx) / denom;
 	double s = ((-qx + px) * y + (qy - py) * x - px * qy + py * qx) / denom;
 
-	if((r < 0.0) || (r > 1.0)) return DBL_MAX;
+	if ((r < 0.0) || (r > 1.0))
+		return DBL_MAX;
 	return s;
 }
 
 double Polygon25::DistanceToPolygon(const Polygon25 &polygon, double vx,
-		double vy) const
-{
+		double vy) const {
 	//TODO: Make this faster!
 	size_t i, j;
 	double dmin = DBL_MAX;
 	double d;
-	size_t n = polygon.elements.size();
-	if(!polygon.isClosed && (n > 0)) n--;
-	for(i = 0; i < n; i++){
-		//		wxLogMessage(wxString::Format(_T("to element %u."),i));
-		for(j = 0; j < this->elements.size(); j++){
-			d = polygon.DistanceToElement(i, elements[j].x, elements[j].y, vx,
-					vy);
-			if(d < dmin) dmin = d;
+	size_t n = polygon.v.size();
+	if (!polygon.IsClosed() && (n > 0))
+		n--;
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < this->v.size(); j++) {
+			d = polygon.DistanceToElement(i, v[j].x, v[j].y, vx, vy);
+			if (d < dmin)
+				dmin = d;
 		}
 	}
 	return dmin;
 }
 
-void Polygon25::RotatePolygonStart(double x, double y)
-{
+void Polygon25::RotatePolygonStart(double x, double y) {
 
-	if(elements.size() == 0) return;
+	if (v.size() == 0)
+		return;
 
 	size_t i;
 	Vector3 t;
 	double d;
 	double dmin = DBL_MAX;
-	size_t n = elements.size();
+	size_t n = v.size();
 
 	// Find element with minimal distance to (x,y)
 	size_t nshift = 0;
-	for(i = 0; i < n; i++){
-		t = elements[i];
+	for (i = 0; i < n; i++) {
+		t = v[i];
 		d = (t.x - x) * (t.x - x) + (t.y - y) * (t.y - y);
-		if(d < dmin){
+		if (d < dmin) {
 			dmin = d;
 			nshift = i;
 		}
@@ -283,10 +274,10 @@ void Polygon25::RotatePolygonStart(double x, double y)
 	// Shift by -nshift (so nshift becomes 0)
 	//	nshift = n - nshift;
 	size_t j;
-	std::vector <Vector3> temp;
-	for(i = 0; i < n; i++){
+	std::vector<Geometry::Vertex> temp;
+	for (i = 0; i < n; i++) {
 		j = (i + nshift) % n;
-		temp.push_back(elements[j]);
+		temp.push_back(v[j]);
 	}
-	elements = temp;
+	v.swap(temp);
 }

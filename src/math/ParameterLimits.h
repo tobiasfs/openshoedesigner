@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_PARAMETERLIMITS_H_
-#define SRC_MATH_PARAMETERLIMITS_H_
+#ifndef PARAMETERLIMITS_H
+#define PARAMETERLIMITS_H
 
 /*!\class ParameterLimits
  * \brief Additional errors for optimizers, if parameters leave the valid range
@@ -35,7 +35,7 @@
  * can be added to the error returned to the optimizer. This term forces the
  * parameters to stay within a well defined range by adding a penalty outside
  * the allowed area.
- * If the parameter is outside an error of a*(paramvalue-limit)+b is added.
+ * If the parameter is outside an error of a*abs(paramvalue-limit)+b is added.
  */
 
 #include <cstddef>
@@ -65,10 +65,10 @@ public:
 	void AddLimitMin(size_t index, double min, double a = 1.0, double b = 1e3);
 	void AddLimitMax(size_t index, double max, double a = 1.0, double b = 1e3);
 
-	double Evaluate(const std::vector <double> &param) const;
+	double Evaluate(const std::vector<double> &param) const;
 
 private:
-	std::vector <Limit> limits;
+	std::vector<Limit> limits;
 };
 
-#endif /* SRC_MATH_PARAMETERLIMITS_H_ */
+#endif /* PARAMETERLIMITS_H */

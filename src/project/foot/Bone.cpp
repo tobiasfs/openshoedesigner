@@ -196,14 +196,14 @@ void Bone::Paint(void) const
 					const Vector3 v2 = sphere(n, m);
 					if(matrix.GetOrientation()
 							== AffineTransformMatrix::Orientation::LHS){
-						normal(matrix.TransformNoShift(v1));
+						normal(matrix.TransformWithoutShift(v1));
 						vertex(matrix.Transform(r1 * v1));
-						normal(matrix.TransformNoShift(v2));
+						normal(matrix.TransformWithoutShift(v2));
 						vertex(matrix.Transform(r1 * v2));
 					}else{
-						normal(matrix.TransformNoShift(v2));
+						normal(matrix.TransformWithoutShift(v2));
 						vertex(matrix.Transform(r1 * v2));
-						normal(matrix.TransformNoShift(v1));
+						normal(matrix.TransformWithoutShift(v1));
 						vertex(matrix.Transform(r1 * v1));
 					}
 				}
@@ -217,14 +217,14 @@ void Bone::Paint(void) const
 					const Vector3 v2 = sphere(n, m);
 					if(matrix.GetOrientation()
 							== AffineTransformMatrix::Orientation::LHS){
-						normal(matrix.TransformNoShift(v1));
+						normal(matrix.TransformWithoutShift(v1));
 						vertex(matrix.Transform(r2 * v1));
-						normal(matrix.TransformNoShift(v2));
+						normal(matrix.TransformWithoutShift(v2));
 						vertex(matrix.Transform(r2 * v2));
 					}else{
-						normal(matrix.TransformNoShift(v2));
+						normal(matrix.TransformWithoutShift(v2));
 						vertex(matrix.Transform(r2 * v2));
-						normal(matrix.TransformNoShift(v1));
+						normal(matrix.TransformWithoutShift(v1));
 						vertex(matrix.Transform(r2 * v1));
 					}
 				}

@@ -24,22 +24,22 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef DIALOGSETUPSTEREO3D_H_
-#define DIALOGSETUPSTEREO3D_H_
+#ifndef GUI_DIALOGSETUPSTEREO3D_H
+#define GUI_DIALOGSETUPSTEREO3D_H
 
 /*!\class DialogSetupStereo3D
  * \brief Dialog to setup stereo 3d anaglyph glasses
  */
 
+#include <wx/event.h>
 #include "../StdInclude.h"
+#include "FacadeTextField.h"
 
 #include "guiSetupStereo3D.h"
 
-#include <wx/event.h>
-
 class SettingsStereo3D;
 class CollectionUnits;
-class DialogSetupStereo3D:public GUISetupStereo3D {
+class DialogSetupStereo3D: public GUISetupStereo3D {
 public:
 	DialogSetupStereo3D(wxWindow* parent, SettingsStereo3D * settings,
 			CollectionUnits * units);
@@ -50,8 +50,8 @@ private:
 
 	// Methods
 public:
-	bool TransferDataToWindow(void);
-	bool TransferDataFromWindow(void);
+	bool TransferDataToWindow();
+	bool TransferDataFromWindow();
 
 private:
 	void OnXClose(wxCloseEvent& event);
@@ -59,6 +59,9 @@ private:
 	void OnColorChanged(wxColourPickerEvent& event);
 	void OnSwap(wxCommandEvent& event);
 	void OnTextChange(wxCommandEvent& event);
+
+	FacadeTextField<float> eyedistance;
+	FacadeTextField<float> focaldistance;
 };
 
-#endif /* DIALOGSETUPSTEREO3D_H_ */
+#endif /* GUI_DIALOGSETUPSTEREO3D_H */

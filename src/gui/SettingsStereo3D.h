@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _SETTINGSSTEREO3D_H_
-#define _SETTINGSSTEREO3D_H_
+#ifndef GUI_SETTINGSSTEREO3D_H
+#define GUI_SETTINGSSTEREO3D_H
 
 /*!\class SettingsStereo3D
  * \brief ...
@@ -59,4 +59,4 @@ public:
 
 };
 
-#endif /* _SETTINGSSTEREO3D_H_ */
+#endif /* GUI_SETTINGSSTEREO3D_H */

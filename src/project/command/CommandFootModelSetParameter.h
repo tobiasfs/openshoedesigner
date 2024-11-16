@@ -24,10 +24,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __COMMANDFOOTMODELSETPARAMETER_H__
-#define __COMMANDFOOTMODELSETPARAMETER_H__
+#ifndef COMMANDFOOTMODELSETPARAMETER_H
+#define COMMANDFOOTMODELSETPARAMETER_H
 
 /*!\class CommandFootModelSetParameter
+ * \ingroup command
  * \brief Command to change foot model parameters
  *
  * This command changes the parameters of teh bone / foot model.
@@ -39,26 +40,26 @@
 #include "../Project.h"
 #include "../ProjectView.h"
 
-class CommandFootModelSetParameter:public wxCommand {
+class CommandFootModelSetParameter: public wxCommand {
 public:
 	enum class Type {
 		Length, R1, R2, S1, S2
 	};
 
-	CommandFootModelSetParameter(const wxString& name, Project* project,
-			size_t boneNr, Type field, wxString newFormula);
+	CommandFootModelSetParameter(const wxString &name, Project *project,
+			size_t boneNr, Type field, std::string newFormula);
 
 	bool Do(void);
 	bool Undo(void);
 
 protected:
-	Project* project;
+	Project *project;
 	ProjectView::Side activeSide;
 	size_t boneNr;
 	Type field;
-	wxString newFormula;
-	wxString oldFormulaL;
-	wxString oldFormulaR;
+	std::string newFormula;
+	std::string oldFormulaL;
+	std::string oldFormulaR;
 };
 
-#endif /* __COMMANDFOOTMODELSETPARAMETER_H__ */
+#endif /* COMMANDFOOTMODELSETPARAMETER_H */

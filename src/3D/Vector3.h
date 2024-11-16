@@ -24,51 +24,87 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef L3D_VECTOR3_H
+#define L3D_VECTOR3_H
+
 /*!\class Vector3
  * \ingroup Base3D
  * \brief Vector in 3D space
  *
- * (This class has lots of inlining code in the header to execute fast.)
+ * This class has lots of code in the header for the compiler to directly
+ * inline.
  */
 
 // http://www.parashift.com/c++-faq-lite/operator-overloading.html
-#ifndef _CVECTOR3_H_
-#define _CVECTOR3_H_
 
 #include <string>
 #include <cmath>
 #include <ostream>
 
 struct Vector3 {
-	// Constructor / Destructor:
 public:
 	Vector3() = default;
-	Vector3(float x, float y, float z);
-	explicit Vector3(const std::string & string);
+	Vector3(double x_, double y_, double z_) :
+			x(x_), y(y_), z(z_) {
+	}
+	explicit Vector3(const std::string &string);
 
-	// Member variables:
 public:
-	float x = 0.0;
-	float y = 0.0;
-	float z = 0.0;
+	/**\name Setter
+	 * \{
+	 */
 
-	// Methods:
-public:
-	//! Calculate the absolut length of a vector.
-	inline float Abs() const
-	{
+	void Set(double x_, double y_, double z_) {
+		this->x = x_;
+		this->y = y_;
+		this->z = z_;
+	}
+
+	//! Zeros the vector.
+	void Zero() {
+		x = y = z = 0.0;
+	}
+
+	//! Normalizes the length of a vector.
+	void Normalize();
+
+	/**\}
+	 * \name Getter
+	 * \{
+	 */
+
+	//! Calculate the absolute length of a vector.
+	double Abs() const {
 		return sqrt(x * x + y * y + z * z);
 	}
 
-	//! Calculate the squared absolut length of a vector.
-	inline float Abs2() const
-	{
+	//! Calculate the squared absolute length of a vector.
+	double Abs2() const {
 		return x * x + y * y + z * z;
 	}
 
+	//! Sets the vector to the given coordinates.
+	//! Returns a normal length vector (without changing the original vector)
+	Vector3 Normal() const;
+
+	/*! \brief Generate an orthogonal vector
+	 *
+	 * Generates a vector that is guaranteed to be orthogonal to this vector.
+	 *
+	 * This may be used to define a coordinate system in a plane, where only
+	 * the normal vector is given.
+	 *
+	 * \return Orthogonal unit vector
+	 */
+	Vector3 Orthogonal() const;
+
+	/**\}
+	 * \name Operators
+	 * \{
+	 */
+
 	//! Overloaded operator for vector addition.
-	Vector3& operator+=(const Vector3& a)
-	{
+	Vector3& operator+=(const Vector3 &a) {
 		this->x += a.x;
 		this->y += a.y;
 		this->z += a.z;
@@ -76,15 +112,13 @@ public:
 	}
 
 	//! Overloaded operator for vector addition.
-	friend Vector3 operator+(Vector3 a, const Vector3& b)
-	{
+	friend Vector3 operator+(Vector3 a, const Vector3 &b) {
 		a += b;
 		return a;
 	}
 
 	//! Overloaded operator for vector subtraction.
-	Vector3& operator-=(const Vector3& a)
-	{
+	Vector3& operator-=(const Vector3 &a) {
 		this->x -= a.x;
 		this->y -= a.y;
 		this->z -= a.z;
@@ -92,17 +126,14 @@ public:
 	}
 
 	//! Overloaded operator for vector subtraction.
-	friend Vector3 operator-(Vector3 a, const Vector3& b)
-	{
+	friend Vector3 operator-(Vector3 a, const Vector3 &b) {
 		a -= b;
 		return a;
 	}
 
 	//! Overloaded operator for vector negation.
-	Vector3 operator-() const
-	{
-		Vector3 temp(-this->x, -this->y, -this->z);
-		return temp;
+	Vector3 operator-() const {
+		return Vector3(-this->x, -this->y, -this->z);
 	}
 
 	/*!\brief Overloaded operator for vector product.
@@ -118,8 +149,7 @@ public:
 	 * \right\}
 	 * \f].
 	 */
-	Vector3& operator*=(const Vector3& b)
-	{
+	Vector3& operator*=(const Vector3 &b) {
 		Vector3 a = *(this);
 		this->x = a.y * b.z - a.z * b.y;
 		this->y = a.z * b.x - a.x * b.z;
@@ -128,8 +158,7 @@ public:
 	}
 
 	//! Overloaded operator for scalar product.
-	Vector3& operator*=(const float b)
-	{
+	Vector3& operator*=(const double b) {
 		this->x *= b;
 		this->y *= b;
 		this->z *= b;
@@ -137,43 +166,29 @@ public:
 	}
 
 	//! Overloaded operator for vector product.
-	friend Vector3 operator*(Vector3 a, const Vector3& b)
-	{
+	friend Vector3 operator*(Vector3 a, const Vector3 &b) {
 		a *= b;
 		return a;
 	}
 
 	//! Overloaded operator for scalar product.
-	friend Vector3 operator*(Vector3 a, const float b)
-	{
+	friend Vector3 operator*(Vector3 a, const double b) {
 		a *= b;
 		return a;
 	}
 	//! Overloaded operator for scalar product.
-	friend Vector3 operator*(const float b, Vector3 a)
-	{
+	friend Vector3 operator*(const double b, Vector3 a) {
 		a *= b;
 		return a;
 	}
 
 	//! Calculates the dot product (inner product) of two vectors.
-	float Dot(const Vector3& b) const
-	{
+	double Dot(const Vector3 &b) const {
 		return (x * b.x + y * b.y + z * b.z);
 	}
 
-	const Vector3 Scale(const Vector3 & b) const
-	{
-		Vector3 temp = *this;
-		temp.x *= b.x;
-		temp.y *= b.y;
-		temp.z *= b.z;
-		return temp;
-	}
-
 	//! Overloaded operator for scalar division.
-	Vector3& operator/=(const float b)
-	{
+	Vector3& operator/=(const double b) {
 		this->x /= b;
 		this->y /= b;
 		this->z /= b;
@@ -181,55 +196,72 @@ public:
 	}
 
 	//! Overloaded operator for scalar division.
-	friend Vector3 operator/(Vector3 a, const float b)
-	{
+	friend Vector3 operator/(Vector3 a, const double b) {
 		a /= b;
 		return a;
 	}
 
-	//! Comparison operator equality.
-	bool operator==(const Vector3& b) const;
+	/**\brief Comparison operator equality.
+	 *
+	 * This function checks, if both vectors are closer than DBL_EPSILON
+	 * together. The distance is done in Manhattan distance (= a tiny box) not
+	 * with Pythagoras (= a tiny sphere). The latter would be unstable.
+	 *
+	 */
+	bool operator==(const Vector3 &b) const;
 
 	//! Comparison operator inequality.
-	bool operator!=(const Vector3& b) const
-	{
+	bool operator!=(const Vector3 &b) const {
 		return !(*this == b);
 	}
 
-	//! Zeros the vector.
-	void Zero(void);
+	/**\}
+	 */
 
-	//! Sets the vector to the given coordinates.
-	void Set(float x, float y, float z)
-	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
+	/**\brief Scales one vector by another.
+	 *
+	 * Like a dot product, but without summing the products up.
+	 *
+	 * Multiplies all values together, but keeps them in the elements of a
+	 * vector:
+	 * \code
+	 * res.x = a.x * b.x;
+	 * res.y = a.y * b.y;
+	 * res.z = a.z * b.z;
+	 * \endcode
+	 */
+	Vector3 Scale(const Vector3 &b) const {
+		Vector3 temp = *this;
+		temp.x *= b.x;
+		temp.y *= b.y;
+		temp.z *= b.z;
+		return temp;
 	}
 
-	//! Returns a normal length vector (without changing the original vector)
-	Vector3 Normal(void) const;
-
-	//! Normalizes the length of a vector.
-	void Normalize(void);
-
-	/*! \brief Generate an orthogonal vector
+	/** \brief Interpolate between two vectors
 	 *
-	 * Generates an arbitrary vector that is garanteed orthogonal to this vector.
-	 *
-	 * This may be used to define a coordinate system in a plane, where only
-	 * the normal vector is given.
+	 * Called "interp" because of Octave/Matlab.
 	 */
-	Vector3 Orthogonal(void) const;
+	Vector3 Interp(const Vector3 &b, const double mix) const {
+		Vector3 temp;
+		temp.x = x + (b.x - x) * mix;
+		temp.y = y + (b.y - y) * mix;
+		temp.z = z + (b.z - z) * mix;
+		return temp;
+	}
 
-	std::string ToString(void) const;
-	bool FromString(const std::string & string);
-	friend std::ostream &operator<<(std::ostream &output, const Vector3 &v)
-	{
+	std::string ToString() const;
+	void FromString(const std::string &string);
+	friend std::ostream& operator<<(std::ostream &output, const Vector3 &v) {
 		output << "[" << v.x << ", " << v.y << ", " << v.z << "]";
 		return output;
 	}
 
+public:
+	double x = 0.0;
+	double y = 0.0;
+	double z = 0.0;
 };
 
-#endif // _CVECTOR3_H_
+#endif // L3D_VECTOR3_H
+

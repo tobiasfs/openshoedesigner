@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Surface.h
-// Purpose            : 
+// Purpose            : Quadratic surface
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
 // Author             : Tobias Schaefer
-// Created            : 01.06.2020
-// Copyright          : (C) 2020 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 05.10.2023
+// Copyright          : (C) 2023 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -24,14 +24,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_SURFACE_H_
-#define SRC_3D_SURFACE_H_
-#include "Vector3.h"
+#ifndef L3D_SURFACE_H
+#define L3D_SURFACE_H
 
 /*!\class Surface
- * \brief Patch-surface using cubic interpolation
+ * \brief Surface description and coordinate system from quadratic patches
  *
- * Points in a patch:
+ * # Points in a patch:
  *
  * \htmlonly
  * <svg width="92" height="85"><g transform ="translate(0,-967.32306)">
@@ -42,51 +41,73 @@
  *
  */
 
+//fx(u,v):=cx0 + cx1*u + cx2*u^2 + cx3*u^3 + (cx4 + cx5*u + cx6*u^2 + cx7*u^3)*v + (cx8 + cx9*u + cx10*u^2 + cx11*u^3)*v^2 + (cx12 + cx13*u + cx14*u^2 + cx15*u^3)*v^3;
+//fy(u,v):=cy0 + cy1*u + cy2*u^2 + cy3*u^3 + (cy4 + cy5*u + cy6*u^2 + cy7*u^3)*v + (cy8 + cy9*u + cy10*u^2 + cy11*u^3)*v^2 + (cy12 + cy13*u + cy14*u^2 + cy15*u^3)*v^3;
+//fz(u,v):=cz0 + cz1*u + cz2*u^2 + cz3*u^3 + (cz4 + cz5*u + cz6*u^2 + cz7*u^3)*v + (cz8 + cz9*u + cz10*u^2 + cz11*u^3)*v^2 + (cz12 + cz13*u + cz14*u^2 + cz15*u^3)*v^3;
+
 #include <array>
+#include <cstdint>
+#include <stddef.h>
 #include <vector>
+
+class Dependencies;
 
 class Surface {
 public:
 	struct Point {
-		Point() = default;
-		Vector3 p;
-		Vector3 du = {1, 0, 0};
-		Vector3 dv = {0, 1, 0};
+		double x = 0.0;
+		double y = 0.0;
+		double z = 0.0;
+		double u = 0.0;
+		double v = 0.0;
 	};
-	struct Patch {
+	struct Vector {
+		double x = 0.0;
+		double y = 0.0;
+		double z = 0.0;
+		double nx = 0.0;
+		double ny = 0.0;
+		double nz = 0.0;
+	};
+	class Patch {
+	public:
 		Patch() = default;
+		void Paint() const;
+		Vector operator()(double u, double v) const;
+
+		void CalcNormalMatrices();
+
+		double MaxBend() const;
+
+		std::array<double, 16> cx;
+		std::array<double, 16> cy;
+		std::array<double, 16> cz;
+		std::array<double, 36> cnx;
+		std::array<double, 36> cny;
+		std::array<double, 36> cnz;
 		double u0 = 0.0;
 		double u1 = 1.0;
 		double v0 = 0.0;
 		double v1 = 1.0;
-		std::array <const Point *, 4> p;
-		std::array <Vector3, 16> c;
-		void Calculate(void);
-		void Paint(void) const;
-		Vector3 Normal(float u, float v) const;
-		Vector3 operator()(float u, float v) const;
 	};
 
-	void SetSize(size_t U, size_t V);
-
-	Point & P(const size_t idxu, const size_t idxv);
-	const Point & P(const size_t idxu, const size_t idxv) const;
-
+public:
 	Surface() = default;
 	virtual ~Surface() = default;
 
-	void CalculateDirections(void);
-	void Calculate(void);
-	void Paint(void) const;
+	void Calculate(const std::vector<Surface::Point> &p);
 
-	bool uCyclic = false;
-	bool vCyclic = false;
+	void Paint() const;
 
-private:
-	std::vector <Point> p;
-	std::vector <Patch> a;
-	size_t U = 0;
-	size_t V = 0;
+	void AddConnection(Dependencies &dep, uint_fast8_t N, size_t idx1,
+			size_t idx2, double u, double v);
+
+	std::vector<Patch> patches;
+
+	double eps = 1e-9;
+
+	std::vector<Point> debug;
+
 };
 
-#endif /* SRC_3D_SURFACE_H_ */
+#endif /* L3D_SURFACE_H */

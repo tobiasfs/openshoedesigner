@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOLEANBOX_H_
-#define BOOLEANBOX_H_
+#ifndef L3D_BOOLEANBOX_H
+#define L3D_BOOLEANBOX_H
 
 /*!\class BooleanBox
  * \brief Boolean operations on a small number of cubes
@@ -42,8 +42,8 @@
 class BooleanBox {
 public:
 	BooleanBox();
-	BooleanBox(const BooleanBox& other); //!< Copy constructor
-	BooleanBox& operator=(const BooleanBox& other); ///< Assignment operator
+	BooleanBox(const BooleanBox &other); //!< Copy constructor
+	BooleanBox& operator=(const BooleanBox &other); ///< Assignment operator
 	BooleanBox(float sx, float sy, float sz);
 	BooleanBox(float x1, float y1, float z1, float x2, float y2, float z2);
 	virtual ~BooleanBox();
@@ -55,7 +55,7 @@ public:
 	 * Only the translatory components are used.
 	 * @param matrix AffineTransformMatrix
 	 */
-	void Translate(const AffineTransformMatrix & matrix);
+	void Translate(const AffineTransformMatrix &matrix);
 
 	/*!\brief Paint box in Open GL*/
 	void Paint(bool flipNormals = false) const;
@@ -63,7 +63,7 @@ public:
 	/*!\brief Axis-align the cube
 	 * Rotations at 90 degrees are OK.
 	 */
-	void NormalizeMatrix(void);
+	void NormalizeMatrix();
 
 	/*!\brief Resize the box
 	 * Sets up a new box without cutouts.
@@ -77,7 +77,7 @@ public:
 	 * -= does a boolean operation on two of the boxes. The
 	 * matrices in each box are used to align them.
 	 */
-	BooleanBox& operator-=(const BooleanBox& rhs);
+	BooleanBox& operator-=(const BooleanBox &rhs);
 
 private:
 	unsigned int nx;
@@ -85,13 +85,13 @@ private:
 	unsigned int nz;
 	unsigned int bufferSizeIntersect;
 	unsigned int bufferSizeOccupied;
-	float * pX;
-	float * pY;
-	float * pZ;
-	bool * occupied;
+	float *pX;
+	float *pY;
+	float *pZ;
+	bool *occupied;
 
 	void SizeUpIntersect(unsigned int newSize);
 	void SizeUpOccupied(unsigned int newSize);
 };
 
-#endif /* BOOLEANBOX_H_ */
+#endif /* L3D_BOOLEANBOX_H */

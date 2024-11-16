@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef STDINC_H_
-#define STDINC_H_
+#ifndef STDINC_H
+#define STDINC_H
 
 // For compilers that support precompilation, includes "wx/wx.h".
 
@@ -47,4 +47,4 @@
 #error "Neither a Linux nor a Windows system was found!"
 #endif
 
-#endif /* STDINC_H_ */
+#endif /* STDINC_H */

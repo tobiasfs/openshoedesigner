@@ -24,42 +24,47 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef FILESTL_H_
-#define FILESTL_H_
+#ifndef L3D_FILESTL_H
+#define L3D_FILESTL_H
 
 /*!\class FileSTL
  * \ingroup File3D
  * \brief Stereolithography files
  *
  * STL is a very widespread file format to exchange geometry data
- * between CAD programms. This class reads a STL file and stores its
+ * between CAD programs. This class reads a STL file and stores its
  * triangles.
+ *
+ * https://en.wikipedia.org/wiki/STL_(file_format)
+ *
+ * Color is represented in the VisCAM / SolidView schema.
+ *
+ * \todo Check header for Materialise Magics color tags. Also this software uses
+ *       BGR instead of RGB.
+ *
  */
 
-#include "GeometryFileAbstract.h"
+#include "FileGeometry.h"
 
-#include <wx/string.h>
-#include <wx/wfstream.h>
-#include <wx/txtstrm.h>
-#include <wx/datstrm.h>
+#include <iostream>
+#include <string>
 
-class FileSTL:public GeometryFileAbstract {
-	// Constructor/ Destructor
+class FileSTL: public FileGeometry {
 public:
-	FileSTL();
-	virtual ~FileSTL();
+	explicit FileSTL(const std::string &filename_);
+	explicit FileSTL(std::istream *stream);
+	virtual ~FileSTL() = default;
 
-	// Member variables
-public:
+	virtual void ReadStream(Geometry &geometry) override;
+	virtual void WriteStream(const Geometry &geometry) override;
 
-	//Methods:
-public:
-	bool ReadFile(wxString fileName);
-	bool ReadStream(wxInputStream & stream);
-	static void WriteStream(wxOutputStream & stream, Geometry & g);
 private:
-	bool ReadStreamBinary(wxInputStream & stream, bool hasRead5Byte = false);
-	bool ReadStreamAscii(wxInputStream & stream, bool hasRead5Byte = false);
+	void ReadStreamBinary(std::istream &stream, std::string &header,
+			Geometry &geometry);
+	void ReadStreamAscii(std::istream &stream, std::string &header,
+			Geometry &geometry);
+
+//	void TriangleToStream(std::ostream &stream, const Triangle &tri) const;
 };
 
-#endif /* FILESTL_H_ */
+#endif /* L3D_FILESTL_H */

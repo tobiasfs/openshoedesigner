@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PATTERN_H_
-#define PATTERN_H_
+#ifndef PATTERN_H
+#define PATTERN_H
 
 /*!\class Pattern
  * \brief ...
@@ -39,4 +39,4 @@ public:
 	virtual ~Pattern();
 };
 
-#endif /* PATTERN_H_ */
+#endif /* PATTERN_H */

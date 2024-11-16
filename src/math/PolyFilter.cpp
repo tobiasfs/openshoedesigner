@@ -30,8 +30,8 @@
 #include <stdexcept>
 
 #include "MatlabFile.h"
-#include "MatlabMatrix.h"
-#include "Polynom.h"
+#include "Matrix.h"
+#include "Polynomial.h"
 
 PolyFilter::PolyFilter(size_t order, size_t size)
 {
@@ -156,11 +156,11 @@ size_t PolyFilter::GetOrder(void) const
 	return order;
 }
 
-Polynom PolyFilter::Filter(const std::vector <double> &vec, size_t pos) const
+Polynomial PolyFilter::Filter(const std::vector <double> &vec, size_t pos) const
 {
 	if(order > 3) throw(std::logic_error(
 	__FILE__"Filter: order is greater than 3."));
-	Polynom poly(order + 1);
+	Polynomial poly(order + 1);
 
 	const size_t N = filter_a.size();
 	const size_t M = vec.size();
@@ -194,7 +194,7 @@ Polynom PolyFilter::Filter(const std::vector <double> &vec, size_t pos) const
 
 void PolyFilter::Export(std::string filename) const
 {
-	MatlabMatrix F("F", filter_a.size(), 4);
+	Matrix F("F", filter_a.size(), 4);
 	for(size_t n = 0; n < filter_a.size(); ++n)
 		F.Insert(filter_a[n]);
 	for(size_t n = 0; n < filter_a.size(); ++n)

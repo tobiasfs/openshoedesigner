@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENGLCANVAS_H_
-#define OPENGLCANVAS_H_
+#ifndef OPENGLCANVAS_H
+#define OPENGLCANVAS_H
 
 /*!\class OpenGLCanvas
  * \brief Extended wxGLCanvas
@@ -39,20 +39,24 @@
  */
 
 #include "../Config.h"
-#ifdef _USE_6DOFCONTROLLER
+#ifdef USE_6DOFCONTROLLER
 class Control3D;
 #include <wx/timer.h>
 #endif
-#ifdef _USE_3DPICKING
+#ifdef USE_3DPICKING
 #include "OpenGLPick.h"
 #endif
-#include "AffineTransformMatrix.h"
 #include "OpenGLLight.h"
 //#include "OpenGLShader.h"
 
+#include "AffineTransformMatrix.h"
+
 #include <wx/glcanvas.h>
 
-class OpenGLCanvas:public wxGLCanvas {
+
+
+
+class OpenGLCanvas: public wxGLCanvas {
 public:
 
 	enum class Stereo3D {
@@ -68,14 +72,14 @@ public:
 	};
 
 	OpenGLCanvas(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint& pos = wxDefaultPosition, const wxSize& size =
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style = 0,
-			const wxString& name = _T("OpenGLCanvas"));
+			const wxString &name = _T("OpenGLCanvas"));
 	virtual ~OpenGLCanvas();
 
-	class Context:public wxGLContext {
+	class Context: public wxGLContext {
 	public:
-		Context(wxGLCanvas *canvas);
+		explicit Context(wxGLCanvas *canvas);
 	};
 
 	// Member Variables
@@ -98,7 +102,15 @@ public:
 
 	OpenGLLight Light0;
 
+	AffineTransformMatrix projection;
+	AffineTransformMatrix camera;
+	AffineTransformMatrix camera_position;
+	AffineTransformMatrix model;
+
 protected:
+
+
+
 	int x; //!< Startpoint for mouse dragging
 	int y; //!< Startpoint for mouse dragging
 	int w; //!< Width of viewport
@@ -113,36 +125,39 @@ protected:
 //	GLuint depthMap;
 
 private:
-	Context *context;
+	Context *context = nullptr;
 
-#ifdef _USE_6DOFCONTROLLER
+#ifdef USE_6DOFCONTROLLER
 	Control3D* control; //!< Link to 6DOF-controller
 	wxTimer timer; //!< Timer for polling the controller
 #endif
 
 	// Methods
 public:
-#ifdef _USE_6DOFCONTROLLER
+#ifdef USE_6DOFCONTROLLER
 	void SetController(Control3D& control);
 #endif
-#ifdef _USE_3DPICKING
-	bool OnPick(OpenGLPick &result, int x, int y);
-	bool OnPick(OpenGLPick &result, wxPoint pos);
+#ifdef USE_3DPICKING
+	void OnPick(OpenGLPick &result, int x, int y);
+	void OnPick(OpenGLPick &result, wxPoint pos);
 #endif
 
 protected:
-	virtual void Render(void);
-	virtual void RenderPick(void);
+	virtual void Render();
+	virtual void RenderPick();
 
-	void OnPaint(wxPaintEvent& WXUNUSED(event));
-	void OnEnterWindow(wxMouseEvent& WXUNUSED(event));
+	void OnPaint(wxPaintEvent&WXUNUSED(event));
+	void OnEnterWindow(wxMouseEvent&WXUNUSED(event));
 
-	virtual void OnMouseEvent(wxMouseEvent& event);
+	virtual void OnMouseEvent(wxMouseEvent &event);
 
 private:
-#ifdef _USE_6DOFCONTROLLER
+#ifdef USE_6DOFCONTROLLER
 	void OnTimer(wxTimerEvent& event);
 #endif
+
+wxDECLARE_NO_COPY_CLASS(OpenGLCanvas);
 };
 
-#endif /* OPENGLCANVAS_H_ */
+#endif /* OPENGLCANVAS_H */
+

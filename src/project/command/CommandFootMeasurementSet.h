@@ -24,10 +24,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __COMMANDFOOTMEASUREMENTSET_H__
-#define __COMMANDFOOTMEASUREMENTSET_H__
+#ifndef COMMANDFOOTMEASUREMENTSET_H
+#define COMMANDFOOTMEASUREMENTSET_H
 
 /*!\class CommandFootMeasurementSet
+ * \ingroup command
  * \brief Command to change foot measurements parameters
  *
  * ...
@@ -36,7 +37,7 @@
 #include <wx/cmdproc.h>
 #include <wx/string.h>
 
-#include "../../math/ParameterFormula.h"
+#include "../Parameter.h"
 #include "../Project.h"
 #include "../ProjectView.h"
 
@@ -60,4 +61,4 @@ protected:
 	wxString oldValueRight;
 };
 
-#endif /* __COMMANDFOOTMEASUREMENTSET_H__ */
+#endif /* COMMANDFOOTMEASUREMENTSET_H */

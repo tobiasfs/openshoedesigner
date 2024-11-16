@@ -29,13 +29,11 @@
 //#include <wx/event.h>
 //#include "../../gui/IDs.h"
 
-CommandFootModelSetParameter::CommandFootModelSetParameter(const wxString& name,
-		Project* project, size_t boneNr,Type field,
-		wxString newFormula)
-		: wxCommand(true, name)
-{
+CommandFootModelSetParameter::CommandFootModelSetParameter(const wxString &name,
+		Project *project, size_t boneNr, Type field, std::string newFormula) :
+		wxCommand(true, name) {
 	this->project = project;
-//	this->activeSide = project->active;
+	this->activeSide = ProjectView::Side::Both;
 //	if(project->symmetry == Project::Full
 //			|| project->symmetry == Project::OnlyModel) this->activeSide =
 //			Project::Both;
@@ -44,10 +42,10 @@ CommandFootModelSetParameter::CommandFootModelSetParameter(const wxString& name,
 	this->newFormula = newFormula;
 }
 
-bool CommandFootModelSetParameter::Do(void)
-{
-	if(project == NULL) return false;
-return false;
+bool CommandFootModelSetParameter::Do(void) {
+	if (project == NULL)
+		return false;
+	return false;
 //	if(activeSide == Project::Left || activeSide == Project::Both){
 //		if(boneNr >= project->footL.bones.size()) return false;
 //		switch(field){
@@ -119,10 +117,10 @@ return false;
 	return true;
 }
 
-bool CommandFootModelSetParameter::Undo(void)
-{
-	if(project == NULL) return false;
-return false;
+bool CommandFootModelSetParameter::Undo(void) {
+	if (project == NULL)
+		return false;
+	return false;
 //	if(activeSide == Project::Left || activeSide == Project::Both){
 //
 //		if(boneNr >= project->footL.bones.size()) return false;

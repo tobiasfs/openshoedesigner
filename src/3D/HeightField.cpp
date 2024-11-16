@@ -31,8 +31,7 @@
 #include <math.h>
 #include <float.h>
 
-HeightField::HeightField()
-{
+HeightField::HeightField() {
 	dx = 1.0;
 	dy = 1.0;
 	Nx = 0;
@@ -42,87 +41,89 @@ HeightField::HeightField()
 	color.Set(0.5, 0.5, 0.5);
 }
 
-HeightField::HeightField(const HeightField& other) :
+HeightField::HeightField(const HeightField &other) :
 		N(other.N), Nx(other.Nx), Ny(other.Ny), dx(other.dx), dy(other.dy), color(
-				other.color), matrix(other.matrix)
-{
-	if(N == 0){
+				other.color), matrix(other.matrix) {
+	if (N == 0) {
 		value = NULL;
 		return;
 	}
 	value = new double[N];
-	if(value == NULL) throw(__FILE__ ":Copy constructor - Not enough memory.");
-	for(unsigned int n = 0; n < N; n++)
+	if (value == NULL)
+		throw(__FILE__ ":Copy constructor - Not enough memory.");
+	for (unsigned int n = 0; n < N; n++)
 		value[n] = other.value[n];
 }
 
-HeightField::~HeightField()
-{
-	if(value != NULL) delete[] value;
+HeightField::~HeightField() {
+	if (value != NULL)
+		delete[] value;
 }
 
-void HeightField::SetCount(unsigned int nx, unsigned int ny, float resolution)
-{
-	if(value != NULL) delete[] value;
+void HeightField::SetCount(unsigned int nx, unsigned int ny, float resolution) {
+	if (value != NULL)
+		delete[] value;
 	this->Nx = nx;
 	this->Ny = ny;
 	this->N = nx * ny;
 	value = new double[this->N];
-	if(value == NULL) throw(__FILE__ ":SetCount(...) - Not enough memory.");
+	if (value == NULL)
+		throw(__FILE__ ":SetCount(...) - Not enough memory.");
 	dx = resolution;
 	dy = resolution;
 	Clear();
 }
 
-void HeightField::SetSize(float x, float y, float resolution)
-{
-	if(value != NULL) delete[] value;
+void HeightField::SetSize(float x, float y, float resolution) {
+	if (value != NULL)
+		delete[] value;
 	Nx = (unsigned int) ceil(x / resolution);
 	Ny = (unsigned int) ceil(y / resolution);
 	this->N = Nx * Ny;
 	value = new double[this->N];
-	if(value == NULL) throw(__FILE__ ":SetSize(...) - Not enough memory.");
+	if (value == NULL)
+		throw(__FILE__ ":SetSize(...) - Not enough memory.");
 	dx = resolution;
 	dy = resolution;
 	Clear();
 }
 
-void HeightField::Clear(void)
-{
-	if(value == NULL) return;
+void HeightField::Clear(void) {
+	if (value == NULL)
+		return;
 	unsigned int i;
-	for(i = 0; i < N; i++)
+	for (i = 0; i < N; i++)
 		value[i] = 0.0;
 }
 
-void HeightField::SetValues(double* v, unsigned int size)
-{
-	if(size > N) return;
-	for(size_t n = 0; n < size; ++n)
+void HeightField::SetValues(double *v, unsigned int size) {
+	if (size > N)
+		return;
+	for (size_t n = 0; n < size; ++n)
 		this->value[n] = v[n];
 }
 
-Polygon3 HeightField::GetUnderline(void) const
-{
+Polygon3 HeightField::GetUnderline(void) const {
 	Polygon3 temp;
 
 	Vector3 p(0, 0, 0);
 	unsigned int i, j, c = 0;
-	for(i = 0; i < Nx; i++){
+	for (i = 0; i < Nx; i++) {
 		p.z = 0.0;
-		for(j = 0; j < Ny; j++){
+		for (j = 0; j < Ny; j++) {
 			double v0 = value[c];
-			if(v0 > 0.0){
-				if(p.z > 0.0){
-					if(v0 < p.z) p.z = v0;
-				}else{
+			if (v0 > 0.0) {
+				if (p.z > 0.0) {
+					if (v0 < p.z)
+						p.z = v0;
+				} else {
 					p.z = v0;
 				}
 			}
 			c += Nx;
 		}
 		c -= (Nx * Ny - 1);
-		temp.InsertPoint(p);
+		temp.AddVertex(p);
 		p.x += dx;
 	}
 
@@ -130,9 +131,9 @@ Polygon3 HeightField::GetUnderline(void) const
 	return temp;
 }
 
-void HeightField::Paint(void) const
-{
-	if(value == NULL) return;
+void HeightField::Paint(void) const {
+	if (value == NULL)
+		return;
 	glPushMatrix();
 	matrix.GLMultMatrix();
 	glColor4f(color.x, color.y, color.z, 0.8);
@@ -142,8 +143,8 @@ void HeightField::Paint(void) const
 
 	Vector3 p(0, 0, 0);
 	unsigned int i, j, c = 0;
-	for(j = 0; j < Ny; j++){
-		for(i = 0; i < Nx; i++){
+	for (j = 0; j < Ny; j++) {
+		for (i = 0; i < Nx; i++) {
 			double v0 = value[c];
 
 			glColor3f(v0 * 5, v0 * 5, v0 * 5);

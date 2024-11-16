@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENGLTEXT_H_
-#define OPENGLTEXT_H_
+#ifndef OPENGLTEXT_H
+#define OPENGLTEXT_H
 
 /*!\class OpenGLText
  * \brief Simple 3D text with block-front
@@ -42,7 +42,7 @@
 #include <GL/gl.h>
 #include <stdint.h>
 
-class OpenGLText:public OpenGLImage {
+class OpenGLText: public OpenGLImage {
 public:
 	OpenGLText();
 	virtual ~OpenGLText();
@@ -56,4 +56,4 @@ private:
 	double ry;
 };
 
-#endif /* OPENGLTEXT_H_ */
+#endif /* OPENGLTEXT_H */

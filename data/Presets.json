@@ -16,32 +16,32 @@
 	"ToeSpring": "0 deg"
 },{
 	"Name": "High Heel (low)",
-	"HeelHeight": "7 cm * (FootLength/26cm)",
+	"HeelHeight": "7 cm * (footLength/26cm)",
 	"BallHeight": "0 cm",
 	"ToeSpring": "0 deg"
 },{
 	"Name": "High Heel (mid)",
-	"HeelHeight": "10 cm * (FootLength/26cm)",
+	"HeelHeight": "10 cm * (footLength/26cm)",
 	"BallHeight": "0 cm",
 	"ToeSpring": "0 deg"
 },{
 	"Name": "High Heel (high)",
-	"HeelHeight": "13 cm * (FootLength/26cm)",
+	"HeelHeight": "13 cm * (footLength/26cm)",
 	"BallHeight": "0 cm",
 	"ToeSpring": "0 deg"
 },{
 	"Name": "Platform Heel",
-	"HeelHeight": "15 cm * (FootLength/26cm)",
-	"BallHeight": "5 cm * (FootLength/26cm)",
+	"HeelHeight": "15 cm * (footLength/26cm)",
+	"BallHeight": "5 cm * (footLength/26cm)",
 	"ToeSpring": "0 deg"
 },{
 	"Name": "Pony Heels",
-	"HeelHeight": "16 cm * (FootLength/26cm)",
+	"HeelHeight": "16 cm * (footLength/26cm)",
 	"BallHeight": "0 cm",
 	"ToeSpring": "45 deg"
 },{
 	"Name": "Ballet Heels",
-	"HeelHeight": "20 cm * (FootLength/26cm)",
+	"HeelHeight": "20 cm * (footLength/26cm)",
 	"BallHeight": "0 cm",
 	"ToeSpring": "90 deg"
 }],
@@ -56,14 +56,23 @@
 	"Name": "Boot (ankle)",
 	"UpperLevel": "1.0"
 },{
-	"Name": "Boot (half calf)",
+	"Name": "Boot (crew)",
+	"UpperLevel": "1.25"
+},{
+	"Name": "Boot (half-calf)",
 	"UpperLevel": "1.5"
+},{
+	"Name": "Boot (3/4)",
+	"UpperLevel": "1.75"
 },{
 	"Name": "Boot (under-knee)",
 	"UpperLevel": "1.9"
 },{
 	"Name": "Boot (over-knee)",
 	"UpperLevel": "2.1"
+},{
+	"Name": "Boot (tight-high)",
+	"UpperLevel": "2.5"
 },{
 	"Name": "Boot (crutch)",
 	"UpperLevel": "2.9"

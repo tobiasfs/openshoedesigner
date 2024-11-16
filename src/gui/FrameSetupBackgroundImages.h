@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_FRAMESETUPBACKGROUNDIMAGES_H_
-#define SRC_GUI_FRAMESETUPBACKGROUNDIMAGES_H_
+#ifndef GUI_FRAMESETUPBACKGROUNDIMAGES_H
+#define GUI_FRAMESETUPBACKGROUNDIMAGES_H
 
 /*!\class FrameSetupBackgroundImages
  * \brief ...
@@ -54,4 +54,4 @@ public:
 
 };
 
-#endif /* SRC_GUI_FRAMESETUPBACKGROUNDIMAGES_H_ */
+#endif /* GUI_FRAMESETUPBACKGROUNDIMAGES_H */

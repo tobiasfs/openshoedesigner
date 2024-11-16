@@ -57,14 +57,14 @@ void NagataPatch::Set(const Vector3& x00, const Vector3& n00,
 Vector3 NagataPatch::c(const Vector3& d, const Vector3& n0, const Vector3 n1)
 {
 	// Eq. 15:
-	const Vector3 _v = (n0 + n1) / 2.0;
+	const Vector3 v_ = (n0 + n1) / 2.0;
 	const Vector3 dv = (n0 - n1) / 2.0;
-	const float _d = d.Dot(_v);
+	const float d_ = d.Dot(v_);
 	const float dd = d.Dot(dv);
-	const float _c = n0.Dot(n0 - dv * 2.0);
+	const float c_ = n0.Dot(n0 - dv * 2.0);
 	const float dc = n0.Dot(dv);
-	if(_c == 1.0 || _c == -1) return Vector3();
-	return _v * (dd / (1 - dc)) + dv * (_d / dc);
+	if(c_ == 1.0 || c_ == -1) return Vector3();
+	return v_ * (dd / (1 - dc)) + dv * (d_ / dc);
 }
 
 Vector3 NagataPatch::operator ()(const float u, const float v) const

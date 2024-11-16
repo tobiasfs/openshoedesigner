@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PANELWALKCYCLE_H_
-#define PANELWALKCYCLE_H_
+#ifndef PANELWALKCYCLE_H
+#define PANELWALKCYCLE_H
 
 /*!\class PanelWalkcycle
  * \brief ...
@@ -59,4 +59,4 @@ private:
 	void OnLeftDown(wxMouseEvent& event);
 };
 
-#endif /* PANELWALKCYCLE_H_ */
+#endif /* PANELWALKCYCLE_H */

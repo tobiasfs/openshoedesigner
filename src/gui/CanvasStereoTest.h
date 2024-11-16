@@ -24,30 +24,31 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef CANVASSTEREOTEST_H_
-#define CANVASSTEREOTEST_H_
+#ifndef GUI_CANVASSTEREOTEST_H
+#define GUI_CANVASSTEREOTEST_H
 
 /*!\class CanvasStereoTest
- * \brief Displays a rotating cube
+ * \brief Displays a rotatable object
  *
- * ...
+ * A canvas that displays an object to setup the stereo 3D system.
  */
 
 #include "../StdInclude.h"
-#include "../3D/BooleanBox.h"
 #include "../3D/OpenGLCanvas.h"
 
-class CanvasStereoTest:public OpenGLCanvas {
+class CanvasStereoTest: public OpenGLCanvas {
 public:
 	CanvasStereoTest(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint& pos = wxDefaultPosition, const wxSize& size =
 					wxDefaultSize, long style = 0,
 			const wxString& name = _T(""));
-	virtual ~CanvasStereoTest();
-
-	BooleanBox box;
+	virtual ~CanvasStereoTest() = default;
 
 	void Render();
+
+private:
+	float CalculateFront(float x, float y);
+	float CalculateZBack(float x, float y);
 };
 
-#endif /* CANVASSTEREOTEST_H_ */
+#endif /* GUI_CANVASSTEREOTEST_H */

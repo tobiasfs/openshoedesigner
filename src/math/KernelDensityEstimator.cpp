@@ -29,16 +29,14 @@
 #include <cmath>
 #include <stdexcept>
 
-void KernelDensityEstimator::YInit(double value)
-{
+void KernelDensityEstimator::YInit(double value) {
 	DependentVector::YInit(value);
 	weightsum = 0.0;
 	count = 0;
 }
 
 void KernelDensityEstimator::Insert(double pos, double kernel(double),
-		double weight, double sigma)
-{
+		double weight, double sigma) {
 	const size_t N = Size();
 	const double x0 = X(0);
 	const double x1 = X(N - 1);
@@ -48,26 +46,27 @@ void KernelDensityEstimator::Insert(double pos, double kernel(double),
 
 	double px = 0.0;
 	double p = pos;
-	if(IsCyclic()){
-		if(x1 > x0){
-			while(p > x1)
+	if (IsCyclic()) {
+		if (x1 > x0) {
+			while (p > x1)
 				p -= CycleLength();
-			while(p < x0)
+			while (p < x0)
 				p += CycleLength();
-		}else{
-			while(p > x0)
+		} else {
+			while (p > x0)
 				p -= CycleLength();
-			while(p < x1)
+			while (p < x1)
 				p += CycleLength();
 		}
-		if(p > (x0 + CycleLength() / 2.0)) p = p - CycleLength();
+		if (p > (x0 + CycleLength() / 2.0))
+			p = p - CycleLength();
 		px = p + CycleLength() / 2.0;
 	}
-	for(size_t n = 0; n < N; ++n){
+	for (size_t n = 0; n < N; ++n) {
 		double v;
-		if(IsCyclic()){
-			v = X(n) - (p + ((X(n) >= px)? CycleLength() : 0));
-		}else{
+		if (IsCyclic()) {
+			v = X(n) - (p + ((X(n) >= px) ? CycleLength() : 0));
+		} else {
 			v = X(n) - p;
 		}
 		Y(n) += kernel(v / sigma) / sigma * weight;
@@ -75,33 +74,33 @@ void KernelDensityEstimator::Insert(double pos, double kernel(double),
 }
 
 void KernelDensityEstimator::Attenuate(double pos, double kernel(double),
-		double weight, double sigma)
-{
+		double weight, double sigma) {
 	const size_t N = Size();
 	const double x0 = X(0);
 	const double x1 = X(N - 1);
 	double px = 0.0;
 	double p = pos;
-	if(IsCyclic()){
-		if(x1 > x0){
-			while(p > x1)
+	if (IsCyclic()) {
+		if (x1 > x0) {
+			while (p > x1)
 				p -= CycleLength();
-			while(p < x0)
+			while (p < x0)
 				p += CycleLength();
-		}else{
-			while(p > x0)
+		} else {
+			while (p > x0)
 				p -= CycleLength();
-			while(p < x1)
+			while (p < x1)
 				p += CycleLength();
 		}
-		if(p > (x0 + CycleLength() / 2.0)) p = p - CycleLength();
+		if (p > (x0 + CycleLength() / 2.0))
+			p = p - CycleLength();
 		px = p + CycleLength() / 2.0;
 	}
-	for(size_t n = 0; n < N; ++n){
+	for (size_t n = 0; n < N; ++n) {
 		double v;
-		if(IsCyclic()){
-			v = X(n) - (p + ((X(n) >= px)? CycleLength() : 0));
-		}else{
+		if (IsCyclic()) {
+			v = X(n) - (p + ((X(n) >= px) ? CycleLength() : 0));
+		} else {
 			v = X(n) - p;
 		}
 
@@ -109,17 +108,16 @@ void KernelDensityEstimator::Attenuate(double pos, double kernel(double),
 	}
 }
 
-void KernelDensityEstimator::Normalize(void)
-{
+void KernelDensityEstimator::Normalize() {
 	operator/=(Area());
 	count = 0;
 	weightsum = 1.0;
 }
 
-void KernelDensityEstimator::NormalizeByWeightSum(void)
-{
-	if(count == 0) throw(std::logic_error(
-	__FILE__":Normalize - Function called, before kernel were inserted."));
+void KernelDensityEstimator::NormalizeByWeightSum() {
+	if (count == 0)
+		throw(std::logic_error(
+		__FILE__":Normalize - Function called, before kernel were inserted."));
 	operator/=(weightsum);
 	count = 0;
 	weightsum = 1.0;

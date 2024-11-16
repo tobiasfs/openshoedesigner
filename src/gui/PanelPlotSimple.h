@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PANELPLOTSIMPLE_H_
-#define PANELPLOTSIMPLE_H_
+#ifndef PANELPLOTSIMPLE_H
+#define PANELPLOTSIMPLE_H
 
 /*!\class PanelPlotSimple
  * \brief Simple graph
@@ -60,4 +60,4 @@ private:
 	void OnLeftDown(wxMouseEvent& event);
 };
 
-#endif /* PANELPLOTSIMPLE_H_ */
+#endif /* PANELPLOTSIMPLE_H */

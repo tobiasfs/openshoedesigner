@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_GUI_FRAMEBONEMODEL_H_
-#define SRC_GUI_FRAMEBONEMODEL_H_
+#ifndef GUI_FRAMEBONEMODEL_H
+#define GUI_FRAMEBONEMODEL_H
 
 /*!\class FrameBoneModel
  * \brief ...
@@ -49,4 +49,4 @@ public:
 
 };
 
-#endif /* SRC_GUI_FRAMEBONEMODEL_H_ */
+#endif /* GUI_FRAMEBONEMODEL_H */

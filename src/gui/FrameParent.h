@@ -24,13 +24,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _FRAMEPARENT_H_
-#define _FRAMEPARENT_H_
+#ifndef FRAMEPARENT_H
+#define FRAMEPARENT_H
 
 /*!\class FrameParent
  * \brief Parentframe for the application
  *
- * Parent frame for the SDI application.
+ * Parent frame for SDI application.
  */
 
 #include "../Config.h"
@@ -43,10 +43,10 @@
 #include <wx/timer.h>
 #include <wx/log.h>
 
-#ifdef _USE_6DOFCONTROLLER
+#ifdef USE_6DOFCONTROLLER
 #include "../controller/Control3D.h"
 #endif
-#ifdef _USE_MIDI
+#ifdef USE_PORTMIDI
 #include "../system/MidiPort.h"
 #include "DialogSetupMidi.h"
 #endif
@@ -66,10 +66,10 @@ public:
 	void OnChangeLanguage(wxCommandEvent& event);
 	void OnSetupStereo3D(wxCommandEvent& event);
 
-#ifdef _USE_6DOFCONTROLLER
+#ifdef USE_6DOFCONTROLLER
 	void OnSetupController(wxCommandEvent& event);
 #endif
-#ifdef _USE_MIDI
+#ifdef USE_PORTMIDI
 	void OnSetupMidi(wxCommandEvent& event);
 #endif
 	void OnSetupUnits(wxCommandEvent& event);
@@ -85,19 +85,19 @@ public:
 	void OnHelp(wxCommandEvent& WXUNUSED(event));
 
 public:
-	wxConfig* config;
+	wxConfig * config;
 
-	wxLogWindow* logWindow;
+	wxLogWindow * logWindow;
 	wxHelpController* m_helpController;
 	DialogSetupStereo3D * dialogSetupStereo3D;
 	SettingsStereo3D settingsStereo3D;
 	CollectionUnits units;
 	CollectionFilepaths filepaths;
 
-#ifdef _USE_6DOFCONTROLLER
+#ifdef USE_6DOFCONTROLLER
 	Control3D control;
 #endif
-#ifdef _USE_MIDI
+#ifdef USE_PORTMIDI
 	MidiPort midi;
 	DialogSetupMidi* dialogSetupMidi;
 #endif
@@ -109,4 +109,4 @@ public:
 wxDECLARE_EVENT_TABLE();
 };
 
-#endif /* _FRAMEPARENT_H_ */
+#endif /* FRAMEPARENT_H */

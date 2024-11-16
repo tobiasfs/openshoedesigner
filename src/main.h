@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef MAIN_H_
-#define MAIN_H_
+#ifndef MAIN_H
+#define MAIN_H
 
 #include "StdInclude.h"
 #include "gui/FrameMain.h"
@@ -34,7 +34,7 @@
 #include <wx/intl.h>
 #include <wx/config.h>
 
-class openshoedesigner:public wxApp {
+class openshoedesigner: public wxApp {
 public:
 	openshoedesigner();
 	virtual ~openshoedesigner();
@@ -44,20 +44,21 @@ public:
 
 protected:
 	wxString loadOnStartup;
-	wxLocale locale;wxConfig* config;
+	wxLocale locale;
+	wxConfig *config;
 
 public:
 	void OnAbout(wxCommandEvent&);
-	virtual void OnInitCmdLine(wxCmdLineParser& parser);
-	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+	virtual void OnInitCmdLine(wxCmdLineParser &parser);
+	virtual bool OnCmdLineParsed(wxCmdLineParser &parser);
 	virtual bool OnInit();
 	virtual bool OnExceptionInMainLoop();
 	virtual void OnUnhandledException();
 	virtual int OnExit();
-	wxFrame* CreateChildFrame(wxView* view, ProjectView::FrameType frametype);
+	wxFrame* CreateChildFrame(wxView *view, ProjectView::FrameType frametype);
 
 wxDECLARE_NO_COPY_CLASS(openshoedesigner);wxDECLARE_EVENT_TABLE();
 };
 DECLARE_APP(openshoedesigner)
 
-#endif /* MAIN_H_ */
+#endif /* MAIN_H */

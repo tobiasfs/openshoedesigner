@@ -32,45 +32,41 @@
 #include "Kernel.h"
 #include "FourierTransform.h"
 
-Symmetry::Symmetry()
-{
+Symmetry::Symmetry() {
 	Init(180);
 }
 
-void Symmetry::Init(size_t N)
-{
+void Symmetry::Init(size_t N) {
 	XLinspace(0, M_PI, N);
 	XSetCyclic(M_PI);
 	YInit();
 }
 
-void Symmetry::AddTransform(const FourierTransform& transform)
-{
-	for(size_t n = 0; n < transform.f.size(); ++n){
+void Symmetry::AddTransform(const FourierTransform &transform) {
+	for (size_t n = 0; n < transform.f.size(); ++n) {
 		const int f = (int) round(transform.f[n]);
-		const size_t F = (size_t)(abs(f));
-		if(f == 0) continue;
+		const size_t F = (size_t) (abs(f));
+		if (f == 0)
+			continue;
 
 		const double d = (transform.OutRe[n] * transform.OutRe[n]
 				+ transform.OutIm[n] * transform.OutIm[n]);
 		double a = -atan2(transform.OutIm[n], transform.OutRe[n]) / (double) f;
 
 		const double da = M_PI / (double) f;
-		for(size_t m = 0; m < F; ++m){
+		for (size_t m = 0; m < F; ++m) {
 			Insert(a, Kernel::Epanechnikov, d, sigma);
 			a += da;
 		}
 	}
 }
 
-void Symmetry::Normalize(void)
-{
+void Symmetry::Normalize(void) {
 	KernelDensityEstimator::NormalizeByWeightSum();
 	this->operator/=(Kernel::Epanechnikov(0) / sigma);
 }
 
-void Symmetry::Paint(void) const
-{
+void Symmetry::Paint(void) const {
 	glPushMatrix();
 	KernelDensityEstimator::Paint();
 	glRotatef(180.0, 0.0, 0.0, 1.0);

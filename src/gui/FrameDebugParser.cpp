@@ -26,10 +26,9 @@
 
 #include "FrameDebugParser.h"
 
-FrameDebugParser::FrameDebugParser(wxWindow* parent)
-		: GUIFrameDebugParser(parent)
-{
-	parser.autoEvaluate = true;
+FrameDebugParser::FrameDebugParser(wxWindow *parent) :
+		GUIFrameDebugParser(parent) {
+//	parser.autoEvaluate = true;
 //	parser.AddAllowedUnit("mm", 1e-3);
 //	parser.AddAllowedUnit("cm", 1e-2);
 //	parser.AddAllowedUnit("m", 1);
@@ -37,27 +36,31 @@ FrameDebugParser::FrameDebugParser(wxWindow* parent)
 //	parser.AddAllowedUnit("ft", 0.3048);
 }
 
-FrameDebugParser::~FrameDebugParser()
-{
+FrameDebugParser::~FrameDebugParser() {
 }
 
-void FrameDebugParser::OnCloseX(wxCloseEvent& event)
-{
+void FrameDebugParser::OnCloseX(wxCloseEvent &event) {
 	this->Hide();
 }
 
-void FrameDebugParser::OnText(wxCommandEvent& event)
-{
+void FrameDebugParser::OnText(wxCommandEvent &event) {
 	wxString text;
 	text = m_textCtrlExpression->GetValue();
-	parser.SetString(text.ToStdString());
-	m_textCtrlError->SetValue(parser.GetError());
-	if(parser.HasError()){
+	std::string error;
+	try {
+		parser.ParseExpression(text.ToStdString());
+		parser.InitMachine();
+		parser.Run();
+	} catch (std::exception &ex) {
+		error = std::string(ex.what());
+	}
+	m_textCtrlError->SetValue(error);
+	if (error.empty() && parser.StackSize() >= 1) {
+		m_textCtrlNumber->SetValue(
+				wxString::Format(_T("%g"), parser.GetStack(0).ToDouble()));
+		m_textCtrlUnit->SetValue(parser.GetStack(0).GetUnit().ToString());
+	} else {
 		m_textCtrlNumber->SetValue(_T(""));
 		m_textCtrlUnit->SetValue(_T(""));
-	}else{
-		m_textCtrlNumber->SetValue(
-				wxString::Format(_T("%g"), parser.GetNumber()));
-		m_textCtrlUnit->SetValue(parser.GetUnit());
 	}
 }

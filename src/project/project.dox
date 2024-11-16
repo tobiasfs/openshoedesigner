@@ -4,7 +4,7 @@ This describes the parts that make up the data.
  
 \dot
   digraph classes {
-	node [shape=record, fontname=Helvetica, fontsize=10];
+	
     pvi [ label="Project View" URL="\ref ProjectView"];
     pro [ label="Project" URL="\ref Project"];
     sho [ label="Shoe" URL="\ref Shoe"];
@@ -62,7 +62,6 @@ This describes the parts that make up the data.
   \dot
   	digraph classes {
     rankdir = LR
-	node [shape=record, fontname=Helvetica, fontsize=10];
 	
     sop [ label="Sole Parameter" URL="\ref Sole"];
 

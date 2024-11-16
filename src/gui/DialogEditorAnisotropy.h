@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _DIALOGANISOTROPY_H_
-#define _DIALOGANISOTROPY_H_
+#ifndef DIALOGANISOTROPY_H
+#define DIALOGANISOTROPY_H
 
 /*!\class DialogEditorAnisotropy
  * \brief ...
@@ -42,4 +42,4 @@ public:
 
 };
 
-#endif /* _DIALOGANISOTROPY_H_ */
+#endif /* DIALOGANISOTROPY_H */

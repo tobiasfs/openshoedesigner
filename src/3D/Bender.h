@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_BENDER_H_
-#define SRC_3D_BENDER_H_
+#ifndef L3D_BENDER_H
+#define L3D_BENDER_H
 
 /*!\class Bender
  * \brief Create a geometry bending transformation
@@ -168,4 +168,4 @@ private:
 
 };
 
-#endif /* SRC_3D_BENDER_H_ */
+#endif /* L3D_BENDER_H */

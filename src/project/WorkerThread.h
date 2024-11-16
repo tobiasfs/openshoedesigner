@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __WORKERTHREAD_H__
-#define __WORKERTHREAD_H__
+#ifndef WORKERTHREAD_H
+#define WORKERTHREAD_H
 
 /*!\class WorkerThread
  * \brief Thread for the loadheavy calculation of the volume
@@ -53,4 +53,4 @@ private:
 	const size_t threadNr;
 };
 
-#endif /* __WORKERTHREAD_H__ */
+#endif /* WORKERTHREAD_H */

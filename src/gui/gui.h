@@ -1,12 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Aug 20 2017)
+// C++ code generated with wxFormBuilder (version 3.10.1-0-g8feb16b)
 // http://www.wxformbuilder.org/
 //
-// PLEASE DO "NOT" EDIT THIS FILE!
+// PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef __GUI_H__
-#define __GUI_H__
+#pragma once
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -172,7 +171,7 @@
 class GUIFrameMain : public wxDocChildFrame
 {
 	private:
-	
+
 	protected:
 		wxMenuBar* m_menubar;
 		wxMenu* m_menuFile;
@@ -343,8 +342,8 @@ class GUIFrameMain : public wxDocChildFrame
 		wxChoice* m_choiceDisplay;
 		PanelPlotSimple* m_panelPlot;
 		wxStatusBar* m_statusBar;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnClose( wxCloseEvent& event ) = 0;
 		virtual void OnQuickSetupMeasurements( wxCommandEvent& event ) = 0;
 		virtual void OnChangeModel( wxCommandEvent& event ) = 0;
@@ -383,31 +382,32 @@ class GUIFrameMain : public wxDocChildFrame
 		virtual void OnPatternSelect( wxTreeListEvent& event ) = 0;
 		virtual void OnPatternAdd( wxCommandEvent& event ) = 0;
 		virtual void OnPatternSelectFabric( wxCommandEvent& event ) = 0;
+		virtual void On3DSelect( wxMouseEvent& event ) = 0;
 		virtual void OnToggleAnkleLock( wxCommandEvent& event ) = 0;
 		virtual void OnChoiceDisplay( wxCommandEvent& event ) = 0;
-		
-	
+
+
 	public:
-		
-		GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Open Shoe Designer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 900,800 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxTAB_TRAVERSAL );
-		
+
+		GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Open Shoe Designer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1000,800 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxTAB_TRAVERSAL );
+
 		~GUIFrameMain();
-		
+
 		void m_splitterOnIdle( wxIdleEvent& )
 		{
-			m_splitter->SetSashPosition( 500 );
+			m_splitter->SetSashPosition( 550 );
 			m_splitter->Disconnect( wxEVT_IDLE, wxIdleEventHandler( GUIFrameMain::m_splitterOnIdle ), NULL, this );
 		}
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrameBoneModel
 ///////////////////////////////////////////////////////////////////////////////
-class GUIFrameBoneModel : public wxFrame 
+class GUIFrameBoneModel : public wxFrame
 {
 	private:
-	
+
 	protected:
 		wxNotebook* m_notebook;
 		wxPanel* m_panelBone;
@@ -419,26 +419,26 @@ class GUIFrameBoneModel : public wxFrame
 		wxMenuBar* m_menubar;
 		wxMenu* m_menuFile;
 		wxMenu* m_menuHelp;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnCellChange( wxGridEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
+
 		GUIFrameBoneModel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Bone Model Setup"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 672,458 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-		
+
 		~GUIFrameBoneModel();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrameEditorFootModel
 ///////////////////////////////////////////////////////////////////////////////
-class GUIFrameEditorFootModel : public wxFrame 
+class GUIFrameEditorFootModel : public wxFrame
 {
 	private:
-	
+
 	protected:
 		CanvasFootModel * m_canvasFootModel;
 		wxDataViewListCtrl* m_dataViewListCtrl2;
@@ -447,28 +447,28 @@ class GUIFrameEditorFootModel : public wxFrame
 		wxDataViewColumn* m_dataViewListColumn6;
 		wxMenuBar* m_menubar;
 		wxMenu* m_menu14;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnLoad( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSave( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnClose( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
+
 		GUIFrameEditorFootModel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Foot model editor"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 715,351 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-		
+
 		~GUIFrameEditorFootModel();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIDialogQuickInitFoot
 ///////////////////////////////////////////////////////////////////////////////
-class GUIDialogQuickInitFoot : public wxDialog 
+class GUIDialogQuickInitFoot : public wxDialog
 {
 	private:
-	
+
 	protected:
 		wxStaticText* m_staticTextShoeSize;
 		ExtendedTextCtrl* m_textCtrlShoeSize;
@@ -478,26 +478,27 @@ class GUIDialogQuickInitFoot : public wxDialog
 		wxRadioButton* m_radioBtnWide;
 		wxButton* m_buttonInit;
 		wxButton* m_buttonAbort;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnTextEnter( wxCommandEvent& event ) = 0;
 		virtual void OnClose( wxCommandEvent& event ) = 0;
-		
-	
+
+
 	public:
-		
-		GUIDialogQuickInitFoot( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Initialize Settings"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxSYSTEM_MENU ); 
+
+		GUIDialogQuickInitFoot( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Initialize Settings"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxSYSTEM_MENU );
+
 		~GUIDialogQuickInitFoot();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrameDebugParser
 ///////////////////////////////////////////////////////////////////////////////
-class GUIFrameDebugParser : public wxFrame 
+class GUIFrameDebugParser : public wxFrame
 {
 	private:
-	
+
 	protected:
 		wxStaticText* m_staticText10;
 		ExtendedTextCtrl* m_textCtrlExpression;
@@ -509,76 +510,27 @@ class GUIFrameDebugParser : public wxFrame
 		ExtendedTextCtrl* m_textCtrlUnit;
 		wxStaticText* m_staticText13;
 		ExtendedTextCtrl* m_textCtrlSIBase;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnCloseX( wxCloseEvent& event ) = 0;
 		virtual void OnText( wxCommandEvent& event ) = 0;
-		
-	
+
+
 	public:
-		
+
 		GUIFrameDebugParser( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Test Parser and Units"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxTAB_TRAVERSAL );
-		
+
 		~GUIFrameDebugParser();
-	
-};
 
-///////////////////////////////////////////////////////////////////////////////
-/// Class GUIFrameSetupUnits
-///////////////////////////////////////////////////////////////////////////////
-class GUIFrameSetupUnits : public wxFrame 
-{
-	private:
-	
-	protected:
-		wxStaticText* m_staticText57;
-		wxChoice* m_choiceUnitLength;
-		wxStaticText* m_staticText110;
-		wxChoice* m_choiceUnitSmallDistance;
-		wxStaticText* m_staticText112;
-		wxChoice* m_choiceUnitAngle;
-		wxButton* m_buttonClose;
-		wxStaticText* m_staticText64;
-		
-		// Virtual event handlers, overide them in your derived class
-		virtual void OnCloseX( wxCloseEvent& event ) = 0;
-		virtual void OnChangeUnit( wxCommandEvent& event ) = 0;
-		virtual void OnClose( wxCommandEvent& event ) = 0;
-		
-	
-	public:
-		
-		GUIFrameSetupUnits( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Setup display units"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
-		
-		~GUIFrameSetupUnits();
-	
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class GUIDialogAbout
-///////////////////////////////////////////////////////////////////////////////
-class GUIDialogAbout : public wxDialog 
-{
-	private:
-	
-	protected:
-		ExtendedTextCtrl* m_textCtrl;
-		wxButton* m_buttonClose;
-	
-	public:
-		
-		GUIDialogAbout( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("About..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 288,200 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSTAY_ON_TOP ); 
-		~GUIDialogAbout();
-	
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIDialogFormulaEditor
 ///////////////////////////////////////////////////////////////////////////////
-class GUIDialogFormulaEditor : public wxDialog 
+class GUIDialogFormulaEditor : public wxDialog
 {
 	private:
-	
+
 	protected:
 		wxDataViewListCtrl* m_dataViewListCtrl;
 		wxDataViewColumn* m_dataViewListColumnVariable;
@@ -592,27 +544,59 @@ class GUIDialogFormulaEditor : public wxDialog
 		wxButton* m_buttonCopyResultFormula;
 		wxButton* m_buttonCancel;
 		wxButton* m_buttonOK;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnItemActivated( wxDataViewEvent& event ) { event.Skip(); }
 		virtual void OnClearFormula( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCopyResultToFormula( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
-		GUIDialogFormulaEditor( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Formula Editor"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 650,450 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER ); 
+
+		GUIDialogFormulaEditor( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Formula Editor"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 650,450 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+
 		~GUIDialogFormulaEditor();
-	
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class GUIFrameSetupUnits
+///////////////////////////////////////////////////////////////////////////////
+class GUIFrameSetupUnits : public wxFrame
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText57;
+		wxChoice* m_choiceUnitLength;
+		wxStaticText* m_staticText110;
+		wxChoice* m_choiceUnitSmallDistance;
+		wxStaticText* m_staticText112;
+		wxChoice* m_choiceUnitAngle;
+		wxButton* m_buttonClose;
+		wxStaticText* m_staticText64;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnCloseX( wxCloseEvent& event ) = 0;
+		virtual void OnChangeUnit( wxCommandEvent& event ) = 0;
+		virtual void OnClose( wxCommandEvent& event ) = 0;
+
+
+	public:
+
+		GUIFrameSetupUnits( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Setup display units"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxCAPTION|wxCLOSE_BOX|wxSTAY_ON_TOP|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
+
+		~GUIFrameSetupUnits();
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrameSetupBackgroundImages
 ///////////////////////////////////////////////////////////////////////////////
-class GUIFrameSetupBackgroundImages : public wxFrame 
+class GUIFrameSetupBackgroundImages : public wxFrame
 {
 	private:
-	
+
 	protected:
 		wxListCtrl* m_listCtrl;
 		wxButton* m_buttonAdd;
@@ -638,31 +622,31 @@ class GUIFrameSetupBackgroundImages : public wxFrame
 		wxStaticText* m_staticTextRotation;
 		wxSlider* m_sliderRotation;
 		wxButton* m_buttonClose;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnAddUpdate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRemove( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSpin( wxSpinEvent& event ) { event.Skip(); }
 		virtual void OnRightDown( wxMouseEvent& event ) { event.Skip(); }
 		virtual void OnScroll( wxScrollEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
+
 		GUIFrameSetupBackgroundImages( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Setup background images"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 582,561 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxSTAY_ON_TOP|wxTAB_TRAVERSAL );
-		
+
 		~GUIFrameSetupBackgroundImages();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUISetupPaths
 ///////////////////////////////////////////////////////////////////////////////
-class GUISetupPaths : public wxDialog 
+class GUISetupPaths : public wxDialog
 {
 	private:
-	
+
 	protected:
 		wxStaticText* m_staticTextMeasurementsDirectory;
 		wxDirPickerCtrl* m_dirPickerMeasurementsDirectory;
@@ -673,65 +657,67 @@ class GUISetupPaths : public wxDialog
 		wxStaticText* m_staticTextOutputDirectory;
 		wxDirPickerCtrl* m_dirPickerOutputDirectory;
 		wxButton* m_buttonClose;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnClose( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
-		GUISetupPaths( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Path setup"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 547,342 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+
+		GUISetupPaths( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Path setup"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 547,342 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~GUISetupPaths();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIDialogMidiSetup
 ///////////////////////////////////////////////////////////////////////////////
-class GUIDialogMidiSetup : public wxDialog 
+class GUIDialogMidiSetup : public wxDialog
 {
 	private:
-	
+
 	protected:
 		wxStaticText* m_staticText;
 		wxChoice* m_choice;
 		wxButton* m_buttonConnectDisconnect;
 		wxButton* m_buttonClose;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnConnectDisconnect( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnClose( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
-		GUIDialogMidiSetup( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Midi Controller"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 321,175 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+
+		GUIDialogMidiSetup( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Midi Controller"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 321,175 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~GUIDialogMidiSetup();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIDialogAnisotropy
 ///////////////////////////////////////////////////////////////////////////////
-class GUIDialogAnisotropy : public wxDialog 
+class GUIDialogAnisotropy : public wxDialog
 {
 	private:
-	
+
 	protected:
 		wxButton* m_buttonAdd;
 		wxButton* m_buttonRemove;
 		PanelAnisotropy* m_panelAnisotropy;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnAddPoint( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRemovePoint( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
-		GUIDialogAnisotropy( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Editor Anisotropy"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 670,719 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+
+		GUIDialogAnisotropy( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Editor Anisotropy"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 670,719 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~GUIDialogAnisotropy();
-	
+
 };
 
-#endif //__GUI_H__

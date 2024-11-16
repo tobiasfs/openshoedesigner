@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef FRAMEMAIN_H_
-#define FRAMEMAIN_H_
+#ifndef FRAMEMAIN_H
+#define FRAMEMAIN_H
 
 /*!\class FrameMain
  * \brief Main Window
@@ -37,6 +37,7 @@
 #include <wx/cmdproc.h>
 #include <wx/intl.h>
 #include <wx/config.h>
+#include <wx/thread.h>
 
 #include "gui.h"
 
@@ -52,15 +53,15 @@
 
 class ProjectView;
 
-class FrameMain:public GUIFrameMain {
+class FrameMain: public GUIFrameMain {
 	friend class ProjectView;
 public:
 	enum class UnitType {
 		Without, Time, Distance, SmallDistance, Tolerance, Angle, Percent
 	};
 
-	FrameMain(wxDocument* doc, wxView* view, wxConfig* config,
-			wxDocParentFrame* parent);
+	FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
+			wxDocParentFrame *parent);
 	virtual ~FrameMain();
 
 	wxConfig *config;
@@ -71,68 +72,70 @@ public:
 protected:
 	const wxBitmap bm0;
 	const wxBitmap bm1;
-	bool loopGuard;
+	wxSemaphore loopGuard;
 
 	wxTimer timer;
 
 public:
-	bool TransferDataToWindow();
 	bool TransferDataFromWindow();
-
-	void On3DSelect(wxCommandEvent& event);
-	void RefreshCanvas(wxCommandEvent& event);
-	void RefreshView(wxCommandEvent& event);
-	void OnTimer(wxTimerEvent& event);
-
-	wxTextCtrl* GetTextCtrlByID(int id);
-	void TransferParameterToTextCtrl(ParameterFormula const parameter,
+	bool TransferDataToWindow();
+	void TransferParameterToTextCtrl(const std::shared_ptr<Parameter>,
 			wxTextCtrl *ctrl, UnitType type);
+	wxTextCtrl* GetTextCtrlByID(int id);
 
-	void OnClose(wxCloseEvent& event);
-	void OnQuickSetupMeasurements(wxCommandEvent& event);
-	void OnSetSymmetry(wxCommandEvent& event);
-	void OnCopyMeasurements(wxCommandEvent& event);
-	void OnChangeModel(wxCommandEvent& event);
-	void OnLoadFootSTL(wxCommandEvent& event);
-	void OnEditBoneModel(wxCommandEvent& event);
-	void OnLoadBoneModel(wxCommandEvent& event);
-	void OnSaveBoneModel(wxCommandEvent& event);
-	void OnConstructionSelection(wxCommandEvent& event);
-	void OnLoadPattern(wxCommandEvent& event);
-	void OnSavePattern(wxCommandEvent& event);
-	void OnSaveLast(wxCommandEvent& event);
-	void OnSaveInsole(wxCommandEvent& event);
-	void OnSaveSole(wxCommandEvent& event);
-	void OnSaveCutaway(wxCommandEvent& event);
-	void OnPackZip(wxCommandEvent& event);
-	void OnToggleStereo3D(wxCommandEvent& event);
-	void OnViewChange(wxCommandEvent& event);
-	void OnSetupBackgroundImages(wxCommandEvent& event);
-	void OnDebugParser(wxCommandEvent& event);
-	void OnPageChange( wxNotebookEvent& event);
-	void OnMouseWheel(wxMouseEvent& event);
-	void OnToggleButton(wxCommandEvent& event);
-	void OnKillFocus(wxFocusEvent& event);
-	void OnSetFocus(wxFocusEvent& event);
-	void OnTextEnter(wxCommandEvent& event);
-	void OnSize(wxSizeEvent& event);
-	void OnFileChangedScanFile(wxFileDirPickerEvent& event);
-	void OnFileChangedLastFile(wxFileDirPickerEvent& event);
-	void OnChoice(wxCommandEvent& event);
-	void OnCheckBox(wxCommandEvent& event);
-	void OnScroll(wxScrollEvent& event);
+	void RefreshCanvas(wxCommandEvent &event);
+	void RefreshView(wxCommandEvent &event);
+	void UpdateProject(wxCommandEvent &event);
 
-	void OnEditShape(wxCommandEvent& event);
-	void OnAddBridge(wxCommandEvent& event);
-	void OnDeleteBridge(wxCommandEvent& event);
-	void OnListCtrlOnSelectionChanged(wxDataViewEvent& event);
-	void OnPatternSelect(wxTreeListEvent& event);
-	void OnPatternAdd(wxCommandEvent& event);
-	void OnPatternSelectFabric(wxCommandEvent& event);
+	void OnClose(wxCloseEvent &event);
+	void OnSize(wxSizeEvent &event);
+	void OnTimer(wxTimerEvent &event);
+	void OnSetFocus(wxFocusEvent &event);
+	void OnKillFocus(wxFocusEvent &event);
+	void OnTextEnter(wxCommandEvent &event);
+	void OnMouseWheel(wxMouseEvent &event);
+	void OnScroll(wxScrollEvent &event);
+	void OnChoice(wxCommandEvent &event);
+	void OnToggleButton(wxCommandEvent &event);
+	void OnCheckBox(wxCommandEvent &event);
+	void OnListCtrlOnSelectionChanged(wxDataViewEvent &event);
+	void OnPageChange( wxNotebookEvent &event);
+	void OnViewChange(wxCommandEvent &event);
 
-	void OnToggleAnkleLock(wxCommandEvent& event);
-	void OnChoiceDisplay(wxCommandEvent& event);
+	void On3DSelect(wxMouseEvent &event);
+	void OnToggleStereo3D(wxCommandEvent &event);
+	void OnChangeModel(wxCommandEvent &event);
+	void OnConstructionSelection(wxCommandEvent &event);
+	void OnChoiceDisplay(wxCommandEvent &event);
+	void OnFileChangedScanFile(wxFileDirPickerEvent &event);
+	void OnFileChangedLastFile(wxFileDirPickerEvent &event);
+	void OnSetSymmetry(wxCommandEvent &event);
+	void OnCopyMeasurements(wxCommandEvent &event);
+
+	void OnQuickSetupMeasurements(wxCommandEvent &event);
+	void OnSetupBackgroundImages(wxCommandEvent &event);
+	void OnDebugParser(wxCommandEvent &event);
+
+	void OnToggleAnkleLock(wxCommandEvent &event);
+	void OnAddBridge(wxCommandEvent &event);
+	void OnDeleteBridge(wxCommandEvent &event);
+	void OnEditBoneModel(wxCommandEvent &event);
+	void OnEditShape(wxCommandEvent &event);
+	void OnPatternSelect(wxTreeListEvent &event);
+	void OnPatternAdd(wxCommandEvent &event);
+	void OnPatternSelectFabric(wxCommandEvent &event);
+
+	void OnLoadFootSTL(wxCommandEvent &event);
+	void OnLoadPattern(wxCommandEvent &event);
+	void OnLoadBoneModel(wxCommandEvent &event);
+	void OnSaveBoneModel(wxCommandEvent &event);
+	void OnSavePattern(wxCommandEvent &event);
+	void OnSaveLast(wxCommandEvent &event);
+	void OnSaveInsole(wxCommandEvent &event);
+	void OnSaveSole(wxCommandEvent &event);
+	void OnSaveCutaway(wxCommandEvent &event);
+	void OnPackZip(wxCommandEvent &event);
 
 };
 
-#endif /* FRAMEMAIN_H_ */
+#endif /* FRAMEMAIN_H */

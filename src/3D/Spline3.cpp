@@ -81,9 +81,9 @@ void Spline3::Calculate(void)
 	points[0].r0 = 0.0;
 	if(N == 1){
 		points[0].length = 0.0;
-		points[0].px = Polynom::ByValue(points[0].r0, points[0].x);
-		points[0].py = Polynom::ByValue(points[0].r0, points[0].y);
-		points[0].pz = Polynom::ByValue(points[0].r0, points[0].z);
+		points[0].px = Polynomial::ByValue(points[0].r0, points[0].x);
+		points[0].py = Polynomial::ByValue(points[0].r0, points[0].y);
+		points[0].pz = Polynomial::ByValue(points[0].r0, points[0].z);
 		return;
 	}
 	for(size_t n = 0; n < N - 1; n++)
@@ -110,32 +110,32 @@ void Spline3::Calculate(void)
 			points[n + 1].r0 = points[n].r0 + points[n].length;
 	}
 	if(N == 2){
-		points[0].px = Polynom::ByValue(points[0].r0, points[0].x, points[1].r0,
+		points[0].px = Polynomial::ByValue(points[0].r0, points[0].x, points[1].r0,
 				points[1].x);
-		points[0].py = Polynom::ByValue(points[0].r0, points[0].y, points[1].r0,
+		points[0].py = Polynomial::ByValue(points[0].r0, points[0].y, points[1].r0,
 				points[1].y);
-		points[0].pz = Polynom::ByValue(points[0].r0, points[0].z, points[1].r0,
+		points[0].pz = Polynomial::ByValue(points[0].r0, points[0].z, points[1].r0,
 				points[1].z);
 		if(closed){
 			if(symmetric){
-				points[1].px = Polynom::ByValue(points[0].r0 - points[1].length,
+				points[1].px = Polynomial::ByValue(points[0].r0 - points[1].length,
 						points[1].x, points[0].r0, points[0].x);
-				points[1].py = Polynom::ByValue(points[0].r0 - points[1].length,
+				points[1].py = Polynomial::ByValue(points[0].r0 - points[1].length,
 						points[1].y, points[0].r0, points[0].y);
-				points[1].pz = Polynom::ByValue(points[0].r0 - points[1].length,
+				points[1].pz = Polynomial::ByValue(points[0].r0 - points[1].length,
 						points[1].z, points[0].r0, points[0].z);
 			}else{
-				points[1].px = Polynom::ByValue(points[1].r0, points[1].x,
+				points[1].px = Polynomial::ByValue(points[1].r0, points[1].x,
 						points[1].r0 + points[1].length, points[0].x);
-				points[1].py = Polynom::ByValue(points[1].r0, points[1].y,
+				points[1].py = Polynomial::ByValue(points[1].r0, points[1].y,
 						points[1].r0 + points[1].length, points[0].y);
-				points[1].pz = Polynom::ByValue(points[1].r0, points[1].z,
+				points[1].pz = Polynomial::ByValue(points[1].r0, points[1].z,
 						points[1].r0 + points[1].length, points[0].z);
 			}
 		}else{
-			points[1].px = Polynom::ByValue(points[1].r0, points[1].x);
-			points[1].py = Polynom::ByValue(points[1].r0, points[1].y);
-			points[1].pz = Polynom::ByValue(points[1].r0, points[1].z);
+			points[1].px = Polynomial::ByValue(points[1].r0, points[1].x);
+			points[1].py = Polynomial::ByValue(points[1].r0, points[1].y);
+			points[1].pz = Polynomial::ByValue(points[1].r0, points[1].z);
 		}
 		return;
 	}
@@ -179,32 +179,32 @@ void Spline3::Calculate(void)
 		const double r1 = points[n].r0 + points[n].length;
 
 		if(C0 && C1){
-			points[n].px = Polynom::ByValue(r0, points[n].x, r1, points[n1].x);
-			points[n].py = Polynom::ByValue(r0, points[n].y, r1, points[n1].y);
-			points[n].pz = Polynom::ByValue(r0, points[n].z, r1, points[n1].z);
+			points[n].px = Polynomial::ByValue(r0, points[n].x, r1, points[n1].x);
+			points[n].py = Polynomial::ByValue(r0, points[n].y, r1, points[n1].y);
+			points[n].pz = Polynomial::ByValue(r0, points[n].z, r1, points[n1].z);
 		}
 		if(C0 && !C1){
-			points[n].px = Polynom::ByDerivative(r1, points[n1].x,
+			points[n].px = Polynomial::ByDerivative(r1, points[n1].x,
 					points[n1].dvx, r0, points[n].x);
-			points[n].py = Polynom::ByDerivative(r1, points[n1].y,
+			points[n].py = Polynomial::ByDerivative(r1, points[n1].y,
 					points[n1].dvy, r0, points[n].y);
-			points[n].pz = Polynom::ByDerivative(r1, points[n1].z,
+			points[n].pz = Polynomial::ByDerivative(r1, points[n1].z,
 					points[n1].dvz, r0, points[n].z);
 		}
 		if(!C0 && C1){
-			points[n].px = Polynom::ByDerivative(r0, points[n].x, points[n].dvx,
+			points[n].px = Polynomial::ByDerivative(r0, points[n].x, points[n].dvx,
 					r1, points[n1].x);
-			points[n].py = Polynom::ByDerivative(r0, points[n].y, points[n].dvy,
+			points[n].py = Polynomial::ByDerivative(r0, points[n].y, points[n].dvy,
 					r1, points[n1].y);
-			points[n].pz = Polynom::ByDerivative(r0, points[n].z, points[n].dvz,
+			points[n].pz = Polynomial::ByDerivative(r0, points[n].z, points[n].dvz,
 					r1, points[n1].z);
 		}
 		if(!C0 && !C1){
-			points[n].px = Polynom::ByValue(r0, points[n].x, points[n].dvx, r1,
+			points[n].px = Polynomial::ByValue(r0, points[n].x, points[n].dvx, r1,
 					points[n1].x, points[n1].dvx);
-			points[n].py = Polynom::ByValue(r0, points[n].y, points[n].dvy, r1,
+			points[n].py = Polynomial::ByValue(r0, points[n].y, points[n].dvy, r1,
 					points[n1].y, points[n1].dvy);
-			points[n].pz = Polynom::ByValue(r0, points[n].z, points[n].dvz, r1,
+			points[n].pz = Polynomial::ByValue(r0, points[n].z, points[n].dvz, r1,
 					points[n1].z, points[n1].dvz);
 		}
 	}

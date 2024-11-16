@@ -24,13 +24,14 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __NELDERMEADOPTIMIZER_H__
-#define __NELDERMEADOPTIMIZER_H__
+#ifndef MATH_NELDERMEADOPTIMIZER_H
+#define MATH_NELDERMEADOPTIMIZER_H
 
 /*!\class NelderMeadOptimizer
  * \brief Nelder-Mead Optimizer
  *
- * This class encapsulates the Nelder Mead Optimization method for multi-dimensional optimization.
+ * This class encapsulates the Nelder Mead Optimization method for
+ * multi-dimensional optimization.
  *
  * https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method
  *
@@ -65,60 +66,57 @@
  * printf("Optimum: x = %g\n", optim.param[0]);
  * ~~~~~~~~~~~~~~~
  *
- * The main loop hidden in IsRunning and SetError is a really complicated state machine. This orchestrates all
- * evaluations needed to form the simplex and move it around the search-space.
+ * The main loop hidden in IsRunning and SetError is a really complicated state
+ * machine. This orchestrates all evaluations needed to form the simplex and
+ * move it around the search-space.
  *
  * See also CMAESOptimizer.
  */
 
+#include "OptimizerAbstract.h"
+
 #include <cstddef>
 #include <vector>
 
-class NelderMeadOptimizer {
+class NelderMeadOptimizer: public OptimizerAbstract {
 public:
 	NelderMeadOptimizer() = default;
 	virtual ~NelderMeadOptimizer() = default;
 
-	std::vector <double> param; //!< Parameter of the system
+	std::vector<double> param; //!< Parameter of the system
 
 	double alpha = 1; //!< Reflection coefficient (alpha > 0 ), default: 1
 	double gamma = 2; //!< Expansion coefficient (gamma > 1), default: 2
 	double rho = 0.5; //!< Contraction coefficient (rho > 0 and rho <= 0.5), default: 0.5
 	double sigma = 0.5; //!< Shrink coefficient (sigma > 0 and sigma < 1), default: 0.5
 
-	double errorLimit = 1e-3; //!< Stop optimization if error is less than errorLimit. Default: 1e-3
-	size_t evalLimit = 1000; //!< Stop optimization if the loop has run more than evalLimit times. Default: 1000
-
 	double simplexSpread = 0.1; //!< Spread for setting up the simplex. Default: 0.1
 
-	bool keepSimplex = false; //!< Speed up continued optimisations, if the system changes only a little. Default: false
+	bool keepSimplex = false; //!< Speed up continued optimizations, if the system changes only a little. Default: false
 	bool reevalBest = false; //!< After the optimization has finished, do an evaluation on the best result. Default: false
 
-	void Start(void); //!< Setup the internal variables and start an optimisation
-	bool IsRunning(void); //!< Loop control function for the main loop
+	void Start(); //!< Setup the internal variables and start an optimization
+	bool IsRunning(); //!< Loop control function for the main loop
 	void SetError(double error); //!< Insert the error back into the solver
-	void Stop(void); //!< Optional: Stops the optimization prematurely and copies the best result so far into 'param'.
-
-	size_t EvaluationsDone(void) const; //!< Number of evaluations of the loop
-	double ResidualError(void) const; //!< Error of the returned result
+	void Stop(); //!< Optional: Stops the optimization prematurely and copies the best result so far into 'param'.
 
 private:
 	bool simplexIsSetup = false; //!< Internal variable to indicate that the simplex has been set up.
 	size_t N = 0; //!< Number of parameter
-	size_t M = 0; //!< Size of corners in simplex
-	std::vector <double> simplex;
-	std::vector <double> f;
-	std::vector <double> xo;
+	size_t M = 0; //!< Number of corners in simplex
+	std::vector<double> simplex;
+	std::vector<double> f;
+	std::vector<double> xo;
 	double fxo = 0.0;
-	std::vector <double> xr;
+	std::vector<double> xr;
 	double fxr = 0.0;
-	std::vector <double> xe;
+	std::vector<double> xe;
 	double fxe = 0.0;
-	std::vector <double> xc;
+	std::vector<double> xc;
 	double fxc = 0.0;
 	unsigned int state = 0;
 	size_t index = 0;
-	size_t evaluationCount = 0;
 };
 
-#endif /* __NELDERMEADOPTIMIZER_H__ */
+#endif /* MATH_NELDERMEADOPTIMIZER_H */
+

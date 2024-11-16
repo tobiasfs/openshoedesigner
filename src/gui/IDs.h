@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef IDS_H_
-#define IDS_H_
+#ifndef IDS_H
+#define IDS_H
 
 /*!\class IDs
  * \brief List of command IDs
@@ -52,13 +52,12 @@
 //!> Refresh the treeview of the current document:
 #define ID_REFRESHTREEVIEW				(wxID_HIGHEST+5)
 
-// Start the recalculation of the current project state:
+//!> Start the recalculation of the current project state:
 #define ID_UPDATEPROJECT				(wxID_HIGHEST+21)
 //
 #define ID_UPDATESIMULATION				(wxID_HIGHEST+22)
 //
 #define ID_UPDATEMACHINESIMULATION		(wxID_HIGHEST+23)
-
 
 #define ID_3DSELECT						(wxID_HIGHEST+24)
 
@@ -70,9 +69,8 @@
 #define ID_SETUPCONTROLLER				(wxID_HIGHEST+45)
 #define ID_SETUPPATHS					(wxID_HIGHEST+46)
 
-
-//!>\def ID_THREADLASTDONE Worker thread to main thread: Processing of volume ready.
+//!> ID_THREADDONE_0 and ID_THREADDONE_1 Worker thread to main thread: Processing of volume ready.
 #define ID_THREADDONE_0			(wxID_HIGHEST+80)
 #define ID_THREADDONE_1			(wxID_HIGHEST+81)
 
-#endif /* IDS_H_ */
+#endif /* IDS_H */

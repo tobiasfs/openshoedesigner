@@ -28,14 +28,13 @@
 
 #include <cmath>
 
-void BendLine::AngleToPos(void)
-{
+void BendLine::AngleToPos() {
 	const size_t N = Size();
 	X(0) = 0.0;
 	Y(0) = 0.0;
 	double dx = X(1) - X(0);
 	double a = (Y(1) + Y(0)) / 2.0;
-	for(size_t n = 2; n < N; ++n){
+	for (size_t n = 2; n < N; ++n) {
 		double xn = X(n - 2) + cos(a) * dx;
 		double yn = Y(n - 2) + sin(a) * dx;
 		dx = X(n) - X(n - 1);

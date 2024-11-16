@@ -5,8 +5,8 @@
 // PLEASE DO "NOT" EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef __GUISETUPSTEREO3D_H__
-#define __GUISETUPSTEREO3D_H__
+#ifndef GUISETUPSTEREO3D_H
+#define GUISETUPSTEREO3D_H
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -103,4 +103,4 @@ class GUISetupStereo3D : public wxFrame
 	
 };
 
-#endif //__GUISETUPSTEREO3D_H__
+#endif // GUISETUPSTEREO3D_H

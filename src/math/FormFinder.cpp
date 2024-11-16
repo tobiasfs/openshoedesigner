@@ -26,54 +26,54 @@
 
 #include "FormFinder.h"
 
-#include <GL/gl.h>
 #include <iostream>
+#include <GL/gl.h>
 
-void FormFinder::AddPolygon(const Polygon3& poly, size_t Nsections)
-{
+#include "../Config.h"
+
+void FormFinder::AddPolygon(const Polygon3 &poly, size_t Nsections) {
 	pf.Init(2, Nsections);
 
-	std::vector <double> x = poly.GetXVectorD();
-	std::vector <double> y = poly.GetYVectorD();
-	std::vector <double> z = poly.GetZVectorD();
-
-	const size_t N = poly.IsClosed()? poly.Size() : (poly.Size() - Nsections);
+	std::vector<double> x = poly.GetXVectorD();
+	std::vector<double> y = poly.GetYVectorD();
+	std::vector<double> z = poly.GetZVectorD();
+/*
+	const size_t N = poly.IsClosed() ? poly.Size() : (poly.Size() - Nsections);
 	a.resize(N);
 	b.resize(N);
 	c.resize(N);
 	d.resize(N);
-	for(size_t n = 0; n < N; ++n){
-//		a[n].x = pf.FilterA(x, n);
-//		a[n].y = pf.FilterA(y, n);
-//		a[n].z = pf.FilterA(z, n);
-//		b[n].x = pf.FilterB(x, n);
-//		b[n].y = pf.FilterB(y, n);
-//		b[n].z = pf.FilterB(z, n);
-//		c[n].x = pf.FilterC(x, n);
-//		c[n].y = pf.FilterC(y, n);
-//		c[n].z = pf.FilterC(z, n);
-//		d[n].x = pf.FilterD(x, n);
-//		d[n].y = pf.FilterD(y, n);
-//		d[n].z = pf.FilterD(z, n);
+	for (size_t n = 0; n < N; ++n) {
+		a[n].x = pf.Filter(x, n);
+		a[n].y = pf.Filter(y, n);
+		a[n].z = pf.Filter(z, n);
+		b[n].x = pf.Filter(x, n);
+		b[n].y = pf.Filter(y, n);
+		b[n].z = pf.Filter(z, n);
+		c[n].x = pf.Filter(x, n);
+		c[n].y = pf.Filter(y, n);
+		c[n].z = pf.Filter(z, n);
+		d[n].x = pf.Filter(x, n);
+		d[n].y = pf.Filter(y, n);
+		d[n].z = pf.Filter(z, n);
 	}
-
+*/
 	double pos;
-	for(size_t n = 0; n < N; n += 1){
-//		std::cout << n << ": ("
+//	for (size_t n = 0; n < N; n += 1) {
+//		DEBUGOUT << n << ": ("
 //				<< pf.GetExtremum(pos, a[n].x, b[n].x, c[n].x, d[n].x) << ") ";
-//		std::cout << (double) n + pos << " - (";
-//		std::cout << pf.GetExtremum2(pos, a[n].x, b[n].x, c[n].x, d[n].x)
+//		DEBUGOUT << (double) n + pos << " - (";
+//		DEBUGOUT << pf.GetExtremum2(pos, a[n].x, b[n].x, c[n].x, d[n].x)
 //				<< ") ";
-//		std::cout << (double) n + pos << "\n";
-	}
+//		DEBUGOUT << (double) n + pos << "\n";
+//	}
 
 }
 
-void FormFinder::Paint(void) const
-{
+void FormFinder::Paint(void) const {
 	const double eps = 1e-9;
 	const size_t N = a.size();
-	for(size_t n = 0; n < N; n += pf.Size()){
+	for (size_t n = 0; n < N; n += pf.Size()) {
 //	size_t n = 58;
 //		const double x = c[n].x
 //				- ((fabs(a[n].x) < eps)? 0 : ((b[n].x * b[n].x + 1)
@@ -87,7 +87,7 @@ void FormFinder::Paint(void) const
 //		glVertex3f(x, y, z);
 
 		glBegin(GL_LINE_STRIP);
-		for(double r = 0; r <= pf.Size(); r += 0.5){
+		for (double r = 0; r <= pf.Size(); r += 0.5) {
 			Vector3 temp = ((a[n] * r + b[n]) * r + c[n]) * r + d[n];
 			glVertex3f(temp.x, temp.y, temp.z);
 		}
@@ -99,7 +99,7 @@ void FormFinder::Paint(void) const
 	glBegin(GL_POINTS);
 
 	double pos;
-	for(size_t n = 0; n < N; n += 1){
+	for (size_t n = 0; n < N; n += 1) {
 //		if(pf.GetExtremum(pos, a[n].x, b[n].x, c[n].x, d[n].x)){
 //			if(pos < 0 || pos > pf.GetSize()) continue;
 //			Vector3 temp = ((a[n] * pos + b[n]) * pos + c[n]) * pos + d[n];

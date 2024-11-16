@@ -30,80 +30,14 @@
 #include <sstream>
 #include <regex>
 #include <cmath>
+
 #include "OpenGL.h"
 
-Triangle::Triangle(const std::string & string)
-{
+Triangle::Triangle(const std::string &string) {
 	this->FromString(string);
 }
 
-std::string Triangle::ToString(void) const
-{
-	std::ostringstream os;
-	os << "{p:[";
-	os << p[0].ToString() << ',' << p[1].ToString() << ',' << p[2].ToString();
-	os << "],n:[";
-	os << n[0].ToString() << ',' << n[1].ToString() << ',' << n[2].ToString();
-	os << "],c:[";
-	os << c[0].ToString() << ',' << c[1].ToString() << ',' << c[2].ToString();
-	os << "]}";
-	return os.str();
-}
-
-bool Triangle::FromString(const std::string & string)
-{
-	//TODO: Move the regex into a global static variable when it is really used a lot.
-	// Regex for a Vector3: (\\{[^\\{]+\\})
-	std::regex e(
-			"^\\{p:\\[(\\{[^\\{]+\\}),(\\{[^\\{]+\\}),(\\{[^\\{]+\\})\\],n:\\[(\\{[^\\{]+\\}),(\\{[^\\{]+\\}),(\\{[^\\{]+\\})\\],c:\\[(\\{[^\\{]+\\}),(\\{[^\\{]+\\}),(\\{[^\\{]+\\})\\]\\}$");
-	std::smatch sm;
-	std::regex_match(string.begin(), string.end(), sm, e);
-
-	if(sm.size() != 9) return false;
-	p[0] = Vector3(sm[0]);
-	p[1] = Vector3(sm[1]);
-	p[2] = Vector3(sm[2]);
-	n[0] = Vector3(sm[3]);
-	n[1] = Vector3(sm[4]);
-	n[2] = Vector3(sm[5]);
-	c[0] = Vector3(sm[6]);
-	c[1] = Vector3(sm[7]);
-	c[2] = Vector3(sm[8]);
-	return true;
-}
-
-/*!\brief Puts a triangle in the OpenGL queue.
- *
- * This function does not call glBegin(GL_TRIANGLES); and
- * glEnd();. This has to be done by the calling function.
- * (Allows to save on OpenGL calls.)
- */
-void Triangle::Paint(bool useNormals, bool useColors) const
-{
-	for(uint_fast8_t i = 0; i < 3; ++i){
-		if(useNormals) ::glNormal3f(n[i].x, n[i].y, n[i].z);
-		if(useColors) ::glColor3f(c[i].x, c[i].y, c[i].z);
-		::glVertex3f(p[i].x, p[i].y, p[i].z);
-	}
-}
-
-/*!\brief Calculates normals for the corners of a triangle.
- *
- *  If no normals can be provided from elsewhere, this function
- *  can generate a set. The normal vectors n[0] to n[2] are all
- *  set normal to the plane of the triangle. Orientation is
- *  right handed.
- */
-void Triangle::CalculateNormal()
-{
-	n[0] = (p[1] - p[0]) * (p[2] - p[1]);
-	n[0].Normalize();
-	n[1] = n[0];
-	n[2] = n[0];
-}
-
-void Triangle::ApplyTransformation(const AffineTransformMatrix &matrix)
-{
+void Triangle::ApplyTransformation(const AffineTransformMatrix &matrix) {
 	p[0] = matrix.Transform(p[0]);
 	p[1] = matrix.Transform(p[1]);
 	p[2] = matrix.Transform(p[2]);
@@ -118,9 +52,60 @@ void Triangle::ApplyTransformation(const AffineTransformMatrix &matrix)
 			matrix[2] * matrix[2] + matrix[6] * matrix[6]
 					+ matrix[10] * matrix[10]);
 	AffineTransformMatrix temp = matrix;
-	temp.ScaleGlobal(1 / sx, 1 / sy, 1 / sz);
-	n[0] = temp.TransformNoShift(n[0]);
-	n[1] = temp.TransformNoShift(n[1]);
-	n[2] = temp.TransformNoShift(n[2]);
+	temp.ScaleGlobal(1.0 / sx, 1.0 / sy, 1.0 / sz);
+	n[0] = temp.TransformWithoutShift(n[0]);
+	n[1] = temp.TransformWithoutShift(n[1]);
+	n[2] = temp.TransformWithoutShift(n[2]);
+}
+
+void Triangle::CalculateNormal() {
+	n[0] = (p[1] - p[0]) * (p[2] - p[1]);
+	n[0].Normalize();
+	n[1] = n[0];
+	n[2] = n[0];
+}
+
+bool Triangle::FromString(const std::string &string) {
+	//TODO: Move the regex into a global static variable when this function is really used a lot.
+	// Regex for a Vector3: (\\{[^\\{]+\\})
+	std::regex e(
+			"^\\{p:\\[(\\{[^\\{]+\\}),(\\{[^\\{]+\\}),(\\{[^\\{]+\\})\\],n:\\[(\\{[^\\{]+\\}),(\\{[^\\{]+\\}),(\\{[^\\{]+\\})\\],c:\\[(\\{[^\\{]+\\}),(\\{[^\\{]+\\}),(\\{[^\\{]+\\})\\]\\}$");
+	std::smatch sm;
+	std::regex_match(string.begin(), string.end(), sm, e);
+
+	if (sm.size() != 9)
+		return false;
+	p[0] = Vector3(sm[0]);
+	p[1] = Vector3(sm[1]);
+	p[2] = Vector3(sm[2]);
+	n[0] = Vector3(sm[3]);
+	n[1] = Vector3(sm[4]);
+	n[2] = Vector3(sm[5]);
+	c[0] = Vector3(sm[6]);
+	c[1] = Vector3(sm[7]);
+	c[2] = Vector3(sm[8]);
+	return true;
+}
+
+std::string Triangle::ToString() const {
+	std::ostringstream os;
+	os << "{p:[";
+	os << p[0].ToString() << ',' << p[1].ToString() << ',' << p[2].ToString();
+	os << "],n:[";
+	os << n[0].ToString() << ',' << n[1].ToString() << ',' << n[2].ToString();
+	os << "],c:[";
+	os << c[0].ToString() << ',' << c[1].ToString() << ',' << c[2].ToString();
+	os << "]}";
+	return os.str();
+}
+
+void Triangle::Paint(bool useNormals, bool useColors) const {
+	for (uint_fast8_t i = 0; i < 3; ++i) {
+		if (useNormals)
+			::glNormal3f(n[i].x, n[i].y, n[i].z);
+		if (useColors)
+			::glColor3f(c[i].x, c[i].y, c[i].z);
+		::glVertex3f(p[i].x, p[i].y, p[i].z);
+	}
 }
 

@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PANELANISOTROPY_H_
-#define PANELANISOTROPY_H_
+#ifndef PANELANISOTROPY_H
+#define PANELANISOTROPY_H
 
 /*!\class PanelAnisotropy
  * \brief Simple graph
@@ -60,4 +60,4 @@ private:
 	void OnLeftDown(wxMouseEvent& event);
 };
 
-#endif /* PANELANISOTROPY_H_ */
+#endif /* PANELANISOTROPY_H */

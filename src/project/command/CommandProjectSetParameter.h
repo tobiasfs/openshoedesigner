@@ -24,10 +24,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H_
-#define SRC_PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H_
+#ifndef PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H
+#define PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H
 
 /*!\class CommandProjectSetParameter
+ * \ingroup command
  * \brief Command to set a parameter for the project itself
  *
  * ...
@@ -55,4 +56,4 @@ protected:
 
 };
 
-#endif /* SRC_PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H_ */
+#endif /* PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H */

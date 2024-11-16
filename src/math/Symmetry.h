@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_SYMMETRY_H_
-#define SRC_MATH_SYMMETRY_H_
+#ifndef MATH_SYMMETRY_H
+#define MATH_SYMMETRY_H
 
 /*!\class Symmetry
  * \brief Fourier-transform-based symmetry search
@@ -43,7 +43,7 @@
 
 class FourierTransform;
 
-class Symmetry:public KernelDensityEstimator {
+class Symmetry: public KernelDensityEstimator {
 public:
 	Symmetry();
 
@@ -57,4 +57,4 @@ public:
 	double sigma = 0.2;
 };
 
-#endif /* SRC_MATH_SYMMETRY_H_ */
+#endif /* MATH_SYMMETRY_H */

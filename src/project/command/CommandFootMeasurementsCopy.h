@@ -24,10 +24,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _COMMANDFOOTMEASUREMENTSCOPY_H_
-#define _COMMANDFOOTMEASUREMENTSCOPY_H_
+#ifndef COMMANDFOOTMEASUREMENTSCOPY_H
+#define COMMANDFOOTMEASUREMENTSCOPY_H
 
 /*!\class CommandFootMeasurementsCopy
+ * \ingroup command
  * \brief Command to copy the measurements of the foot
  *
  * Copies the measurements of the foot from lest to right or vice versae.
@@ -36,7 +37,7 @@
 #include <wx/cmdproc.h>
 #include <wx/string.h>
 
-#include "../../math/ParameterFormula.h"
+#include "../Parameter.h"
 #include "../Project.h"
 #include "../ProjectView.h"
 
@@ -54,4 +55,4 @@ protected:
 	FootMeasurements oldValue;
 };
 
-#endif /* _COMMANDFOOTMEASUREMENTSCOPY_H_ */
+#endif /* COMMANDFOOTMEASUREMENTSCOPY_H */

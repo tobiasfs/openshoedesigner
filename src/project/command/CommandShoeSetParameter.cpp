@@ -25,62 +25,97 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "CommandShoeSetParameter.h"
+
+#include <exception>
+
 #include "../../gui/gui.h"
-#include "../../math/ParameterFormula.h"
+#include "../../math/Parameter.h"
 #include "../Project.h"
 
-CommandShoeSetParameter::CommandShoeSetParameter(const wxString& name,
-		Project* project)
-		: wxCommand(true, name), project(project)
-{
+CommandShoeSetParameter::CommandShoeSetParameter(const wxString &name,
+		Project *project) :
+		wxCommand(true, name), project(project) {
 }
 
-void CommandShoeSetParameter::AddValue(const int key, const std::string value)
-{
-	newParameter[key] = value;
-}
-bool CommandShoeSetParameter::SetNew(const std::pair <int, std::string> & kv,
-		ParameterFormula & pf)
-{
-	bool changed = pf.formula.compare(kv.second) != 0;
-	oldParameter[kv.first] = pf.formula;
-	pf.formula = kv.second;
-	return changed;
+CommandShoeSetParameter::CommandShoeSetParameter(const wxString &name,
+		Project *project, const size_t key, const std::string &newFormula) :
+		wxCommand(true, name), project(project) {
+	AddValue(key, newFormula);
 }
 
-void CommandShoeSetParameter::SetOld(const std::pair <int, std::string> & kv,
-		ParameterFormula & pf)
-{
-	pf.formula = oldParameter[kv.first];
+void CommandShoeSetParameter::AddValue(const size_t key,
+		const std::string &newFormula) {
+	AddValue(key, (size_t) -1, newFormula);
 }
 
-bool CommandShoeSetParameter::Do(void)
-{
-	if(project == NULL) return false;
-	Shoe *shoe = &(project->shoe);
+void CommandShoeSetParameter::AddValue(const size_t key, const size_t group,
+		const std::string &newFormula) {
+	CommandShoeSetParameter::Change temp;
+	temp.id = key;
+	temp.group = group;
+	temp.newFormula = newFormula;
+	changes.push_back(temp);
+}
 
-	bool hasChanged = false;
-	for(auto & kv : newParameter){
-		ParameterFormula & p = shoe->GetParameter(kv.first);
-		hasChanged |= SetNew(kv, p);
+bool CommandShoeSetParameter::Do(void) {
+	if (project == NULL)
+		return false;
+
+	ParameterEvaluator &params = project->parameter;
+	params.Reset();
+
+	for (auto &change : changes) {
+		std::shared_ptr<Parameter> param = params.GetParameter(change.id,
+				change.group);
+		change.oldFormula = param->GetFormula();
+		param->SetFormula(change.newFormula);
 	}
-	if(hasChanged){
-		shoe->Modify(true);
-		project->Update();
-	}
-	return hasChanged;
+
+//	bool hasChanged = false;
+//	for (auto &kv : newParameter) {
+//		Parameter &p = shoe->GetParameter(kv.first);
+//		hasChanged |= SetNew(kv, p);
+//	}
+//	if (hasChanged) {
+//		shoe->Modify(true);
+	project->Update();
+//	}
+//	return hasChanged;
+	return true;
 }
 
-bool CommandShoeSetParameter::Undo(void)
-{
-	if(project == NULL) return false;
-	Shoe *shoe = &(project->shoe);
-	for(auto & kv : oldParameter){
-		ParameterFormula & p = shoe->GetParameter(kv.first);
-		SetOld(kv, p);
+bool CommandShoeSetParameter::Undo(void) {
+	if (project == NULL)
+		return false;
+
+	ParameterEvaluator &params = project->parameter;
+	params.Reset();
+
+	for (auto &change : changes) {
+		std::shared_ptr<Parameter> param = params.GetParameter(change.id,
+				change.group);
+		param->SetFormula(change.oldFormula);
 	}
-	shoe->Modify(true);
+
+//	for (auto &kv : oldParameter) {
+//		Parameter &p = shoe->GetParameter(kv.first);
+//		SetOld(kv, p);
+//	}
+//	shoe->Modify(true);
 	project->Update();
 	return true;
 }
+
+//bool CommandShoeSetParameter::SetNew(const std::pair<int, std::string> &kv,
+//		Parameter &pf) {
+//	bool changed = pf.formula.compare(kv.second) != 0;
+//	oldParameter[kv.first] = pf.formula;
+//	pf.formula = kv.second;
+//	return changed;
+//}
+//
+//void CommandShoeSetParameter::SetOld(const std::pair<int, std::string> &kv,
+//		Parameter &pf) {
+//	pf.formula = oldParameter[kv.first];
+//}
 

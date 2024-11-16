@@ -26,6 +26,7 @@
 
 #include "WorkerThread.h"
 #include "Project.h"
+#include "../Config.h"
 
 wxDEFINE_EVENT(wxEVT_COMMAND_THREAD_COMPLETED, wxThreadEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_THREAD_UPDATE, wxThreadEvent);
@@ -58,11 +59,11 @@ wxThread::ExitCode WorkerThread::Entry()
 	if(TestDestroy()) return (wxThread::ExitCode) 2;
 	bool flag = true;
 	while(flag && !TestDestroy()){
-		if(threadNr == 0) flag = project->UpdateLeft();
-		if(threadNr == 1) flag = project->UpdateRight();
+//		if(threadNr == 0) flag = project->UpdateLeft();
+//		if(threadNr == 1) flag = project->UpdateRight();
 		wxQueueEvent(project, new wxThreadEvent(wxEVT_COMMAND_THREAD_UPDATE));
 	}
 	wxQueueEvent(project, new wxThreadEvent(wxEVT_COMMAND_THREAD_COMPLETED));
-	std::cout << "Thread" << threadNr << " exit.\n";
+	DEBUGOUT << "Thread" << threadNr << " exit.\n";
 	return (wxThread::ExitCode) 0;
 }

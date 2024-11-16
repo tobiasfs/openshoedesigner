@@ -7,7 +7,7 @@
 // Author             : Tobias Schaefer
 // Created            : 30.04.2018
 // Copyright          : (C) 2018 Tobias Schaefer <tobiassch@users.sourceforge.net>
-// Licence            : GNU General Public License version 3.0 (GPLv3)
+// License            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,10 +24,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __COMMANDPROJECTSETLEGLENGTHDIFFERENCE_H__
-#define __COMMANDPROJECTSETLEGLENGTHDIFFERENCE_H__
+#ifndef COMMANDPROJECTSETLEGLENGTHDIFFERENCE_H
+#define COMMANDPROJECTSETLEGLENGTHDIFFERENCE_H
 
 /*!\class CommandProjectSetLegLengthDifference
+ * \ingroup command
  * \brief Command to set the leg length difference
  */
 
@@ -36,17 +37,18 @@
 
 #include "../Project.h"
 
-class CommandProjectSetLegLengthDifference:public wxCommand {
+class CommandProjectSetLegLengthDifference: public wxCommand {
 public:
-    CommandProjectSetLegLengthDifference(const wxString& name, Project* project,wxString value);
+	CommandProjectSetLegLengthDifference(const wxString &name, Project *project,
+			std::string value);
 
-    bool Do(void);
-    bool Undo(void);
+	bool Do(void);
+	bool Undo(void);
 
 protected:
-    Project* project;
-    wxString value;
-    wxString oldValue;
+	Project *project;
+	std::string value;
+	std::string oldValue;
 };
 
-#endif /* __COMMANDPROJECTSETLEGLENGTHDIFFERENCE_H__ */
+#endif /* COMMANDPROJECTSETLEGLENGTHDIFFERENCE_H */

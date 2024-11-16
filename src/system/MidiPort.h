@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_CONTROLLER_MIDIPORT_H_
-#define SRC_CONTROLLER_MIDIPORT_H_
+#ifndef SYSTEM_MIDIPORT_H
+#define SYSTEM_MIDIPORT_H
 
 /*!\class MidiPort
  * \brief Connection to MIDI Instruments
@@ -34,14 +34,12 @@
  * Latency compensation is not used.
  */
 
-#include "../Config.h"
-
 #if !(defined(linux) || defined(__linux))
-#undef _USE_MIDI
+#undef USE_PORTMIDI
 #endif
 
-#ifdef _USE_MIDI
-#include "portmidi.h"
+#ifdef USE_PORTMIDI
+#include <portmidi.h>
 #endif
 #include <cstddef>
 #include <string>
@@ -55,30 +53,30 @@
 class MidiDevice {
 	friend class MidiPort;
 public:
-	MidiDevice(const std::string & name);
+	explicit MidiDevice(const std::string &name);
 	virtual ~MidiDevice();
 
-	void Close(void);
+	void Close();
 
-	bool operator==(const std::string & name) const;
+	bool operator==(const std::string &name) const;
 
-	bool IsOpen(void) const; //!< Has this instance an open connection to a device?
-	bool IsInput(void) const;
-	bool IsOutput(void) const;
-	bool IsBidirectional(void) const;
-	std::string GetName(void) const;
+	bool IsOpen() const; //!< Has this instance an open connection to a device?
+	bool IsInput() const;
+	bool IsOutput() const;
+	bool IsBidirectional() const;
+	std::string GetName() const;
 
 	void Send(uint8_t from = 0, uint8_t to = 255);
-	void Flush(void);
-	bool Poll(void);
+	void Flush();
+	bool Poll();
 	bool PollEvent(uint8_t *data0, uint8_t *data1, uint8_t *data2);
 
-	std::array <uint8_t, 256> cc; // MIDI CC values
+	std::array<uint8_t, 256> cc; // MIDI CC values
 private:
 	std::string name;
-	std::array <uint8_t, 256> ccold; // Old MIDI CC values to determin changes to send out
+	std::array<uint8_t, 256> ccold; // Old MIDI CC values to determine changes to send out
 
-#ifdef _USE_MIDI
+#ifdef USE_PORTMIDI
 	PmEvent buffer[1];
 	PortMidiStream *input = NULL;
 	PortMidiStream *output = NULL;
@@ -92,17 +90,17 @@ public:
 	};
 
 	MidiPort();
-	MidiPort(const MidiPort& other) = delete;
-	MidiPort& operator=(const MidiPort& other) = delete;
+	MidiPort(const MidiPort &other) = delete;
+	MidiPort& operator=(const MidiPort &other) = delete;
 	virtual ~MidiPort();
 
-//	void CycleLibrary(void); //!< Closes all open connections and cycles the portmidi library. Needed when a new device is connected, while the software is running.
+//	void CycleLibrary(); //!< Closes all open connections and cycles the portmidi library. Needed when a new device is connected, while the software is running.
 
-	std::set <std::string> GetDeviceNames(void) const;
-	int GetDeviceCount(void) const;
+	std::set<std::string> GetDeviceNames() const;
+	int GetDeviceCount() const;
 
-	int GetDefaultInputDevice(void) const;
-	int GetDefaultOutputDevice(void) const;
+	int GetDefaultInputDevice() const;
+	int GetDefaultOutputDevice() const;
 
 	std::string GetDeviceName(int nr) const;
 	std::string GetDeviceInterfaceName(int nr) const;
@@ -111,29 +109,32 @@ public:
 	bool IsDeviceOutput(int nr) const;
 	bool IsDeviceAvailable(int nr) const; //!< i.e. not used by this class or somebody else.
 
-	std::shared_ptr <MidiDevice> Open(const std::string & name,
+	std::shared_ptr<MidiDevice> Open(const std::string &name,
 			Direction direction);
 
-	void Close(const std::string & name);
+	void Close(const std::string &name);
 	void Close(size_t idx);
-	void CloseAll(void);
+	void CloseAll();
 
-	std::shared_ptr <MidiDevice> GetFirstOpenDevice(Direction direction);
+	std::shared_ptr<MidiDevice> GetFirstOpenDevice(Direction direction);
 
-	bool IsLastInstance(void) const;
+	bool IsLastInstance() const;
+
+	std::string ToString() const;
 
 	std::string error;
 
 private:
-	std::vector <std::shared_ptr <MidiDevice>> devices;
-#ifdef _USE_MIDI
+	std::vector<std::shared_ptr<MidiDevice>> devices;
+#ifdef USE_PORTMIDI
+	static std::string DecodeError(PmError err);
 	PmError status;
 	PmError length;
-	static std::string DecodeError(PmError err);
 #endif
 private:
 	// The instance counter is needed, because the Pm_Initialize() and Pm_Terminate() functions are global.
 	static size_t instancecounter;
 };
 
-#endif /* SRC_CONTROLLER_MIDIPORT_H_ */
+#endif /* SYSTEM_MIDIPORT_H */
+

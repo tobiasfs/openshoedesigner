@@ -24,14 +24,14 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_MESTIMATOR_H_
-#define SRC_MATH_MESTIMATOR_H_
+#ifndef MESTIMATOR_H
+#define MESTIMATOR_H
 
 /*!\class MEstimator
  * \brief Maximum-likelihood type estimators
  *
- * Estimates the average value of a X/Y-dataset using different estimating functions.
- * The estimators can be applied to ranges in the X/Y-dataset
+ * Estimates the average value of a X/Y-dataset using different estimating
+ * functions. The estimators can be applied to ranges in the X/Y-dataset
  *
  * The estimating function are:
  *   * Least squares
@@ -48,27 +48,27 @@
 #include "DependentVector.h"
 #include "Kernel.h"
 
-class MEstimator:public DependentVector {
+class MEstimator: public DependentVector {
 public:
 	class Estimator {
 	public:
+		virtual ~Estimator() = default;
 		virtual double Rho(double z) const = 0;
 		virtual double Psi(double z) const = 0;
 		virtual double W(double z) const = 0;
 	};
 
-	struct LeastSquares:public Estimator {
+	struct LeastSquares: public Estimator {
 	public:
 		double Rho(double z) const;
 		double Psi(double z) const;
 		double W(double z) const;
 	};
 
-	struct HuberK:public Estimator {
+	struct HuberK: public Estimator {
 	public:
-		HuberK(double k = 1.28)
-				: k(k)
-		{
+		HuberK(double k = 1.28) :
+				k(k) {
 		}
 		double k;
 		double Rho(double z) const;
@@ -76,11 +76,10 @@ public:
 		double W(double z) const;
 	};
 
-	struct Hampel:public Estimator {
+	struct Hampel: public Estimator {
 	public:
-		Hampel(double a = 1.7, double b = 3.4, double c = 8.5)
-				: a(a), b(b), c(c)
-		{
+		Hampel(double a = 1.7, double b = 3.4, double c = 8.5) :
+				a(a), b(b), c(c) {
 		}
 		double a;
 		double b;
@@ -90,11 +89,10 @@ public:
 		double W(double z) const;
 	};
 
-	struct AndrewWave:public Estimator {
+	struct AndrewWave: public Estimator {
 	public:
-		AndrewWave(double a = 4.2097)
-				: a(a)
-		{
+		AndrewWave(double a = 4.2097) :
+				a(a) {
 		}
 		double a;
 		double Rho(double z) const;
@@ -102,11 +100,10 @@ public:
 		double W(double z) const;
 	};
 
-	struct TukeysBiweight:public Estimator {
+	struct TukeysBiweight: public Estimator {
 	public:
-		TukeysBiweight(double a = 4.685)
-				: a(a)
-		{
+		TukeysBiweight(double a = 4.685) :
+				a(a) {
 		}
 		double a;
 		double Rho(double z) const;
@@ -114,17 +111,16 @@ public:
 		double W(double z) const;
 	};
 
-	void EstimateY(const DependentVector & data, const Estimator & estimator,
+	void EstimateY(const DependentVector &data, const Estimator &estimator,
 			const double sigma, size_t xstart = 0, size_t xend = (size_t) -1,
-			std::function <double(double)> weighting = Kernel::Uniform);
+			std::function<double(double)> weighting = Kernel::Uniform);
 
-	void EstimateX(const DependentVector & data, const Estimator & estimator,
+	void EstimateX(const DependentVector &data, const Estimator &estimator,
 			const double sigma, const double yValue, size_t xstart = 0,
 			size_t xend = (size_t) -1);
 
-
-	std::vector <double> weight;
+	std::vector<double> weight;
 
 };
 
-#endif /* SRC_MATH_MESTIMATOR_H_ */
+#endif /* MESTIMATOR_H */

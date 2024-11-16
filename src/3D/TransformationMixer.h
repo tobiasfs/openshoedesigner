@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_TRANSFORMATIONMIXER_H_
-#define SRC_3D_TRANSFORMATIONMIXER_H_
+#ifndef L3D_TRANSFORMATIONMIXER_H
+#define L3D_TRANSFORMATIONMIXER_H
 
 /*!\class TransformationMixer
  * \brief ...
@@ -89,4 +89,4 @@ private:
 	mutable std::valarray <double> mixing;
 };
 
-#endif /* SRC_3D_TRANSFORMATIONMIXER_H_ */
+#endif /* L3D_TRANSFORMATIONMIXER_H */

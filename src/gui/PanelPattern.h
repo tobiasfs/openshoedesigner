@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PANELPATTERN_H_
-#define PANELPATTERN_H_
+#ifndef PANELPATTERN_H
+#define PANELPATTERN_H
 
 /*!\class PanelPattern
  * \brief ...
@@ -59,4 +59,4 @@ private:
 	void OnLeftDown(wxMouseEvent& event);
 };
 
-#endif /* PANELPATTERN_H_ */
+#endif /* PANELPATTERN_H */

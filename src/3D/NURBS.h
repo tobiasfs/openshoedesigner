@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_PROJECT_LAST_NURBS_H_
-#define SRC_PROJECT_LAST_NURBS_H_
+#ifndef PROJECT_LAST_NURBS_H
+#define PROJECT_LAST_NURBS_H
 
 /*!\class NURBS
  * \brief 3D Nurbs surface
@@ -87,4 +87,4 @@ private:
 	mutable size_t lastV; // Last interval calculated in V
 };
 
-#endif /* SRC_PROJECT_LAST_NURBS_H_ */
+#endif /* PROJECT_LAST_NURBS_H */

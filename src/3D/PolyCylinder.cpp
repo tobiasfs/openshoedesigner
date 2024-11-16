@@ -26,29 +26,24 @@
 
 #include "PolyCylinder.h"
 
-#include <GL/gl.h>
 #include <cmath>
 #include <cstring>
-#include <cstdio>
+#include <sstream>
 
-PolyCylinder::CircleSection::Segment::Segment()
-{
-}
+#include "OpenGL.h"
 
-void PolyCylinder::CircleSection::Segment::Scale(double sy, double sz)
-{
+void PolyCylinder::CircleSection::Segment::Scale(double sy, double sz) {
 	y = y0 * sy;
 	z = z0 * sz;
 	dy = y.Derivative();
 	dz = z.Derivative();
 }
 
-double PolyCylinder::CircleSection::Segment::GetLength(void) const
-{
+double PolyCylinder::CircleSection::Segment::GetLength(void) const {
 	double d = 0;
 
 	const double dr = 0.1;
-	for(double r = 0.0; r < (1.000001 - dr); r += dr){
+	for (double r = 0.0; r < (1.000001 - dr); r += dr) {
 		const double hdy = dy(r + dr / 2) * dr;
 		const double hdz = dz(r + dr / 2) * dr;
 		d += sqrt(hdy * hdy + hdz * hdz);
@@ -56,8 +51,7 @@ double PolyCylinder::CircleSection::Segment::GetLength(void) const
 	return d;
 }
 
-void PolyCylinder::CircleSection::Segment::Paint(void) const
-{
+void PolyCylinder::CircleSection::Segment::Paint(void) const {
 	glBegin(GL_LINE_STRIP);
 
 	const double dr = 0.2;
@@ -65,7 +59,7 @@ void PolyCylinder::CircleSection::Segment::Paint(void) const
 	glNormal3d(0, dz(0), -dy(0));
 	glVertex3d(0, y(0), z(0));
 
-	for(double r = 0.0; r <= 1.00001; r += dr){
+	for (double r = 0.0; r <= 1.00001; r += dr) {
 		glNormal3d(0, dz(r), -dy(r));
 		glVertex3d(0, y(r), z(r));
 	}
@@ -73,98 +67,101 @@ void PolyCylinder::CircleSection::Segment::Paint(void) const
 	glEnd();
 }
 
-PolyCylinder::CircleSection::CircleSection()
-{
-}
-
-void PolyCylinder::CircleSection::Scale(double sy, double sz)
-{
-	for(size_t n = 0; n < segments.size(); ++n)
+void PolyCylinder::CircleSection::Scale(double sy, double sz) {
+	for (size_t n = 0; n < segments.size(); ++n)
 		segments[n].Scale(sy, sz);
 }
 
-double PolyCylinder::CircleSection::GetLength(void) const
-{
+double PolyCylinder::CircleSection::GetLength(void) const {
 	double d = 0.0;
-	for(size_t n = 0; n < segments.size(); ++n)
+	for (size_t n = 0; n < segments.size(); ++n)
 		d += segments[n].GetLength();
 	return d;
 }
 
-Vector3 PolyCylinder::CircleSection::Evaluate(double r)
-{
-	if(r < 0.0) r = 1.0 - fmod(-r, 1.0);
+Vector3 PolyCylinder::CircleSection::Evaluate(double r) const{
+	if (r < 0.0)
+		r = 1.0 - fmod(-r, 1.0);
 	const size_t M = segments.size();
 	double h = r * (double) M;
 	double p;
 	double q = modf(h, &p);
 	size_t m = (size_t) p;
-	if(m >= M) m -= M;
+	if (m >= M)
+		m -= M;
 	return Vector3(0, segments[m].y(q), segments[m].z(q));
 }
 
-void PolyCylinder::CircleSection::Paint(void) const
-{
-	for(size_t n = 0; n < segments.size(); ++n)
+void PolyCylinder::CircleSection::Paint(void) const {
+	for (size_t n = 0; n < segments.size(); ++n)
 		segments[n].Paint();
 }
 
-PolyCylinder::PolyCylinder()
-{
-	dx = 1.0;
-}
-
-void PolyCylinder::Scale(double sx, double sy, double sz)
-{
+void PolyCylinder::Scale(double sx, double sy, double sz) {
 	dx = sx;
-	for(size_t n = 0; n < sections.size(); ++n)
+	for (size_t n = 0; n < sections.size(); ++n)
 		sections[n].Scale(sy, sz);
 }
 
-bool PolyCylinder::Load(std::string filename)
-{
+void PolyCylinder::Load(std::string filename) {
 	using namespace std;
 
-	FILE* fhd = fopen(filename.c_str(), "rb");
-	if(fhd == NULL) return false;
+	std::ostringstream err;
+	err << "The file ";
+	err << filename;
+
+	FILE *fhd = fopen(filename.c_str(), "rb");
+
+	if (fhd == NULL) {
+		err << " could not be opened for reading.";
+		throw std::runtime_error(err.str());
+	}
 
 // Test header
 	{
 		char header[10];
 		int res = fread(header, sizeof(char), 10, fhd);
-		if(res < 10){
+		if (res < 10) {
 			fclose(fhd);
-			return false;
+			std::ostringstream err;
+			err << " is to small.";
+			throw std::runtime_error(err.str());
 		}
-		if(std::strncmp(header, "SPLINEDATA", 10) != 0){
+		if (std::strncmp(header, "SPLINEDATA", 10) != 0) {
 			fclose(fhd);
-			return false;
+			err << " does not contain 'SPLINEDATA'.";
+			throw std::runtime_error(err.str());
 		}
 	}
 // Test endianess
 	{
 		uint16_t magic;
 		int res = fread(&magic, sizeof(uint16_t), 1, fhd);
-		if(res < 1){
+		if (res < 1) {
 			fclose(fhd);
-			return false;
+			err << " has no size.";
+			throw std::runtime_error(err.str());
 		}
-		if(magic != 4660){
+		if (magic != 4660) {
 			fclose(fhd);
-			return false;
+			err << " Is missing the magic number.";
+			throw std::runtime_error(err.str());
 		}
 	}
 
 // Load dimensions from file.
 	uint32_t dim[4];
 	size_t res = fread(dim, sizeof(uint32_t), 4, fhd);
-	if(res < 4){
+	if (res < 4) {
 		fclose(fhd);
-		return false;
+		err << " contains not enough dimensions.";
+		throw std::runtime_error(err.str());
 	}
-	if(dim[2] != 2 || dim[3] != 4){
+	if (dim[2] != 2 || dim[3] != 4) {
 		fclose(fhd);
-		return false;
+		err
+				<< " has not the size 2 in dimension 2 and/or size 4 in dimension 3.";
+		throw std::runtime_error(err.str());
 	}
 
 	size_t N = dim[0] * dim[1] * dim[2] * dim[3];
@@ -172,19 +169,20 @@ bool PolyCylinder::Load(std::string filename)
 // Load all double data en block.
 	double *temp = new double[N];
 	res = fread(temp, sizeof(double), N, fhd);
-	if(res < N){
+	if (res < N) {
 		fclose(fhd);
 		delete[] temp;
-		return false;
+		err << " does not contain as many points as expected.";
+		throw std::runtime_error(err.str());
 	}
 	fclose(fhd);
 
 // Spread the data into the model.
 	sections.resize(dim[0]);
 	size_t p = 0;
-	for(size_t n = 0; n < dim[0]; ++n){
+	for (size_t n = 0; n < dim[0]; ++n) {
 		sections[n].segments.resize(dim[1]);
-		for(size_t m = 0; m < dim[1]; ++m){
+		for (size_t m = 0; m < dim[1]; ++m) {
 			sections[n].segments[m].z0.Resize(4);
 			sections[n].segments[m].y0.Resize(4);
 			sections[n].segments[m].z0[0] = temp[p++];
@@ -198,26 +196,22 @@ bool PolyCylinder::Load(std::string filename)
 			sections[n].segments[m].Scale(0.006, 0.006);
 		}
 	}
-
 	delete[] temp;
 
 	dx = 1.0 / dim[0];
-	return true;
 }
 
-void PolyCylinder::Paint(void) const
-{
+void PolyCylinder::Paint(void) const {
 	glPushMatrix();
-	for(size_t n = 0; n < sections.size(); ++n){
+	for (size_t n = 0; n < sections.size(); ++n) {
 		sections[n].Paint();
 		glTranslatef(dx, 0, 0);
 	}
 	glPopMatrix();
 }
 
-void PolyCylinder::GenerateGeometry(Geometry &geometry, bool mirrored)
-{
-	geometry.Clear();
+Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
+	Geometry geometry;
 	size_t N = 64;
 	const double dr = 1.0 / (double) N;
 	Vector3 a, b, c, d;
@@ -225,7 +219,7 @@ void PolyCylinder::GenerateGeometry(Geometry &geometry, bool mirrored)
 	{
 		a.Zero();
 		double r = 0.0;
-		for(size_t m = 0; m < N; ++m){
+		for (size_t m = 0; m < N; ++m) {
 			a += sections[0].Evaluate(r);
 			r += dr;
 		}
@@ -233,33 +227,33 @@ void PolyCylinder::GenerateGeometry(Geometry &geometry, bool mirrored)
 		a.x = -0.5 * dx;
 		r = 0.0;
 		b = sections[0].Evaluate(0);
-		for(size_t m = 0; m < N; ++m){
+		for (size_t m = 0; m < N; ++m) {
 			r += dr;
 			c = sections[0].Evaluate(r);
-			if(mirrored){
+			if (mirrored) {
 				geometry.AddTriangle(a, b, c);
-			}else{
+			} else {
 				geometry.AddTriangle(a, c, b);
 			}
 			b = c;
 		}
 	}
 
-	for(size_t n = 1; n < sections.size(); ++n){
+	for (size_t n = 1; n < sections.size(); ++n) {
 		double r = 0.0;
 		a = sections[n - 1].Evaluate(r);
 		b = sections[n].Evaluate(r);
 		a.x = (n - 1) * dx;
 		b.x = (n) * dx;
-		for(size_t m = 0; m < N; ++m){
+		for (size_t m = 0; m < N; ++m) {
 			r += dr;
 			c = sections[n - 1].Evaluate(r);
 			d = sections[n].Evaluate(r);
 			c.x = (n - 1) * dx;
 			d.x = (n) * dx;
-			if(mirrored){
+			if (mirrored) {
 				geometry.AddQuad(a, b, d, c);
-			}else{
+			} else {
 				geometry.AddQuad(b, a, c, d);
 			}
 			a = c;
@@ -269,7 +263,7 @@ void PolyCylinder::GenerateGeometry(Geometry &geometry, bool mirrored)
 	{
 		a.Zero();
 		double r = 0.0;
-		for(size_t m = 0; m < N; ++m){
+		for (size_t m = 0; m < N; ++m) {
 			a += sections[sections.size() - 1].Evaluate(r);
 			r += dr;
 		}
@@ -278,22 +272,22 @@ void PolyCylinder::GenerateGeometry(Geometry &geometry, bool mirrored)
 		r = 0.0;
 		b = sections[sections.size() - 1].Evaluate(0);
 		b.x = (sections.size() - 1) * dx;
-		for(size_t m = 0; m < N; ++m){
+		for (size_t m = 0; m < N; ++m) {
 			r += dr;
 			c = sections[sections.size() - 1].Evaluate(r);
 			c.x = (sections.size() - 1) * dx;
-			if(mirrored){
+			if (mirrored) {
 				geometry.AddTriangle(a, c, b);
-			}else{
+			} else {
 				geometry.AddTriangle(a, b, c);
 			}
 			b = c;
 		}
 	}
+	return geometry;
 }
 
-void PolyCylinder::Test(void)
-{
+//void PolyCylinder::Test(void) {
 //	double L = sections[0].GetLength();
 //	std::fprintf(stdout, "%g mm\n", L * 1e3);
-}
+//}

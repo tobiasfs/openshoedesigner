@@ -24,38 +24,53 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_3D_OPENGLLIGHT_H_
-#define SRC_3D_OPENGLLIGHT_H_
+#ifndef L3D_OPENGLLIGHT_H
+#define L3D_OPENGLLIGHT_H
 
 /*!\class OpenGLLight
  * \brief ...
  * \ingroup View3D
  *
- * ...
+ * When constructing a light source from this class one of the OpenGL light
+ * source handles has to be passed.
+ *
+ * lightsource can be set from GL_LIGHT0 to GL_MAX_LIGHTS - 1
+ * 
+ * \code
+ * GLint maxLights;
+ * glGetIntegerv(GL_MAX_LIGHTS, &maxLights);
+ * \endcode
+ * 
  */
 
 #include "Vector3.h"
 #include "OpenGL.h"
 
+#include <array>
+
 class OpenGLLight {
 public:
-	OpenGLLight(GLenum lightsource);
+	OpenGLLight() = delete;
+	explicit OpenGLLight(GLenum lightsource_);
+
 	void SetAmbient(GLfloat r, GLfloat g, GLfloat b);
-	void SetAmbient(Vector3 c);
+	void SetAmbient(const Vector3 &c);
 	void SetDiffuse(GLfloat r, GLfloat g, GLfloat b);
-	void SetDiffuse(Vector3 c);
+	void SetDiffuse(const Vector3 &c);
 	void SetSpecular(GLfloat r, GLfloat g, GLfloat b);
-	void SetSpecular(Vector3 c);
+	void SetSpecular(const Vector3 &c);
 	void SetPosition(GLfloat x, GLfloat y, GLfloat z);
-	void SetPosition(Vector3 p);
+	void SetPosition(const Vector3 &p);
 	void Enable(bool on = true);
 	void Update(bool preRender = false);
 
-	bool moveWithCamera;
+	bool moveWithCamera = false; ///< Move the light together with the camera.
+
 private:
 	GLenum lightsource;
-	GLfloat buffer[4];
 	Vector3 position;
+
+	std::array<GLfloat, 4> buffer; ///< Internal buffer
 };
 
-#endif /* SRC_3D_OPENGLLIGHT_H_ */
+#endif /* L3D_OPENGLLIGHT_H */

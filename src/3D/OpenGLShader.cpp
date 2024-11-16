@@ -24,194 +24,210 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define GL_GLEXT_PROTOTYPES
-#ifdef __WXMAC__
-//#include "OpenGL/gl.h"
-#include "OpenGL/glext.h"
-#else
-#include <GL/gl.h>
-#include <GL/glext.h>
-#endif
-
+//#define GL_GLEXT_PROTOTYPES
 #include "OpenGLShader.h"
+
+#include <fstream>
 #include <iostream>
+#include <iterator>
+#include <stdexcept>
+#include <sstream>
 
-OpenGLShader::OpenGLShader()
-{
-	program = 0;
-	showErrors = true;
-}
-
-OpenGLShader::~OpenGLShader()
-{
+OpenGLShader::~OpenGLShader() {
 	Reset();
 }
 
-void OpenGLShader::Reset()
-{
+void OpenGLShader::Reset() {
+	Stop();
 	glDeleteProgram(program);
 	program = 0;
-
-	for(std::map <GLenum, GLuint>::iterator it = shader.begin();
-			it != shader.end(); ++it)
-		glDeleteShader(it->second);
+	for (auto &it : shader)
+		glDeleteShader(it.second);
 	shader.clear();
 }
 
-bool OpenGLShader::AddShader(GLenum type, const std::string& program)
-{
+void OpenGLShader::AddShader(GLenum type, const std::string &program_) {
 	GLuint shadernum = 0;
-	if(shader.find(type) == shader.end()){
+	if (shader.find(type) == shader.end()) {
 		shadernum = glCreateShader(type);
 		shader[type] = shadernum;
-	}else{
+	} else {
 		shadernum = shader[type];
 	}
-	const GLchar* temp[] = {program.c_str()};
+	const GLchar *temp[] = { program_.c_str() };
 	glShaderSource(shadernum, 1, temp, NULL);
 	glCompileShader(shadernum);
 
 	GLint success;
 	glGetShaderiv(shadernum, GL_COMPILE_STATUS, &success);
 
-	if(!success){
+	if (!success) {
 		GLchar txt[512];
 		glGetShaderInfoLog(shadernum, 512, NULL, txt);
-		if(showErrors){
-			std::cout << "Error while compiling shader:" << '\n';
-			std::cout << txt << '\n';
-			std::cout << std::endl;
-		}
-		return false;
+		std::ostringstream out;
+		out << __FILE__ ":" << __func__ << ":";
+		out << " Error while compiling shader:";
+		out << ' ' << txt << '\n';
+		throw std::runtime_error(out.str());
 	}
-	return true;
 }
 
-bool OpenGLShader::LinkShader(void)
-{
+bool OpenGLShader::LinkShader(void) {
 	glDeleteProgram(program);
 	program = glCreateProgram();
 
-	for(std::map <GLenum, GLuint>::iterator it = shader.begin();
-			it != shader.end(); ++it)
-		glAttachShader(program, it->second);
+	for (auto &it : shader)
+		glAttachShader(program, it.second);
 
 	glLinkProgram(program);
 
 	GLint success;
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
 
-	if(!success){
+	if (!success) {
 		GLchar info[512];
 		glGetProgramInfoLog(program, 512, NULL, info);
-		if(showErrors){
-			std::cout << "Error while linking shader program:" << '\n';
-			std::cout << info << '\n';
-			std::cout << std::endl;
-		}
+		std::ostringstream out;
+		out << __FILE__ ":" << __func__ << ":";
+		out << " Error while linking shader program:";
+		out << ' ' << info << '\n';
+		out << std::endl;
+
 		glDeleteProgram(program);
 		program = 0;
-		return false;
+		throw std::runtime_error(out.str());
 	}
 	return true;
 }
 
-bool OpenGLShader::Start(void)
-{
-	if(program == 0) return false;
+bool OpenGLShader::Start(void) {
+	if (program == 0)
+		return false;
 	glUseProgram(program);
 	return true;
 }
 
-void OpenGLShader::Stop(void)
-{
+void OpenGLShader::AddShaderFromFile(GLenum type,
+		const std::string &filename_) {
+	std::ifstream in(filename_);
+	if (!in) {
+		std::ostringstream out;
+		out << __FILE__ ":" << __func__ << ":";
+		out << " Could not open file: " << filename_;
+		throw std::runtime_error(out.str());
+	}
+	std::string program_;
+	std::string buffer(4096, '\0');
+	while (in.read(&buffer[0], 4096)) {
+		program_.append(buffer, 0, in.gcount());
+	}
+	program_.append(buffer, 0, in.gcount());
+	AddShader(type, program_);
+}
+
+void OpenGLShader::Stop(void) {
 	glUseProgram(0);
 }
 
-bool OpenGLShader::SetUniformBool(const std::string& name,
-		const GLboolean x) const
-{
-	if(program == 0) return false;
+bool OpenGLShader::SetUniformBool(const std::string &name,
+		const GLboolean x) const {
+	if (program == 0)
+		return false;
 	GLint location = glGetUniformLocation(program, name.c_str());
-	glUniform1i(location, x? -1 : 0);
+	if (location == -1)
+		return false;
+	glUniform1i(location, x ? -1 : 0);
 	return true;
 }
 
-bool OpenGLShader::SetUniformInt(const std::string& name, const GLint x) const
-{
-	if(program == 0) return false;
+bool OpenGLShader::SetUniformInt(const std::string &name, const GLint x) const {
+	if (program == 0)
+		return false;
 	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
 	glUniform1i(location, x);
 	return true;
 }
 
-bool OpenGLShader::SetUniform(const std::string& name, const Vector3  & x) const
-{
-	if(program == 0) return false;
+bool OpenGLShader::SetUniform(const std::string &name, const Vector3 &x) const {
+	if (program == 0)
+		return false;
 	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
 	glUniform3f(location, x.x, x.y, x.z);
 	return true;
 }
 
-bool OpenGLShader::SetUniform(const std::string& name, const GLfloat x) const
-{
-	if(program == 0) return false;
+bool OpenGLShader::SetUniform(const std::string &name, const GLfloat x) const {
+	if (program == 0)
+		return false;
 	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
 	glUniform1f(location, x);
 	return true;
 }
 
-bool OpenGLShader::SetUniform(const std::string& name, const GLfloat x,
-		const GLfloat y) const
-{
-	if(program == 0) return false;
+bool OpenGLShader::SetUniform(const std::string &name, const GLfloat x,
+		const GLfloat y) const {
+	if (program == 0)
+		return false;
 	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
 	glUniform2f(location, x, y);
 	return true;
 }
 
-bool OpenGLShader::SetUniform(const std::string& name, const GLfloat x,
-		const GLfloat y, const GLfloat z) const
-{
-	if(program == 0) return false;
+bool OpenGLShader::SetUniform(const std::string &name, const GLfloat x,
+		const GLfloat y, const GLfloat z) const {
+	if (program == 0)
+		return false;
 	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
 	glUniform3f(location, x, y, z);
 	return true;
 }
 
-bool OpenGLShader::SetUniform(const std::string& name, const GLfloat x,
-		const GLfloat y, const GLfloat z, const GLfloat w) const
-{
-	if(program == 0) return false;
+bool OpenGLShader::SetUniform(const std::string &name, const GLfloat x,
+		const GLfloat y, const GLfloat z, const GLfloat w) const {
+	if (program == 0)
+		return false;
 	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
 	glUniform4f(location, x, y, z, w);
 	return true;
 }
 
-bool OpenGLShader::SetUniformMatrix(const std::string& name, const GLfloat* M,
-		size_t size) const
-{
-	if(program == 0) return false;
-	GLint location = glGetUniformLocation(program, name.c_str());
-	switch(size){
-	case 4:
-		glUniformMatrix2fv(location, 1, GL_FALSE, M);
-		break;
-	case 9:
-		glUniformMatrix3fv(location, 1, GL_FALSE, M);
-		break;
-	case 16:
-		glUniformMatrix4fv(location, 1, GL_FALSE, M);
-		break;
-	default:
+bool OpenGLShader::SetUniformMatrix3(const std::string &name,
+		const AffineTransformMatrix &M) const {
+	if (program == 0)
 		return false;
-	}
+	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
+	M.GLSetUniformMatrix3(location);
 	return true;
 }
 
-GLint OpenGLShader::GetUniformLocation(const std::string& name) const
-{
-	if(program == 0) return -1;
+bool OpenGLShader::SetUniformMatrix4(const std::string &name,
+		const AffineTransformMatrix &M) const {
+	if (program == 0)
+		return false;
+	GLint location = glGetUniformLocation(program, name.c_str());
+	if (location == -1)
+		return false;
+	M.GLSetUniformMatrix4(location);
+	return true;
+}
+
+GLint OpenGLShader::GetUniformLocation(const std::string &name) const {
+	if (program == 0)
+		return -1;
 	return glGetUniformLocation(program, name.c_str());
 }
 

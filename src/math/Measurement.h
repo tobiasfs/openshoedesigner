@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _MATH_MEASUREMENT_H_
-#define _MATH_MEASUREMENT_H_
+#ifndef MATH_MEASUREMENT_H
+#define MATH_MEASUREMENT_H
 
 #include "Unit.h"
 
@@ -43,4 +43,4 @@ public:
 	Unit unit;
 };
 
-#endif /* _MATH_MEASUREMENT_H_ */
+#endif /* MATH_MEASUREMENT_H */

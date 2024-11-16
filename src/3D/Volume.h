@@ -24,15 +24,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef VOLUME_H_
-#define VOLUME_H_
+#ifndef VOLUME_H
+#define VOLUME_H
 
-#include "OrientedMatrix.h"
 #include "AffineTransformMatrix.h"
 #include "Geometry.h"
+#include "OrientedMatrix.h"
 #include "Vector3.h"
 
-#include <GL/gl.h>
+#include "OpenGL.h"
 
 /*!\class Volume
  * \brief Marching Cube Volume
@@ -67,14 +67,15 @@
  *
  */
 
-class Volume:public OrientedMatrix {
+class Volume: public OrientedMatrix {
 
 public:
-	Volume();
-	Volume(const Volume &) = delete;
-	Volume & operator=(const Volume & other);
+	Volume() = default;
+	Volume(const Volume&);
+	Volume& operator=(const Volume &other);
 	virtual ~Volume();
 
+	void Clear(void);
 	void AddHalfplane(const Vector3 &p1, float d0, float k0);
 	void AddSphere(const Vector3 &p1, float r1, float k1);
 	void AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
@@ -106,16 +107,16 @@ public:
 	 * @param n
 	 * @return
 	 */
-	Vector3 GetSurface(const Vector3 & p0, const Vector3 & n) const;
+	Vector3 GetSurface(const Vector3 &p0, const Vector3 &n) const;
 
 public:
-	Vector3 color; ///< Color of the volume
+	Vector3 color = { 0.5, 0.5, 0.5 }; ///< Color of the volume
 	Geometry geometry; ///< Generated geometry
 
 private:
-	mutable GLuint m_gllist;
-	mutable bool update;
+	mutable GLuint m_gllist = 0;
+	mutable bool update = true;
 
 };
 
-#endif /* VOLUME_H_ */
+#endif /* VOLUME_H */

@@ -26,16 +26,18 @@
 
 #include "NelderMeadOptimizer.h"
 
+#include <cfloat>
 #include <stdexcept>
 #include <string>
 
-void NelderMeadOptimizer::Start(void)
-{
-	if(param.size() != N) simplexIsSetup = false;
-	if(!keepSimplex) simplexIsSetup = false;
-	if(!simplexIsSetup){
+void NelderMeadOptimizer::Start() {
+	if (param.size() != N)
+		simplexIsSetup = false;
+	if (!keepSimplex)
+		simplexIsSetup = false;
+	if (!simplexIsSetup) {
 		N = param.size();
-		if(N == 0){
+		if (N == 0) {
 			state = 0;
 			return;
 		}
@@ -44,9 +46,9 @@ void NelderMeadOptimizer::Start(void)
 		// Setup the simplex
 		simplex.resize(N * M);
 		size_t c = 0;
-		for(size_t m = 0; m < M; m++)
-			for(size_t n = 0; n < N; n++){
-				simplex[c] = param[n] + (((n + 1) == m)? simplexSpread : 0.0);
+		for (size_t m = 0; m < M; m++)
+			for (size_t n = 0; n < N; n++) {
+				simplex[c] = param[n] + (((n + 1) == m) ? simplexSpread : 0.0);
 				c++;
 			}
 
@@ -58,23 +60,24 @@ void NelderMeadOptimizer::Start(void)
 	}
 
 	index = 0;
+	lastError = DBL_MAX;
 	evaluationCount = 0;
 	state = 1;
 }
 
-bool NelderMeadOptimizer::IsRunning(void)
-{
-	if(N == 0) return false;
-	switch(state){
+bool NelderMeadOptimizer::IsRunning() {
+	if (N == 0)
+		return false;
+	switch (state) {
 	case 0:
 		throw(std::logic_error(
 				"NelderMeadOptimizer::IsRunning - StartRun was not called."));
 
-	case 1:
-	{
-		if(index >= M) throw(std::logic_error(
-				"NelderMeadOptimizer::IsRunning - State progression not working."));
-		for(size_t n = 0; n < N; n++)
+	case 1: {
+		if (index >= M)
+			throw(std::logic_error(
+					"NelderMeadOptimizer::IsRunning - State progression not working."));
+		for (size_t n = 0; n < N; n++)
 			param[n] = simplex[index * N + n];
 		state = 2;
 		return true;
@@ -92,8 +95,8 @@ bool NelderMeadOptimizer::IsRunning(void)
 				"NelderMeadOptimizer::IsRunning - SetError was not called."));
 
 	case 5:
-		if(f[0] <= fxr && fxr < f[M - 2]){
-			for(size_t n = 0; n < N; n++)
+		if (f[0] <= fxr && fxr < f[M - 2]) {
+			for (size_t n = 0; n < N; n++)
 				simplex[(M - 1) * N + n] = xr[n];
 			f[M - 1] = fxr;
 			state = 3;
@@ -101,20 +104,20 @@ bool NelderMeadOptimizer::IsRunning(void)
 		}
 
 		// 4.) Expansion
-		if(fxr < f[0]){
+		if (fxr < f[0]) {
 
-			for(size_t n = 0; n < N; n++)
+			for (size_t n = 0; n < N; n++)
 				xe[n] = xo[n] + gamma * (xr[n] - xo[n]);
-			for(size_t n = 0; n < N; n++)
+			for (size_t n = 0; n < N; n++)
 				param[n] = xe[n];
 			state = 6;
 			return true;
 		}
 
 		// 5.) Contraction
-		for(size_t n = 0; n < N; n++)
+		for (size_t n = 0; n < N; n++)
 			xc[n] = xo[n] + rho * (simplex[(M - 1) * N + n] - xo[n]);
-		for(size_t n = 0; n < N; n++)
+		for (size_t n = 0; n < N; n++)
 			param[n] = xc[n];
 		state = 8;
 		return true;
@@ -124,12 +127,12 @@ bool NelderMeadOptimizer::IsRunning(void)
 				"NelderMeadOptimizer::IsRunning - SetError was not called."));
 
 	case 7:
-		if(fxe < fxr){
-			for(size_t n = 0; n < N; n++)
+		if (fxe < fxr) {
+			for (size_t n = 0; n < N; n++)
 				simplex[(M - 1) * N + n] = xe[n];
 			f[M - 1] = fxe;
-		}else{
-			for(size_t n = 0; n < N; n++)
+		} else {
+			for (size_t n = 0; n < N; n++)
 				simplex[(M - 1) * N + n] = xr[n];
 			f[M - 1] = fxr;
 		}
@@ -140,8 +143,8 @@ bool NelderMeadOptimizer::IsRunning(void)
 		throw(std::logic_error(
 				"NelderMeadOptimizer::IsRunning - SetError was not called."));
 	case 9:
-		if(fxc < f[M - 1]){
-			for(size_t n = 0; n < N; n++)
+		if (fxc < f[M - 1]) {
+			for (size_t n = 0; n < N; n++)
 				simplex[(M - 1) * N + n] = xc[n];
 			f[M - 1] = fxc;
 			state = 3;
@@ -149,14 +152,14 @@ bool NelderMeadOptimizer::IsRunning(void)
 		}
 
 		// 6.) Shrink
-		for(size_t m = 1; m < M; m++){
-			for(size_t n = 0; n < N; n++){
+		for (size_t m = 1; m < M; m++) {
+			for (size_t n = 0; n < N; n++) {
 				simplex[m * N + n] = simplex[n]
 						+ sigma * (simplex[m * N + n] - simplex[n]);
 			}
 		}
 		index = 1;
-		for(size_t n = 0; n < N; n++)
+		for (size_t n = 0; n < N; n++)
 			param[n] = simplex[index * N + n];
 		state = 2;
 		return true;
@@ -172,48 +175,49 @@ bool NelderMeadOptimizer::IsRunning(void)
 				"NelderMeadOptimizer::IsRunning - State machine reached invalid state."));
 	}
 
-	if(state == 3){
+	if (state == 3) {
 		// 1.) Sort corners of simplex
 		bool flag = true;
-		while(flag){
+		while (flag) {
 			flag = false;
-			for(size_t m = 0; m < (M - 1); m++){
-				if(f[m] > f[m + 1]){
-					for(size_t n = 0; n < N; n++)
+			for (size_t m = 0; m < (M - 1); m++) {
+				if (f[m] > f[m + 1]) {
+					for (size_t n = 0; n < N; n++)
 						std::swap(simplex[m * N + n], simplex[(m + 1) * N + n]);
 					std::swap(f[m], f[m + 1]);
 					flag = true;
 				}
 			}
 		}
+		lastError = f[0];
 
 		// Termination of algorithm?
-		if(f[0] < errorLimit){
+		if (f[0] < errorLimit) {
 			state = 10;
-		}else{
+		} else {
 
 			// 2.) Calculate centroid
-			for(size_t n = 0; n < N; n++)
+			for (size_t n = 0; n < N; n++)
 				xo[n] = 0;
-			for(size_t n = 0; n < (N * N); n++)
+			for (size_t n = 0; n < (N * N); n++)
 				xo[n % N] += simplex[n];
-			for(size_t n = 0; n < N; n++)
+			for (size_t n = 0; n < N; n++)
 				xo[n] /= (double) N;
 
 			// 3.) Reflection
-			for(size_t n = 0; n < N; n++)
+			for (size_t n = 0; n < N; n++)
 				xr[n] = xo[n] + alpha * (xo[n] - simplex[n + N * N]);
-			for(size_t n = 0; n < N; n++)
+			for (size_t n = 0; n < N; n++)
 				param[n] = xr[n];
 			state = 4;
 			return true;
 		}
 	}
 
-	if(state == 10){
-		for(size_t n = 0; n < N; n++)
+	if (state == 10) {
+		for (size_t n = 0; n < N; n++)
 			param[n] = simplex[n];
-		if(reevalBest){
+		if (reevalBest) {
 			state = 11;
 			return true;
 		}
@@ -224,15 +228,14 @@ bool NelderMeadOptimizer::IsRunning(void)
 	return false;
 }
 
-void NelderMeadOptimizer::SetError(double error)
-{
+void NelderMeadOptimizer::SetError(double error) {
 	evaluationCount++;
-
-	switch(state){
+	lastError = error;
+	switch (state) {
 	case 2:
 		f[index] = error;
 		index++;
-		state = (index < M)? 1 : 3;
+		state = (index < M) ? 1 : 3;
 		break;
 
 	case 4:
@@ -262,22 +265,14 @@ void NelderMeadOptimizer::SetError(double error)
 				"NelderMeadOptimizer::SetError was called outside the main loop."));
 	}
 
-	if(evaluationCount >= evalLimit){
-		if(state < 10) state = 10;
+	if (evaluationCount >= evalLimit) {
+		if (state < 10)
+			state = 10;
 	}
 }
 
-void NelderMeadOptimizer::Stop(void)
-{
-	if(state < 10) state = 10;
+void NelderMeadOptimizer::Stop() {
+	if (state < 10)
+		state = 10;
 }
 
-size_t NelderMeadOptimizer::EvaluationsDone(void) const
-{
-	return evaluationCount;
-}
-
-double NelderMeadOptimizer::ResidualError(void) const
-{
-	return f[0];
-}

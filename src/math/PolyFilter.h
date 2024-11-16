@@ -24,12 +24,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SRC_MATH_POLYFILTER_H_
-#define SRC_MATH_POLYFILTER_H_
+#ifndef MATH_POLYFILTER_H
+#define MATH_POLYFILTER_H
 /*!\class PolyFilter
- * \brief Polynom interpolator
+ * \brief Polynominal regression
  *
- * This class sets up filter for polynom interpolation up to order 3.
+ * This class sets up filter for polynom regression up to an order of 3.
  *
  * The basis formula is \f$ a\cdot x^3 + b\cdot x^2 + c\cdot x + d \f$
  *
@@ -43,13 +43,24 @@
  * ~~~{.m}
  *  transpose(pinv(vander(0:(size-1),order)))
  * ~~~
+ *
+ * The values of the filter could alternatively be calculated from the pseudoinverse of the
+ * non-quadratic vandemonde matrix with a stepwidth of 1. For this special case the solution
+ * to the inverse can be analytically calculated.
+ *
+ * When used as a filter for signals a high Gibbs ringing is observable. This ringing
+ * can be mitigated by weighting the filter values.
+ *
+ * Reference: [Michael Sturm, 1999, Neuronale Netze zur Modellbildung in der Regelungstechnik](https://d-nb.info/959863648/34)
  */
+
+
 
 #include <cstddef>
 #include <string>
 #include <vector>
 
-class Polynom;
+class Polynomial;
 
 class PolyFilter {
 public:
@@ -62,7 +73,7 @@ public:
 	size_t Size(void) const;
 	size_t GetOrder(void) const;
 
-	Polynom Filter(const std::vector <double> &vec, size_t pos = 0) const;
+	Polynomial Filter(const std::vector <double> &vec, size_t pos = 0) const;
 
 	void Export(std::string filename) const;
 
@@ -74,4 +85,4 @@ private:
 	std::vector <double> filter_d;
 };
 
-#endif /* SRC_MATH_POLYFILTER_H_ */
+#endif /* MATH_POLYFILTER_H */
