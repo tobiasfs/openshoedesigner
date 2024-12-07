@@ -26,19 +26,94 @@
 #include "FootModelUpdate.h"
 
 #include <cmath>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+
+FootModelUpdate::FootModelUpdate() {
+	out = std::make_shared<FootModel>();
+}
 
 bool FootModelUpdate::CanRun() {
-	return config.use_count() > 0;
+	std::ostringstream err;
+	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	bool hasMissingConnection = false;
+
+	if (!config) {
+		hasMissingConnection = true;
+		err << " Input \"config\" not connected.";
+	}
+	if (!heelPitch) {
+		hasMissingConnection = true;
+		err << " Input \"heelPitch\" not connected.";
+	}
+	if (!toeSpring) {
+		hasMissingConnection = true;
+		err << " Input \"toeSpring\" not connected.";
+	}
+	if (!heelHeight) {
+		hasMissingConnection = true;
+		err << " Input \"heelHeight\" not connected.";
+	}
+	if (!ballHeight) {
+		hasMissingConnection = true;
+		err << " Input \"ballHeight\" not connected.";
+	}
+	if (!legLengthDifference) {
+		hasMissingConnection = true;
+		err << " Input \"legLengthDifference\" not connected.";
+	}
+
+	if (!in) {
+		hasMissingConnection = true;
+		err << " Input \"in\" not connected.";
+	}
+	if (!out) {
+		hasMissingConnection = true;
+		err << " Output \"out\" not set.";
+	}
+	if (hasMissingConnection)
+		throw std::runtime_error(err.str());
+	return true;
+}
+
+bool FootModelUpdate::Propagate() {
+	bool modify = false;
+	if (!CanRun())
+		return modify;
+
+	bool modified = false;
+	modified |= config->IsModified();
+	modified |= heelPitch->IsModified();
+	modified |= toeSpring->IsModified();
+	modified |= heelHeight->IsModified();
+	modified |= ballHeight->IsModified();
+	modified |= legLengthDifference->IsModified();
+
+	if (!in->IsValid() || modified) {
+		modify |= out->IsValid();
+		out->MarkValid(false);
+	}
+	if (out->IsNeeded()) {
+		modify |= !in->IsNeeded();
+		in->MarkNeeded(true);
+	}
+	return modify;
 }
 
 bool FootModelUpdate::HasToRun() {
-	return config->IsModified();
+	if (!CanRun())
+		return false;
+	return in->IsValid() && !out->IsValid() && out->IsNeeded();
 }
 
 void FootModelUpdate::Run() {
+	*out = *in;
 
-	out = std::make_shared<FootModel>(*in);
+	throw std::runtime_error("Not connected to \"UpdatePosition(...)\".");
 
+	out->MarkValid(true);
+	out->MarkNeeded(false);
 }
 
 void FootModelUpdate::UpdatePosition(const Shoe &shoe, double offset,
@@ -105,3 +180,4 @@ void FootModelUpdate::UpdatePosition(const Shoe &shoe, double offset,
 	out->origin.TranslateLocal(0, 0, -Calcaneus->GetZMin() + heelHeight_);
 	out->ModifyPosition(true);
 }
+

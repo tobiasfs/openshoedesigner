@@ -484,7 +484,7 @@ void SVD::Decompose(const Matrix &A) {
 
 	if (!empty.empty()) {
 		// Add additional 0.0 singular values. Expand V accordingly. (V stays
-		// ortogonal.)
+		// orthogonal.)
 		W.SetSize(N0);
 		V.MapRows(Matrix::Mode::AssignInverse, empty);
 		V.SetSize(V.Size(0), N0);

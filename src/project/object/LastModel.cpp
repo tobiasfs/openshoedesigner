@@ -30,7 +30,6 @@
 #include "../../3D/BoundingBox.h"
 #include "../../3D/FileOBJ.h"
 #include "../../3D/FileSTL.h"
-#include "../../3D/OpenGL.h"
 #include "../../3D/OpenGLMaterial.h"
 #include "../../3D/OpenGLText.h"
 #include "../../3D/PolyCylinder.h"
@@ -47,15 +46,15 @@
 #include "../../math/PCA.h"
 
 #include "../FootMeasurements.h"
-#include "../Insole.h"
-
-#include "../../Config.h"
+#include "../object/Insole.h"
 
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <iostream>
 #include <ostream>
+
+#include "../../3D/OpenGL.h"
 
 LastModel::LastModel() {
 //	center.XLinspace(0, 1, 101);
@@ -171,7 +170,7 @@ void LastModel::Paint() const {
 
 	//	formfinder.Paint();
 	glDisable(GL_CULL_FACE);
-	{
+	if (planeXZ.Size() > idxHeelCenter) {
 		Vector3 heelp = planeXZ[idxHeelCenter];
 		Vector3 temp = heelp - Vector3(cos(heela), 0, sin(heela)) * 2.0;
 		glBegin(GL_TRIANGLES);
@@ -180,8 +179,7 @@ void LastModel::Paint() const {
 		glVertex3f(temp.x, temp.y, heelp.z);
 		glEnd();
 	}
-
-	{
+	if (planeXZ.Size() > idxToeCenter) {
 		Vector3 toep = planeXZ[idxToeCenter];
 		Vector3 temp = toep + Vector3(cos(toea), 0, sin(toea)) * 2.0;
 		glBegin(GL_TRIANGLES);
@@ -209,7 +207,7 @@ void LastModel::Paint() const {
 	OpenGLMaterial(OpenGLMaterial::Preset::YellowRubber).UseColor(1.0);
 	glPushMatrix();
 
-//		coordsys.GLMultMatrix();
+	//		coordsys.GLMultMatrix();
 	glRotatef(90, 1, 0, 0);
 	//	last->angleXZ.Paint();
 
@@ -241,7 +239,7 @@ void LastModel::Paint() const {
 
 	glPopMatrix();
 	OpenGLMaterial::EnableColors();
-//		coordsys.Paint(AffineTransformMatrix::Style::Lines);
+	//		coordsys.Paint(AffineTransformMatrix::Style::Lines);
 
 	//	glBegin(GL_LINES);
 	//	glColor3f(1, 0, 0);
@@ -264,6 +262,8 @@ void LastModel::Paint() const {
 	OpenGLMaterial(OpenGLMaterial::Preset::cGray).UseMaterial();
 	//	rawBB.Paint();
 
+	OpenGLMaterial::EnableColors();
+	OpenGLMaterial(OpenGLMaterial::Preset::cGray).UseColor();
 	LastRaw::Paint();
 
 }
@@ -815,9 +815,10 @@ void LastModel::UpdateForm(const Insole &insole,
 	tg.SetCellSize(0.1);
 
 	tm.AddPlane( { 1.2 + 0.5, 0, -0.2 }, { 1, 0, 0 },
-			Kernel::Shift(Kernel::Scale(Kernel::Integrated::Cosine, 0.5), 0.0));
+			Kernel::Shift(Kernel::Scale(Kernel::Integrated::Cosine, 0.5), 0.0),
+			rot);
 //	tm[0].TranslateLocal(0, 0, -1);
-	tm[0] = rot;
+//	tm[0] = rot;
 
 	double angle = 45.0 / 180.0 * M_PI;
 	auto unitBend = [angle](const Vector3 &v) -> Vector3 {
@@ -923,13 +924,8 @@ void LastModel::MarkMeasurements() {
 	}
 }
 
-LastModel::LastModel(const Geometry &geo):LastRaw(geo) {
-}
-
-void LastModel::UpdateRawBoundingBox() {
-	rawBB.Empty();
-	for (size_t i = 0; i < VertexCount(); ++i)
-		rawBB.Insert(v[i]);
+LastModel::LastModel(const Geometry &geo) :
+		LastRaw(geo) {
 }
 
 void LastModel::Transform(std::function<Vector3(Vector3)> func) {

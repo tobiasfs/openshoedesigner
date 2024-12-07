@@ -31,9 +31,9 @@
  *
  */
 
-#include <stddef.h>
-
 #include "../3D/Vector3.h"
+
+#include <stddef.h>
 
 class PCA {
 public:
@@ -43,7 +43,7 @@ public:
 	void Reset(); //!< Reset all parameters and start a new data collection.
 
 	void SetCenter(const Vector3 &center); //!< Calculated middle of all vertices. Has to be provided externally, because this function does not store the passed vertices.
-	void Add(const Vector3 &point); //!< Add the points to analyze
+	void Add(const Vector3 &point, double weight_ = 1.0); //!< Add the points to analyze
 
 	void Calculate(); //!< Calculate the PCA and store the values.
 	void Paint() const;
@@ -60,7 +60,7 @@ public:
 
 	Vector3 center; //!< Center of dataset used for adding points and for painting the found coordinates. Not used in the Calculate function.
 
-	size_t N; //!< Number of recorded values
+	double weight; //!< Number of recorded values
 	double xx; //!< Sum of X*X values
 	double xy; //!< Sum of X*Y values
 	double xz; //!< Sum of X*Z values

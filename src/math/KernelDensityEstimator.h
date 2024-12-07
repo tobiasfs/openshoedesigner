@@ -32,7 +32,7 @@
  *
  * This Class does a (cyclic) kernel density estimation.
  *
- * https://en.wikipedia.org/wiki/Kernel_density_estimation
+ * [Wikipedia: Kernel density estimation](https://en.wikipedia.org/wiki/Kernel_density_estimation)
  *
  */
 
@@ -44,18 +44,23 @@ class KernelDensityEstimator: public DependentVector {
 public:
 	KernelDensityEstimator() = default;
 
+	void Clear();
+	void Resize(size_t N);
+	void XLinspace(double x0, double x1, size_t N = (size_t) -1);
 	void YInit(double value = 0.0);
+
 	void Insert(double pos, double kernel(double), double weight = 1.0,
 			double sigma = 1.0);
 	void Attenuate(double pos, double kernel(double), double weight = 1.0,
 			double sigma = 1.0);
 
 	void Normalize();
-	void NormalizeByWeightSum();
+	void NormalizeByCoverage();
 
 private:
 	size_t count = 0;
 	double weightsum = 0.0;
+	std::vector<double> coverage;
 };
 
 #endif /* KERNELDENSITYESTIMATOR_H */

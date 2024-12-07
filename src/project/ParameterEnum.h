@@ -36,16 +36,18 @@
 
 #include "Parameter.h"
 
+#include <cstddef>
+#include <initializer_list>
+#include <string>
+
 class ParameterEnum: public Parameter {
 public:
 	ParameterEnum() = delete;
-	explicit ParameterEnum(const std::string &name,
-			std::initializer_list<std::string> values,
-			const std::string &description = std::string(""), const size_t id =
-					(size_t) -1, const size_t group = (size_t) -1);
+	ParameterEnum(const std::string &name_,
+			std::initializer_list<std::string> values_,
+			const std::string &description_ = std::string(""),
+			const size_t id_ = (size_t) -1, const size_t group_ = (size_t) -1);
 	virtual ~ParameterEnum() = default;
-
-
 
 };
 

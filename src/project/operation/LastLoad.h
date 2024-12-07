@@ -28,7 +28,7 @@
 
 /** \class LastLoad
  * 	\code #include "LastLoad.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
@@ -37,23 +37,25 @@
 #include "Operation.h"
 
 #include "../../3D/Geometry.h"
-#include "../last/LastRaw.h"
+#include "../object/LastRaw.h"
 #include "../ParameterString.h"
 
 #include <memory>
 
 class LastLoad: public Operation {
 public:
-	LastLoad() = default;
+	LastLoad();
 	virtual ~LastLoad() = default;
 
 	virtual bool CanRun() override;
+	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
 	std::shared_ptr<ParameterString> filename;
 
-	std::shared_ptr<LastRaw> raw;
+	std::shared_ptr<LastRaw> out;
+
 };
 
 #endif /* SRC_PROJECT_OPERATION_LASTLOAD_H_ */

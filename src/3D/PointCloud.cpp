@@ -25,29 +25,21 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "PointCloud.h"
-#include <GL/gl.h>
 
-PointCloud::PointCloud()
-{
-}
+#include "OpenGL.h"
 
-PointCloud::~PointCloud()
-{
-}
-
-void PointCloud::InitExample(void)
-{
+void PointCloud::InitExample(void) {
 	const size_t N = 10000;
 	p.resize(N);
-	for(size_t n = 0; n < N; ++n){
+	for (size_t n = 0; n < N; ++n) {
 		p[n].x = (float) rand() / (float) (RAND_MAX) * 0.3 - 0.1;
 		p[n].y = (float) rand() / (float) (RAND_MAX) * 0.2 - 0.1;
 		float d = p[n].y * p[n].y;
-		if(p[n].x > 0)
+		if (p[n].x > 0)
 			d += (p[n].x * p[n].x) / 4;
 		else
 			d += p[n].x * p[n].x;
-		if(d >= 0.01)
+		if (d >= 0.01)
 			d = 0;
 		else
 			d = sqrt(0.01 - d);
@@ -55,11 +47,10 @@ void PointCloud::InitExample(void)
 	}
 }
 
-void PointCloud::Paint(void)
-{
+void PointCloud::Paint(void) {
 	glBegin(GL_POINTS);
 	const size_t N = p.size();
-	for(size_t n = 0; n < N; ++n)
+	for (size_t n = 0; n < N; ++n)
 		glVertex3f(p[n].x, p[n].y, p[n].z);
 	glEnd();
 }

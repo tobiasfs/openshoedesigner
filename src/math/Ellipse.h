@@ -28,9 +28,12 @@
 #define ELLIPSE_H
 
 /*!\class Ellipse
- * \brief ...
+ * \brief An ellipse
  *
- * ...
+ * This class collects routines for working with ellipses as it turns out, the
+ * mathematics of ellipses are very tricky.
+ * [Wikipedia: Ellipse](https://en.wikipedia.org/wiki/Ellipse)
+ *
  */
 
 #include <cstddef>
@@ -60,9 +63,14 @@ public:
 	/** \brief Steiner construction
 	 *
 	 * The Steiner construction of an ellipsis uses an approach of two intersecting
-	 * lines. [https://en.wikipedia.org/wiki/Ellipse#Steiner_generation] The analytic
-	 * solution of this intersection is used to generate (almost) equdistant points on
-	 * the ellipsis. The result is returned as an vector of Ellipse::Point.
+	 * lines.
+	 * [Wikipedia: Steiner generation](https://en.wikipedia.org/wiki/Ellipse#Steiner_generation)
+	 * The analytic solution of this intersection is used to generate (almost)
+	 * equidistant points on the ellipsis. The result is returned as an vector
+	 * of Ellipse::Point.
+	 *
+	 * \param nrOfPoints Number of points on the circumfence to generate
+	 * \return vector of Ellipse::Point
 	 */
 	std::vector<Point> SteinerConstruction(size_t nrOfPoints) const;
 

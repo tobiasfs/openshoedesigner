@@ -29,6 +29,7 @@
 
 /*!\class BooleanBox
  * \brief Boolean operations on a small number of cubes
+ * \ingroup Base3D
  *
  * Boolean operations are performed on axis aligned boxes. This is like a
  * simple precursor of the octree class, but very fast. It only works on

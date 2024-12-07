@@ -30,19 +30,19 @@
 /*!\class Spline3
  * \brief Spline interpolation of a number of points in 3D space.
  *
- * The pline consists of several points. These points are either sharp corners
- * or rounded off by the spline algorithm. The spline can either be closed or open.
- * The coordinate System of the splines has a dedicated zero that can be assigned
- * to one spline point, or assigned to a connection between two spline points at a
- * certain coordinate. The extent of the coordinate is either cyclic, symmetric. It
- * can also be scaled to unity or in direct or interpoloated coordinates.
+ * The spline consists of several points. These points are either sharp corners
+ * or rounded off by the spline algorithm. The spline can either be closed or
+ * open. The coordinate System of the splines has a dedicated zero that can be
+ * assigned to one spline point, or assigned to a connection between two
+ * spline points at a certain coordinate. The extent of the coordinate is
+ * either cyclic, symmetric. It can also be scaled to unity or in direct or
+ * interpolated coordinates.
  */
 
-#include "../math/Polynomial.h"
 #include "Vector3.h"
+#include "../math/Polynomial.h"
 
 #include <vector>
-#include <cstdlib>
 
 class Spline3 {
 public:

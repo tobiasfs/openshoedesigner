@@ -28,26 +28,28 @@
 
 #include "Canvas3D.h"
 
+#include "../3D/OpenGLMaterial.h"
+#include "../Config.h"
 #include "../StdInclude.h"
+
 #include <stdint.h>
 
-#include "../3D/OpenGLMaterial.h"
-#ifdef __WXMAC__
-#include "OpenGL/glu.h"
-//#include "OpenGL/gl.h"
-#else
-//#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
+#include "../3D/OpenGL.h"
 
-Canvas3D::Canvas3D(wxWindow* parent)
-		: OpenGLCanvas(parent)
-{
+//#ifdef __WXMAC__
+//#include "OpenGL/glu.h"
+////#include "OpenGL/gl.h"
+//#else
+////#include <GL/gl.h>
+//#include <GL/glu.h>
+//#endif
+
+Canvas3D::Canvas3D(wxWindow *parent) :
+		OpenGLCanvas(parent) {
 	projectview = NULL;
 }
 
-Canvas3D::~Canvas3D()
-{
+Canvas3D::~Canvas3D() {
 }
 
 //void Canvas3D::ConnectMouseEvents(void)
@@ -90,19 +92,20 @@ Canvas3D::~Canvas3D()
 //	NULL, this);
 //}
 
-void Canvas3D::SetProjectView(const ProjectView* projectview)
-{
+void Canvas3D::SetProjectView(const ProjectView *projectview) {
 	this->projectview = projectview;
 }
 
-void Canvas3D::Render()
-{
-	if(projectview == NULL) return;
+void Canvas3D::Render() {
+	if (projectview == NULL)
+		return;
 	projectview->PaintBackground(true);
 
 	glClear( GL_DEPTH_BUFFER_BIT);
+	glRotatef(-90, 1, 0, 0);
+//	glRotatef(-10, 0, 0, 1);
 
-	if(projectview->showCoordinateSystem){
+	if (projectview->showCoordinateSystem) {
 
 		OpenGLMaterial matX(0.8, 0.0, 0.0, 0.8);
 		OpenGLMaterial matY(0.0, 0.8, 0.0, 0.8);
@@ -139,7 +142,7 @@ void Canvas3D::Render()
 
 		matX.UseMaterial();
 		glBegin(GL_LINES);
-		for(uint_fast8_t n = 0; n < N; n++){
+		for (uint_fast8_t n = 0; n < N; n++) {
 			const double a = 2 * M_PI / N * (double) n;
 			const double c = cos(a);
 			const double s = sin(a);
@@ -151,7 +154,7 @@ void Canvas3D::Render()
 		glEnd();
 		matY.UseMaterial();
 		glBegin(GL_LINES);
-		for(uint_fast8_t n = 0; n < N; n++){
+		for (uint_fast8_t n = 0; n < N; n++) {
 			const double a = 2 * M_PI / N * (double) n;
 			const double c = cos(a);
 			const double s = sin(a);
@@ -162,7 +165,7 @@ void Canvas3D::Render()
 		glEnd();
 		matZ.UseMaterial();
 		glBegin(GL_LINES);
-		for(uint_fast8_t n = 0; n < N; n++){
+		for (uint_fast8_t n = 0; n < N; n++) {
 			const double a = 2 * M_PI / N * (double) n;
 			const double c = cos(a);
 			const double s = sin(a);
@@ -185,9 +188,9 @@ void Canvas3D::Render()
 	projectview->Paint(false);
 }
 
-void Canvas3D::RenderPick()
-{
-	if(projectview == NULL) return;
+void Canvas3D::RenderPick() {
+	if (projectview == NULL)
+		return;
 	glClear( GL_DEPTH_BUFFER_BIT);
 	projectview->Paint(true);
 }

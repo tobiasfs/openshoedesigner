@@ -24,89 +24,89 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Polynom3.h"
+#include "Polynomial3.h"
 
 #include "../math/DependentVector.h"
 #include "Vector3.h"
 #include "OpenGL.h"
 #include "Polygon3.h"
 
-Polynom3 Polynom3::ByValue(double p0, const Vector3& v0) {
-	Polynom3 temp;
+Polynomial3 Polynomial3::ByValue(double p0, const Vector3& v0) {
+	Polynomial3 temp;
 	temp.x = Polynomial::ByValue(p0, v0.x);
 	temp.y = Polynomial::ByValue(p0, v0.y);
 	temp.z = Polynomial::ByValue(p0, v0.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByValue(double p0, const Vector3& v0, double p1,
+Polynomial3 Polynomial3::ByValue(double p0, const Vector3& v0, double p1,
 		const Vector3& v1) {
-	Polynom3 temp;
+	Polynomial3 temp;
 	temp.x = Polynomial::ByValue(p0, v0.x, p1, v1.x);
 	temp.y = Polynomial::ByValue(p0, v0.y, p1, v1.y);
 	temp.z = Polynomial::ByValue(p0, v0.z, p1, v1.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByValue(double p0, const Vector3& v0, double p1,
+Polynomial3 Polynomial3::ByValue(double p0, const Vector3& v0, double p1,
 		const Vector3& v1, double p2, const Vector3& v2) {
-	Polynom3 temp;
+	Polynomial3 temp;
 	temp.x = Polynomial::ByValue(p0, v0.x, p1, v1.x, p2, v2.x);
 	temp.y = Polynomial::ByValue(p0, v0.y, p1, v1.y, p2, v2.y);
 	temp.z = Polynomial::ByValue(p0, v0.z, p1, v1.z, p2, v2.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByValue(double p0, const Vector3& v0, double p1,
+Polynomial3 Polynomial3::ByValue(double p0, const Vector3& v0, double p1,
 		const Vector3& v1, double p2, const Vector3& v2, double p3,
 		const Vector3& v3) {
-	Polynom3 temp;
+	Polynomial3 temp;
 	temp.x = Polynomial::ByValue(p0, v0.x, p1, v1.x, p2, v2.x, p3, v3.x);
 	temp.y = Polynomial::ByValue(p0, v0.y, p1, v1.y, p2, v2.y, p3, v3.y);
 	temp.z = Polynomial::ByValue(p0, v0.z, p1, v1.z, p2, v2.z, p3, v3.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByBezier(const Vector3& v0) {
-	Polynom3 temp;
+Polynomial3 Polynomial3::ByBezier(const Vector3& v0) {
+	Polynomial3 temp;
 	temp.x = Polynomial::ByBezier(v0.x);
 	temp.y = Polynomial::ByBezier(v0.y);
 	temp.z = Polynomial::ByBezier(v0.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByBezier(const Vector3& v0, const Vector3& v1) {
-	Polynom3 temp;
+Polynomial3 Polynomial3::ByBezier(const Vector3& v0, const Vector3& v1) {
+	Polynomial3 temp;
 	temp.x = Polynomial::ByBezier(v0.x, v1.x);
 	temp.y = Polynomial::ByBezier(v0.y, v1.y);
 	temp.z = Polynomial::ByBezier(v0.z, v1.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByBezier(const Vector3& v0, const Vector3& v1,
+Polynomial3 Polynomial3::ByBezier(const Vector3& v0, const Vector3& v1,
 		const Vector3& v2) {
-	Polynom3 temp;
+	Polynomial3 temp;
 	temp.x = Polynomial::ByBezier(v0.x, v1.x, v2.x);
 	temp.y = Polynomial::ByBezier(v0.y, v1.y, v2.y);
 	temp.z = Polynomial::ByBezier(v0.z, v1.z, v2.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByBezier(const Vector3& v0, const Vector3& v1,
+Polynomial3 Polynomial3::ByBezier(const Vector3& v0, const Vector3& v1,
 		const Vector3& v2, const Vector3& v3) {
-	Polynom3 temp;
+	Polynomial3 temp;
 	temp.x = Polynomial::ByBezier(v0.x, v1.x, v2.x, v3.x);
 	temp.y = Polynomial::ByBezier(v0.y, v1.y, v2.y, v3.y);
 	temp.z = Polynomial::ByBezier(v0.z, v1.z, v2.z, v3.z);
 	return temp;
 }
 
-Polynom3 Polynom3::ByPolygon3(const Polygon3& p, size_t order, size_t idxStart,
+Polynomial3 Polynomial3::ByPolygon3(const Polygon3& p, size_t order, size_t idxStart,
 		size_t idxEnd) {
 	if (idxEnd >= p.Size())
 		idxEnd = p.Size() - 1;
 	if (idxStart >= idxEnd)
-		return Polynom3();
+		return Polynomial3();
 
 	const size_t N = idxEnd - idxStart + 1;
 	std::vector<double> r(N, 0.0);
@@ -130,14 +130,14 @@ Polynom3 Polynom3::ByPolygon3(const Polygon3& p, size_t order, size_t idxStart,
 	for (size_t n = 0; n < N; ++n)
 		r[n] = (r[n] - b) * a;
 
-	Polynom3 temp;
+	Polynomial3 temp;
 	temp.x = Polynomial::ByVector(r, vx, order);
 	temp.y = Polynomial::ByVector(r, vy, order);
 	temp.z = Polynomial::ByVector(r, vz, order);
 	return temp;
 }
 
-double Polynom3::Length(const size_t N) const {
+double Polynomial3::Length(const size_t N) const {
 	Polynomial rn = Polynomial::ByValue(0, r0, N - 1, r1);
 	double d = 0;
 	Vector3 p0(x(r0), y(r0), z(r0));
@@ -150,11 +150,11 @@ double Polynom3::Length(const size_t N) const {
 	return d;
 }
 
-Vector3 Polynom3::operator ()(double r) const {
+Vector3 Polynomial3::operator ()(double r) const {
 	return Vector3(x(r), y(r), z(r));
 }
 
-void Polynom3::Paint() const {
+void Polynomial3::Paint() const {
 	glPointSize(3);
 	glBegin(GL_POINTS);
 	glVertex3d(x(0), y(0), z(0));

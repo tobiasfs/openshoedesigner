@@ -53,6 +53,17 @@
 
 class FourierTransform {
 public:
+	struct Point {
+		double t;
+		double re;
+		double im;
+	};
+	struct P2 {
+		double f;
+		double re;
+		double im;
+	};
+
 	FourierTransform() = default;
 	virtual ~FourierTransform() = default;
 
@@ -61,7 +72,7 @@ public:
 	void TSetSize(size_t N);
 	size_t TGetSize() const;
 
-	/**\brief Fills the T vector with equidistant points like Matlabs/Octaves linspace command.
+	/**\brief Fills the T vector with equidistant points like Octaves/Matlabs linspace command.
 	 *
 	 * \param t0 First point on the T axis
 	 * \param t1 Last point on the T axis
@@ -71,6 +82,14 @@ public:
 
 	void XSet(size_t n, double re, double im = 0.0);
 	void XAdd(double t, double re, double im = 0.0);
+
+	/**\brief Sort the T vector
+	 *
+	 * The vector x is sorted for ascending time. the real and imaginary
+	 * values are kept with the time vector. This function can be used to
+	 * enter values in arbitrary order into the vector x.
+	 */
+	void TSort();
 
 	void TSetLoopLength(double loopLength);
 	// TUnwraping is a special function written for symmetry detection.
@@ -92,13 +111,10 @@ public:
 	//!\brief Scale the full spectrum
 	void YScale(const double scale);
 
-	std::vector<double> t;
-	std::vector<double> InRe;
-	std::vector<double> InIm;
+	std::vector<Point> x;
+	std::vector<P2> y;
 
-	std::vector<double> f;
-	std::vector<double> OutRe;
-	std::vector<double> OutIm;
+	double looplength = 0.0;
 };
 
 #endif /* MATH_FOURIERTRANSFORM_H */

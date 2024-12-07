@@ -32,7 +32,7 @@
  *
  * With this class MatlabMatrix%s can be read and written to Matlab MAT files.
  *
- *  \warning{In V4 only 2 dimensional double matrices can be stored.}
+ *  \warning{In V4 only 2-dimensional double-matrices can be stored.}
  */
 
 #include "Matrix.h"
@@ -50,25 +50,29 @@ public:
 	MatlabFile() = default; //!< Constructor
 	MatlabFile(const MatlabFile &other); //!< Copy constructor
 	MatlabFile& operator=(const MatlabFile &other); //!< Assignment constructor
-	explicit MatlabFile(const std::string &filename, Version version = Version::V4); //!< Constructor with setting filename
+	explicit MatlabFile(const std::string &filename, Version version =
+			Version::V4); //!< Constructor with setting filename
 	virtual ~MatlabFile(); //!< Destructor
 
+	void SetFilename(const std::string &filename); //!< Set a new filename
 	void SetVersion(Version version);
 	Version GetVersion() const;
 
-	void SetFilename(const std::string &filename); //!< Set a new filename
 	bool IsOpen() const; //!< Test if file is open
 	void Close(); //!< Close the file. This is also done by the Destructor.
+
 	/*! \brief Read a MatlabMatrix from the file
 	 *
 	 * @param M Pointer to a MatlabMatrix
 	 * @param matrixname Search for this matrix in the file.
 	 */
 	void ReadMatrix(Matrix *M, const std::string &matrixname = "");
+
 	/*! \brief Write Matrix to file
 	 *
-	 * If the file is open, append the matrix, otherwise open the file and overwrite the
-	 * data with this matrix.
+	 * If the file is open, append the matrix, otherwise open the file and
+	 * overwrite the data with this matrix.
+	 *
 	 * @param M Pointer to a MatlabMatrix
 	 */
 	void WriteMatrix(const Matrix &M);

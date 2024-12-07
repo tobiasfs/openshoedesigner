@@ -28,6 +28,8 @@
 
 #include "font.xpm"
 
+#include "OpenGL.h"
+
 OpenGLText::OpenGLText() :
 		OpenGLImage(wxImage(font_xpm)) {
 	nx = 16;

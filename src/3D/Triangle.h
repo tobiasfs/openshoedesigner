@@ -29,7 +29,8 @@
 
 /*!\class Triangle
  * \ingroup Base3D
- * \brief Simple triangle
+ * \brief DEPRECATED: Simple triangle
+ * \deprecated Not used; way to simple; Geometry contains its own Triangle class
  *
  * Holds the data for a simple triangle:
  *   Three vertices with three normal vectors and three colors.

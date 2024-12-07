@@ -34,6 +34,11 @@
  * Latency compensation is not used.
  */
 
+/*!\class MidiDevice
+ * \brief Representation of a concrete device connected to a MidiPort
+ *
+ */
+
 #if !(defined(linux) || defined(__linux))
 #undef USE_PORTMIDI
 #endif

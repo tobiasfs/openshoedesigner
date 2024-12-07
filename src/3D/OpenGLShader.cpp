@@ -65,8 +65,8 @@ void OpenGLShader::AddShader(GLenum type, const std::string &program_) {
 		GLchar txt[512];
 		glGetShaderInfoLog(shadernum, 512, NULL, txt);
 		std::ostringstream out;
-		out << __FILE__ ":" << __func__ << ":";
-		out << " Error while compiling shader:";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << "Error while compiling shader:";
 		out << ' ' << txt << '\n';
 		throw std::runtime_error(out.str());
 	}
@@ -88,8 +88,8 @@ bool OpenGLShader::LinkShader(void) {
 		GLchar info[512];
 		glGetProgramInfoLog(program, 512, NULL, info);
 		std::ostringstream out;
-		out << __FILE__ ":" << __func__ << ":";
-		out << " Error while linking shader program:";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << "Error while linking shader program:";
 		out << ' ' << info << '\n';
 		out << std::endl;
 
@@ -112,7 +112,7 @@ void OpenGLShader::AddShaderFromFile(GLenum type,
 	std::ifstream in(filename_);
 	if (!in) {
 		std::ostringstream out;
-		out << __FILE__ ":" << __func__ << ":";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << " Could not open file: " << filename_;
 		throw std::runtime_error(out.str());
 	}

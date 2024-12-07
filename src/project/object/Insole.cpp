@@ -28,20 +28,13 @@
 
 #include <cfloat>
 #include <iostream>
-#include "FootMeasurements.h"
-#include "Configuration.h"
-#include "../3D/Bender.h"
 
-#include "../3D/OpenGL.h"
-#include "../math/DependentVector.h"
+#include "../../3D/Bender.h"
+#include "../../math/DependentVector.h"
+#include "../Configuration.h"
+#include "../FootMeasurements.h"
 
-void Insole::Modify(bool modify) {
-	this->modified = modify;
-}
-
-bool Insole::IsModified(void) const {
-	return modified;
-}
+#include "../../3D/OpenGL.h"
 
 void Insole::Transform(std::function<Vector3(Vector3)> func) {
 	inside.Transform(func);

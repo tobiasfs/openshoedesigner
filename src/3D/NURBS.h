@@ -38,8 +38,10 @@
  *
  */
 
-#include <vector>
 #include "Vector3.h"
+
+#include <stddef.h>
+#include <vector>
 
 class NURBS {
 public:
@@ -70,15 +72,15 @@ private:
 	size_t subresolutionU;
 	size_t subresolutionV;
 
-	std::vector <Vector3> c;
-	std::vector <double> w;
-	std::vector <double> knotU;
-	std::vector <double> knotV;
+	std::vector<Vector3> c;
+	std::vector<double> w;
+	std::vector<double> knotU;
+	std::vector<double> knotV;
 
 	bool cyclicU;
 	bool cyclicV;
-	std::vector <size_t> posU;
-	std::vector <size_t> posV;
+	std::vector<size_t> posU;
+	std::vector<size_t> posV;
 
 	// Variables to speed up calculation of subsequent (u,v) positions in Position(u, v).
 	// Marked as mutable, because this function could be written without these variables

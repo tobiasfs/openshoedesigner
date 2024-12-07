@@ -34,7 +34,7 @@
  * and stores the data.
  *
  * Uses only standard libraries (stl & the other normal ones, i.e. only what
- * is found on http://www.cplusplus.com/reference/ )
+ * is found on https://en.cppreference.com/w/ )
  */
 
 // https://esprima.org/

@@ -34,8 +34,8 @@
  */
 
 #include <stddef.h>
-#include <wx/thread.h>
 #include <wx/event.h>
+#include <wx/thread.h>
 
 wxDECLARE_EVENT(wxEVT_COMMAND_THREAD_COMPLETED, wxThreadEvent);
 wxDECLARE_EVENT(wxEVT_COMMAND_THREAD_UPDATE, wxThreadEvent);

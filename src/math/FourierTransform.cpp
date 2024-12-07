@@ -26,97 +26,92 @@
 
 #include "FourierTransform.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 void FourierTransform::TReset() {
-	t.clear();
-	InRe.clear();
-	InIm.clear();
+	x.clear();
 }
 
 void FourierTransform::TSetSize(size_t N) {
-	t.resize(N);
-	InRe.resize(N, 0);
-	InIm.resize(N, 0);
+	x.resize(N);
 	if (N < 1)
 		throw(std::domain_error(
 		__FILE__"FourierTransform::SetInputSize: Nin < 1"));
 	for (size_t n = 0; n < N; ++n)
-		t[n] = (double) n / (double) N;
+		x[n].t = (double) n / (double) N;
 }
 
 size_t FourierTransform::TGetSize() const {
-	return t.size();
+	return x.size();
 }
 
 void FourierTransform::TLinspace(double t0, double t1, size_t N) {
-	t.resize(N);
-	InRe.resize(N, 0);
-	InIm.resize(N, 0);
+	x.resize(N);
 	if (N < 2)
 		throw(std::domain_error(
 		__FILE__"FourierTransform::TLinspace: Nin < 2"));
 	const double dt = (t1 - t0) / (N - 1);
 	for (size_t n = 0; n < N; ++n) {
-		t[n] = t0;
+		x[n].t = t0;
 		t0 += dt;
 	}
 }
 
 void FourierTransform::XSet(size_t n, double re, double im) {
-	if (n >= InRe.size())
+	if (n >= x.size())
 		throw(std::out_of_range(
 		__FILE__"FourierTransform::SetInput: index n is out of range"));
-	InRe[n] = re;
-	InIm[n] = im;
+	x[n].re = re;
+	x[n].im = im;
 }
 
 void FourierTransform::XAdd(double t, double re, double im) {
-	this->t.push_back(t);
-	this->InRe.push_back(re);
-	this->InIm.push_back(im);
+	x.push_back( { t, re, im });
+}
+
+void FourierTransform::TSort() {
+	auto time_less = [](const Point &lhs, const Point &rhs) {
+		return lhs.t < rhs.t;
+	};
+	std::sort(x.begin(), x.end(), time_less);
 }
 
 void FourierTransform::TSetLoopLength(double loopLength) {
-	if (t.size() >= InRe.size() + 1)
-		throw(std::logic_error(
-				__FILE__"FourierTransform::TSetLoopLength: Function has already been called."));
-	if (t.size() < 1)
+	if (x.size() < 1)
 		throw(std::logic_error(
 				__FILE__"FourierTransform::TSetLoopLength: Cannot close empty time-vector."));
-	if (t[t.size() - 1] >= t[0])
-		t.push_back(t[0] + loopLength);
+	if (x[x.size() - 1].t >= x[0].t)
+		x.push_back( { x[0].t + loopLength, x[0].re, x[0].im });
 	else
-		t.push_back(t[0] - loopLength);
+		x.push_back( { x[0].t - loopLength, x[0].re, x[0].im });
 }
 
 void FourierTransform::TUnwrap(double tol) {
 	if (tol <= 0.0)
 		throw(std::domain_error(
 		__FILE__"FourierTransform::TUnwrap: 'tol' should be a positive number."));
-	for (size_t n = 1; n < t.size(); ++n) {
-		while (t[n] < t[n - 1] - tol)
-			t[n] += 2 * tol;
-		while (t[n] > t[n - 1] + tol)
-			t[n] -= 2 * tol;
+	for (size_t n = 1; n < x.size(); ++n) {
+		while (x[n].t < x[n - 1].t - tol)
+			x[n].t += 2 * tol;
+		while (x[n].t > x[n - 1].t + tol)
+			x[n].t -= 2 * tol;
 	}
 }
 
 void FourierTransform::TScale(const double scale) {
-	for (size_t n = 0; n < t.size(); ++n)
-		t[n] *= scale;
+	for (size_t n = 0; n < x.size(); ++n)
+		x[n].t *= scale;
 }
 
 void FourierTransform::FLinspace(double f0, double f1, size_t N) {
 	if (N < 2)
 		throw(std::domain_error(
 		__FILE__"FourierTransform::FLinspace: Nout < 2"));
-	f.resize(N);
-	OutRe.resize(N);
-	OutIm.resize(N);
+	y.resize(N);
 	const double df = (f1 - f0) / (N - 1);
 	for (size_t n = 0; n < N; ++n) {
-		f[n] = f0;
+		y[n].f = f0;
 		f0 += df;
 	}
 }
@@ -125,15 +120,13 @@ void FourierTransform::FLikeFFT(size_t N) {
 	if (N < 1)
 		throw(std::domain_error(
 		__FILE__"FourierTransform::FLikeFFT: N < 1"));
-	f.resize(N);
-	OutRe.resize(N);
-	OutIm.resize(N);
+	y.resize(N);
 	const size_t limit = (N + 1) / 2;
 	for (size_t n = 0; n < N; ++n) {
 		if (n >= limit)
-			f[n] = -(double) (N - n);
+			y[n].f = -(double) (N - n);
 		else
-			f[n] = (double) n;
+			y[n].f = (double) n;
 	}
 }
 
@@ -143,18 +136,18 @@ void FourierTransform::Transform() {
 //		integrate(I(t,t0,t1,xRe0,xRe1)*cos(2*%pi*f*t)+I(t,t0,t1,xIm0,xIm1)*sin(2*%pi*f*t),t,t0,t1)
 //		integrate(I(t,t0,t1,xIm0,xIm1)*cos(2*%pi*f*t)-I(t,t0,t1,xRe0,xRe1)*sin(2*%pi*f*t),t,t0,t1)
 
-	for (size_t n = 0; n < f.size(); ++n) {
-		const double fr = f[n];
+	for (size_t n = 0; n < y.size(); ++n) {
+		const double fr = y[n].f;
 		double re = 0.0;
 		double im = 0.0;
 
-		for (size_t m = 0; m < (t.size() - 1); ++m) {
-			const double t0 = t[m];
-			const double t1 = t[m + 1];
-			const double xRe0 = InRe[m];
-			const double xRe1 = (m < InRe.size() - 1) ? InRe[m + 1] : InRe[0];
-			const double xIm0 = InIm[m];
-			const double xIm1 = (m < InIm.size() - 1) ? InIm[m + 1] : InIm[0];
+		for (size_t m = 0; m < (x.size() - 1); ++m) {
+			const double t0 = x[m].t;
+			const double t1 = x[m + 1].t;
+			const double xRe0 = x[m].re;
+			const double xRe1 = (m < x.size() - 1) ? x[m + 1].re : x[0].re;
+			const double xIm0 = x[m].im;
+			const double xIm1 = (m < x.size() - 1) ? x[m + 1].im : x[0].im;
 
 			// The distinction of fr == 0 is necessary, because a central element of the
 			// Fourier calculation is sin(fr)/fr which is 1 for fr = 0 as per definition
@@ -195,23 +188,23 @@ void FourierTransform::Transform() {
 								+ 2 * M_PI * fr * si0 * t1) * xIm0) / den;
 			}
 		}
-		OutRe[n] = re;
-		OutIm[n] = im;
+		y[n].re = re;
+		y[n].im = im;
 	}
 }
 
 void FourierTransform::SingleSidedResult() {
-	for (size_t n = 0; n < OutRe.size(); ++n) {
-		if (fabs(f[n]) > 1e-9) {
-			OutRe[n] *= 2;
-			OutIm[n] *= 2;
+	for (size_t n = 0; n < y.size(); ++n) {
+		if (fabs(y[n].f) > 1e-9) {
+			y[n].re *= 2;
+			y[n].im *= 2;
 		}
 	}
 }
 
 void FourierTransform::YScale(const double scale) {
-	for (size_t n = 0; n < OutRe.size(); ++n) {
-		OutRe[n] *= scale;
-		OutIm[n] *= scale;
+	for (size_t n = 0; n < y.size(); ++n) {
+		y[n].re *= scale;
+		y[n].im *= scale;
 	}
 }

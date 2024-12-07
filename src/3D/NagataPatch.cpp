@@ -26,7 +26,7 @@
 
 #include "NagataPatch.h"
 
-#include  <GL/gl.h>
+#include  "OpenGL.h"
 
 void NagataPatch::Set(const Vector3& x00, const Vector3& n00,
 		const Vector3& x10, const Vector3& n10, const Vector3& x11,

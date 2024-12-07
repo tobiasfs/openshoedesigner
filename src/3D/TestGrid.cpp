@@ -28,7 +28,8 @@
 
 #include "Vector3.h"
 #include "AffineTransformMatrix.h"
-#include <GL/gl.h>
+
+#include "OpenGL.h"
 
 TestGrid::TestGrid(const Vector3 &v1, const Vector3 &v2) :
 		BoundingBox(v1, v2) {

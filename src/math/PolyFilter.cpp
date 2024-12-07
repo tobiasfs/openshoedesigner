@@ -33,111 +33,105 @@
 #include "Matrix.h"
 #include "Polynomial.h"
 
-PolyFilter::PolyFilter(size_t order, size_t size)
-{
+PolyFilter::PolyFilter(size_t order, size_t size) {
 	Init(order, size);
 }
 
-void PolyFilter::Init(size_t order, size_t size)
-{
+void PolyFilter::Init(size_t order, size_t size) {
 	filter_a.assign(size, 0.0);
 	filter_b.assign(size, 0.0);
 	filter_c.assign(size, 0.0);
 	filter_d.assign(size, 0.0);
 	const double N = (double) size;
 
-	switch(order){
-	case 0:
+	switch (order) {
+	case 0: {
+		filter_d.assign(size, 1.0 / N);
+		break;
+	}
+	case 1: {
+		const double den = N * (N + 1);
+		const double den2 = (N - 1) * N * (N + 1);
 		{
-			filter_d.assign(size, 1.0 / N);
-			break;
+			const double a = 12 / den2;
+			const double b = -6 / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_c[i] = a * i + b;
 		}
-	case 1:
 		{
-			const double den = N * (N + 1);
-			const double den2 = (N - 1) * N * (N + 1);
-			{
-				const double a = 12 / den2;
-				const double b = -6 / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_c[i] = a * i + b;
-			}
-			{
-				const double a = -6 / den;
-				const double b = 2 * (2 * N - 1) / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_d[i] = a * i + b;
-			}
-			break;
+			const double a = -6 / den;
+			const double b = 2 * (2 * N - 1) / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_d[i] = a * i + b;
 		}
-	case 2:
+		break;
+	}
+	case 2: {
+		const double den = N * (N + 1) * (N + 2);
+		const double den2 = (N - 2) * (N - 1) * N * (N + 1) * (N + 2);
 		{
-			const double den = N * (N + 1) * (N + 2);
-			const double den2 = (N - 2) * (N - 1) * N * (N + 1) * (N + 2);
-			{
-				const double a = 180 / den2;
-				const double b = -180 / ((N - 2) * den);
-				const double c = 30 / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_b[i] = (a * i + b) * i + c;
-			}
-			{
-				const double a = -180 / ((N - 2) * den);
-				const double b = 12 * (2 * N - 1) * (8 * N - 11) / den2;
-				const double c = -18 * (2 * N - 1) / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_c[i] = (a * i + b) * i + c;
-			}
-			{
-				const double a = 30 / den;
-				const double b = -18 * (2 * N - 1) / den;
-				const double c = 3 * (3 * N * N - 3 * N + 2) / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_d[i] = (a * i + b) * i + c;
-			}
-			break;
+			const double a = 180 / den2;
+			const double b = -180 / ((N - 2) * den);
+			const double c = 30 / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_b[i] = (a * i + b) * i + c;
 		}
-	case 3:
 		{
-			const double den = N * (N + 1) * (N + 2) * (N + 3);
-			const double den2 = (N - 3) * (N - 2) * (N - 1) * N * (N + 1)
-					* (N + 2) * (N + 3);
-			{
-				const double a = 2800 / den2;
-				const double b = -4200 / ((N - 3) * (N - 2) * den);
-				const double c = 280 * ((6 * N - 15) * N + 11) / den2;
-				const double d = -140 / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_a[i] = ((a * i + b) * i + c) * i + d;
-			}
-			{
-				const double a = -4200 / ((N - 3) * (N - 2) * den);
-				const double b = 360 * (2 * N - 1) * (9 * N - 13) / den2;
-				const double c = -300 * (3 * N - 5) * (3 * N - 2)
-						/ ((N - 3) * (N - 2) * den);
-				const double d = 120 * (2 * N - 1) / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_b[i] = ((a * i + b) * i + c) * i + d;
-			}
-			{
-				const double a = 280 * ((6 * N - 15) * N + 11) / den2;
-				const double b = -300 * (3 * N - 5) * (3 * N - 2)
-						/ ((N - 3) * (N - 2) * den);
-				const double c = 200
-						* ((((6 * N - 27) * N + 42) * N - 30) * N + 11) / den2;
-				const double d = -20 * ((6 * N - 6) * N + 5) / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_c[i] = ((a * i + b) * i + c) * i + d;
-			}
-			{
-				const double a = -140 / den;
-				const double b = 120 * (2 * N - 1) / den;
-				const double c = -20 * ((6 * N - 6) * N + 5) / den;
-				const double d = 8 * (2 * N - 1) * ((N - 1) * N + 3) / den;
-				for(size_t i = 0; i < size; ++i)
-					filter_d[i] = ((a * i + b) * i + c) * i + d;
-			}
+			const double a = -180 / ((N - 2) * den);
+			const double b = 12 * (2 * N - 1) * (8 * N - 11) / den2;
+			const double c = -18 * (2 * N - 1) / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_c[i] = (a * i + b) * i + c;
 		}
+		{
+			const double a = 30 / den;
+			const double b = -18 * (2 * N - 1) / den;
+			const double c = 3 * (3 * N * N - 3 * N + 2) / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_d[i] = (a * i + b) * i + c;
+		}
+		break;
+	}
+	case 3: {
+		const double den = N * (N + 1) * (N + 2) * (N + 3);
+		const double den2 = (N - 3) * (N - 2) * (N - 1) * N * (N + 1) * (N + 2)
+				* (N + 3);
+		{
+			const double a = 2800 / den2;
+			const double b = -4200 / ((N - 3) * (N - 2) * den);
+			const double c = 280 * ((6 * N - 15) * N + 11) / den2;
+			const double d = -140 / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_a[i] = ((a * i + b) * i + c) * i + d;
+		}
+		{
+			const double a = -4200 / ((N - 3) * (N - 2) * den);
+			const double b = 360 * (2 * N - 1) * (9 * N - 13) / den2;
+			const double c = -300 * (3 * N - 5) * (3 * N - 2)
+					/ ((N - 3) * (N - 2) * den);
+			const double d = 120 * (2 * N - 1) / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_b[i] = ((a * i + b) * i + c) * i + d;
+		}
+		{
+			const double a = 280 * ((6 * N - 15) * N + 11) / den2;
+			const double b = -300 * (3 * N - 5) * (3 * N - 2)
+					/ ((N - 3) * (N - 2) * den);
+			const double c = 200 * ((((6 * N - 27) * N + 42) * N - 30) * N + 11)
+					/ den2;
+			const double d = -20 * ((6 * N - 6) * N + 5) / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_c[i] = ((a * i + b) * i + c) * i + d;
+		}
+		{
+			const double a = -140 / den;
+			const double b = 120 * (2 * N - 1) / den;
+			const double c = -20 * ((6 * N - 6) * N + 5) / den;
+			const double d = 8 * (2 * N - 1) * ((N - 1) * N + 3) / den;
+			for (size_t i = 0; i < size; ++i)
+				filter_d[i] = ((a * i + b) * i + c) * i + d;
+		}
+	}
 		break;
 	default:
 		throw(std::range_error(
@@ -146,62 +140,60 @@ void PolyFilter::Init(size_t order, size_t size)
 	this->order = order;
 }
 
-size_t PolyFilter::Size(void) const
-{
+size_t PolyFilter::Size(void) const {
 	return filter_a.size();
 }
 
-size_t PolyFilter::GetOrder(void) const
-{
+size_t PolyFilter::GetOrder(void) const {
 	return order;
 }
 
-Polynomial PolyFilter::Filter(const std::vector <double> &vec, size_t pos) const
-{
-	if(order > 3) throw(std::logic_error(
-	__FILE__"Filter: order is greater than 3."));
+Polynomial PolyFilter::Filter(const std::vector<double> &vec,
+		size_t pos) const {
+	if (order > 3)
+		throw(std::logic_error(
+		__FILE__"Filter: order is greater than 3."));
 	Polynomial poly(order + 1);
 
 	const size_t N = filter_a.size();
 	const size_t M = vec.size();
 
-	if(order == 3){
+	if (order == 3) {
 		double temp = 0.0;
-		for(size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; ++n)
 			temp += vec[(n + pos) % M] * filter_a[n];
-		poly[order - 3] = temp;
+		poly[3] = temp;
 	}
-	if(order >= 2){
+	if (order >= 2) {
 		double temp = 0.0;
-		for(size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; ++n)
 			temp += vec[(n + pos) % M] * filter_b[n];
-		poly[order - 2] = temp;
+		poly[2] = temp;
 	}
-	if(order >= 1){
+	if (order >= 1) {
 		double temp = 0.0;
-		for(size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; ++n)
 			temp += vec[(n + pos) % M] * filter_c[n];
-		poly[order - 1] = temp;
+		poly[1] = temp;
 	}
-	if(order >= 0){
+	if (order >= 0) {
 		double temp = 0.0;
-		for(size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; ++n)
 			temp += vec[(n + pos) % M] * filter_d[n];
-		poly[order] = temp;
+		poly[0] = temp;
 	}
 	return poly;
 }
 
-void PolyFilter::Export(std::string filename) const
-{
+void PolyFilter::Export(std::string filename) const {
 	Matrix F("F", filter_a.size(), 4);
-	for(size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); ++n)
 		F.Insert(filter_a[n]);
-	for(size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); ++n)
 		F.Insert(filter_b[n]);
-	for(size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); ++n)
 		F.Insert(filter_c[n]);
-	for(size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); ++n)
 		F.Insert(filter_d[n]);
 
 	MatlabFile mf(filename);

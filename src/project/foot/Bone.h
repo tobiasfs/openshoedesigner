@@ -52,11 +52,12 @@
  *
  */
 
-#include <memory>
-#include <string>
-
 #include "../../3D/AffineTransformMatrix.h"
 #include "../../3D/Vector3.h"
+
+#include <memory>
+#include <stddef.h>
+#include <string>
 
 class Bone {
 	friend class Skeleton;

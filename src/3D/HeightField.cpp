@@ -26,10 +26,13 @@
 
 #include "HeightField.h"
 
+#include "Polygon3.h"
+
 #include "../StdInclude.h"
-#include <GL/gl.h>
 #include <math.h>
 #include <float.h>
+
+#include "OpenGL.h"
 
 HeightField::HeightField() {
 	dx = 1.0;

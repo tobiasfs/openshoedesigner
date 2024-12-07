@@ -77,6 +77,24 @@ void Geometry::Vertex::FlipNormal() {
 	n.z = -n.z;
 }
 
+Geometry::Vertex Geometry::Vertex::Interp(const Vertex &b,
+		const double mix) const {
+	Vertex temp;
+	temp.x = x + (b.x - x) * mix;
+	temp.y = y + (b.y - y) * mix;
+	temp.z = z + (b.z - z) * mix;
+
+	temp.c.r = c.r + (b.c.r - c.r) * mix;
+	temp.c.g = c.g + (b.c.g - c.g) * mix;
+	temp.c.b = c.b + (b.c.b - c.b) * mix;
+	temp.c.a = c.a + (b.c.a - c.a) * mix;
+
+	temp.u = u + (b.u - u) * mix;
+	temp.v = v + (b.v - v) * mix;
+
+	return temp;
+}
+
 bool Geometry::Edge::AttachTriangle(size_t index) {
 	if (trianglecount == 0) {
 		ta = index;
@@ -100,14 +118,12 @@ void Geometry::Edge::Fix() {
 	}
 }
 
-void Geometry::Edge::Flip() {
-	flip = !flip;
-}
-
 void Geometry::Edge::FlipNormal() {
 	n.x = -n.x;
 	n.y = -n.y;
 	n.z = -n.z;
+	flip = !flip;
+
 }
 
 size_t Geometry::Edge::OtherVertex(size_t index) const {
@@ -314,6 +330,14 @@ Geometry::~Geometry() {
 		glBindVertexArray(0);
 		glDeleteVertexArrays(1, &vertexArrayObject);
 		vertexArrayObject = 0;
+	}
+	if (elementBufferObject > 0) {
+		glDeleteBuffers(1, &elementBufferObject);
+		elementBufferObject = 0;
+	}
+	if (vertexBufferObject > 0) {
+		glDeleteBuffers(1, &vertexBufferObject);
+		vertexBufferObject = 0;
 	}
 }
 
@@ -676,386 +700,6 @@ void Geometry::AddSelectedFrom(const Geometry &other) {
 	Remap(vfirst, efirst, tfirst);
 }
 
-void Geometry::FillNormalsAndColors() {
-	//TODO This function is incomplete.
-
-	// Spread information from the vertices to the edges and triangles, before
-	// the information is removed by removing the vertices.
-	if (verticesHaveNormal) {
-		if (!edgesHaveNormal) {
-			for (Edge &ed : e) {
-				ed.n = (v[ed.va].n + v[ed.vb].n);
-				ed.n.Normalize();
-			}
-			edgesHaveNormal = true;
-		}
-		if (!trianglesHaveNormal) {
-			for (Triangle &tri : t) {
-				tri.n = (v[tri.va].n + v[tri.vb].n + v[tri.vc].n);
-				tri.n.Normalize();
-			}
-			trianglesHaveNormal = true;
-		}
-	}
-	if (edgesHaveNormal) {
-		if (!verticesHaveNormal) {
-			for (Vertex &vert : v)
-				vert.n.Zero();
-			for (Edge &ed : e) {
-				v[ed.va].n += ed.n;
-				v[ed.vb].n += ed.n;
-			}
-			for (Vertex &vert : v)
-				vert.n.Normalize();
-			verticesHaveNormal = true;
-		}
-		if (!trianglesHaveNormal && !t.empty()) {
-			throw std::runtime_error(
-					"Geometry::FillNormalsAndColors - Not implemented. (edges have, triangles don't)");
-		}
-	}
-	if (trianglesHaveNormal) {
-		if (!verticesHaveNormal) {
-			for (Vertex &vert : v)
-				vert.n.Zero();
-
-			for (Triangle &tri : t) {
-				v[tri.va].n += tri.n;
-				v[tri.vb].n += tri.n;
-				v[tri.vc].n += tri.n;
-			}
-			for (Vertex &vert : v)
-				vert.n.Normalize();
-			verticesHaveNormal = true;
-		}
-		if (!edgesHaveNormal && !e.empty()) {
-			throw std::runtime_error(
-					"Geometry::FillNormalsAndColors - Not implemented. (triangles have, edges don't)");
-		}
-	}
-	if (verticesHaveTextur && !trianglesHaveTexture) {
-		for (Triangle &tri : t) {
-			tri.tua = v[tri.va].u;
-			tri.tva = v[tri.va].v;
-			tri.tub = v[tri.vb].u;
-			tri.tvb = v[tri.vb].v;
-			tri.tuc = v[tri.vc].u;
-			tri.tvc = v[tri.vc].v;
-		}
-		trianglesHaveTexture = true;
-	}
-
-	if (trianglesHaveTexture) {
-		bool texturesFlat = true;
-		// Calculate 't' and 'b' of the TBN-matrix.
-		for (Triangle &tri : t) {
-			const double dU1 = tri.tub - tri.tua;
-			const double dV1 = tri.tvb - tri.tva;
-			const double dU2 = tri.tuc - tri.tua;
-			const double dV2 = tri.tvc - tri.tva;
-			const double det = dU1 * dV2 - dU2 * dV1;
-			if (fabs(det) < FLT_EPSILON) {
-				tri.t.Zero();
-				tri.b.Zero();
-				continue;
-			}
-			texturesFlat = false;
-			const double f = 1.0 / det;
-
-			const Vector3 dE1 = v[tri.vb] - v[tri.va];
-			const Vector3 dE2 = v[tri.vc] - v[tri.va];
-
-			tri.b.x = f * (-dU2 * dE1.x + dU1 * dE2.x);
-			tri.b.y = f * (-dU2 * dE1.y + dU1 * dE2.y);
-			tri.b.z = f * (-dU2 * dE1.z + dU1 * dE2.z);
-
-			tri.t.x = f * (dV2 * dE1.x - dV1 * dE2.x);
-			tri.t.y = f * (dV2 * dE1.y - dV1 * dE2.y);
-			tri.t.z = f * (dV2 * dE1.z - dV1 * dE2.z);
-		}
-		if (texturesFlat)
-			trianglesHaveTexture = false;
-	}
-
-	if (trianglesHaveTexture && !verticesHaveTextur) {
-		for (Triangle &tri : t) {
-			v[tri.va].u = tri.tua;
-			v[tri.va].v = tri.tva;
-			v[tri.vb].u = tri.tub;
-			v[tri.vb].v = tri.tvb;
-			v[tri.vc].u = tri.tuc;
-			v[tri.vc].v = tri.tvc;
-		}
-		verticesHaveTextur = true;
-	}
-}
-
-void Geometry::Finish() {
-	finished = true;
-	vmap.clear();
-	emap.clear();
-	tmap.clear();
-
-	if (v.empty())
-		return;
-
-	auto vertex_less = [eps = epsilon](const Vector3 &a, const Vector3 &b) {
-		if (a.x < (b.x - eps))
-			return true;
-		if (a.x >= (b.x + eps))
-			return false;
-		if (a.y < (b.y - eps))
-			return true;
-		if (a.y >= (b.y + eps))
-			return false;
-		if (a.z < b.z)
-			return true;
-		return false;
-	};
-
-	auto vertex_equal = [eps = epsilon](const Vector3 &a, const Vector3 &b) {
-		if (a.x < (b.x - eps))
-			return false;
-		if (a.x > (b.x + eps))
-			return false;
-		if (a.y < (b.y - eps))
-			return false;
-		if (a.y > (b.y + eps))
-			return false;
-		if (a.z < (b.z - eps))
-			return false;
-		if (a.z > (b.z + eps))
-			return false;
-		return true;
-	};
-
-	auto edge_less = [](const Edge &a, const Edge &b) {
-		if (a.va < b.va)
-			return true;
-		if (a.va > b.va)
-			return false;
-		if (a.vb < b.vb)
-			return true;
-		return false;
-	};
-
-	auto edge_equal = [](const Edge &a, const Edge &b) {
-		return (a.va == b.va && a.vb == b.vb);
-	};
-
-	auto triangle_less = [](const Triangle &a, const Triangle &b) {
-		if (a.va < b.va)
-			return true;
-		if (a.va > b.va)
-			return false;
-		if (a.vb < b.vb)
-			return true;
-		if (a.vb > b.vb)
-			return false;
-		if (a.vc < b.vc)
-			return true;
-		return false;
-	};
-
-	auto triangle_equal = [](const Triangle &a, const Triangle &b) {
-		return (a.va == b.va && a.vb == b.vb && a.vc == b.vc);
-	};
-
-	// Enumerate everything
-	for (size_t i = 0; i < v.size(); ++i)
-		v[i].group = i;
-	for (size_t i = 0; i < e.size(); ++i)
-		e[i].group = i;
-	for (size_t i = 0; i < t.size(); ++i)
-		t[i].group = i;
-
-	FillNormalsAndColors();
-
-	// Remove duplicated vertices
-
-	if (!v.empty()) {
-		std::sort(v.begin(), v.end(), vertex_less);
-		vmap.assign(v.size(), nothing);
-		size_t j = 0;
-		vmap[v[j].group] = j;
-		for (size_t i = 1; i < v.size(); ++i) {
-			if (vertex_equal(v[j], v[i])) {
-				v[j].n += v[i].n;
-				vmap[v[i].group] = j;
-			} else {
-				++j;
-				v[j] = v[i];
-				vmap[v[j].group] = j;
-			}
-		}
-		v.erase(v.begin() + (int) j + 1, v.end());
-
-		// Normalize normal vectors.
-		if (verticesHaveNormal)
-			for (size_t i = 1; i < v.size(); ++i)
-				v[i].n.Normalize();
-
-		// Map edges and triangles
-		Remap(0, 0, 0);
-	}
-
-	// Remove duplicate edges
-
-	if (!e.empty()) {
-		for (Edge &ed : e)
-			ed.Fix();
-		std::sort(e.begin(), e.end(), edge_less);
-
-		emap.assign(e.size(), nothing);
-		std::vector<size_t> ecount;
-		ecount.assign(e.size(), 1);
-		size_t j = 0;
-		emap[e[j].group] = j;
-		for (size_t i = 1; i < e.size(); ++i) {
-			if (edge_equal(e[j], e[i])) {
-				emap[e[i].group] = j;
-				if (e[j].trianglecount == 1)
-					e[j].tb = e[i].ta;
-				e[j].n += e[i].n;
-				e[j].c.r += e[i].c.r;
-				e[j].c.g += e[i].c.g;
-				e[j].c.b += e[i].c.b;
-				e[j].c.a += e[i].c.a;
-				e[j].trianglecount++;
-				ecount[j]++;
-			} else {
-				++j;
-				e[j] = e[i];
-				emap[e[j].group] = j;
-			}
-		}
-		e.erase(e.begin() + (int) j + 1, e.end());
-		ecount.erase(ecount.begin() + (int) j + 1, ecount.end());
-
-		// Normalize normal vectors
-		for (size_t i = 1; i < e.size(); ++i)
-			e[i].n /= (double) ecount[i];
-
-		// Map triangles
-		Remap(0, 0, 0);
-	}
-
-	// Remove duplicate triangles
-
-	if (!t.empty()) {
-		for (Triangle &tri : t)
-			tri.Fix();
-		std::sort(t.begin(), t.end(), triangle_less);
-
-		tmap.assign(t.size(), nothing);
-		size_t j = 0;
-		tmap[t[j].group] = j;
-		for (size_t i = 1; i < t.size(); ++i) {
-			if (triangle_equal(t[j], t[i])) {
-				tmap[t[i].group] = j;
-			} else {
-				++j;
-				t[j] = t[i];
-				tmap[t[j].group] = j;
-			}
-		}
-		t.erase(t.begin() + (int) j + 1, t.end());
-
-		// Map edges
-		Remap(0, 0, 0);
-	}
-
-}
-
-void Geometry::Sort() {
-	// Note, that the lambdas below are different to the lambdas in Finish().
-	auto vertex_less = [eps=epsilon, &vref=v](const size_t &idxa,
-			const size_t &idxb) {
-		const auto &a = vref[idxa];
-		const auto &b = vref[idxb];
-		if (a.x < (b.x - eps))
-			return true;
-		if (a.x >= (b.x + eps))
-			return false;
-		if (a.y < (b.y - eps))
-			return true;
-		if (a.y >= (b.y + eps))
-			return false;
-		if (a.z < b.z)
-			return true;
-		return false;
-	};
-
-	vmap.resize(v.size());
-	std::iota(vmap.begin(), vmap.end(), 0);
-	std::sort(vmap.begin(), vmap.end(), vertex_less);
-	{
-		std::vector<Vertex> temp;
-		temp.reserve(v.size());
-		for (size_t idx : vmap)
-			temp.push_back(v[idx]);
-		v.swap(temp);
-	}
-	FlipMap();
-	Remap(0, 0, 0);
-	for (auto &ed : e)
-		ed.Fix();
-
-	auto edge_less = [&eref = e](const size_t &idxa, const size_t &idxb) {
-		const auto &a = eref[idxa];
-		const auto &b = eref[idxb];
-		if (a.va < b.va)
-			return true;
-		if (a.va > b.va)
-			return false;
-		if (a.vb < b.vb)
-			return true;
-		return false;
-	};
-
-	emap.resize(e.size());
-	std::iota(emap.begin(), emap.end(), 0);
-	std::sort(emap.begin(), emap.end(), edge_less);
-	{
-		std::vector<Edge> temp;
-		temp.reserve(e.size());
-		for (size_t idx : emap)
-			temp.push_back(e[idx]);
-		e.swap(temp);
-	}
-	FlipMap();
-	Remap(0, 0, 0);
-	for (auto &tri : t)
-		tri.Fix();
-	auto triangle_less = [&tref = t](const size_t &idxa, const size_t &idxb) {
-		const auto &a = tref[idxa];
-		const auto &b = tref[idxb];
-		if (a.va < b.va)
-			return true;
-		if (a.va > b.va)
-			return false;
-		if (a.vb < b.vb)
-			return true;
-		if (a.vb > b.vb)
-			return false;
-		if (a.vc < b.vc)
-			return true;
-		return false;
-	};
-	tmap.resize(t.size());
-	std::iota(tmap.begin(), tmap.end(), 0);
-	std::sort(tmap.begin(), tmap.end(), triangle_less);
-	{
-		std::vector<Triangle> temp;
-		temp.reserve(t.size());
-		for (size_t idx : vmap)
-			temp.push_back(t[idx]);
-		t.swap(temp);
-	}
-	FlipMap();
-	Remap(0, 0, 0);
-}
-
 void Geometry::InitMap() {
 	vmap.resize(v.size());
 	emap.resize(e.size());
@@ -1150,7 +794,6 @@ void Geometry::Remap(int vstart, int estart, int tstart) {
 		}
 		gmap.clear();
 	}
-	Fix();
 }
 
 void Geometry::Fix() {
@@ -1158,6 +801,416 @@ void Geometry::Fix() {
 		ed.Fix();
 	for (Triangle &tri : t)
 		tri.Fix();
+}
+
+void Geometry::Sort() {
+	// Note, that the lambdas below are different to the lambdas in Finish().
+	auto vertex_less = [eps=epsilon, &vref=v](const size_t &idxa,
+			const size_t &idxb) {
+		const auto &a = vref[idxa];
+		const auto &b = vref[idxb];
+		if (a.x < (b.x - eps))
+			return true;
+		if (a.x >= (b.x + eps))
+			return false;
+		if (a.y < (b.y - eps))
+			return true;
+		if (a.y >= (b.y + eps))
+			return false;
+		if (a.z < b.z)
+			return true;
+		return false;
+	};
+
+	vmap.resize(v.size());
+	std::iota(vmap.begin(), vmap.end(), 0);
+	std::sort(vmap.begin(), vmap.end(), vertex_less);
+	{
+		std::vector<Vertex> temp;
+		temp.reserve(v.size());
+		for (size_t idx : vmap)
+			temp.push_back(v[idx]);
+		v.swap(temp);
+	}
+	FlipMap();
+	Remap(0, 0, 0);
+	for (auto &ed : e)
+		ed.Fix();
+
+	auto edge_less = [&eref = e](const size_t &idxa, const size_t &idxb) {
+		const auto &a = eref[idxa];
+		const auto &b = eref[idxb];
+		if (a.va < b.va)
+			return true;
+		if (a.va > b.va)
+			return false;
+		if (a.vb < b.vb)
+			return true;
+		return false;
+	};
+
+	emap.resize(e.size());
+	std::iota(emap.begin(), emap.end(), 0);
+	std::sort(emap.begin(), emap.end(), edge_less);
+	{
+		std::vector<Edge> temp;
+		temp.reserve(e.size());
+		for (size_t idx : emap)
+			temp.push_back(e[idx]);
+		e.swap(temp);
+	}
+	FlipMap();
+	Remap(0, 0, 0);
+	for (auto &tri : t)
+		tri.Fix();
+
+	auto triangle_less = [&tref = t](const size_t &idxa, const size_t &idxb) {
+		const auto &a = tref[idxa];
+		const auto &b = tref[idxb];
+		if (a.va < b.va)
+			return true;
+		if (a.va > b.va)
+			return false;
+		if (a.vb < b.vb)
+			return true;
+		if (a.vb > b.vb)
+			return false;
+		if (a.vc < b.vc)
+			return true;
+		return false;
+	};
+
+	tmap.resize(t.size());
+	std::iota(tmap.begin(), tmap.end(), 0);
+	std::sort(tmap.begin(), tmap.end(), triangle_less);
+	{
+		std::vector<Triangle> temp;
+		temp.reserve(t.size());
+		for (size_t idx : vmap)
+			temp.push_back(t[idx]);
+		t.swap(temp);
+	}
+	FlipMap();
+	Remap(0, 0, 0);
+}
+
+void Geometry::Join() {
+	vmap.clear();
+	emap.clear();
+	tmap.clear();
+
+	if (v.empty())
+		return;
+
+	auto vertex_less = [eps = epsilon](const Vector3 &a, const Vector3 &b) {
+		if (a.x < (b.x - eps))
+			return true;
+		if (a.x >= (b.x + eps))
+			return false;
+		if (a.y < (b.y - eps))
+			return true;
+		if (a.y >= (b.y + eps))
+			return false;
+		if (a.z < b.z)
+			return true;
+		return false;
+	};
+
+	auto vertex_equal = [eps = epsilon](const Vector3 &a, const Vector3 &b) {
+		if (a.x < (b.x - eps))
+			return false;
+		if (a.x > (b.x + eps))
+			return false;
+		if (a.y < (b.y - eps))
+			return false;
+		if (a.y > (b.y + eps))
+			return false;
+		if (a.z < (b.z - eps))
+			return false;
+		if (a.z > (b.z + eps))
+			return false;
+		return true;
+	};
+
+	auto edge_less = [](const Edge &a, const Edge &b) {
+		if (a.va < b.va)
+			return true;
+		if (a.va > b.va)
+			return false;
+		if (a.vb < b.vb)
+			return true;
+		return false;
+	};
+
+	auto edge_equal = [](const Edge &a, const Edge &b) {
+		return (a.va == b.va && a.vb == b.vb);
+	};
+
+	auto triangle_less = [](const Triangle &a, const Triangle &b) {
+		if (a.va < b.va)
+			return true;
+		if (a.va > b.va)
+			return false;
+		if (a.vb < b.vb)
+			return true;
+		if (a.vb > b.vb)
+			return false;
+		if (a.vc < b.vc)
+			return true;
+		return false;
+	};
+
+	auto triangle_equal = [](const Triangle &a, const Triangle &b) {
+		return (a.va == b.va && a.vb == b.vb && a.vc == b.vc);
+	};
+
+	// Enumerate everything
+	for (size_t i = 0; i < v.size(); ++i)
+		v[i].group = i;
+	for (size_t i = 0; i < e.size(); ++i)
+		e[i].group = i;
+	for (size_t i = 0; i < t.size(); ++i)
+		t[i].group = i;
+
+	// Remove duplicated vertices
+
+	if (!v.empty()) {
+		std::sort(v.begin(), v.end(), vertex_less);
+		vmap.assign(v.size(), nothing);
+		size_t j = 0;
+		vmap[v[j].group] = j;
+		for (size_t i = 1; i < v.size(); ++i) {
+			if (vertex_equal(v[j], v[i])) {
+				v[j].n += v[i].n;
+				vmap[v[i].group] = j;
+			} else {
+				++j;
+				v[j] = v[i];
+				vmap[v[j].group] = j;
+			}
+		}
+		v.erase(v.begin() + (int) j + 1, v.end());
+
+		// Normalize normal vectors.
+		if (verticesHaveNormal)
+			for (size_t i = 1; i < v.size(); ++i)
+				v[i].n.Normalize();
+
+		// Map edges and triangles
+		Remap(0, 0, 0);
+	}
+
+	// Remove duplicate edges
+
+	if (!e.empty()) {
+
+		// Remove collapsed edges
+		auto edge_collapsed = [](const Edge &ed) {
+			return ed.va != nothing && ed.va == ed.vb;
+		};
+		e.erase(std::remove_if(e.begin(), e.end(), edge_collapsed), e.end());
+
+		for (Edge &ed : e)
+			ed.Fix();
+		std::sort(e.begin(), e.end(), edge_less);
+
+		emap.assign(e.size(), nothing);
+		std::vector<size_t> ecount;
+		ecount.assign(e.size(), 1);
+		size_t j = 0;
+		emap[e[j].group] = j;
+		for (size_t i = 1; i < e.size(); ++i) {
+			if (edge_equal(e[j], e[i])) {
+				emap[e[i].group] = j;
+				if (e[j].trianglecount == 1)
+					e[j].tb = e[i].ta;
+				e[j].n += e[i].n;
+				e[j].c.r += e[i].c.r;
+				e[j].c.g += e[i].c.g;
+				e[j].c.b += e[i].c.b;
+				e[j].c.a += e[i].c.a;
+				e[j].trianglecount++;
+				ecount[j]++;
+			} else {
+				++j;
+				e[j] = e[i];
+				emap[e[j].group] = j;
+			}
+		}
+		e.erase(e.begin() + (int) j + 1, e.end());
+		ecount.erase(ecount.begin() + (int) j + 1, ecount.end());
+
+		// Normalize normal vectors
+		for (size_t i = 1; i < e.size(); ++i)
+			e[i].n /= (double) ecount[i];
+
+		// Map triangles
+		Remap(0, 0, 0);
+	}
+
+	// Remove duplicate triangles
+
+	if (!t.empty()) {
+		//TODO: Remove collapsed triangles.
+		for (Triangle &tri : t)
+			tri.Fix();
+		std::sort(t.begin(), t.end(), triangle_less);
+
+		tmap.assign(t.size(), nothing);
+		size_t j = 0;
+		tmap[t[j].group] = j;
+		for (size_t i = 1; i < t.size(); ++i) {
+			if (triangle_equal(t[j], t[i])) {
+				tmap[t[i].group] = j;
+			} else {
+				++j;
+				t[j] = t[i];
+				tmap[t[j].group] = j;
+			}
+		}
+		t.erase(t.begin() + (int) j + 1, t.end());
+
+		// Map edges
+		Remap(0, 0, 0);
+	}
+}
+
+void Geometry::PropagateNormals() {
+
+	if (!verticesHaveNormal && !edgesHaveNormal && !trianglesHaveNormal)
+		CalculateNormals();
+
+	// Spread information from the vertices normals to the edges and triangles,
+	// before the information is removed by removing the vertices in the Join()
+	// method.
+	if (verticesHaveNormal) {
+		if (!edgesHaveNormal) {
+			for (Edge &ed : e) {
+				ed.n = (v[ed.va].n + v[ed.vb].n);
+				ed.n.Normalize();
+			}
+			edgesHaveNormal = true;
+		}
+		if (!trianglesHaveNormal) {
+			for (Triangle &tri : t) {
+				tri.n = (v[tri.va].n + v[tri.vb].n + v[tri.vc].n);
+				tri.n.Normalize();
+			}
+			trianglesHaveNormal = true;
+		}
+	}
+
+	if (edgesHaveNormal) {
+		if (!verticesHaveNormal) {
+			for (Vertex &vert : v)
+				vert.n.Zero();
+			for (Edge &ed : e) {
+				v[ed.va].n += ed.n;
+				v[ed.vb].n += ed.n;
+			}
+			for (Vertex &vert : v)
+				vert.n.Normalize();
+			verticesHaveNormal = true;
+		}
+		if (!trianglesHaveNormal && !t.empty()) {
+			for (Triangle &tri : t) {
+				tri.n = (e[tri.ea].n + e[tri.eb].n + e[tri.ec].n);
+				tri.n.Normalize();
+			}
+			trianglesHaveNormal = true;
+		}
+	}
+
+	if (trianglesHaveNormal) {
+		if (!verticesHaveNormal) {
+			for (Vertex &vert : v)
+				vert.n.Zero();
+
+			for (Triangle &tri : t) {
+				v[tri.va].n += tri.n;
+				v[tri.vb].n += tri.n;
+				v[tri.vc].n += tri.n;
+			}
+			for (Vertex &vert : v)
+				vert.n.Normalize();
+			verticesHaveNormal = true;
+		}
+		if (!edgesHaveNormal && !e.empty()) {
+			for (Edge &ed : e)
+				ed.n.Zero();
+			for (Triangle &tri : t) {
+				e[tri.ea].n += tri.n;
+				e[tri.eb].n += tri.n;
+				e[tri.ec].n += tri.n;
+			}
+			for (Edge &ed : e)
+				ed.n.Normalize();
+			edgesHaveNormal = true;
+		}
+	}
+}
+
+void Geometry::CalculateUVCoordinateSystems() {
+	if (verticesHaveTextur && !trianglesHaveTexture) {
+		for (Triangle &tri : t) {
+			tri.tua = v[tri.va].u;
+			tri.tva = v[tri.va].v;
+			tri.tub = v[tri.vb].u;
+			tri.tvb = v[tri.vb].v;
+			tri.tuc = v[tri.vc].u;
+			tri.tvc = v[tri.vc].v;
+		}
+		trianglesHaveTexture = true;
+	}
+	if (trianglesHaveTexture) {
+		bool texturesFlat = true;
+		// Calculate 't' and 'b' of the TBN-matrix.
+		for (Triangle &tri : t) {
+			const double dU1 = tri.tub - tri.tua;
+			const double dV1 = tri.tvb - tri.tva;
+			const double dU2 = tri.tuc - tri.tua;
+			const double dV2 = tri.tvc - tri.tva;
+			const double det = dU1 * dV2 - dU2 * dV1;
+			if (fabs(det) < FLT_EPSILON) {
+				tri.t.Zero();
+				tri.b.Zero();
+				continue;
+			}
+			texturesFlat = false;
+			const double f = 1.0 / det;
+
+			const Vector3 dE1 = v[tri.vb] - v[tri.va];
+			const Vector3 dE2 = v[tri.vc] - v[tri.va];
+
+			tri.b.x = f * (-dU2 * dE1.x + dU1 * dE2.x);
+			tri.b.y = f * (-dU2 * dE1.y + dU1 * dE2.y);
+			tri.b.z = f * (-dU2 * dE1.z + dU1 * dE2.z);
+
+			tri.t.x = f * (dV2 * dE1.x - dV1 * dE2.x);
+			tri.t.y = f * (dV2 * dE1.y - dV1 * dE2.y);
+			tri.t.z = f * (dV2 * dE1.z - dV1 * dE2.z);
+		}
+		if (texturesFlat)
+			trianglesHaveTexture = false;
+	}
+	if (trianglesHaveTexture && !verticesHaveTextur) {
+		for (Triangle &tri : t) {
+			v[tri.va].u = tri.tua;
+			v[tri.va].v = tri.tva;
+			v[tri.vb].u = tri.tub;
+			v[tri.vb].v = tri.tvb;
+			v[tri.vc].u = tri.tuc;
+			v[tri.vc].v = tri.tvc;
+		}
+		verticesHaveTextur = true;
+	}
+}
+
+void Geometry::Finish() {
+	finished = true;
+	PropagateNormals();
+	CalculateUVCoordinateSystems();
+	Join();
 }
 
 #define SELFCHECK_EQUAL(idxa, idxb, fielda, fieldb, typea, typeb) if(fielda != fieldb){ \
@@ -1181,6 +1234,11 @@ void Geometry::Fix() {
 	std::cerr << "The " << typea << " " << idx << " refers in " << #field \
 	<< " to the " << typeb << " " << field << " but there are only " << max \
 	<< " " << typeb << "s.\n"; ++errorCount; passed = false;}
+
+#define SELFCHECK_EMPTY(idx, field, typea, typeb) if(field != nothing){ \
+	std::cerr << "The " << typea << " " << idx << " has in " << #field \
+	<< " a valid " << typeb <<"-index entry. Should be empty.\n"; \
+	++errorCount; passed = false;}
 
 #define SELFCHECK_NOT_EMPTY(idx, field, typea, typeb) if(field == nothing){ \
 	std::cerr << "The " << typea << " " << idx << " has in " << #field \
@@ -1214,8 +1272,8 @@ void Geometry::Fix() {
 bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 		bool checkWellOrdering) const {
 
-	// All checks are done on the data in the objects. No methods of the
-	// objects are called.
+	// All checks are done on the data in the objects (vertex, edge, triangle).
+	// None of the methods of the objects are called.
 
 	const size_t vcount = v.size();
 	const size_t ecount = e.size();
@@ -1230,12 +1288,34 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 
 	errorCount = 0;
 	for (size_t idx = 0; idx < ecount; ++idx) {
+		// Check if the edges vertex indices and triangle-indices are either
+		// empty or less than the number of available vertices / triangles.
 		SELFCHECK_RANGE_NG(idx, e[idx].va, vcount, "edge", "vertex");
 		SELFCHECK_RANGE_NG(idx, e[idx].vb, vcount, "edge", "vertex");
 		SELFCHECK_RANGE_NG(idx, e[idx].ta, tcount, "edge", "triangle");
 		SELFCHECK_RANGE_NG(idx, e[idx].tb, tcount, "edge", "triangle");
+
+		// Check that the edge has two valid vertices.
 		SELFCHECK_NOT_EMPTY(idx, e[idx].va, "edge", "vertex");
 		SELFCHECK_NOT_EMPTY(idx, e[idx].vb, "edge", "vertex");
+
+		// If the trianglecount is 0, ta and tb should be empty.
+		if (e[idx].trianglecount == 0) {
+			SELFCHECK_EMPTY(idx, e[idx].ta, "edge", "triangle");
+			SELFCHECK_EMPTY(idx, e[idx].tb, "edge", "triangle");
+		}
+		// If the trianglecount of the edge == 1, the triangle ta has to be
+		// valid and tb has to be empty.
+		if (e[idx].trianglecount == 1) {
+			SELFCHECK_NOT_EMPTY(idx, e[idx].ta, "edge", "triangle");
+			SELFCHECK_EMPTY(idx, e[idx].tb, "edge", "triangle");
+		}
+		// Both triangles have to be set, if the triangle count is >=2
+		if (e[idx].trianglecount >= 2) {
+			SELFCHECK_NOT_EMPTY(idx, e[idx].ta, "edge", "triangle");
+			SELFCHECK_NOT_EMPTY(idx, e[idx].tb, "edge", "triangle");
+		}
+
 		if (errorCount >= maxErrorsPerType) {
 			std::cerr << "...\n";
 			break;
@@ -1247,6 +1327,7 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 
 	errorCount = 0;
 	for (size_t idx = 0; idx < tcount; ++idx) {
+		// A triangle has to have 3 valid vertices and 3 valid edges.
 		SELFCHECK_RANGE_NG(idx, t[idx].va, vcount, "triangle", "vertex");
 		SELFCHECK_RANGE_NG(idx, t[idx].vb, vcount, "triangle", "vertex");
 		SELFCHECK_RANGE_NG(idx, t[idx].vc, vcount, "triangle", "vertex");
@@ -1286,6 +1367,7 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 
 	// Check selected
 
+	//TODO Keep track of the selection concept.
 	for (const auto idx : selected) {
 		if (idx >= v.size()) {
 			std::cerr << "In selected the vertex index " << idx
@@ -1296,16 +1378,24 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 	}
 
 	if (checkWellOrdering) {
-		// Check if all edges are well ordered
+
+		// Check if all edges are well ordered.
 
 		errorCount = 0;
 		if (edgeOK) {
 			for (size_t idx = 0; idx < ecount; ++idx) {
 				SELFCHECK_LESS_THAN(idx, e[idx].va, e[idx].vb, "edge", "vertex");
+
+				// If an edge has two triangle, tb has to be greater the ta.
+				if (e[idx].trianglecount >= 2)
+					SELFCHECK_LESS_THAN(idx, e[idx].ta, e[idx].tb, "edge",
+							"triangle");
+
 				if (errorCount >= maxErrorsPerType) {
 					std::cerr << "...\n";
 					break;
 				}
+
 			}
 			if (errorCount > 0)
 				edgeOK = false;
@@ -1320,6 +1410,10 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 						"vertex");
 				SELFCHECK_LESS_THAN(idx, t[idx].vb, t[idx].vc, "triangle",
 						"vertex");
+				SELFCHECK_LESS_THAN(idx, t[idx].ea, t[idx].eb, "triangle",
+						"edge");
+				SELFCHECK_LESS_THAN(idx, t[idx].eb, t[idx].ec, "triangle",
+						"edge");
 				if (errorCount >= maxErrorsPerType) {
 					std::cerr << "...\n";
 					break;
@@ -1329,32 +1423,37 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 				triangleOK = false;
 		}
 
-		// Check triangle edge well ordering
+		// Check triangle edge well ordering This is only possible for edges,
+		// that are connected to one triangle. Otherwise the edge would be
+		// reversed for one of the triangles.
 
-//		errorCount = 0;
-//		if (triangleOK) {
-//			for (size_t idx = 0; idx < tcount; ++idx) {
-//				const size_t ea = t[idx].ea;
-//				const size_t eb = t[idx].eb;
-//				const size_t ec = t[idx].ec;
-//
-//				SELFCHECK_EQUAL(idx, ea, t[idx].flip, e[ea].flip, "triangle",
-//						"edge");
-//				SELFCHECK_EQUAL(idx, eb, t[idx].flip, e[eb].flip, "triangle",
-//						"edge");
-//				SELFCHECK_NOTEQUAL(idx, ec, t[idx].flip, e[ec].flip, "triangle",
-//						"edge");
-//
-//				if (errorCount >= maxErrorsPerType) {
-//					std::cerr << "...\n";
-//					break;
-//				}
-//			}
-//			if (errorCount > 0)
-//				triangleOK = false;
-//		}
+		errorCount = 0;
+		if (triangleOK && edgeOK) {
+			for (size_t idx = 0; idx < tcount; ++idx) {
+				const size_t ea = t[idx].ea;
+				const size_t eb = t[idx].eb;
+				const size_t ec = t[idx].ec;
 
+				if (e[ea].trianglecount <= 1)
+					SELFCHECK_EQUAL(idx, ea, t[idx].flip, e[ea].flip,
+							"triangle", "edge");
+				if (e[eb].trianglecount <= 1)
+					SELFCHECK_EQUAL(idx, eb, t[idx].flip, e[eb].flip,
+							"triangle", "edge");
+				if (e[ec].trianglecount <= 1)
+					SELFCHECK_NOTEQUAL(idx, ec, t[idx].flip, e[ec].flip,
+							"triangle", "edge");
+
+				if (errorCount >= maxErrorsPerType) {
+					std::cerr << "...\n";
+					break;
+				}
+			}
+			if (errorCount > 0)
+				triangleOK = false;
+		}
 	}
+
 	// Consistency check triangle -> edge -> vertex
 
 	if (edgeOK && triangleOK) {
@@ -1420,11 +1519,8 @@ void Geometry::CalculateNormals() {
 		const double y2 = (v[t.vc].y - v[t.vb].y);
 		const double z2 = (v[t.vc].z - v[t.vb].z);
 		Vector3 temp(y1 * z2 - y2 * z1, z1 * x2 - z2 * x1, x1 * y2 - x2 * y1);
-		if (t.flip) {
-			temp.x = -temp.x;
-			temp.y = -temp.y;
-			temp.z = -temp.z;
-		}
+		if (t.flip)
+			temp = -temp;
 		temp.Normalize();
 		t.n = temp;
 //		v[t.va].n += temp;
@@ -1745,10 +1841,21 @@ const Geometry::Vertex& Geometry::GetTriangleVertex(const size_t indexTriangle,
 void Geometry::Transform(const AffineTransformMatrix &matrix) {
 	for (Vertex &vertex : v)
 		vertex.Transform(matrix);
+
+	AffineTransformMatrix matrixnormal = matrix.GetNormalMatrix();
+
+	Vector3 ex = matrixnormal.GetEx();
+	Vector3 ey = matrixnormal.GetEy();
+	Vector3 ez = matrixnormal.GetEz();
+
+	matrixnormal.SetEx(ex.Normal());
+	matrixnormal.SetEy(ey.Normal());
+	matrixnormal.SetEz(ez.Normal());
+
 	for (Edge &edge : e)
-		edge.n = matrix.TransformWithoutShift(edge.n);
+		edge.n = matrixnormal.Transform(edge.n);
 	for (Triangle &tri : t)
-		tri.n = matrix.TransformWithoutShift(tri.n);
+		tri.n = matrixnormal.Transform(tri.n);
 }
 
 void Geometry::Transform(std::function<Vector3(Vector3)> func) {
@@ -1768,101 +1875,362 @@ void Geometry::ApplyTransformationMatrix() {
 	this->matrix.SetIdentity();
 }
 
-Polygon3 Geometry::IntersectPlane(const Vector3 &n, double d) const {
-	Vector3 n_unit = n.Normal();
-	// Find edges
-	std::set<size_t> edges;
-	for (size_t i = 0; i < e.size(); ++i) {
-		const Vector3 a = v[e[i].va];
-		const Vector3 b = v[e[i].vb];
-		const double da = a.Dot(n_unit);
-		const double db = b.Dot(n_unit);
-		if ((da > d && db <= d) || (da <= d && db > d))
-			edges.insert(i);
-	}
+Vector3 Geometry::GetTriangleCenter(size_t idx) const {
+	const Triangle &tri = t[idx];
+	const Vertex &va = v[tri.va];
+	const Vertex &vb = v[tri.vb];
+	const Vertex &vc = v[tri.vc];
+	return (va + vb + vc) / 3.0;
+}
 
+Vector3 Geometry::GetTetraederCenter(size_t idx) const {
+	return GetTriangleCenter(idx) * (3.0 / 4.0);
+}
+
+double Geometry::GetTetraederVolume(size_t idx) const {
+	const Triangle &tri = t[idx];
+	const Vertex &v0 = v[tri.VertexIndex(0)];
+	const Vertex &v1 = v[tri.VertexIndex(1)];
+	const Vertex &v2 = v[tri.VertexIndex(2)];
+	double Vt = (v0.x * v1.y - v0.y * v1.x) * v2.z
+			+ (-v0.x * v1.z + v0.z * v1.x) * v2.y
+			+ (v0.y * v1.z - v0.z * v1.y) * v2.x;
+	return Vt / 6.0;
+}
+
+double Geometry::GetTriangleArea(size_t idx) const {
+	const Triangle &tri = t[idx];
+	const Vertex &v0 = v[tri.VertexIndex(0)];
+	const Vertex &v1 = v[tri.VertexIndex(1)];
+	const Vertex &v2 = v[tri.VertexIndex(2)];
+	const Vector3 d1 = v1 - v0;
+	const Vector3 d2 = v2 - v0;
+	const Vector3 x = d1 * d2;
+	return x.Abs() / 2.0;
+}
+
+Vector3 Geometry::GetCenter() const {
+	Vector3 center;
+	double V = 0.0;
+	for (const Vertex &vert : v) {
+		center += vert;
+		V += 1.0;
+	}
+	return center / V;
+}
+
+Vector3 Geometry::GetCentroid() const {
+	Vector3 center;
+	double V = 0.0;
+	for (const Triangle &tri : t) {
+		const Vertex &v0 = v[tri.VertexIndex(0)];
+		const Vertex &v1 = v[tri.VertexIndex(1)];
+		const Vertex &v2 = v[tri.VertexIndex(2)];
+		double Vt = (v0.x * v1.y - v0.y * v1.x) * v2.z
+				+ (-v0.x * v1.z + v0.z * v1.x) * v2.y
+				+ (v0.y * v1.z - v0.z * v1.y) * v2.x;
+		// dV is 6 fold larger then the volume of the tetraeder, but this
+		// cancels out in the end.
+		center += (v0 + v1 + v2) / 3.0 * Vt;
+		V += Vt;
+	}
+	return center / V;
+}
+
+double Geometry::GetArea() const {
+	double A = 0.0;
+	for (const Triangle &tri : t) {
+		const Vertex &v0 = v[tri.VertexIndex(0)];
+		const Vertex &v1 = v[tri.VertexIndex(1)];
+		const Vertex &v2 = v[tri.VertexIndex(2)];
+		const Vector3 d1 = v1 - v0;
+		const Vector3 d2 = v2 - v0;
+		const Vector3 x = d1 * d2;
+		A += x.Abs();
+	}
+	return A / 2.0;
+}
+
+double Geometry::GetVolume() const {
+	double V = 0.0;
+	for (const Triangle &tri : t) {
+		const Vertex &v0 = v[tri.VertexIndex(0)];
+		const Vertex &v1 = v[tri.VertexIndex(1)];
+		const Vertex &v2 = v[tri.VertexIndex(2)];
+		// Fricas code:
+		// )set fortran optlevel 2
+		// )set output fortran on
+		//	v321 := v2x*v1y*v0z
+		//	v231 := v1x*v2y*v0z
+		//	v312 := v2x*v0y*v1z
+		//	v132 := v0x*v2y*v1z
+		//	v213 := v1x*v0y*v2z
+		//	v123 := v0x*v1y*v2z
+		//	(-v321 + v231 + v312 - v132 - v213 + v123)
+		double Vt = (v0.x * v1.y - v0.y * v1.x) * v2.z
+				+ (-v0.x * v1.z + v0.z * v1.x) * v2.y
+				+ (v0.y * v1.z - v0.z * v1.y) * v2.x;
+		V += Vt;
+	}
+	return V / 6.0;
+}
+
+double Geometry::GetNormalCurvature() const {
+	double A = 0.0;
+
+	for (const Edge &ed : e) {
+		if (ed.trianglecount < 2)
+			continue;
+		const Triangle &ta = t[ed.ta];
+		const Triangle &tb = t[ed.tb];
+		const Vector3 na = ta.n;
+		const Vector3 nb = tb.n;
+		const Vector3 d = (v[tb.va] + v[tb.vb] + v[tb.vc] - v[ta.va] - v[ta.vb]
+				- v[ta.vc]).Normal();
+
+//		const Vector3 pa = na * d;
+//		const Vector3 pb = nb * d;
+
+		const double aa = asin(na.Dot(d));
+		const double ab = asin(nb.Dot(d));
+		const double da = ab - aa;
+//		const double da = acos(na.Dot(nb));
+		A += da;
+	}
+	return A;
+}
+
+Polygon3 Geometry::IntersectPlane(const Vector3 &n_, double d) const {
+	Vector3 n_unit = n_.Normal();
 	Polygon3 temp;
 
-	while (!edges.empty()) {
+	// Map all vertices onto the plane normal, shift by d.
+	std::vector<double> vd;
+	vd.reserve(v.size());
+	for (const Vertex &vert : v) {
+		const double h = vert.Dot(n_unit) - d;
+		vd.push_back(h);
+	}
 
-		// Start anywhere
-		size_t ne = *(edges.begin());
-		size_t nt = e[ne].ta;
+	// Check all triangles, if the vertices of the triangle intersect with the
+	// plane. i.e. two vertices are on one side and one is on the other side
+	// of the plane.
+	for (const Triangle &tri : t) {
+		const size_t va = tri.va;
+		const size_t vb = tri.vb;
+		const size_t vc = tri.vc;
 
-		// Find other edge.
-		uint_fast8_t i0 = t[nt].PositionEdge(ne);
-		uint_fast8_t i1 = i0;
-		if (i0 != 0 && edges.find(t[nt].ea) != edges.end()) {
-			i1 = 3;
-		}
-		if (i0 != 1 && edges.find(t[nt].eb) != edges.end()) {
-			i1 = (i0 == 0) ? 1 : 4;
-		}
-		if (i0 != 2 && edges.find(t[nt].ec) != edges.end()) {
-			i1 = 2;
-		}
-		// Always i1 > i0 but the distance is either 1 or 2.
-		// And i1==i0 if there is a defect.
-		int_fast8_t di = i1 - i0;
+		const double da = vd[va];
+		const double db = vd[vb];
+		const double dc = vd[vc];
 
-		// Based on the distance and the flippedness of the triangle, change the
-		// order of the vertices.
-		if (di <= 0 || di > 2)
-			throw std::runtime_error(
-					"Geometry::IntersectPlane - Algorithmic error in edge distance calculation.");
+		// Two vertices might sit on the plane if one edge is in the plane.
+		if (da < DBL_EPSILON && db < DBL_EPSILON && dc < DBL_EPSILON)
+			continue;
+		if (da > -DBL_EPSILON && db > -DBL_EPSILON && dc > -DBL_EPSILON)
+			continue;
 
-		if ((di == 2 && t[nt].flip) || (di == 1 && !t[nt].flip)) {
-			nt = e[ne].tb;
-		}
+		Vertex vea;
+		Vertex veb;
+		int8_t ia = -1;
+		int8_t ib = -1;
+		int8_t dira = 0;
+		int8_t dirb = 0;
 
-		while (!edges.empty()) {
-
-			const Vector3 a = v[e[ne].va];
-			const Vector3 b = v[e[ne].vb];
-			const double sa = a.Dot(n) - d;
-			const double sb = b.Dot(n) - d;
+		// Find the edges, that need to be cut.
+		if ((da <= DBL_EPSILON && db > DBL_EPSILON)
+				|| (db <= DBL_EPSILON && da > DBL_EPSILON)) {
 			const double f =
-					(fabs(sa - sb) < DBL_EPSILON) ? (0.5) : (sa / (sa - sb));
-			const Vector3 na = v[e[ne].va].n;
-			const Vector3 nb = v[e[ne].vb].n;
-
-			temp.AddEdgeToVertex(
-					Vertex(a.Interp(b, f), na.Interp(nb, f).Normal()));
-
-			//		temp.InsertPoint(PlaneProjection(a, b, n, d));
-			edges.erase(ne);
-
-			if (edges.find(t[nt].ea) != edges.end()) {
-				ne = t[nt].ea;
-				nt = e[ne].OtherTriangle(nt);
-				continue;
-			}
-			if (edges.find(t[nt].eb) != edges.end()) {
-				ne = t[nt].eb;
-				nt = e[ne].OtherTriangle(nt);
-				continue;
-			}
-			if (edges.find(t[nt].ec) != edges.end()) {
-				ne = t[nt].ec;
-				nt = e[ne].OtherTriangle(nt);
-				continue;
-			}
-			break;
+					(fabs(da - db) < DBL_EPSILON) ? (0.5) : (da / (da - db));
+			vea = v[va].Interp(v[vb], f);
+			ia = 0;
+			dira = (da <= DBL_EPSILON) ? 1 : -1;
+			if (e[tri.ea].sharp)
+				vea.n = tri.n;
+			else
+				vea.n = e[tri.ea].n;
 		}
-		temp.CloseLoopNextGroup();
-	}
-	temp.Finish();
+		if ((db <= DBL_EPSILON && dc > DBL_EPSILON)
+				|| (dc <= DBL_EPSILON && db > DBL_EPSILON)) {
+			const double f =
+					(fabs(db - dc) < DBL_EPSILON) ? (0.5) : (db / (db - dc));
+			if (ia == -1) {
+				vea = v[vb].Interp(v[vc], f);
+				ia = 1;
+				dira = (db <= DBL_EPSILON) ? 1 : -1;
+				if (e[tri.eb].sharp)
+					vea.n = tri.n;
+				else
+					vea.n = e[tri.eb].n;
+			} else {
+				veb = v[vb].Interp(v[vc], f);
+				ib = 1;
+				dirb = (db <= DBL_EPSILON) ? 1 : -1;
+				if (e[tri.eb].sharp)
+					veb.n = tri.n;
+				else
+					veb.n = e[tri.eb].n;
+			}
+		}
+		if ((dc <= DBL_EPSILON && da > DBL_EPSILON)
+				|| (da <= DBL_EPSILON && dc > DBL_EPSILON)) {
+			const double f =
+					(fabs(dc - da) < DBL_EPSILON) ? (0.5) : (dc / (dc - da));
+			if (ia == -1) {
+				vea = v[vc].Interp(v[va], f);
+				ia = 2;
+				dira = (dc <= DBL_EPSILON) ? 1 : -1;
+				if (e[tri.ec].sharp)
+					vea.n = tri.n;
+				else
+					vea.n = e[tri.ec].n;
+			} else {
+				veb = v[vc].Interp(v[va], f);
+				ib = 2;
+				dirb = (dc <= DBL_EPSILON) ? 1 : -1;
+				if (e[tri.ec].sharp)
+					veb.n = tri.n;
+				else
+					veb.n = e[tri.ec].n;
+			}
+		}
+		const size_t idx = temp.v.size();
+		temp.AddVertex(vea);
+		temp.AddVertex(veb);
 
-	int check = 0;
-	for (const Edge &ed : e) {
-		Vector3 r = (v[ed.vb] - v[ed.va]) * n;
+		if (tri.flip)
+			dira = -dira;
+		if (dira < 0)
+			temp.AddEdge(idx, idx + 1);
+		else
+			temp.AddEdge(idx + 1, idx);
+
+//			temp.e.back().flip = !temp.e.back().flip;
+		temp.e.back().n = tri.n;
+		temp.e.back().c = tri.c;
+	}
+
+#ifndef NDEBUG
+	// Correctness has to be checked before joining the vertices.
+	int edge_correct = 0;
+	int edge_wrong = 0;
+	for (const Edge &ed : temp.e) {
+		// The vector r should point outside and in the same direction as the
+		// normals of the edges.
+		Vector3 r = (temp.v[ed.vb] - temp.v[ed.va]) * n_unit;
+		// Project the vector r on the normal of the edge for checking.
 		double c = r.x * ed.n.x + r.y * ed.n.y + r.z * ed.n.z;
-		check += (c > 0.0) ? 1 : -1;
+		// The result should always be positive. (Assuming the object cut has
+		// correctly oriented normals.
+		edge_correct += (c > 0.0) ? 1 : 0;
+		edge_wrong += (c <= 0.0) ? 1 : 0;
 	}
-	std::cout << "Check: " << check << '\n';
-
+	if (edge_wrong > 0) {
+		std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		std::cout << "correct edges: " << edge_correct << ", ";
+		std::cout << "wrong edges: " << edge_wrong << "\n";
+	}
+#endif
+	temp.Join();
+	temp.SortLoop();
 	return temp;
 }
+
+/*
+ // Find all edges, that intersect with the plane. I.e one point is on or
+ // smaller than the plane, the other is larger than the plane.
+ std::set<size_t> edges;
+ for (size_t i = 0; i < e.size(); ++i) {
+ const Vector3 a = v[e[i].va];
+ const Vector3 b = v[e[i].vb];
+ const double da = a.Dot(n_unit);
+ const double db = b.Dot(n_unit);
+ if ((da > d && db <= d) || (da <= d && db > d))
+ edges.insert(i);
+ }
+
+ while (!edges.empty()) {
+
+ // Start anywhere
+ size_t ne = *(edges.begin());
+ size_t nt = e[ne].ta;
+
+ // Find other edge.
+ uint_fast8_t i0 = t[nt].PositionEdge(ne);
+ uint_fast8_t i1 = i0;
+ if (i0 != 0 && edges.find(t[nt].ea) != edges.end()) {
+ i1 = 3;
+ }
+ if (i0 != 1 && edges.find(t[nt].eb) != edges.end()) {
+ i1 = (i0 == 0) ? 1 : 4;
+ }
+ if (i0 != 2 && edges.find(t[nt].ec) != edges.end()) {
+ i1 = 2;
+ }
+ // Always i1 > i0 but the distance is either 1 or 2.
+ // And i1==i0 if there is a defect.
+ int_fast8_t di = i1 - i0;
+
+ // Based on the distance and the flippedness of the triangle, change the
+ // order of the vertices.
+ if (di <= 0 || di > 2) {
+ std::ostringstream out;
+ out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+ out << "Algorithmic error in edge distance calculation.";
+ throw std::runtime_error(out.str());
+ }
+ if ((di == 2 && t[nt].flip) || (di == 1 && !t[nt].flip)) {
+ nt = e[ne].tb;
+ }
+
+ while (!edges.empty()) {
+ const Vector3 a = v[e[ne].va];
+ const Vector3 b = v[e[ne].vb];
+ const double sa = a.Dot(n) - d;
+ const double sb = b.Dot(n) - d;
+ const double f =
+ (fabs(sa - sb) < DBL_EPSILON) ? (0.5) : (sa / (sa - sb));
+ const Vector3 na = v[e[ne].va].n;
+ const Vector3 nb = v[e[ne].vb].n;
+ const Vector3 i = a.Interp(b, f);
+ const Vector3 ni = na.Interp(nb, f).Normal();
+
+ temp.AddEdgeToVertex(Vertex(i, ni));
+
+ //			if (!temp.e.empty()) {
+ //				auto &ed = temp.e.back();
+ //				Vector3 r = (temp.v[ed.vb] - temp.v[ed.va]) * n;
+ //				// Project the vector r on the normal of the edge for checking.
+ //				double c = r.x * ni.x + r.y * ni.y + r.z * ni.z;
+ //				std::cout << c << '\n';
+ //			}
+
+ //		ret.InsertPoint(PlaneProjection(a, b, n, d));
+ edges.erase(ne);
+
+ if (edges.find(t[nt].ea) != edges.end()) {
+ ne = t[nt].ea;
+ nt = e[ne].OtherTriangle(nt);
+ continue;
+ }
+ if (edges.find(t[nt].eb) != edges.end()) {
+ ne = t[nt].eb;
+ nt = e[ne].OtherTriangle(nt);
+ continue;
+ }
+ if (edges.find(t[nt].ec) != edges.end()) {
+ ne = t[nt].ec;
+ nt = e[ne].OtherTriangle(nt);
+ continue;
+ }
+ break;
+ }
+ temp.CloseLoopNextGroup();
+ }
+ temp.PropagateNormals();
+ temp.finished = true;
+
+ */
 
 Vector3 Geometry::IntersectArrow(const Vector3 &p0, const Vector3 &dir) const {
 
@@ -1997,7 +2365,7 @@ void Geometry::Paint() const {
 }
 
 void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
-	const double normalscale = 0.01;
+	const double normalscale = 0.005;
 	glPushMatrix();
 	matrix.GLMultMatrix();
 	//	OpenGLMaterial::EnableColors();
@@ -2187,10 +2555,11 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 		for (size_t i = 0; i < t.size(); ++i) {
 			glNormal3f(t[i].n.x, t[i].n.y, t[i].n.z);
 			const Vector3 center = (v[t[i].va] + v[t[i].vb] + v[t[i].vc]) / 3.0;
-			glVertex3d(center.x, center.y, center.z);
-			glVertex3d(center.x + t[i].n.x * normalscale,
-					center.y + t[i].n.y * normalscale,
-					center.z + t[i].n.z * normalscale);
+			glColor3f(1.0, 0.0, 0.0);
+			GLVertex(center - t[i].n * normalscale);
+			glColor3f(0.0, 1.0, 0.0);
+			GLVertex(center + t[i].n * normalscale);
+
 		}
 		glEnd();
 	}

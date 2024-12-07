@@ -26,11 +26,13 @@
 
 #include "Symmetry.h"
 
-#include <GL/gl.h>
+#include "FourierTransform.h"
+#include "Kernel.h"
+
 #include <cmath>
 #include <cstdlib>
-#include "Kernel.h"
-#include "FourierTransform.h"
+
+#include "../3D/OpenGL.h"
 
 Symmetry::Symmetry() {
 	Init(180);
@@ -43,16 +45,17 @@ void Symmetry::Init(size_t N) {
 }
 
 void Symmetry::AddTransform(const FourierTransform &transform) {
-	for (size_t n = 0; n < transform.f.size(); ++n) {
-		const int f = (int) round(transform.f[n]);
+	for (size_t n = 0; n < transform.y.size(); ++n) {
+		const int f = (int) round(transform.y[n].f);
 		const size_t F = (size_t) (abs(f));
 		if (f == 0)
 			continue;
 
-		const double d = (transform.OutRe[n] * transform.OutRe[n]
-				+ transform.OutIm[n] * transform.OutIm[n]);
-		double a = -atan2(transform.OutIm[n], transform.OutRe[n]) / (double) f;
-
+		const double d = (transform.y[n].re * transform.y[n].re
+				+ transform.y[n].im * transform.y[n].im);
+		// The angle of the found symmetry has to be rolled back with the
+		// frequency, because the phase is rotating with the given frequency.
+		double a = -atan2(transform.y[n].im, transform.y[n].re) / (double) f;
 		const double da = M_PI / (double) f;
 		for (size_t m = 0; m < F; ++m) {
 			Insert(a, Kernel::Epanechnikov, d, sigma);
@@ -62,7 +65,7 @@ void Symmetry::AddTransform(const FourierTransform &transform) {
 }
 
 void Symmetry::Normalize(void) {
-	KernelDensityEstimator::NormalizeByWeightSum();
+	KernelDensityEstimator::Normalize();
 	this->operator/=(Kernel::Epanechnikov(0) / sigma);
 }
 

@@ -27,6 +27,16 @@
 #ifndef L3D_OPENGL_H
 #define L3D_OPENGL_H
 
+/**\file Opengl.h
+ * \code #include "OpenGL.h"\endcode
+ * \ingroup OpenGL
+ * \brief Header to include all the relevant OpenGL support classes
+ *
+ * Only include this header in the classes to use OpenGL. If something is
+ * missing, extend this header.
+ */
+
+
 #ifdef USE_GLAD
 
 #if defined(__gl_h_) || defined(__GL_H__) || defined(_GL_H) || defined(__X_GL_H)

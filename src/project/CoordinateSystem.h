@@ -33,7 +33,7 @@
  */
 
 #include "../3D/Polygon3.h"
-#include "../3D/Polynom3.h"
+#include "../3D/Polynomial3.h"
 #include "../3D/Surface.h"
 
 class FootMeasurements;
@@ -52,7 +52,7 @@ private:
 	Polygon3 inside08;
 	Polygon3 outside08;
 
-	Polynom3 p0;
+	Polynomial3 p0;
 
 };
 

@@ -410,7 +410,7 @@ const std::shared_ptr<const Parameter> FootMeasurements::GetParameter(
 void FootMeasurements::FromJSON(const JSON &js) {
 	if (!js.IsObject()) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __func__ << ":";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << " The json does not contain an object with measurements.";
 		throw std::runtime_error(out.str());
 	}
@@ -502,7 +502,7 @@ void FootMeasurements::LoadJSON(std::string filename) {
 		js = JSON::Load(filename);
 	} catch (std::exception &e) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __func__ << ":";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << " Error opening file:" << filename << ' ';
 		out << e.what();
 		throw std::runtime_error(out.str());

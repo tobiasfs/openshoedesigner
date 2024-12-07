@@ -1,3 +1,14 @@
+/**
+ * \defgroup ObjectOperations Operations and Objects
+ *
+ * For the purpose of multithreaded automation a chain of abstract operations on
+ * abstract objects is used.
+ *
+ * The Builder object sets up the chain of objects and operations, checks the
+ * modifications and needs and runs the operations in the correct order.  
+ */
+
+
 /** \defgroup document Project data
  
 This describes the parts that make up the data.
@@ -7,17 +18,17 @@ This describes the parts that make up the data.
 	
     pvi [ label="Project View" URL="\ref ProjectView"];
     pro [ label="Project" URL="\ref Project"];
-    sho [ label="Shoe" URL="\ref Shoe"];
+    sho [ label="Shoe"];
     bim [ label="Background Image" URL="\ref BackgroundImage"];
-    fot [ label="Foot" URL="\ref Foot"];
-    las [ label="Last" URL="\ref Last"];
+    fot [ label="Foot" ];
+    las [ label="Last" ];
     pat [ label="Pattern" URL="\ref Pattern"];
-    fla [ label="Flattening" URL="\ref Flattening"];
+    fla [ label="Flattening" ];
     bon [ label="Bone" URL="\ref Bone"];
-    phu [ label="Poly Hull" URL="\ref PolyHull"];
-    pno [ label="Polynom" URL="\ref Polynom"];
-    spl [ label="Spline" URL="\ref Spline"];
-   	sol [ label="Sole" URL="\ref Sole"];
+    phu [ label="Poly Hull" ];
+    pno [ label="Polynomial" URL="\ref Polynomial"];
+    spl [ label="Spline" ];
+   	sol [ label="Sole" ];
    	ins [ label="Insole" URL="\ref Insole"];
    	
    	
@@ -63,21 +74,21 @@ This describes the parts that make up the data.
   	digraph classes {
     rankdir = LR
 	
-    sop [ label="Sole Parameter" URL="\ref Sole"];
+    sop [ label="Sole Parameter" ];
 
 	mea [ label="Measurements" URL="\ref FootMeasurements"];    
-    sca [ label="Scan" URL="\ref Scan"];
+    sca [ label="Scan" ];
 
-    fom [ label="Foot Model" URL="\ref Foot"];
-    lam [ label="Last Model" URL="\ref Last"];
+    fom [ label="Foot Model" ];
+    lam [ label="Last Model" ];
     
        
     sur [ label="Surface" URL="\ref NURBS"];
-    sol [ label="Sole" URL="\ref Sole"];
+    sol [ label="Sole" ];
     ins [ label="Insole" URL="\ref Insole"];
     
     pat [ label="Pattern" URL="\ref Pattern"];
-    fla [ label="Flattening" URL="\ref Flattening"];
+    fla [ label="Flattening" ];
 	
 	{rank=same; mea;sca}
 	{rank=same; fom; lam}

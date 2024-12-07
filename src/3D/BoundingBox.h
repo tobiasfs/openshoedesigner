@@ -29,6 +29,7 @@
 
 /*!\class BoundingBox
  * \brief Bounding Box aligned with x,y,z
+ * \ingroup Base3D
  *
  * Stores the min and max values of Vector3%s, Triangle%s, other BoundingBox%es and Geometry.
  */

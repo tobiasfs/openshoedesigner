@@ -33,10 +33,12 @@
  */
 
 #include "PolyFilter.h"
-#include "../3D/Polygon3.h"
 #include "../3D/Vector3.h"
 
+#include <stddef.h>
 #include <vector>
+
+class Polygon3;
 
 class FormFinder {
 public:

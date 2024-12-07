@@ -26,15 +26,12 @@
 
 #include "NURBS.h"
 
-//#define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-//#include <GL/glext.h>
-
 #include <cassert>
 #include <cmath>
 
-NURBS::NURBS()
-{
+#include "OpenGL.h"
+
+NURBS::NURBS() {
 	cyclicU = false;
 	cyclicV = false;
 	nU = 0;
@@ -49,19 +46,19 @@ NURBS::NURBS()
 	controlPointSize = 0;
 }
 
-NURBS::~NURBS()
-{
+NURBS::~NURBS() {
 }
 
 void NURBS::Initialize(size_t nu, size_t nv, bool cyclicU, bool cyclicV,
-		bool normalizeU, bool normalizeV)
-{
+		bool normalizeU, bool normalizeV) {
 	nU = nu;
 	nV = nv;
 	assert(nU >= 2);
 	assert(nV >= 2);
-	if(nU < 3) cyclicU = false;
-	if(nV < 3) cyclicV = false;
+	if (nU < 3)
+		cyclicU = false;
+	if (nV < 3)
+		cyclicV = false;
 
 	c.resize(nU * nV);
 	w.resize(nU * nV);
@@ -72,15 +69,15 @@ void NURBS::Initialize(size_t nu, size_t nv, bool cyclicU, bool cyclicV,
 	lastU = 0;
 	lastV = 0;
 
-	knotU.resize(nU + (cyclicU? 6 : 4));
-	knotV.resize(nV + (cyclicV? 6 : 4));
-	posU.resize(nU + (cyclicU? 6 : 4));
-	posV.resize(nV + (cyclicV? 6 : 4));
+	knotU.resize(nU + (cyclicU ? 6 : 4));
+	knotV.resize(nV + (cyclicV ? 6 : 4));
+	posU.resize(nU + (cyclicU ? 6 : 4));
+	posV.resize(nV + (cyclicV ? 6 : 4));
 
-	if(cyclicU){
-		for(size_t n = 0; n < (nU + 6); n++)
+	if (cyclicU) {
+		for (size_t n = 0; n < (nU + 6); n++)
 			knotU[n] = (double) n - ((double) nU + 5.0) / 2.0;
-		for(size_t n = 0; n < nU; n++)
+		for (size_t n = 0; n < nU; n++)
 			posU[n + 3] = n;
 		posU[0] = nU - 3;
 		posU[1] = nU - 2;
@@ -88,20 +85,20 @@ void NURBS::Initialize(size_t nu, size_t nv, bool cyclicU, bool cyclicV,
 		posU[nU + 3] = 0;
 		posU[nU + 4] = 1;
 		posU[nU + 5] = 2;
-	}else{
-		for(size_t n = 0; n < nU; n++)
+	} else {
+		for (size_t n = 0; n < nU; n++)
 			posU[n + 2] = n;
 		posU[0] = 0;
 		posU[1] = 0;
 		posU[nU + 2] = nU - 1;
 		posU[nU + 3] = nU - 1;
-		for(size_t n = 0; n < (nU + 4); n++)
+		for (size_t n = 0; n < (nU + 4); n++)
 			knotU[n] = (double) posU[n];
 	}
-	if(cyclicV){
-		for(size_t n = 0; n < (nV + 6); n++)
+	if (cyclicV) {
+		for (size_t n = 0; n < (nV + 6); n++)
 			knotV[n] = (double) n - ((double) nV + 5.0) / 2.0;
-		for(size_t n = 0; n < nV; n++)
+		for (size_t n = 0; n < nV; n++)
 			posV[n + 3] = n;
 		posV[0] = nV - 3;
 		posV[1] = nV - 2;
@@ -109,55 +106,53 @@ void NURBS::Initialize(size_t nu, size_t nv, bool cyclicU, bool cyclicV,
 		posV[nV + 3] = 0;
 		posV[nV + 4] = 1;
 		posV[nV + 5] = 1;
-	}else{
-		for(size_t n = 0; n < nV; n++)
+	} else {
+		for (size_t n = 0; n < nV; n++)
 			posV[n + 2] = n;
 		posV[0] = 0;
 		posV[1] = 0;
 		posV[nV + 2] = nV - 1;
 		posV[nV + 3] = nV - 1;
-		for(size_t n = 0; n < (nV + 4); n++)
+		for (size_t n = 0; n < (nV + 4); n++)
 			knotV[n] = (double) posV[n];
 	}
-	if(normalizeU){
-		if(cyclicU){
-			for(size_t n = 0; n < nU + 6; n++)
+	if (normalizeU) {
+		if (cyclicU) {
+			for (size_t n = 0; n < nU + 6; n++)
 				knotU[n] /= (double) (nU) / 2.0;
-		}else{
-			for(size_t n = 0; n < nU + 4; n++)
+		} else {
+			for (size_t n = 0; n < nU + 4; n++)
 				knotU[n] /= (double) (nU - 1);
 		}
 	}
-	if(normalizeV){
-		if(cyclicV){
-			for(size_t n = 0; n < nV + 6; n++)
+	if (normalizeV) {
+		if (cyclicV) {
+			for (size_t n = 0; n < nV + 6; n++)
 				knotV[n] /= (double) (nV) / 2.0;
-		}else{
-			for(size_t n = 0; n < nV + 4; n++)
+		} else {
+			for (size_t n = 0; n < nV + 4; n++)
 				knotV[n] /= (double) (nV - 1);
 		}
 	}
 }
 
-void NURBS::InsertData(Vector3 v, double w)
-{
+void NURBS::InsertData(Vector3 v, double w) {
 	this->c[insertpos] = v;
 	this->w[insertpos] = w;
 	insertpos++;
 }
 
-Vector3 NURBS::Position(double u, double v) const
-{
+Vector3 NURBS::Position(double u, double v) const {
 	const size_t maxU = knotU.size() - 4;
 	const size_t maxV = knotV.size() - 4;
 
-	while(lastU < maxU && knotU[lastU + 1] <= u)
+	while (lastU < maxU && knotU[lastU + 1] <= u)
 		lastU++;
-	while(lastU > 2 && knotU[lastU] >= u)
+	while (lastU > 2 && knotU[lastU] >= u)
 		lastU--;
-	while(lastV < maxV && knotV[lastV + 1] <= v)
+	while (lastV < maxV && knotV[lastV + 1] <= v)
 		lastV++;
-	while(lastV > 2 && knotV[lastV] >= v)
+	while (lastV > 2 && knotV[lastV] >= v)
 		lastV--;
 
 	double dU[4];
@@ -209,16 +204,16 @@ Vector3 NURBS::Position(double u, double v) const
 	}
 
 	double Wref = 0.0;
-	for(uint_fast8_t n = 0; n < 4; n++){
-		for(uint_fast8_t m = 0; m < 4; m++){
+	for (uint_fast8_t n = 0; n < 4; n++) {
+		for (uint_fast8_t m = 0; m < 4; m++) {
 			Wref += w[posU[lastU - 1 + n] + posV[lastV - 1 + m] * nU] * dU[n]
 					* dV[m];
 		}
 	}
 
 	Vector3 x;
-	for(uint_fast8_t n = 0; n < 4; n++){
-		for(uint_fast8_t m = 0; m < 4; m++){
+	for (uint_fast8_t n = 0; n < 4; n++) {
+		for (uint_fast8_t m = 0; m < 4; m++) {
 			x += c[posU[lastU - 1 + n] + posV[lastV - 1 + m] * nU]
 					* (w[posU[lastU - 1 + n] + posV[lastV - 1 + m] * nU] * dU[n]
 							* dV[m]);
@@ -228,8 +223,7 @@ Vector3 NURBS::Position(double u, double v) const
 	return x;
 }
 
-Vector3 NURBS::Normal(double u, double v) const
-{
+Vector3 NURBS::Normal(double u, double v) const {
 	const double eps = 1e-3;
 	const Vector3 p0 = Position(u, v);
 	const Vector3 p1 = Position(u + eps, v);
@@ -239,46 +233,43 @@ Vector3 NURBS::Normal(double u, double v) const
 	return n;
 }
 
-double NURBS::GetU(int block, int subBlock)
-{
+double NURBS::GetU(int block, int subBlock) {
 	double u0 = knotU[2];
 	double u1 = knotU[nU + 1];
-	if(cyclicU){
+	if (cyclicU) {
 		u0 = (u0 + knotU[3]) / 2.0;
 		u1 = (knotU[nU + 2] + knotU[nU + 3]) / 2.0;
 	}
 	const double du = (u1 - u0) / (double) resolutionU;
 	const double dsu = (u1 - u0) / (double) (resolutionU * subresolutionU);
-	if(subBlock < 0)
+	if (subBlock < 0)
 		return u0 + ((double) block + 0.5) * du;
 	else
 		return u0 + (double) block * du + ((double) subBlock + 0.5) * dsu;
 }
 
-double NURBS::GetV(int block, int subBlock)
-{
+double NURBS::GetV(int block, int subBlock) {
 	double v0 = knotV[2];
 	double v1 = knotV[nV + 1];
-	if(cyclicV){
+	if (cyclicV) {
 		v0 = (v0 + knotV[3]) / 2.0;
 		v1 = (knotV[nV + 2] + knotV[nV + 3]) / 2.0;
 	}
 	const double dv = (v1 - v0) / (double) resolutionV;
 	const double dsv = (v1 - v0) / (double) (resolutionV * subresolutionV);
 
-	if(subBlock < 0)
+	if (subBlock < 0)
 		return v0 + ((double) block + 0.5) * dv;
 	else
 		return v0 + (double) block * dv + ((double) subBlock + 0.5) * dsv;
 }
 
-void NURBS::Paint(void) const
-{
-	if(controlPointSize > 0){
+void NURBS::Paint(void) const {
+	if (controlPointSize > 0) {
 		glBegin(GL_POINTS);
 		glColor3f(1, 1, 0);
 		glPointSize(controlPointSize);
-		for(size_t n = 0; n < c.size(); n++){
+		for (size_t n = 0; n < c.size(); n++) {
 			double x = c[n].x;
 			double y = c[n].y;
 			double z = c[n].z;
@@ -291,7 +282,7 @@ void NURBS::Paint(void) const
 
 	double u0 = knotU[2];
 	double u1 = knotU[nU + 1];
-	if(cyclicU){
+	if (cyclicU) {
 		u0 = (u0 + knotU[3]) / 2.0;
 		u1 = (knotU[nU + 2] + knotU[nU + 3]) / 2.0;
 	}
@@ -299,7 +290,7 @@ void NURBS::Paint(void) const
 
 	double v0 = knotV[2];
 	double v1 = knotV[nV + 1];
-	if(cyclicV){
+	if (cyclicV) {
 		v0 = (v0 + knotV[3]) / 2.0;
 		v1 = (knotV[nV + 2] + knotV[nV + 3]) / 2.0;
 	}
@@ -308,10 +299,10 @@ void NURBS::Paint(void) const
 	bool reenableCulling = glIsEnabled(GL_CULL_FACE);
 	glDisable(GL_CULL_FACE);
 	double u = u0;
-	for(size_t n = 0; n < resolutionU; n++){
+	for (size_t n = 0; n < resolutionU; n++) {
 		glPushName((int) n);
 		double v = v0;
-		for(double m = 0; m < resolutionV; m++){
+		for (double m = 0; m < resolutionV; m++) {
 			glPushName((int) m);
 
 			const Vector3 p0 = Position(u, v);
@@ -334,10 +325,10 @@ void NURBS::Paint(void) const
 		glPopName();
 		u += du;
 	}
-	if(reenableCulling) glEnable(GL_CULL_FACE);
+	if (reenableCulling)
+		glEnable(GL_CULL_FACE);
 }
 
-void NURBS::Paint(int blockU, int blockV) const
-{
+void NURBS::Paint(int blockU, int blockV) const {
 //	glBlendEquation(1);
 }

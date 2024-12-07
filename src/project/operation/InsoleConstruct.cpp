@@ -26,17 +26,96 @@
 #include "InsoleConstruct.h"
 
 #include "../../math/DependentVector.h"
+
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+
+InsoleConstruct::InsoleConstruct() {
+	insole = std::make_shared<Insole>();
+}
+
 bool InsoleConstruct::CanRun() {
-	return measurements.use_count() > 0;
+	std::ostringstream err;
+	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	bool hasMissingConnection = false;
+	if (!footLength) {
+		hasMissingConnection = true;
+		err << " Input \"footLength\" not connected.";
+	}
+	if (!footLength) {
+		hasMissingConnection = true;
+		err << " Input \"footLength\" not connected.";
+	}
+	if (!ballMeasurementAngle) {
+		hasMissingConnection = true;
+		err << " Input \"ballMeasurementAngle\" not connected.";
+	}
+	if (!heelDirectionAngle) {
+		hasMissingConnection = true;
+		err << " Input \"heelDirectionAngle\" not connected.";
+	}
+	if (!littleToeAngle) {
+		hasMissingConnection = true;
+		err << " Input \"littleToeAngle\" not connected.";
+	}
+	if (!bigToeAngle) {
+		hasMissingConnection = true;
+		err << " Input \"bigToeAngle\" not connected.";
+	}
+	if (!ballWidth) {
+		hasMissingConnection = true;
+		err << " Input \"ballWidth\" not connected.";
+	}
+	if (!heelWidth) {
+		hasMissingConnection = true;
+		err << " Input \"heelWidth\" not connected.";
+	}
+	if (!extraLength) {
+		hasMissingConnection = true;
+		err << " Input \"extraLength\" not connected.";
+	}
+	if (!insole) {
+		hasMissingConnection = true;
+		err << " Output \"insole\" not set.";
+	}
+	if (hasMissingConnection)
+		throw std::runtime_error(err.str());
+	return true;
+}
+
+bool InsoleConstruct::Propagate() {
+	bool modify = false;
+	if (!CanRun())
+		return modify;
+
+	bool modified = false;
+	modified |= footLength->IsModified();
+	modified |= ballMeasurementAngle->IsModified();
+	modified |= heelDirectionAngle->IsModified();
+	modified |= littleToeAngle->IsModified();
+	modified |= bigToeAngle->IsModified();
+	modified |= ballWidth->IsModified();
+	modified |= heelWidth->IsModified();
+	modified |= extraLength->IsModified();
+
+	if (modified) {
+		modify |= insole->IsValid();
+		insole->MarkValid(false);
+	}
+	return modify;
 }
 
 bool InsoleConstruct::HasToRun() {
-	return measurements->IsModified();
+	if (!CanRun())
+		return false;
+	return !insole->IsValid() && insole->IsNeeded();
 }
 
 void InsoleConstruct::Run() {
-	insole = std::make_shared<Insole>();
 	Construct();
+	insole->MarkValid(true);
+	insole->MarkNeeded(false);
 }
 
 void InsoleConstruct::Construct() {

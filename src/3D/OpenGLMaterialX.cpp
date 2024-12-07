@@ -25,17 +25,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "OpenGLMaterialX.h"
 
-#include "glad/glad.h"
-#ifdef USE_LIBZIP
-#include <zip.h>
-#endif
 #include <iostream>
-#include <sstream>
 #include <regex>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
+#ifdef USE_LIBZIP
+#include <zip.h>
+#endif
 #ifdef USE_LIBPNG
 #include "png.h"
 #endif
@@ -72,7 +71,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 		zip_error_t ziperror;
 		zip_error_init_with_code(&ziperror, err);
 		std::ostringstream out;
-		out << __FILE__ << ":" << __func__ << ":";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << " Error opening zipfile:";
 		out << ' ' << zip_error_strerror(&ziperror);
 		throw std::runtime_error(out.str());
@@ -90,7 +89,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 	}
 	if (idx_mtlx < 0) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __func__ << ":";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << " The zip-file:" << filename_.string();
 		out << " does not contain a .mtlx file (MaterialX file).";
 		throw std::runtime_error(out.str());
@@ -101,7 +100,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 		zip_error_t ziperror;
 		zip_error_init_with_code(&ziperror, err);
 		std::ostringstream out;
-		out << __FILE__ << ":" << __func__ << ":";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << " Error reading from the zipped file #" << idx_mtlx;
 		out << ' ' << zip_error_strerror(&ziperror);
 		throw std::runtime_error(out.str());
@@ -155,7 +154,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 			zip_error_t ziperror;
 			zip_error_init_with_code(&ziperror, err);
 			std::ostringstream out;
-			out << __FILE__ << ":" << __func__ << ":";
+			out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 			out << " Error reading from the zipped file \"" << imagefile;
 			out << "\" " << zip_error_strerror(&ziperror);
 			throw std::runtime_error(out.str());
@@ -989,7 +988,7 @@ void OpenGLMaterialX::Node::GenerateCode(std::ostream &out,
 
 	} else {
 		std::ostringstream err;
-		err << __FILE__ << ":" << __func__ << " - ";
+		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		err << "The node \"" << type << "\"";
 		err << " has not code generation assigned (yet).";
 		throw std::runtime_error(err.str());
@@ -1027,7 +1026,7 @@ std::string OpenGLMaterialX::ToGlslType(const std::string &type) {
 		return "?";
 #else
 		std::ostringstream err;
-		err << __FILE__ << ":" << __func__ << " - ";
+		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		err << "The type \"" << type << "\" has not translation.";
 		throw std::runtime_error(err.str());
 #endif

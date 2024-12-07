@@ -44,7 +44,7 @@ ProjectView::ProjectView() :
 		wxView() {
 	active = Side::Both;
 
-	showLeft = false;
+	showLeft = true;
 	showRight = true;
 
 	showFootScan = false;
@@ -169,14 +169,14 @@ void ProjectView::Paint(bool usePicking) const {
 //	s.Paint();
 //	glPopMatrix();
 
-//	if (showLeft) {
-//
-//		glPushMatrix();
+	if (showLeft) {
+
+		glPushMatrix();
 //		if (shiftapart)
 //			glTranslatef(0, project->measL.littleToeGirth->ToDouble() / M_PI,
 //					0);
-//
-//		glLoadName(0); // Left
+
+		glLoadName(0); // Left
 //
 //		if (project->measurementsource
 //				== Project::MeasurementSource::fromFootScan && showFootScan) {
@@ -203,13 +203,22 @@ void ProjectView::Paint(bool usePicking) const {
 //			glPopName();
 //		}
 //
-//		if (project->modeltype == Project::ModelType::lastBased && showLast) {
-//			glPushName(3);
-//			matScan.UseMaterial();
-//			project->lastModelL.Paint();
-//			glPopName();
-//		}
-//
+//		if (project->modeltype == Project::ModelType::lastBased && showLast)
+		{
+			glPushName(3);
+
+			OpenGLMaterial::EnableColors();
+			matLines.UseColor(1.0);
+			project->builder.Paint();
+
+			matScan.UseMaterial();
+
+			if (project->lastNormalized.use_count() > 0)
+				project->lastNormalized->Paint();
+
+			glPopName();
+		}
+
 ////		if(showLast){
 ////			glPushName(3);
 ////			matLast.UseMaterial();
@@ -243,22 +252,22 @@ void ProjectView::Paint(bool usePicking) const {
 //			PaintCutaway();
 //			glPopName();
 //		}
-//
-//		if (showCoordinateSystem) {
-//			glPushName(15);
+
+		if (showCoordinateSystem) {
+			glPushName(15);
 //			project->csL.Paint();
-//			glPopName();
-//		}
-//
-//		glPopMatrix();
-//	}
-//	if (showRight) {
-//		glPushMatrix();
+			glPopName();
+		}
+
+		glPopMatrix();
+	}
+	if (showRight) {
+		glPushMatrix();
 //		if (shiftapart)
-//			glTranslatef(0, -project->measR.littleToeGirth->ToDouble() / M_PI,
+//			glTranslatef(0, -project->meas.littleToeGirth->ToDouble() / M_PI,
 //					0);
-//
-//		glLoadName(1); // Right
+
+		glLoadName(1); // Right
 //
 //		if (project->measurementsource
 //				== Project::MeasurementSource::fromFootScan && showFootScan) {
@@ -292,12 +301,12 @@ void ProjectView::Paint(bool usePicking) const {
 //			glPopName();
 //		}
 //
-////		if(showLast){
-////			glPushName(3);
-////			matLast.UseMaterial();
-////			project->lastR.Paint();
-////			glPopName();
-////		}
+//		if(showLast){
+//			glPushName(3);
+//			matLast.UseMaterial();
+//			project->lastR.Paint();
+//			glPopName();
+//		}
 //
 //		if (showInsole) {
 //			glPushName(4);
@@ -323,15 +332,15 @@ void ProjectView::Paint(bool usePicking) const {
 //			PaintCutaway();
 //			glPopName();
 //		}
-//
-//		if (showCoordinateSystem) {
-//			glPushName(15);
+
+		if (showCoordinateSystem) {
+			glPushName(15);
 //			project->csR.Paint();
-//			glPopName();
-//		}
-//
-//		glPopMatrix();
-//	}
+			glPopName();
+		}
+
+		glPopMatrix();
+	}
 
 	if (!usePicking) {
 		glLoadName(16);
@@ -404,8 +413,7 @@ void ProjectView::PaintBackground(bool showBehind) const {
 	}
 }
 
-const FootMeasurements* ProjectView::GetActiveFootMeasurements(
-		void) const {
+const FootMeasurements* ProjectView::GetActiveFootMeasurements(void) const {
 	const Project *project = wxStaticCast(this->GetDocument(), Project);
 //	switch (active) {
 //	case Side::Both:

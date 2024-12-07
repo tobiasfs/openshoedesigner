@@ -614,7 +614,7 @@ void FrameMain::OnSetFocus(wxFocusEvent &event) {
 	const int id = event.GetId();
 	const Project *project = wxStaticCast(GetDocument(), Project);
 	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	if (!project->parameter.HasID(id, (size_t) projectview->active))
+	if (!project->evaluator.HasID(id, (size_t) projectview->active))
 		return;
 
 	if (id == ID_TIPSHARPNESS)
@@ -626,7 +626,7 @@ void FrameMain::OnKillFocus(wxFocusEvent &event) {
 	const int id = event.GetId();
 	const Project *project = wxStaticCast(GetDocument(), Project);
 	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	if (!project->parameter.HasID(id, (size_t) projectview->active))
+	if (!project->evaluator.HasID(id, (size_t) projectview->active))
 		return;
 	if (id == ID_TIPSHARPNESS)
 		return;

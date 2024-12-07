@@ -26,8 +26,9 @@
 #include "ParameterEnum.h"
 
 ParameterEnum::ParameterEnum(const std::string &name_,
-		std::initializer_list<std::string> values,
+		std::initializer_list<std::string> values_,
 		const std::string &description_, const size_t id_, const size_t group_) :
 		Parameter(name_, description_, id_, group_) {
 
 }
+

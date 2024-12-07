@@ -148,31 +148,25 @@ OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 		wxGLContext(canvas) {
 	SetCurrent(*canvas);
 
-//	Light0.SetAmbient(0.2, 0.2, 0.2);
-//	Light0.SetDiffuse(0.6, 0.6, 0.6);
-//	Light0.SetSpecular(0.95, 0.95, 0.95);
-//	Light0.SetPosition(1, 0.4, 1);
-//	Light0.moveWithCamera = true;
-
 #ifdef USE_GLAD
 #ifndef __APPLE__
 
 #if defined(_WIN32) || defined(__WIN32__)
-    #ifndef WIN32_LEAN_AND_MEAN
-        // Reduce a bit header VC++ compilation time
-        #define WIN32_LEAN_AND_MEAN 1
-        #define LE_ME_ISDEF
-    #endif
-    /*
-    APIENTRY is defined in oglpfuncs.h as well as by windows.h. Undefine
-    it to prevent a macro redefinition warning.
-    */
-    #undef APIENTRY
-    #include <windows.h> //For wglGetProcAddress
-    #ifdef LE_ME_ISDEF
-        #undef WIN32_LEAN_AND_MEAN
-        #undef LE_ME_ISDEF
-    #endif
+#ifndef WIN32_LEAN_AND_MEAN
+	// Reduce a bit header VC++ compilation time
+#define WIN32_LEAN_AND_MEAN 1
+#define LE_ME_ISDEF
+#endif
+	/*
+	 APIENTRY is defined in oglpfuncs.h as well as by windows.h. Undefine
+	 it to prevent a macro redefinition warning.
+	 */
+#undef APIENTRY
+#include <windows.h> //For wglGetProcAddress
+#ifdef LE_ME_ISDEF
+#undef WIN32_LEAN_AND_MEAN
+#undef LE_ME_ISDEF
+#endif
 
 	auto success = gladLoadGLLoader((GLADloadproc) wglGetProcAddress);
 
@@ -183,6 +177,7 @@ OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 
 	if (!success) {
 		std::ostringstream out;
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << "Failed to initialize GLAD.";
 		throw std::runtime_error(out.str());
 	}
@@ -332,6 +327,12 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	Light0.SetAmbient(0.2, 0.2, 0.2);
+	Light0.SetDiffuse(0.6, 0.6, 0.6);
+	Light0.SetSpecular(0.95, 0.95, 0.95);
+	Light0.SetPosition(1, 0.4, 1);
+	Light0.moveWithCamera = true;
+
 #ifdef GL_VERSION_1_2
 	// Use RESCALE_NORMAL in OpenGL 1.2 or higher
 	glEnable(GL_RESCALE_NORMAL);
@@ -361,7 +362,6 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 					backgroundGrayLevel);
 			glDisable(GL_COLOR_MATERIAL);
 		}
-
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -595,6 +595,8 @@ void OpenGLCanvas::RenderPick() {
 }
 
 void OpenGLCanvas::Render() {
+	return;
+
 	glPushMatrix();
 
 	GLfloat x = 1.0;

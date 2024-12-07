@@ -51,16 +51,15 @@
  *
  */
 
+#include <iostream>
+#include <memory>
 #include <stddef.h>
 #include <wx/docview.h>
-
 #include <wx/object.h>
 #include <wx/platform.h>
 #include <wx/setup.h>
 #include <wx/string.h>
 #include <wx/thread.h>
-#include <iostream>
-#include <memory>
 
 #include "../3D/OrientedMatrix.h"
 #include "../3D/PointCloud.h"
@@ -68,13 +67,14 @@
 #include "CoordinateSystem.h"
 //#include "../3D/Volume.h"
 
-#include "FootMeasurements.h"
-#include "foot/FootModel.h"
-#include "Insole.h"
-#include "last/LastModel.h"
+#include "Builder.h"
 #include "Configuration.h"
-#include "pattern/Pattern.h"
+#include "foot/FootModel.h"
+#include "FootMeasurements.h"
+#include "object/Insole.h"
+#include "object/LastModel.h"
 #include "ParameterEvaluator.h"
+#include "pattern/Pattern.h"
 
 class WorkerThread;
 
@@ -124,10 +124,12 @@ public:
 	FootMeasurements footL;
 	FootMeasurements footR;
 
+	ParameterEvaluator evaluator;
 
-	ParameterEvaluator parameter;
+	Builder builder;
 
-
+	std::shared_ptr<LastRaw> lastRaw;
+	std::shared_ptr<LastModel> lastNormalized;
 
 //	FootModel footL;
 //	FootModel footR;

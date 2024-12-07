@@ -213,19 +213,19 @@ AffineTransformMatrix AffineTransformMatrix::Normal() const {
 	const double v1 = a[4] * a[4] + a[5] * a[5] + a[6] * a[6];
 	const double v2 = a[8] * a[8] + a[9] * a[9] + a[10] * a[10];
 	AffineTransformMatrix temp = *this;
-	if (v0 > 0) {
+	if (v0 > FLT_EPSILON) {
 		const double sv0 = sqrt(v0);
 		temp.a[0] /= sv0;
 		temp.a[1] /= sv0;
 		temp.a[2] /= sv0;
 	}
-	if (v1 > 0) {
+	if (v1 > FLT_EPSILON) {
 		const double sv1 = sqrt(v1);
 		temp.a[4] /= sv1;
 		temp.a[5] /= sv1;
 		temp.a[6] /= sv1;
 	}
-	if (v2 > 0) {
+	if (v2 > FLT_EPSILON) {
 		const double sv2 = sqrt(v2);
 		temp.a[8] /= sv2;
 		temp.a[9] /= sv2;
@@ -236,6 +236,21 @@ AffineTransformMatrix AffineTransformMatrix::Normal() const {
 
 void AffineTransformMatrix::Normalize() {
 	(*this) = (*this).Normal();
+}
+
+void AffineTransformMatrix::Orthogonalize() {
+	Vector3 ex = GetEx().Normal();
+	Vector3 ey = GetEy().Normal();
+	Vector3 ez = GetEz().Normal();
+	const double hy = ey.Dot(ex);
+	ey = (ey - hy * ex).Normal();
+	const double hzx = ez.Dot(ex);
+	ez = (ez - hzx * ex).Normal();
+	const double hzy = ez.Dot(ey);
+	ez = (ez - hzy * ey).Normal();
+	SetEx(ex);
+	SetEy(ey);
+	SetEz(ez);
 }
 
 Vector3 AffineTransformMatrix::GetOrigin() const {
@@ -358,39 +373,41 @@ AffineTransformMatrix AffineTransformMatrix::Inverse() const {
 	// Fricas code:
 	// )set fortran optlevel 2
 	// )set output fortran on
-	// R:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]])
+	// R:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
 	// inverse(R)
 
-	const double T11 = (a[0] * a[5] + (-a[1] * a[4])) * a[10]
-			+ ((-a[0] * a[6]) + a[2] * a[4]) * a[9]
-			+ (a[1] * a[6] + (-a[2] * a[5])) * a[8];
+	const double T30 = a[0] * a[5];
+	const double T32 = a[0] * a[6];
+	const double T34 = a[1] * a[6];
+	const double T31 = a[1] * a[4];
+	const double T33 = a[2] * a[4];
+	const double T35 = a[2] * a[5];
+
+	const double T11 = (T30 - T31) * a[10] + (T33 - T32) * a[9]
+			+ (T34 - T35) * a[8];
+
 	// T11 is the determinant of the matrix. This can
 	// not be zero for a correct transformation matrix.
 	if (fabs(T11) < DBL_MIN)
 		throw(std::logic_error(
 		__FILE__ " Inverse() - Matrix is broken and cannot be inverted."));
 
-	const double T12 = a[4] * a[9];
-	const double T13 = a[5] * a[8];
-	const double T14 = a[4] * a[10];
-	const double T15 = a[6] * a[8];
-	const double T16 = a[5] * a[10];
-	const double T17 = a[6] * a[9];
+	const double T27 = T34 - T35;
+	const double T28 = T33 - T32;
+	const double T29 = T30 - T31;
+
 	const double T18 = a[0] * a[9];
-	const double T19 = a[1] * a[8];
 	const double T21 = a[0] * a[10];
-	const double T22 = a[2] * a[8];
 	const double T24 = a[1] * a[10];
+	const double T19 = a[1] * a[8];
+	const double T22 = a[2] * a[8];
 	const double T25 = a[2] * a[9];
-	const double T27 = a[1] * a[6] + (-a[2] * a[5]);
-	const double T28 = (-a[0] * a[6]) + a[2] * a[4];
-	const double T29 = a[0] * a[5] + (-a[1] * a[4]);
-	const double T30 = a[0] * a[5];
-	const double T31 = a[1] * a[4];
-	const double T32 = a[0] * a[6];
-	const double T33 = a[2] * a[4];
-	const double T34 = a[1] * a[6];
-	const double T35 = a[2] * a[5];
+	const double T12 = a[4] * a[9];
+	const double T14 = a[4] * a[10];
+	const double T16 = a[5] * a[10];
+	const double T13 = a[5] * a[8];
+	const double T15 = a[6] * a[8];
+	const double T17 = a[6] * a[9];
 
 	AffineTransformMatrix b;
 
@@ -821,6 +838,25 @@ void AffineTransformMatrix::GLMultMatrix() const {
 	glMultMatrixd(a.data());
 }
 
+void AffineTransformMatrix::GLSetUniformMatrix4(int location) const {
+	if (location == -1)
+		return;
+	std::array<GLfloat, 16> mat;
+	for (uint_fast8_t idx = 0; idx < 16; ++idx)
+		mat[idx] = a[idx];
+	glUniformMatrix4fv(location, 1, GL_FALSE, mat.data());
+}
+
+void AffineTransformMatrix::GLSetUniformMatrix3(int location) const {
+	if (location == -1)
+		return;
+	std::array<GLfloat, 9> mat;
+	for (uint_fast8_t col = 0; col < 3; ++col)
+		for (uint_fast8_t row = 0; row < 3; ++row)
+			mat[col * 3 + row] = a[col * 4 + row];
+	glUniformMatrix3fv(location, 1, GL_FALSE, mat.data());
+}
+
 void AffineTransformMatrix::Paint(const Style style, const double param0,
 		const double param1, const double param2) const {
 	const uint_fast8_t NSides = 4;
@@ -1223,25 +1259,7 @@ void AffineTransformMatrix::GLVertex(const Vector3 &v) {
 	glVertex3d(v.x, v.y, v.z);
 }
 
-void AffineTransformMatrix::GLSetUniformMatrix4(int location) const {
-	if (location == -1)
-		return;
-	std::array<GLfloat, 16> mat;
-	for (uint_fast8_t idx = 0; idx < 16; ++idx)
-		mat[idx] = a[idx];
-	glUniformMatrix4fv(location, 1, GL_FALSE, mat.data());
-}
-
-void AffineTransformMatrix::GLSetUniformMatrix3(int location) const {
-	if (location == -1)
-		return;
-	std::array<GLfloat, 9> mat;
-	for (uint_fast8_t col = 0; col < 3; ++col)
-		for (uint_fast8_t row = 0; row < 3; ++row)
-			mat[col * 3 + row] = a[col * 4 + row];
-	glUniformMatrix3fv(location, 1, GL_FALSE, mat.data());
-}
-
 void AffineTransformMatrix::GLNormal(const Vector3 &n) {
 	glNormal3d(n.x, n.y, n.z);
 }
+

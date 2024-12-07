@@ -29,7 +29,7 @@
 
 /*!\class OpenGLPick
  * \brief Storage for the result of an OpenGL picking operation
- * \ingroup View3D
+ * \ingroup OpenGL
  *
  * The result is stored as it is delivered from the OpenGL call.
  * Functions are provided to interpret the results.

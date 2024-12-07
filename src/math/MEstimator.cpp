@@ -169,7 +169,8 @@ void MEstimator::EstimateY(const DependentVector &data,
 	for (size_t n = 0; n < Size(); ++n) {
 		double temp = 0.0;
 		for (size_t m = xstart; m <= xend; ++m) {
-			temp += estimator.Rho((data.Y(m) - X(n)) / sigma) * weight[m];
+			const double estimation = estimator.Rho((data.Y(m) - X(n)) / sigma);
+			temp += estimation * weight[m];
 		}
 		Y(n) = temp;
 	}

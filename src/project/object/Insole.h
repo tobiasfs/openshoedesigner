@@ -29,7 +29,7 @@
 
 /*!\class Insole
  * \brief Construct, deform and export the insole of a shoe
- * \ingroup project
+ * \ingroup ObjectOperations
  *
  *
  * Constructs an insole from the measurements using the methods
@@ -81,15 +81,16 @@
  *
  */
 
-#include <vector>
 #include <functional>
+#include <vector>
 
-#include "../3D/Polygon3.h"
-#include "../3D/Polynom3.h"
-#include "../3D/Vector3.h"
-#include "../math/Polynomial.h"
+#include "../../3D/Polygon3.h"
+#include "../../3D/Polynomial3.h"
+#include "../../3D/Vector3.h"
+#include "../../math/Polynomial.h"
+#include "Object.h"
 
-class Insole {
+class Insole: public Object {
 	friend class InsoleConstruct;
 	friend class InsoleTransform;
 protected:
@@ -106,7 +107,7 @@ protected:
 		void Transform(std::function<Vector3(Vector3)> func);
 	};
 
-	struct Line: public Polynom3 {
+	struct Line: public Polynomial3 {
 	public:
 		// Bezier-Circle: sqrt(2) * f = 0.551915024494 --> f = 0.39
 		void Setup(const Point &p0, const Point &p1, double f0 = 0.39,
@@ -120,9 +121,6 @@ public:
 	void Transform(std::function<Vector3(Vector3)> func);
 
 	void Mirror(bool isleft = true);
-
-	bool IsModified(void) const;
-	void Modify(bool modify = true);
 
 	std::vector<Line> lines;
 	std::vector<Point> outline;
@@ -146,7 +144,6 @@ protected:
 
 private:
 	bool leftside = false;
-	bool modified = true;
 };
 
 #endif /* PROJECT_INSOLE_H */

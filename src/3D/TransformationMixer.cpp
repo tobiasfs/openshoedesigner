@@ -29,14 +29,12 @@
 #include <numeric>
 
 void TransformationMixer::SetBackground(double strength,
-		AffineTransformMatrix matrix)
-{
-	this->background = strength;
-	this->backgroundmatrix = matrix;
+		std::function<Vector3(Vector3)> matrix) {
+	this->backgroundstrength = strength;
+	this->backgroundtransformation = matrix;
 }
 size_t TransformationMixer::AddSphere(Vector3 center,
-		std::function <double(double)> kernel, AffineTransformMatrix matrix)
-{
+		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Sphere;
 	temp->v = center;
@@ -47,8 +45,7 @@ size_t TransformationMixer::AddSphere(Vector3 center,
 }
 
 size_t TransformationMixer::AddCylinder(Vector3 center, Vector3 normal,
-		std::function <double(double)> kernel, AffineTransformMatrix matrix)
-{
+		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Cylinder;
 	temp->v = center;
@@ -60,8 +57,7 @@ size_t TransformationMixer::AddCylinder(Vector3 center, Vector3 normal,
 }
 
 size_t TransformationMixer::AddPlane(double distance, Vector3 normal,
-		std::function <double(double)> kernel, AffineTransformMatrix matrix)
-{
+		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Plane;
 	temp->n = normal.Normal();
@@ -73,8 +69,7 @@ size_t TransformationMixer::AddPlane(double distance, Vector3 normal,
 }
 
 size_t TransformationMixer::AddPlane(Vector3 pointonplane, Vector3 normal,
-		std::function <double(double)> kernel, AffineTransformMatrix matrix)
-{
+		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Plane;
 	temp->n = normal.Normal();
@@ -85,63 +80,52 @@ size_t TransformationMixer::AddPlane(Vector3 pointonplane, Vector3 normal,
 	return elements.size() - 1;
 }
 
-size_t TransformationMixer::Size(void) const
-{
+size_t TransformationMixer::Size(void) const {
 	return elements.size();
 }
 
-AffineTransformMatrix& TransformationMixer::operator [](size_t idx)
-{
-	return elements[idx].m;
-}
-
-const AffineTransformMatrix& TransformationMixer::operator [](size_t idx) const
-{
-	return elements[idx].m;
-}
-
-Vector3 TransformationMixer::operator ()(const Vector3& v) const
-{
-	if(elements.empty()) return backgroundmatrix(v);
+Vector3 TransformationMixer::operator ()(const Vector3 &v) const {
+	if (elements.empty())
+		return backgroundtransformation(v);
 	size_t n = 0;
-	for(auto & e : elements){
-		switch(e.type){
-		case Element::Type::Sphere:
-			{
-				const double d = (v - e.v).Abs();
-				mixing[n] = e.kernel(d);
-				break;
-			}
-		case Element::Type::Cylinder:
-			{
-				const double a = (v - e.v).Dot(e.n);
-				const double d = (v - e.v - e.n * a).Abs();
-				mixing[n] = e.kernel(d);
-				break;
-			}
-		case Element::Type::Plane:
-			{
-				const double d = v.Dot(e.n) - e.d;
-				mixing[n] = e.kernel(d);
-				break;
-			}
+	for (auto &e : elements) {
+		switch (e.type) {
+		case Element::Type::Sphere: {
+			const double d = (v - e.v).Abs();
+			mixing[n] = e.kernel(d);
+			break;
+		}
+		case Element::Type::Cylinder: {
+			const double a = (v - e.v).Dot(e.n);
+			const double d = (v - e.v - e.n * a).Abs();
+			mixing[n] = e.kernel(d);
+			break;
+		}
+		case Element::Type::Plane: {
+			const double d = v.Dot(e.n) - e.d;
+			mixing[n] = e.kernel(d);
+			break;
+		}
 		}
 		++n;
 	}
 
 	double sum = mixing.sum();
-	double back = background - sum;
-	if(back < 0.0) back = 0.0;
+	double back = backgroundstrength - sum;
+	if (back < 0.0)
+		back = 0.0;
 	sum += back;
-	if(fabs(sum) <= 1e-12) return v;
+	if (fabs(sum) <= 1e-12)
+		return backgroundtransformation(v);
 
 	mixing /= sum;
 	back /= sum;
-	Vector3 temp = backgroundmatrix(v) * back;
+	Vector3 temp = backgroundtransformation(v) * back;
 	n = 0;
-	for(auto & e : elements){
+	for (auto &e : elements) {
 		++n;
-		if(fabs(mixing[n - 1]) < 1e-12) continue;
+		if (fabs(mixing[n - 1]) < 1e-12)
+			continue;
 		temp += e.m(v) * mixing[n - 1];
 	}
 	return temp;

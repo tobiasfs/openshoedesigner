@@ -26,16 +26,16 @@
 
 #include "PCA.h"
 
-#include <GL/gl.h>
+#include <cfloat>
 
-PCA::PCA()
-{
+#include "../3D/OpenGL.h"
+
+PCA::PCA() {
 	Reset();
 }
 
-void PCA::Reset()
-{
-	N = 0;
+void PCA::Reset() {
+	weight = 0.0;
 	X.Set(1, 0, 0);
 	Y.Set(0, 1, 0);
 	Z.Set(0, 0, 1);
@@ -43,13 +43,11 @@ void PCA::Reset()
 	xx = xy = xz = yy = yz = zz = 0.0;
 }
 
-void PCA::SetCenter(const Vector3 & center)
-{
+void PCA::SetCenter(const Vector3 &center) {
 	this->center = center;
 }
 
-void PCA::Add(const Vector3& point)
-{
+void PCA::Add(const Vector3 &point, double weight_) {
 	const double x = point.x - center.x;
 	const double y = point.y - center.y;
 	const double z = point.z - center.z;
@@ -59,17 +57,17 @@ void PCA::Add(const Vector3& point)
 	yy += y * y;
 	yz += y * z;
 	zz += z * z;
-	++N;
+	weight += weight_;
 }
 
-void PCA::Calculate()
-{
-	if(N == 0) return;
+void PCA::Calculate() {
+	if (weight < FLT_EPSILON)
+		return;
 
 	// Row-wise defined matrix A to analyse:
-	Vector3 A1(xx / N, xy / N, xz / N);
-	Vector3 A2(xy / N, yy / N, yz / N);
-	Vector3 A3(xz / N, yz / N, zz / N);
+	Vector3 A1(xx / weight, xy / weight, xz / weight);
+	Vector3 A2(xy / weight, yy / weight, yz / weight);
+	Vector3 A3(xz / weight, yz / weight, zz / weight);
 
 	// Initialize Q to the eye matrix
 	Vector3 Q1(1, 0, 0);
@@ -81,7 +79,7 @@ void PCA::Calculate()
 
 	// QR iteration:
 	size_t iter = 0;
-	while(iter < maxIterations){
+	while (iter < maxIterations) {
 		// W = A*Q
 		const Vector3 W1 = A1 * Q1.x + A2 * Q1.y + A3 * Q1.z;
 		const Vector3 W2 = A1 * Q2.x + A2 * Q2.y + A3 * Q2.z;
@@ -105,38 +103,39 @@ void PCA::Calculate()
 		R3.Set(Q1.Dot(W3), Q2.Dot(W3), Q3.Dot(W3));
 
 		const double error = R2.x * R2.x + R3.x * R3.x + R3.y * R3.y;
-		if(error < maxError) break;
+		if (error < maxError)
+			break;
 		iter++;
 	}
 
 	// After around a hand full iterations, Q contains in its columns the eigenvectors of the matrix A.
 	// The diagonal of R contains the (approximate) eigenvalues.
-	if(R1.x > R2.y && R1.x > R3.z){
+	if (R1.x > R2.y && R1.x > R3.z) {
 		X = Q1;
-		if(R2.y > R3.z){
+		if (R2.y > R3.z) {
 			Y = Q2;
 			Z = Q3;
-		}else{
+		} else {
 			Y = Q3;
 			Z = Q2;
 		}
 	}
-	if(R2.y > R1.x && R2.y > R3.z){
+	if (R2.y > R1.x && R2.y > R3.z) {
 		X = Q2;
-		if(R1.x > R3.z){
+		if (R1.x > R3.z) {
 			Y = Q1;
 			Z = Q3;
-		}else{
+		} else {
 			Y = Q3;
 			Z = Q1;
 		}
 	}
-	if(R3.z > R1.x && R3.z > R2.y){
+	if (R3.z > R1.x && R3.z > R2.y) {
 		X = Q3;
-		if(R1.x > R2.y){
+		if (R1.x > R2.y) {
 			Y = Q1;
 			Z = Q2;
-		}else{
+		} else {
 			Y = Q2;
 			Z = Q1;
 		}
@@ -152,8 +151,7 @@ void PCA::Calculate()
 //	std::cout << "Eigenvector Z: " << Z << " : " << eZ << "\n";
 }
 
-void PCA::Paint() const
-{
+void PCA::Paint() const {
 	glPushMatrix();
 	glTranslatef(center.x, center.y, center.z);
 	Vector3 temp;

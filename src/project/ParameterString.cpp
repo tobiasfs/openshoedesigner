@@ -57,6 +57,7 @@ ParameterString::ParameterString(const std::string &name_,
 		const std::string &initial_value, const std::string &description_,
 		const size_t id_, const size_t group_) :
 		Parameter(name_, description_, id_, group_) {
+	text = initial_value;
 }
 
 std::ostream& operator<<(std::ostream &out, const ParameterString &param) {

@@ -32,14 +32,14 @@
  *
  * This class contains a polynomial of arbitrary order.
  *
- * The coefficients are stored Matlab / Octave style: The first coefficient is
+ * The coefficients are stored Octave/Matlab style: The first coefficient is
  * the one for the highest power.
  *
  * e.g. \f[
  * 	f(r) = c_3\cdot r^3 + c_2\cdot r^2 + c_1 \cdot r + c_0
  * \f]
  * The vector returned by the stream output << can be used directly in the
- * Matlab/Octave polyval command. Note that the order of coefficient is inverted
+ * Octave/Matlab polyval command. Note that the order of coefficient is inverted
  * here.
  *
  * \htmlonly
@@ -276,7 +276,7 @@ public:
 
 	double Integral(double a, double b) const; ///< Evaluate the integral of the polynomial between a and b
 	Polynomial Integral(size_t order = 1) const; ///< Return the integral of the polynomial without changing it itself
-	void Integrate(size_t order = 1); ///< Integrate the polynomial. (The integration constant has to be added simply by the operator+.)
+	void Integrate(size_t order = 1); ///< Integrate the polynomial. (The integration-constant has to be added using the operator '+' afterwards.)
 
 	/**\brief Invert a polynomial in a given range
 	 *
@@ -310,7 +310,7 @@ public:
 	/**\}
 	 */
 
-	/*! \brief Output coefficients in Matlab/Octave format
+	/*! \brief Output coefficients in Octave/Matlab format
 	 *
 	 *~~~~~
 	 * Polynomial p = Polynomial::ByValue(-1,1, 0,0, 1,1);

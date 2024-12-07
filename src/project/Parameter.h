@@ -46,6 +46,7 @@
 class Parameter: public MathParser::Variable {
 
 public:
+	Parameter() = delete;
 	explicit Parameter(const std::string &name, const std::string &description =
 			std::string(""), const size_t id = (size_t) -1, const size_t group =
 			(size_t) -1);

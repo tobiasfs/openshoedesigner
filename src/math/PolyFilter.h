@@ -39,7 +39,7 @@
  * ~~~{.m}
  *  [filter_a(:), filter_b(:), filter_c(:), filter_d(:)]
  * ~~~
- * is identical to the Matlab / Octave command
+ * is identical to the Octave/Matlab command
  * ~~~{.m}
  *  transpose(pinv(vander(0:(size-1),order)))
  * ~~~

@@ -29,7 +29,7 @@
 
 /*!\class OpenGLMaterial
  * \brief Simple Material definition for OpenGL
- * \ingroup View3D
+ * \ingroup OpenGL
  *
  * This class contains the ambient, diffuse and specular values for classic
  * material in OpenGL. The Function UseMaterial activates the material in

@@ -28,11 +28,10 @@
 #define MATH_DEPENDENTVECTOR_H
 
 /*!\class DependentVector
- * \brief
+ * \brief Vector of Y over X
  *
- * http://www.parashift.com/c++-faq-lite/operator-overloading.html
- *
- * http://courses.cms.caltech.edu/cs11/material/cpp/donnie/cpp-ops.html
+ * Container for holding pairs of X and Y values. Used as input/output of some
+ * mathematical functions.
  */
 
 #include <cfloat>
@@ -81,7 +80,7 @@ public:
 	void YLinspace(double y0, double y1);
 	void YFill(std::function<double(double)> func);
 
-	/*\brief Index of a value
+	/**\brief Index of a value
 	 *
 	 * Returns the first point of the interval the value is in. If
 	 * the value is outside the range of values, the first point or the last
@@ -94,8 +93,8 @@ public:
 
 	/*!\brief Interpolation of the array
 	 *
-	 * The output of this function is the same as Matlabs/Octaves interp1 with
-	 * the 'extrap' option enables. The extrapolation is linear.
+	 * The output of this function is the same as Octaves/Matlabs interp1 with
+	 * the 'extrap' option enabled. The extrapolation is linear.
 	 */
 	double YatX(const double xval) const;
 	double XatY(const double yval, Direction direction =
@@ -107,6 +106,8 @@ public:
 
 	double& Y(size_t index);
 	const double& Y(size_t index) const;
+
+	// http://www.parashift.com/c++-faq-lite/operator-overloading.html
 
 	double& operator[](size_t index); //!< Access operator to the Y array
 	double operator[](size_t index) const; //!< Read-only access operator to the Y array

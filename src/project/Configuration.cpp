@@ -39,6 +39,12 @@ void Configuration::Register(ParameterEvaluator &evaluator)
 //				"extraLength"), footCompression("footCompression")
 		{
 
+	lastFilename = std::make_shared<ParameterString>("lastFilename",
+			"data/Last_Default_Normalized.stl");
+
+	std::initializer_list<std::string> types = { "boneBased", "lastBased" };
+	modelType = std::make_shared<ParameterEnum>("modelType", types);
+
 	heelHeight = evaluator.Register("heelHeight", "", "3 cm", ID_HEELHEIGHT);
 	ballHeight = evaluator.Register("ballHeight", "", "1 cm", ID_BALLHEIGHT);
 	heelPitch = evaluator.Register("heelPitch", "", "5 deg", ID_HEELPITCH);
@@ -213,7 +219,7 @@ const std::shared_ptr<const Parameter> Configuration::GetParameter(
 void Configuration::FromJSON(const JSON &js) {
 	if (!js.IsObject()) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __func__ << ":";
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
 		out << " The json does not contain an object with measurements.";
 		throw std::runtime_error(out.str());
 	}

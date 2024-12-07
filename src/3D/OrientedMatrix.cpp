@@ -26,10 +26,13 @@
 
 #include "OrientedMatrix.h"
 
+#include <cassert>
 #include <float.h>
 #include <inttypes.h>
-#include <GL/gl.h>
-#include <cassert>
+
+#include "OpenGL.h"
+
+using std::swap;
 
 void OrientedMatrix::SetSize(unsigned int nx, unsigned int ny, unsigned int nz,
 		float resolution) {
@@ -363,13 +366,13 @@ void OrientedMatrix::Rotate(Axis a, int quarters) {
 	assert(quarters == 1 || quarters == 3);
 	switch (a) {
 	case Axis::X:
-		std::swap(dy, dz);
+		swap(dy, dz);
 		break;
 	case Axis::Y:
-		std::swap(dz, dx);
+		swap(dz, dx);
 		break;
 	case Axis::Z:
-		std::swap(dx, dy);
+		swap(dx, dy);
 		break;
 	}
 }

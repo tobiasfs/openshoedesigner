@@ -27,6 +27,10 @@
 #ifndef MATH_LINEAROPTIMIZER_H
 #define MATH_LINEAROPTIMIZER_H
 
+/*!\class LinearOptimizer
+ * \brief Linear / line-search optimizer
+ */
+
 #include "OptimizerAbstract.h"
 
 #include <vector>

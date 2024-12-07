@@ -28,7 +28,7 @@
 
 /** \class OpenGLMaterialX
  * 	\code #include "OpenGLMaterialX.h"\endcode
- * 	\ingroup View3D
+ * 	\ingroup OpenGL
  *  \brief Read a zipped MaterialX file provide an OpenGL shader.
  *
  * [MaterialX.v1.38.Spec](https://materialx.org/assets/MaterialX.v1.38.Spec.pdf)

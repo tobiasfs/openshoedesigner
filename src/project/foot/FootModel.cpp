@@ -24,13 +24,21 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "../foot/FootModel.h"
+#include "FootModel.h"
 
-#include <GL/gl.h>
-#include <cassert>
+#include "Bone.h"
 
+#include "../../3D/Vector3.h"
+#include "../../math/MathParser.h"
 #include "../Configuration.h"
-#include "../../math/NelderMeadOptimizer.h"
+#include "../ParameterFormula.h"
+#include "../../3D/Polygon3.h"
+
+#include <cmath>
+#include <memory>
+#include <vector>
+
+#include "../../3D/OpenGL.h"
 
 //const unsigned int FootModel::NBones = 29;
 //FootModel::FootModel()
@@ -116,16 +124,14 @@
 //
 //}
 
-void FootModel::PaintBones(void) const
-{
+void FootModel::PaintBones(void) const {
 	glPushMatrix();
 	origin.GLMultMatrix();
 	Skeleton::Render();
 	glPopMatrix();
 }
 
-void FootModel::PaintSkin(void) const
-{
+void FootModel::PaintSkin(void) const {
 	glPushMatrix();
 	origin.GLMultMatrix();
 	skin.PaintSurface();
@@ -471,9 +477,8 @@ void FootModel::PaintSkin(void) const
 //	return true;
 //}
 
-void FootModel::Mirror(void)
-{
-	for(auto & bone : bones){
+void FootModel::Mirror(void) {
+	for (auto &bone : bones) {
 		bone->p1.y = -bone->p1.y;
 		bone->p2.y = -bone->p2.y;
 		bone->matrixinit.ScaleGlobal(1, -1, 1);
@@ -481,10 +486,9 @@ void FootModel::Mirror(void)
 	}
 }
 
-void FootModel::UpdateForm(const FootMeasurements &measurements)
-{
-	std::shared_ptr <Bone> PhalanxIII4 = GetBone("PhalanxIII4");
-	std::shared_ptr <Bone> Calcaneus = GetBone("Calcaneus");
+void FootModel::UpdateForm(const FootMeasurements &measurements) {
+	std::shared_ptr<Bone> PhalanxIII4 = GetBone("PhalanxIII4");
+	std::shared_ptr<Bone> Calcaneus = GetBone("Calcaneus");
 	ResetRotation();
 	optiForm.reevalBest = true;
 	optiForm.keepSimplex = false;
@@ -494,7 +498,7 @@ void FootModel::UpdateForm(const FootMeasurements &measurements)
 	optiForm.param.resize(1, 0.0);
 	optiForm.param[0] = L;
 	optiForm.Start();
-	while(optiForm.IsRunning()){
+	while (optiForm.IsRunning()) {
 		L = optiForm.param[0];
 		CalculateBones();
 		optiForm.SetError(
@@ -506,9 +510,7 @@ void FootModel::UpdateForm(const FootMeasurements &measurements)
 	ModifyForm(true);
 }
 
-
-void FootModel::CalculateBones(void)
-{
+void FootModel::CalculateBones(void) {
 	MathParser parser;
 
 	parser.SetVariable("L", MathParser::Value(L));
@@ -518,10 +520,9 @@ void FootModel::CalculateBones(void)
 	Skeleton::Update();
 }
 
-void FootModel::CalculateSkin(void)
-{
+void FootModel::CalculateSkin(void) {
 	BoundingBox bb;
-	for(auto & bone : bones){
+	for (auto &bone : bones) {
 		bb.Insert(
 				Vector3(bone->p1.x - bone->r1 - 3 * bone->s1,
 						bone->p1.y - bone->r1 - 3 * bone->s1,
@@ -551,7 +552,7 @@ void FootModel::CalculateSkin(void)
 	//			0.04, 0.02, 0.04);
 	skin.Clear();
 
-	for(auto & bone : bones){
+	for (auto &bone : bones) {
 		skin.AddCylinder(bone->p1, bone->p2, bone->r1 + bone->s1,
 				bone->r2 + bone->s2, (bone->s1 + bone->s2) / 2.0);
 		//	volume->AddCylinder(footL.bones[n].p1,footL.bones[n].p2,footL.bones[n].r1,footL.bones[n].r2,footL.bones[n].s1,footL.bones[n].s2);
@@ -565,8 +566,7 @@ void FootModel::CalculateSkin(void)
 	ModifySkin(true);
 }
 
-Polygon3 FootModel::GetCenterline(void) const
-{
+Polygon3 FootModel::GetCenterline(void) const {
 	Polygon3 temp;
 
 //	temp.InsertPoint(
@@ -594,37 +594,30 @@ Polygon3 FootModel::GetCenterline(void) const
 	return temp;
 }
 
-bool FootModel::IsModifiedForm(void) const
-{
+bool FootModel::IsModifiedForm(void) const {
 	return modifiedForm;
 }
 
-bool FootModel::IsModifiedPosition(void) const
-{
+bool FootModel::IsModifiedPosition(void) const {
 	return modifiedPosition;
 }
 
-bool FootModel::IsModifiedSkin(void) const
-{
+bool FootModel::IsModifiedSkin(void) const {
 	return modifiedSkin;
 }
 
-void FootModel::ModifyForm(bool modified)
-{
+void FootModel::ModifyForm(bool modified) {
 	modifiedForm = modified;
 }
 
-void FootModel::ModifyPosition(bool modified)
-{
+void FootModel::ModifyPosition(bool modified) {
 	modifiedPosition = modified;
 }
 
-void FootModel::ModifySkin(bool modified)
-{
+void FootModel::ModifySkin(bool modified) {
 	modifiedSkin = modified;
 }
 
-double FootModel::LRS() const
-{
+double FootModel::LRS() const {
 	return L * R * S;
 }

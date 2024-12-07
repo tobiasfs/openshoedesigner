@@ -1,0 +1,118 @@
+///////////////////////////////////////////////////////////////////////////////
+// Name               : Exporter.cpp
+// Purpose            : Exports objects to .mat files
+// Thread Safe        : Yes
+// Platform dependent : No
+// Compiler Options   :
+// Author             : Tobias Schaefer
+// Created            : 26.06.2022
+// Copyright          : (C) 2022 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Licence            : GNU General Public License version 3.0 (GPLv3)
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#include "Exporter.h"
+
+#include "../3D/Polygon3.h"
+#include "DependentVector.h"
+#include "Matrix.h"
+
+#include <stddef.h>
+
+Exporter::Exporter(const std::string &filename_, const std::string &prefix_) :
+		MatlabFile(filename_), prefix(prefix_) {
+}
+
+void Exporter::Add(const Geometry &geo, const std::string &name) {
+	std::string name_ = GenName(name);
+	std::string nameX = name_ + "x";
+	std::string nameY = name_ + "y";
+	std::string nameZ = name_ + "z";
+
+	Matrix Mx(nameX, geo.VertexCount(), 1);
+	Matrix My(nameY, geo.VertexCount(), 1);
+	Matrix Mz(nameZ, geo.VertexCount(), 1);
+	for (size_t n = 0; n < geo.VertexCount(); ++n) {
+		Mx[n] = geo[n].x;
+		My[n] = geo[n].y;
+		Mz[n] = geo[n].z;
+	}
+	WriteMatrix(Mx);
+	WriteMatrix(My);
+	WriteMatrix(Mz);
+}
+
+void Exporter::Add(const DependentVector &vector, const std::string &name) {
+
+	Matrix M(GenName(name), vector.Size(), 2);
+	for (size_t n = 0; n < vector.Size(); ++n)
+		M[n] = vector.X(n);
+	for (size_t n = 0; n < vector.Size(); ++n)
+		M[n] = vector.Y(n);
+	WriteMatrix(M);
+}
+
+void Exporter::Add(const Polygon3 &polygon, const std::string &name) {
+	std::string name_ = GenName(name);
+	std::string name_x = name_ + "x";
+	std::string name_y = name_ + "y";
+	std::string name_z = name_ + "z";
+
+	Matrix Mx(name_x, polygon.Size());
+	Matrix My(name_y, polygon.Size());
+	Matrix Mz(name_z, polygon.Size());
+	for (size_t n = 0; n < polygon.Size(); ++n) {
+		Mx[n] = polygon[n].x;
+		My[n] = polygon[n].y;
+		Mz[n] = polygon[n].z;
+	}
+	WriteMatrix(Mx);
+	WriteMatrix(My);
+	WriteMatrix(Mz);
+}
+
+void Exporter::Add(const std::initializer_list<double> &values,
+		const std::string &name) {
+
+	Matrix m(GenName(name), values.size());
+	for (const double &i : values)
+		m.Insert(i);
+	WriteMatrix(m);
+}
+
+void Exporter::Add(const std::initializer_list<double> &values0,
+		const std::initializer_list<double> &values1, const std::string &name) {
+	Matrix m(GenName(name), values0.size());
+	for (const double &i : values0)
+		m.Insert(i);
+	for (const double &i : values1)
+		m.Insert(i);
+	WriteMatrix(m);
+}
+
+std::string Exporter::GenName(const std::string &name) {
+	if (name.empty()) {
+		if (prefix.empty())
+			prefix = "x";
+		return prefix + std::to_string(count++);
+	}
+	if (!prefix.empty() && name == prefix)
+		return prefix + std::to_string(count++);
+
+	prefix = name;
+	return name;
+}
+

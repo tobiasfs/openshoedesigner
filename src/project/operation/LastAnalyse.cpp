@@ -3,7 +3,7 @@
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
-// Compiler Options   : -lm
+// Compiler Options   :
 // Author             : Tobias Schaefer
 // Created            : 10.11.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
@@ -25,47 +25,96 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "LastAnalyse.h"
 
-#include "../../Config.h"
+#include "../../3D/OpenGLMaterial.h"
 #include "../../math/FourierTransform.h"
 #include "../../math/Kernel.h"
 #include "../../math/KernelDensityEstimator.h"
-#include "../../math/PCA.h"
-#include "../../3D/OpenGL.h"
-#include "../../3D/OpenGLMaterial.h"
 #include "../../math/MEstimator.h"
+#include "../../math/PCA.h"
 
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
+
+#include "../../3D/OpenGL.h"
+
+LastAnalyse::LastAnalyse() {
+	out = std::make_shared<LastModel>();
+}
 
 bool LastAnalyse::CanRun() {
-	return raw.use_count() > 0;
+	if (in && out)
+		return true;
+	std::ostringstream err;
+	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	if (!in)
+		err << " Input \"in\" not connected.";
+	if (!out)
+		err << " Output \"out\" not set.";
+	throw std::runtime_error(err.str());
+}
+
+bool LastAnalyse::Propagate() {
+	bool modify = false;
+	if (!CanRun())
+		return modify;
+	if (!in->IsValid()) {
+		modify |= out->IsValid();
+		out->MarkValid(false);
+	}
+	if (out->IsNeeded()) {
+		modify |= !in->IsNeeded();
+		in->MarkNeeded(true);
+	}
+	return modify;
 }
 
 bool LastAnalyse::HasToRun() {
-	return raw->IsModified();
+	if (!CanRun())
+		return false;
+	return in->IsValid() && !out->IsValid() && out->IsNeeded();
 }
 
 void LastAnalyse::Run() {
-	last = std::make_shared<LastModel>(*raw);
-	AnalyseForm();
-	last->Modify(true);
+	*out = *in;
+
+	std::cout << __FILE__ << ":" << __func__ << ": ";
+	std::cout << out->GetNormalCurvature() << "\n";
+
+//	AnalyseForm();
+
+	out->MarkValid(true);
+	out->MarkNeeded(false);
 }
 
-bool LastAnalyse::AnalyseForm() {
+#ifdef DEBUG
+void LastAnalyse::Paint() const {
+	glPushMatrix();
+
+	debug.Paint();
+	glScalef(10, 10, 10);
+	me.Paint();
+
+	glPopMatrix();
+}
+#endif
+
+void LastAnalyse::AnalyseForm() {
 	DEBUGOUT << "*** Analyzing last ***\n";
-	ReorientPCA();
-	if (!ReorientSymmetry())
-		return false;
-	if (!ReorientSole())
-		return false;
-	ReorientFrontBack();
-	ReorientLeftRight();
+
+	out->UpdateRawBoundingBox();
+
+	std::cout << "In " << __LINE__ << ": Curvature = "
+			<< out->GetNormalCurvature() << " rad\n";
 
 	FindAndReorientCenterplane();
 
-	if (!FindMarker())
-		return false;
+	std::cout << "In " << __LINE__ << ": Curvature = "
+			<< out->GetNormalCurvature() << " rad\n";
 
-	last->MarkMeasurements();
+//	if (!FindMarker())
+//		return;
+//	out->MarkMeasurements();
 
 //	kde.Clear();
 //	kde.XLinspace(0, 2 * M_PI, 360);
@@ -312,350 +361,90 @@ bool LastAnalyse::AnalyseForm() {
 //		pca.Add(loop.elements[i]);
 
 	DEBUGOUT << "*** Analysis done ***\n";
-	return true;
-}
-
-void LastAnalyse::ReorientPCA() { // Find orientation of mesh
-
-	PCA pca;
-	Vector3 center;
-	for (size_t i = 0; i < last->VertexCount(); ++i)
-		center += last->GetVertex(i);
-	center /= (double) last->VertexCount();
-	pca.SetCenter(center);
-	for (size_t i = 0; i < last->VertexCount(); ++i)
-		pca.Add(last->GetVertex(i));
-	pca.Calculate();
-// Make coordinate system right handed
-	if ((pca.X * pca.Y).Dot(pca.Z) > 0)
-		pca.Y = -pca.Y;
-// Remove orientation
-	AffineTransformMatrix temp(pca.X, pca.Y, pca.Z, pca.center);
-	temp.Invert();
-	last->Transform(temp);
-}
-
-bool LastAnalyse::ReorientSymmetry() {
-// Scan Shape for symmetry
-	{
-//		AffineTransformMatrix comp;
-//		comp *= AffineTransformMatrix::RotationAroundVector(Vector3(1, 0, 0),
-//				1.0);
-//		last->Transform(comp);
-//		UpdateRawBoundingBox();
-	}
-
-	last->UpdateRawBoundingBox();
-	AffineTransformMatrix bbc = last->rawBB.GetCoordinateSystem();
-
-	Symmetry symmetry;
-	symmetry.Init(180);
-	for (double cut = 0.2; cut < 0.81; cut += 0.2) {
-		Polygon3 section = last->IntersectPlane(Vector3(1, 0, 0),
-				bbc.GlobalX(cut));
-
-		Vector3 rot = section.GetRotationalAxis();
-		if (rot.x < 0)
-			rot = -rot;
-
-		AffineTransformMatrix coordsys;
-		coordsys.SetOrigin(section.GetCenter());
-		coordsys.SetEx(Vector3(0, 1, 0));
-		coordsys.SetEy(Vector3(0, 0, 1));
-		coordsys.SetEz(Vector3(1, 0, 0));
-
-		FourierTransform ft;
-		ft.TSetSize(section.Size());
-		for (size_t n = 0; n < section.Size(); ++n) {
-			ft.t[n] = atan2(coordsys.LocalY(section[n]),
-					coordsys.LocalX(section[n]));
-			ft.InRe[n] = (section[n] - coordsys.GetOrigin()).Abs();
-			ft.InIm[n] = 0.0;
-		}
-		ft.TUnwrap();
-		ft.TSetLoopLength(2 * M_PI);
-		ft.TScale(1.0 / (2 * M_PI));
-		ft.FLinspace(0, 30, 31);
-		ft.Transform();
-		ft.SingleSidedResult();
-		symmetry.AddTransform(ft);
-	}
-
-	symmetry.Normalize();
-	auto results = symmetry.FindPeaks(0.01);
-	if (results.empty())
-		return false;
-	AffineTransformMatrix comp;
-	comp *= AffineTransformMatrix::RotationAroundVector(Vector3(1, 0, 0),
-	M_PI_2 - results[0].x);
-//	DEBUGOUT << "Peak at " << results[0].x * 180.0 / M_PI << "degrees.\n";
-//	DEBUGOUT << "Rotate by: " << (M_PI_2 - results[0].x) * 180.0 / M_PI
-//			<< " degrees.\n";
-
-	last->Transform(comp);
-	return true;
-}
-
-bool LastAnalyse::ReorientSole() {
-	// Find sole
-	// Class-global for debugging / painting during development
-	KernelDensityEstimator kde;
-	kde.Clear();
-	kde.XLinspace(0, 2 * M_PI, 360);
-	kde.XSetCyclic(2 * M_PI);
-
-	last->UpdateRawBoundingBox();
-	AffineTransformMatrix bbc = last->rawBB.GetCoordinateSystem();
-	for (double cut = 0.2; cut < 0.81; cut += 0.2) {
-		Polygon3 section = last->IntersectPlane(Vector3(1, 0, 0),
-				bbc.GlobalX(cut));
-
-		Vector3 rot = section.GetRotationalAxis();
-		if (rot.x > 0)
-			section.Reverse();
-
-		const double Lmax = section.GetLength();
-		for (size_t n = 0; n < section.Size(); ++n) {
-			const Vector3 temp =
-					(section[(n + 1) % section.Size()] - section[n]);
-			double a = atan2(temp.y, -temp.z);
-			kde.Insert(a, Kernel::Silverman, temp.Abs() / Lmax, 0.2);
-		}
-	}
-
-	kde.Normalize();
-
-	kde.Attenuate(0, Kernel::Cauchy, 0.75, 0.5);
-	kde.Attenuate(M_PI, Kernel::Cauchy, 0.75, 0.5);
-
-	auto results = kde.FindPeaks(0.1);
-	if (results.empty())
-		return false;
-	AffineTransformMatrix comp;
-	comp *= AffineTransformMatrix::RotationAroundVector(Vector3(1, 0, 0),
-			3 * M_PI_2 - results[0].x);
-	last->Transform(comp);
-	return true;
-}
-
-void LastAnalyse::ReorientFrontBack() { // Test for front/back reversal
-
-//		loop.Clear();
-	std::vector<double> ratio;
-	last->UpdateRawBoundingBox();
-	AffineTransformMatrix bbc = last->rawBB.GetCoordinateSystem();
-	for (double cut = 0.1; cut < 0.91; cut += 0.1) {
-		Polygon3 section = last->IntersectPlane(Vector3(1, 0, 0),
-				bbc.GlobalX(cut));
-		BoundingBox temp;
-		for (size_t n = 0; n < section.Size(); ++n)
-			temp.Insert(section[n]);
-		ratio.push_back(temp.GetSizeZ() / temp.GetSizeY());
-//			loop += section.GetCenter();
-	}
-	PolyFilter pfr(2, ratio.size());
-	Polynomial pr = pfr.Filter(ratio);
-	pr.ShiftX(1);
-	pr.ScaleX(0.1);
-
-//		test.Clear();
-//		for(double r = 0; r <= 1; r += 0.01)
-//			test += Vector3(bb.xmin + bb.GetSizeX() * r, 0.0, pr.Evaluate(r));
-
-	pr.Derive();
-	if (pr(0.5) > 0.0) {
-		// Reverse last
-//		DEBUGOUT << "Reverse last.\n";
-		last->Transform(
-				AffineTransformMatrix::RotationAroundVector(Vector3(0, 0, 1),
-				M_PI));
-		last->UpdateRawBoundingBox();
-	}
-
-//		double maxr;
-//		if(pr.ExtremumPos(maxr)){
-//			DEBUGOUT << "maxr = " << maxr << "\n";
-//		}
-//
-//		std::vector <double> temp = loop.GetZVectorD();
-//		PolyFilter pf(3, loop.Size());
-//		Polynomial pz = pf.Filter(temp);
-//		pz.ShiftX(1);
-//		pz.ScaleX(0.1);
-//
-//		loop.Clear();
-//		for(double r = 0; r <= 1; r += 0.01)
-//			loop += Vector3(bb.xmin + bb.GetSizeX() * r, 0.0, pz.Evaluate(r));
-//
-//		double pp;
-//		double pn;
-//		if(pz.ExtremumPos(pp) && pz.ExtremumNeg(pn)){
-//			if(pp > pn && pp < 1.0 && pn > 0.0){
-//				// Revert last
-//				DEBUGOUT << "Rotate last by 180.\n";
-//				hull.Transform(
-//						AffineTransformMatrix::RotationAroundVector(
-//								Vector3(0, 0, 1),
-//								M_PI));
-//			}
-//		}
-}
-
-void LastAnalyse::ReorientLeftRight() {
-
-// Scan for left/right
-
-//		double ip = 0.5;
-	Polygon3 loop;
-	loop.Clear();
-
-//		kde.XLinspace(0, 1, 100);
-//		kde.XSetLinear();
-	AffineTransformMatrix bbc = last->rawBB.GetCoordinateSystem();
-	for (double cut = 0.1; cut < 0.91; cut += 0.1) {
-		Polygon3 section = last->IntersectPlane(Vector3(1, 0, 0),
-				bbc.GlobalX(cut));
-		loop.AddEdgeToVertex(section.GetCenter());
-
-		//			BoundingBox bb2;
-		//			for(size_t n = 0; n < section.Size(); ++n)
-		//				bb2.Insert(section[n]);
-
-		//			kde.Insert(cut, bb2.GetSizeZ() / bb2.GetSizeY(), 0.3,
-		//					KernelDensityEstimator::TriweightKernel);
-	}
-//		kde.NormalizeByWeightSum();
-
-	std::vector<double> temp = loop.GetYVectorD();
-	PolyFilter pf(2, loop.Size());
-	Polynomial py = pf.Filter(temp);
-	py.ShiftX(1);
-
-	py.ScaleX(0.1);
-
-//		test.Clear();
-//		for(double r = 0; r <= 1; r += 0.01)
-//			test += Vector3(bb.xmin + bb.GetSizeX() * r, py.Evaluate(r), 0.0);
-
-	py.ScaleX(1.0 / last->rawBB.GetSizeX()); // Normale with lastlength
-	py.ScaleY(1.0 / last->rawBB.GetSizeY()); // Normalize with lastwidth
-
-			//		DEBUGOUT << "py = " << py << ";\n";
-
-	double chir = py[0];
-//		if(py[0] > 1.0) DEBUGOUT << "Right last\n";
-//		if(py[0] < -1.0) DEBUGOUT << "Left last\n";
-
-//		pf.Export("/tmp/pf.mat");
-
-//		if(pz.InflectionPoint(ip)) DEBUGOUT << "Inflection point: " << ip
-//				<< "\n";
-
-//		coordsys.SetCenter(Vector3(bb.xmin, 0, 0));
-//		coordsys.SetEx(Vector3(bb.GetSizeX(), 0, 0));
-//		coordsys.SetEy(Vector3(0, 0, 1));
-//		coordsys.CalculateEz();
-	KernelDensityEstimator kde;
-	kde.Clear();
-	kde.XLinspace(0, 2 * M_PI, 360);
-	kde.XSetCyclic(2 * M_PI);
-
-	loop = last->IntersectPlane(Vector3(1, 0, 0), bbc.GlobalX(0.5));
-
-	Vector3 rot = loop.GetRotationalAxis();
-	if (rot.x > 0)
-		loop.Reverse();
-
-	const double Lmax = loop.GetLength();
-	for (size_t n = 0; n < loop.Size(); ++n) {
-		const Vector3 temp = (loop[(n + 1) % loop.Size()] - loop[n]);
-		double a = atan2(temp.y, -temp.z);
-		kde.Insert(a, Kernel::Sigmoid, temp.Abs() / Lmax, 0.3);
-	}
-
-	kde.Normalize();
-
-//		kde.Attenuate(0, 0.75, 0.5, KernelDensityEstimator::CauchyKernel);
-//		kde.Attenuate(M_PI, 0.75, 0.5, KernelDensityEstimator::CauchyKernel);
-
-	double minRight = 1e9;
-	double minLeft = 1e9;
-	for (size_t n = 0; n < kde.Size(); ++n) {
-		if (kde.X(n) > M_PI && kde.X(n) < 3 * M_PI_2 && kde.Y(n) < minRight)
-			minRight = kde.Y(n);
-		if (kde.X(n) < 2 * M_PI && kde.X(n) > 3 * M_PI_2 && kde.Y(n) < minLeft)
-			minLeft = kde.Y(n);
-
-	}
-
-//		DEBUGOUT << "minLeft = " << minLeft << ";\n";
-//		DEBUGOUT << "minRight = " << minRight << ";\n";
-
-	chir += 4.0 * (minLeft - minRight) / (minLeft + minRight);
-
-	if (chir < -0.5) {
-		AffineTransformMatrix temp;
-		temp.ScaleGlobal(1.0, -1.0, 1.0);
-		last->Transform(temp);
-
-		//			DEBUGOUT << "Flip sides left to right.\n";
-
-		last->UpdateRawBoundingBox();
-	}
-
-//		DEBUGOUT << chir << " ";
-//		if(chir > 0.0)
-//			DEBUGOUT << " = Right last ";
-//		else
-//			DEBUGOUT << " = Left last ";
-//		if(fabs(chir) < 0.5) DEBUGOUT << "(Insole recommended)";
-//		DEBUGOUT << "\n";
-
 }
 
 void LastAnalyse::FindAndReorientCenterplane() {
 	const double param_soleangle = 25.0 * M_PI / 180.0;
 
-	AffineTransformMatrix bbc = last->rawBB.GetCoordinateSystem();
-	Polygon3 section = last->IntersectPlane(Vector3(1, 0, 0), bbc.GlobalX(0.2));
+	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
+	Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0), bbc.GlobalX(0.2));
 	{
 		Vector3 r = section.GetRotationalAxis();
 		if (r.x < 0)
 			section.Reverse();
 	}
-	const size_t N = section.Size();
-	size_t Nmin = 0;
-	for (size_t n = 0; n < N; ++n)
-		if (section[n].z < section[Nmin].z)
-			Nmin = n;
 
-	size_t p0 = 0;
-	size_t p1 = 0;
-	for (size_t n = Nmin; n < Nmin + N; ++n) {
-		const Vector3 n0 = section.Normal(n % N);
-		const Vector3 n1 = section.Normal((n + 1) % N);
-		const double a0 = atan2(n0.y, n0.z);
-		const double a1 = atan2(n1.y, n1.z);
-		if (a0 > param_soleangle && a1 <= param_soleangle)
-			p0 = n;
-		if (a0 >= -param_soleangle && a1 < -param_soleangle) {
-			p1 = n + 1;
-			break;
-		}
-	}
-	Vector3 c = (section[p0 % N] + section[p1 % N]) / 2.0;
+	debug = section;
+
+//	{
+//		kde.XLinspace(-M_PI_2, M_PI_2, 81);
+//
+//		for (size_t n = 0; n < section.VertexCount(); ++n) {
+//			const Vector3 v = section[n].n;
+//			double a = atan2(v.z, v.y);
+//			double weight = section[n].y;
+//			if (a > M_PI_2) {
+//				a = M_PI - a;
+//				weight = -weight;
+//			}
+//			if (a < -M_PI_2) {
+//				a = -M_PI - a;
+//				weight = -weight;
+//			}
+//			kde.Insert(a, Kernel::Epanechnikov, weight, 0.2);
+//		}
+//		kde.NormalizeByCoverage();
+//
+//		auto Lmin = kde.Min();
+//		auto Lmax = kde.Max();
+//		me.XLinspace(Lmin.y, Lmax.y, 91);
+//		me.EstimateY(kde, MEstimator::HuberK(1e-3), 1.0);
+//
+//		auto Vmin = me.Min();
+//		const double Ypos = Vmin.x;
+//	}
+	Vector3 c = section.GetCenter();
+	const double Ypos = c.y;
+
+//	return;
+//
+//	const size_t N = section.Size();
+//	size_t Nmin = 0;
+//	for (size_t n = 0; n < N; ++n)
+//		if (section[n].z < section[Nmin].z)
+//			Nmin = n;
+//
+//	size_t p0 = 0;
+//	size_t p1 = 0;
+//	for (size_t n = Nmin; n < Nmin + N; ++n) {
+//		const Vector3 n0 = section.Normal(n % N);
+//		const Vector3 n1 = section.Normal((n + 1) % N);
+//		const double a0 = atan2(n0.y, n0.z);
+//		const double a1 = atan2(n1.y, n1.z);
+//		if (a0 > param_soleangle && a1 <= param_soleangle)
+//			p0 = n;
+//		if (a0 >= -param_soleangle && a1 < -param_soleangle) {
+//			p1 = n + 1;
+//			break;
+//		}
+//	}
+//	Vector3 c = (section[p0 % N] + section[p1 % N]) / 2.0;
 
 //	loop.Clear();
 //	loop.InsertPoint(section[p0 % N], section.Normal(p0 % N));
 //	loop.InsertPoint(section[p1 % N], section.Normal(p1 % N));
 
-	last->planeXZ = last->IntersectPlane(Vector3(0, 1, 0), c.y);
+	auto test1 = out->IntersectPlane(Vector3(0, 0, 1), -0.001);
+	auto test2 = out->IntersectPlane(Vector3(0, 0, 1), 0.001);
+
+	out->planeXZ = out->IntersectPlane(Vector3(0, 1, 0), Ypos);
+	out->planeXZ.SortLoop();
 	{
 		// Reverse the loop to run in a positive direction in the x-z coordinate system.
 		// (Left-handed coordinate system)
-		Vector3 r = last->planeXZ.GetRotationalAxis();
+		Vector3 r = out->planeXZ.GetRotationalAxis();
 		if (r.y > 0)
-			last->planeXZ.Reverse();
+			out->planeXZ.Reverse();
 	}
 
 	{
@@ -663,12 +452,13 @@ void LastAnalyse::FindAndReorientCenterplane() {
 		kde.Clear();
 		kde.XLinspace(0, 2 * M_PI, 360);
 		kde.XSetCyclic(2 * M_PI);
-		for (size_t n = 0; n < last->planeXZ.Size(); ++n) {
-			const Vector3 temp = (last->planeXZ[(n + 1) % last->planeXZ.Size()]
-					- last->planeXZ[n]);
+		for (size_t n = 0; n < out->planeXZ.EdgeCount(); ++n) {
+			const Vector3 v0 = out->planeXZ.GetEdgeVertex(n, 0);
+			const Vector3 v1 = out->planeXZ.GetEdgeVertex(n, 1);
+			const Vector3 temp = v1 - v0;
 			const double a = atan2(-temp.x, temp.z);
-			const double hx = bbc.LocalX(last->planeXZ[n]);
-			const double hz = bbc.LocalZ(last->planeXZ[n]);
+			const double hx = bbc.LocalX(v0);
+			const double hz = bbc.LocalZ(v0);
 			double g = Kernel::Integrated::Cosine(-5.0 * (hx - 0.5));
 			g *= Kernel::Integrated::Cosine(5.0 * (hz - 0.5));
 			kde.Insert(a, Kernel::Sigmoid, temp.Abs() * g, 0.2);
@@ -679,30 +469,29 @@ void LastAnalyse::FindAndReorientCenterplane() {
 
 		AffineTransformMatrix temp = AffineTransformMatrix::RotationXYZ(0,
 				topangle - M_PI_2, 0);
-		last->Transform(temp);
-
-		last->planeXZ.Transform(temp);
-		last->UpdateRawBoundingBox();
-		bbc = last->rawBB.GetCoordinateSystem();
-		last->planeXZ.RotateOrigin(bbc.Transform(Vector3(0, 0.5, 3)));
+		out->Transform(temp);
+		out->planeXZ.Transform(temp);
+		out->UpdateRawBoundingBox();
+		bbc = out->rawBB.GetCoordinateSystem();
+		// out->planeXZ.RotateOrigin(bbc.Transform(Vector3(0, 0.5, 3)));
 	}
 
-// Calculate the angles on the the shape
+	// Calculate the angles on the the shape
 	{
-		last->planeXZ.Filter(11);
-		const size_t N = last->planeXZ.Size();
-		last->angleXZ.Clear();
+		out->planeXZ.Filter(11);
+		const size_t N = out->planeXZ.EdgeCount();
+		out->angleXZ.Clear();
 		const double Lmax = 1;		//last->planeXZ.GetLength();
 		double L = 0.0;
 		for (size_t n = 0; n < N; ++n) {
-			Vector3 temp = (last->planeXZ[(n + 1) % N] - last->planeXZ[n]);
+			Vector3 temp = (out->planeXZ[(n + 1) % N] - out->planeXZ[n]);
 			const double h = atan2(temp.z, temp.x);
-			last->angleXZ.PushBack((double) L / (double) Lmax, h);
+			out->angleXZ.PushBack((double) L / (double) Lmax, h);
 			L += temp.Abs();
 		}
-		if (last->angleXZ[0] > 0.0)
-			last->angleXZ[0] -= 2 * M_PI;
-		last->angleXZ.Unwrap(M_PI);
+		if (out->angleXZ[0] > 0.0)
+			out->angleXZ[0] -= 2 * M_PI;
+		out->angleXZ.Unwrap(M_PI);
 	}
 }
 
@@ -714,29 +503,29 @@ bool LastAnalyse::FindMarker() {
 		return x * 180.0 / M_PI;
 	};
 
-	const size_t N = last->planeXZ.Size();
+	const size_t N = out->planeXZ.Size();
 
 // Temporary markerpoints for the top of the last
 	{
-		last->idxZero = last->angleXZ.IatY(toRad(-160),
+		out->idxZero = out->angleXZ.IatY(toRad(-160),
 				DependentVector::Direction::first_risingabove);
-		if (last->idxZero >= N)
-			last->idxZero = 0;
-		last->idxTop = last->angleXZ.IatY(toRad(160),
+		if (out->idxZero >= N)
+			out->idxZero = 0;
+		out->idxTop = out->angleXZ.IatY(toRad(160),
 				DependentVector::Direction::last_risingabove);
 	}
 
 // Temporary markerpoints for toes and heel
 	{
-		last->idxHeel = last->angleXZ.IatY(toRad(-90),
+		out->idxHeel = out->angleXZ.IatY(toRad(-90),
 				DependentVector::Direction::first_risingabove);
-		last->idxHeelPoint = last->angleXZ.IatY(toRad(-70),
+		out->idxHeelPoint = out->angleXZ.IatY(toRad(-70),
 				DependentVector::Direction::first_risingabove);
-		last->idxToeTip = last->angleXZ.IatY(toRad(+90),
+		out->idxToeTip = out->angleXZ.IatY(toRad(+90),
 				DependentVector::Direction::first_risingabove);
-		if (last->idxHeelPoint > last->angleXZ.Size())
+		if (out->idxHeelPoint > out->angleXZ.Size())
 			return false;
-		if (last->idxToeTip > last->angleXZ.Size())
+		if (out->idxToeTip > out->angleXZ.Size())
 			return false;
 	}
 
@@ -744,15 +533,19 @@ bool LastAnalyse::FindMarker() {
 	{
 		MEstimator estheel;
 		estheel.XLinspace(toRad(-90), toRad(90), 301);
-		estheel.EstimateY(last->angleXZ, MEstimator::AndrewWave(), 0.03,
-				last->idxHeelPoint, last->idxToeTip,
+		estheel.EstimateY(out->angleXZ, MEstimator::AndrewWave(), 0.03,
+				out->idxHeelPoint, out->idxToeTip,
 				Kernel::SubDiv(Kernel::Integrated::Triangular, 0.35 * 2.0 - 1.0,
 						-0.2));
+
+		std::function<double(double)> f = Kernel::Gaussian;
+		std::function<double(double)> g = Kernel::SubDiv(f, 1.0, 0.3);
+
 		estheel.Normalize();
 		auto valleyheel = estheel.FindValleys();
 		if (valleyheel.empty())
 			return false;
-		last->heela = valleyheel[0].x;
+		out->heela = valleyheel[0].x;
 		if (valleyheel.size() >= 1
 				&& RelValAt(estheel, valleyheel[1].x) > 0.8) {
 			DEBUGOUT << "No clear heel area.\n";
@@ -762,15 +555,15 @@ bool LastAnalyse::FindMarker() {
 	{
 		MEstimator esttoes;
 		esttoes.XLinspace(toRad(-90), toRad(90), 301);
-		esttoes.EstimateY(last->angleXZ, MEstimator::AndrewWave(), 0.03,
-				last->idxHeelPoint, last->idxToeTip,
+		esttoes.EstimateY(out->angleXZ, MEstimator::AndrewWave(), 0.03,
+				out->idxHeelPoint, out->idxToeTip,
 				Kernel::SubDiv(Kernel::Integrated::Triangular, 0.65 * 2.0 - 1.0,
 						0.2));
 		esttoes.Normalize();
 		auto valleytoe = esttoes.FindValleys();
 		if (valleytoe.empty())
 			return false;
-		last->toea = valleytoe[0].x;
+		out->toea = valleytoe[0].x;
 		if (valleytoe.size() >= 1 && RelValAt(esttoes, valleytoe[1].x) > 0.8) {
 			DEBUGOUT << "No clear toe area.\n";
 		}
@@ -778,29 +571,26 @@ bool LastAnalyse::FindMarker() {
 
 // Recalculate toe & heel and support points.
 	{
-		last->idxHeelPoint = last->angleXZ.IatY(
-				last->heela - last->param_soleangle,
+		out->idxHeelPoint = out->angleXZ.IatY(out->heela - out->param_soleangle,
 				DependentVector::Direction::first_risingabove);
-		last->idxToeTip = last->angleXZ.IatY(last->toea + toRad(90),
+		out->idxToeTip = out->angleXZ.IatY(out->toea + toRad(90),
 				DependentVector::Direction::first_risingabove);
-		last->idxToePoint = last->angleXZ.IatY(
-				last->toea + last->param_soleangle,
+		out->idxToePoint = out->angleXZ.IatY(out->toea + out->param_soleangle,
 				DependentVector::Direction::first_risingabove);
 
-		const double xheel = last->angleXZ.X(last->idxHeelPoint);
-		const double xtoes = last->angleXZ.X(last->idxToeTip);
-		last->idxHeelCenter = last->angleXZ.IatX(xheel + (xtoes - xheel) / 6);
-		last->idxWaistBottom = last->angleXZ.IatX(
-				xheel + (xtoes - xheel) * 0.4);
-		last->idxLittleToeBottom = last->angleXZ.IatX(
+		const double xheel = out->angleXZ.X(out->idxHeelPoint);
+		const double xtoes = out->angleXZ.X(out->idxToeTip);
+		out->idxHeelCenter = out->angleXZ.IatX(xheel + (xtoes - xheel) / 6);
+		out->idxWaistBottom = out->angleXZ.IatX(xheel + (xtoes - xheel) * 0.4);
+		out->idxLittleToeBottom = out->angleXZ.IatX(
 				xheel + (xtoes - xheel) * 0.62);
-		last->idxBigToeBottom = last->angleXZ.IatX(
+		out->idxBigToeBottom = out->angleXZ.IatX(
 				xheel + (xtoes - xheel) * 0.62);
-		const double xball = last->angleXZ.X(last->idxBigToeBottom);
-		last->idxToeCenter = last->angleXZ.IatX(xball + (xtoes - xball) * 0.5);
-		last->idxHeel = last->angleXZ.IatY(last->heela - toRad(90),
+		const double xball = out->angleXZ.X(out->idxBigToeBottom);
+		out->idxToeCenter = out->angleXZ.IatX(xball + (xtoes - xball) * 0.5);
+		out->idxHeel = out->angleXZ.IatY(out->heela - toRad(90),
 				DependentVector::Direction::last_risingabove, 0,
-				last->idxHeelCenter);
+				out->idxHeelCenter);
 	}
 
 // Mark left and right outside lines
@@ -808,57 +598,57 @@ bool LastAnalyse::FindMarker() {
 
 // Find the ball measurement angle
 	{
-		const Vector3 p = last->planeXZ[last->idxLittleToeBottom];
+		const Vector3 p = out->planeXZ[out->idxLittleToeBottom];
 		Vector3 a, b;
 		double da = DBL_MAX;
 		double db = DBL_MAX;
-		for (size_t n = 0; n < last->bottomleft.Size(); ++n) {
-			const double d = (last->bottomleft[n] - p).Abs2();
+		for (size_t n = 0; n < out->bottomleft.Size(); ++n) {
+			const double d = (out->bottomleft[n] - p).Abs2();
 			if (d < da) {
 				da = d;
-				a = last->bottomleft[n];
+				a = out->bottomleft[n];
 			}
 		}
-		for (size_t n = 0; n < last->bottomright.Size(); ++n) {
-			const double d = (last->bottomright[n] - p).Abs2();
+		for (size_t n = 0; n < out->bottomright.Size(); ++n) {
+			const double d = (out->bottomright[n] - p).Abs2();
 			if (d < da) {
 				da = d;
-				b = last->bottomright[n];
+				b = out->bottomright[n];
 			}
 		}
 		const double w = (a - b).Abs();
 		const double d = w * sin(toRad(10));
-		const double xBigToe = last->angleXZ.X(last->idxLittleToeBottom) + d;
-		last->idxBigToeBottom = last->angleXZ.IatX(xBigToe);
+		const double xBigToe = out->angleXZ.X(out->idxLittleToeBottom) + d;
+		out->idxBigToeBottom = out->angleXZ.IatX(xBigToe);
 	}
 
 // Recalculate heel point
 	{
-		const double xfront = last->angleXZ.X(last->idxTop);
-		const double xend = last->angleXZ.X(last->idxZero) + 1.0;
-		size_t idxTopMiddle = last->angleXZ.IatX((xend + xfront) / 2.0);
-		auto orth = OrthogonalPoint(last->planeXZ[idxTopMiddle]);
+		const double xfront = out->angleXZ.X(out->idxTop);
+		const double xend = out->angleXZ.X(out->idxZero) + 1.0;
+		size_t idxTopMiddle = out->angleXZ.IatX((xend + xfront) / 2.0);
+		auto orth = OrthogonalPoint(out->planeXZ[idxTopMiddle]);
 		size_t temp = orth.IatY(0.0,
-				DependentVector::Direction::last_risingabove,
-				last->idxHeelPoint, last->idxBigToeBottom);
-		if (temp < last->idxHeelCenter)
-			last->idxHeelCenter = temp;
+				DependentVector::Direction::last_risingabove, out->idxHeelPoint,
+				out->idxBigToeBottom);
+		if (temp < out->idxHeelCenter)
+			out->idxHeelCenter = temp;
 	}
 
 // Place the marker on top of the last
 // The markers are place so that a measurement tape wrapped around
 // the last would be shortest.
 	{
-		size_t idx0 = last->angleXZ.IatY(last->toea + toRad(135),
+		size_t idx0 = out->angleXZ.IatY(out->toea + toRad(135),
 				DependentVector::Direction::first_risingabove);
-		last->idxBigToeTop = FindTopPoint(last->idxBigToeBottom, idx0,
-				last->idxTop);
-		last->idxLittleToeTop = FindTopPoint(last->idxLittleToeBottom, idx0,
-				last->idxTop);
-		last->idxWaistTop = FindTopPoint(last->idxWaistBottom,
-				last->idxBigToeTop, last->idxTop);
-		last->idxTop = FindTopPoint(last->idxHeelPoint, last->idxBigToeTop,
-				last->idxTop);
+		out->idxBigToeTop = FindTopPoint(out->idxBigToeBottom, idx0,
+				out->idxTop);
+		out->idxLittleToeTop = FindTopPoint(out->idxLittleToeBottom, idx0,
+				out->idxTop);
+		out->idxWaistTop = FindTopPoint(out->idxWaistBottom, out->idxBigToeTop,
+				out->idxTop);
+		out->idxTop = FindTopPoint(out->idxHeelPoint, out->idxBigToeTop,
+				out->idxTop);
 	}
 
 //	bool hasBallArea = true;
@@ -1047,15 +837,15 @@ void LastAnalyse::FindOutline() {
 
 	const size_t Ncut = 50;
 
-	const Polynomial rotation = Polynomial::ByValue(0, last->heela, Ncut - 1,
-			last->toea);
+	const Polynomial rotation = Polynomial::ByValue(0, out->heela, Ncut - 1,
+			out->toea);
 	const Polynomial cutAt = Polynomial::ByValue(0, 0.05, Ncut - 1, 0.95);
 
-	const Vector3 xHeel = last->planeXZ[last->idxHeel];
-	const Vector3 xToe = last->planeXZ[last->idxToeTip];
+	const Vector3 xHeel = out->planeXZ[out->idxHeel];
+	const Vector3 xToe = out->planeXZ[out->idxToeTip];
 
-	last->bottomleft.Clear();
-	last->bottomright.Clear();
+	out->bottomleft.Clear();
+	out->bottomright.Clear();
 
 //	AffineTransformMatrix bbc = rawBB.GetCoordinateSystem();
 
@@ -1063,7 +853,7 @@ void LastAnalyse::FindOutline() {
 		const double a = rotation(n);
 		const Vector3 normal(cos(a), 0, sin(a));
 		const Vector3 pos = xHeel + (xToe - xHeel) * cutAt(n);
-		Polygon3 section = last->IntersectPlane(normal, normal.Dot(pos));
+		Polygon3 section = out->IntersectPlane(normal, normal.Dot(pos));
 
 		Vector3 r = section.GetRotationalAxis();
 		if (r.x < 0)
@@ -1082,11 +872,11 @@ void LastAnalyse::FindOutline() {
 			const Vector3 n1 = section.Normal((Nmin + n + 1) % N);
 			const double a0 = atan2(n0.y, -n0.z);
 			const double a1 = atan2(n1.y, -n1.z);
-			if (a0 < last->param_soleangle && a1 >= last->param_soleangle) {
-				const double s = (last->param_soleangle - a0) / (a1 - a0);
+			if (a0 < out->param_soleangle && a1 >= out->param_soleangle) {
+				const double s = (out->param_soleangle - a0) / (a1 - a0);
 				const Vector3 v0 = section[(Nmin + n) % N];
 				const Vector3 v1 = section[(Nmin + n + 1) % N];
-				last->bottomleft.AddEdgeToVertex(
+				out->bottomleft.AddEdgeToVertex(
 						Geometry::Vertex((v1 - v0) * s + v0,
 								((n1 - n0) * s + n0).Normal()));
 				break;
@@ -1098,11 +888,11 @@ void LastAnalyse::FindOutline() {
 			const Vector3 n1 = section.Normal((Nmin + N - (n + 1)) % N);
 			const double a0 = atan2(n0.y, -n0.z);
 			const double a1 = atan2(n1.y, -n1.z);
-			if (a0 > -last->param_soleangle && a1 <= -last->param_soleangle) {
-				const double s = (-last->param_soleangle - a0) / (a1 - a0);
+			if (a0 > -out->param_soleangle && a1 <= -out->param_soleangle) {
+				const double s = (-out->param_soleangle - a0) / (a1 - a0);
 				const Vector3 v0 = section[(Nmin + N - n) % N];
 				const Vector3 v1 = section[(Nmin + N - (n + 1)) % N];
-				last->bottomright.AddEdgeToVertex(
+				out->bottomright.AddEdgeToVertex(
 						Geometry::Vertex((v1 - v0) * s + v0,
 								((n1 - n0) * s + n0).Normal()));
 				break;
@@ -1110,15 +900,14 @@ void LastAnalyse::FindOutline() {
 		}
 	}
 
-	last->bottom.Clear();
-	last->top.Clear();
-	for (size_t n = 0; n < last->bottomright.Size(); ++n) {
-		const Vector3 temp = (last->bottomright[n] + last->bottomleft[n]) / 2;
-		last->bottom.AddEdgeToVertex(
-				Geometry::Vertex(
-						last->IntersectArrow(temp, Vector3(0, 0, -1))));
-		last->top.AddEdgeToVertex(
-				Geometry::Vertex(last->IntersectArrow(temp, Vector3(0, 0, 1))));
+	out->bottom.Clear();
+	out->top.Clear();
+	for (size_t n = 0; n < out->bottomright.Size(); ++n) {
+		const Vector3 temp = (out->bottomright[n] + out->bottomleft[n]) / 2;
+		out->bottom.AddEdgeToVertex(
+				Geometry::Vertex(out->IntersectArrow(temp, Vector3(0, 0, -1))));
+		out->top.AddEdgeToVertex(
+				Geometry::Vertex(out->IntersectArrow(temp, Vector3(0, 0, 1))));
 	}
 //	last->planeXZ.Clear();
 //	for(size_t n = 0; n < bottomright.Size(); ++n){
@@ -1136,9 +925,9 @@ void LastAnalyse::FindOutline() {
 
 size_t LastAnalyse::FindTopPoint(size_t idxBottom, size_t idxStart,
 		size_t idxEnd) const {
-	auto orth = OrthogonalPoint(last->planeXZ[idxBottom]);
+	auto orth = OrthogonalPoint(out->planeXZ[idxBottom]);
 	for (size_t n = 0; n < orth.Size(); ++n)
-		orth.X(n) = last->angleXZ.X(n);
+		orth.X(n) = out->angleXZ.X(n);
 	size_t idx = orth.IatY(0, DependentVector::Direction::first_risingabove,
 			idxStart, idxEnd);
 	if (idx > idxEnd) {
@@ -1149,13 +938,13 @@ size_t LastAnalyse::FindTopPoint(size_t idxBottom, size_t idxStart,
 }
 
 DependentVector LastAnalyse::OrthogonalPoint(const Vector3 &p) const {
-	const size_t N = last->planeXZ.Size();
+	const size_t N = out->planeXZ.Size();
 	DependentVector temp;
 	temp.XLinspace(0, 1, N);
 	for (size_t n = 0; n < N; ++n) {
 		const Vector3 d =
-				(last->planeXZ[(n + 1) % N] - last->planeXZ[n]).Normal();
-		const Vector3 c = (last->planeXZ[n] - p).Normal();
+				(out->planeXZ[(n + 1) % N] - out->planeXZ[n]).Normal();
+		const Vector3 c = (out->planeXZ[n] - p).Normal();
 		temp.Y(n) = d.Dot(c);
 	}
 	return temp;
@@ -1255,7 +1044,3 @@ BoundingBox LastAnalyse::CalculateBoundingBox(const Polygon3 &polygon) {
 	return temp;
 }
 
-void LastAnalyse::Paint() const {
-
-
-}

@@ -103,8 +103,23 @@ public:
 	void CalculateEx();
 	void CalculateEy();
 	void CalculateEz();
+	/**\brief Returns a normalized matrix
+	 *
+	 * The matrix is normalized by scaling the axes of the coordinate system
+	 * to a length of 1. A normalized matrix is returned, the matrix this
+	 * function is called on stays unchanged.
+	 *
+	 * \return Normalized matrix
+	 */
 	AffineTransformMatrix Normal() const;
-	void Normalize();
+	void Normalize(); //!< Normalizes the matrix.
+
+	/**\brief Normalizes and then orthogonalizes the matrix.
+	 *
+	 * Normalizes the vectors of the coordinate system to 1, orthogonalizes
+	 * the resulting system and renormalizes the vectors again.
+	 */
+	void Orthogonalize();
 
 	Vector3 GetOrigin() const; //!< Returns the center point of the matrix.
 	Vector3 GetEx() const;
@@ -136,6 +151,7 @@ public:
 
 	AffineTransformMatrix& operator*=(const AffineTransformMatrix &b); //!< Overloaded operator to allow correct multiplication of two matrices.
 	AffineTransformMatrix operator*(const AffineTransformMatrix &b) const; //!< Overloaded operator to allow correct multiplication of two matrices.
+
 	/*!\brief  Overloaded operator to allow correct division of two matrices.
 	 *
 	 * The division is done by inverting the second matrix and the multiplying both.
@@ -155,7 +171,7 @@ public:
 	AffineTransformMatrix Inverse() const;
 
 	static AffineTransformMatrix Identity(); //!< Function returning an identity matrix.
-	static AffineTransformMatrix Zero(); //!< Function returning an identity matrix.
+	static AffineTransformMatrix Zero(); //!< Function returning an all-zero matrix.
 
 	static AffineTransformMatrix Translation(double x, double y, double z);
 	static AffineTransformMatrix Translation(Vector3 translation);
@@ -277,7 +293,6 @@ private:
 			const double alpha = 1.0, bool bright = false); ///< 0 = red, 1 = green, 2 = blue
 	static void GLVertex(const Vector3 &v);
 	static void GLNormal(const Vector3 &n);
-
 };
 
 #endif /* L3D_AFFINETRANSFORMMATRIX_H */

@@ -183,7 +183,7 @@ size_t Matrix::Numel() const {
 }
 
 size_t Matrix::Size(const size_t dim) const {
-	// Copy of the Matlab behavior, but 0-based
+	// Copy of the Octave/Matlab behavior, but 0-based
 	if (values.empty())
 		return (dim > 0) ? 1 : 0;
 	if (dim >= dimensions.size())

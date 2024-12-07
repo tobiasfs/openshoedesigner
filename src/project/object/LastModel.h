@@ -40,9 +40,9 @@
  * step has already been done on the foot-model.
  */
 
-#include <stddef.h>
 #include <cmath>
 #include <functional>
+#include <stddef.h>
 #include <string>
 #include <vector>
 
@@ -81,13 +81,11 @@ public:
 protected:
 
 	void MarkMeasurements();
-	void UpdateRawBoundingBox();
 
 	Polygon3 planeXZ;
 	DependentVector angleXZ;
 
 public:
-	BoundingBox rawBB;
 
 	Polygon3 bottomleft;
 	Polygon3 bottomright;

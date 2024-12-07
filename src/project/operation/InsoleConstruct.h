@@ -28,7 +28,7 @@
 
 /** \class InsoleConstruct
  * 	\code #include "InsoleConstruct.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
@@ -37,13 +37,15 @@
 #include "Operation.h"
 
 #include "../FootMeasurements.h"
-#include "../Insole.h"
+#include "../object/Insole.h"
+
 class InsoleConstruct: public Operation {
 public:
-	InsoleConstruct() = default;
+	InsoleConstruct();
 	virtual ~InsoleConstruct() = default;
 
 	virtual bool CanRun() override;
+	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
@@ -67,10 +69,8 @@ public:
 
 	std::shared_ptr<ParameterFormula> extraLength;
 
-	std::shared_ptr<FootMeasurements> measurements;
+
 	std::shared_ptr<Insole> insole;
-
-
 
 };
 

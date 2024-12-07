@@ -28,24 +28,26 @@
 #define L3D_POINTCLOUD_H
 
 /*!\class PointCloud
- * \brief ...
+ * \brief Stores a point cloud
  *
- * ...
+ * Also contains functions for the reconstruction of a Geometry object from
+ * the point cloud data.
  */
 
-#include <vector>
 #include "Vector3.h"
+
+#include <vector>
 
 class PointCloud {
 public:
-	PointCloud();
-	virtual ~PointCloud();
+	PointCloud() = default;
+	virtual ~PointCloud() = default;
 
 	void InitExample(void);
 
 	void Paint(void);
 
-	std::vector <Vector3> p;
+	std::vector<Vector3> p;
 };
 
 #endif /* L3D_POINTCLOUD_H */

@@ -404,7 +404,7 @@ void OpenGLMaterial::UseMaterial() const {
 	if (!ColorsAllowed())
 		return;
 
-	double opacity = 1.0;
+	double opacity = 0.5;
 
 	glDisable(GL_COLOR_MATERIAL);
 	GLfloat buffer[4];

@@ -3,7 +3,7 @@
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
-// Compiler Options   : -lm
+// Compiler Options   :
 // Author             : Tobias Schaefer
 // Created            : 10.11.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
@@ -28,7 +28,7 @@
 
 /** \class LastAnalyse
  * 	\code #include "LastAnalyse.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
@@ -36,8 +36,10 @@
 
 #include "Operation.h"
 
-#include "../last/LastModel.h"
-#include "../last/LastRaw.h"
+#include "../../3D/Polygon3.h"
+#include "../../math/MEstimator.h"
+#include "../object/LastModel.h"
+#include "../object/LastRaw.h"
 
 #include <memory>
 
@@ -48,23 +50,18 @@ protected:
 		AffineTransformMatrix m;
 	};
 public:
-	LastAnalyse() = default;
+	LastAnalyse();
 	virtual ~LastAnalyse() = default;
 
 	virtual bool CanRun() override;
+	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
-	void Paint() const;
+	virtual void Paint() const override;
 
 private:
-	bool AnalyseForm();
-
-	void ReorientPCA();
-	bool ReorientSymmetry();
-	bool ReorientSole();
-	void ReorientFrontBack();
-	void ReorientLeftRight();
+	void AnalyseForm();
 
 	void FindAndReorientCenterplane();
 	bool FindMarker();
@@ -81,9 +78,13 @@ private:
 	static bool Vector3XLess(const Vector3 a, const Vector3 b);
 
 public:
-	std::shared_ptr<LastRaw> raw;
-	std::shared_ptr<LastModel> last;
+	std::shared_ptr<LastRaw> in;
+	std::shared_ptr<LastModel> out;
 
+private:
+	Polygon3 debug;
+	KernelDensityEstimator kde;
+	MEstimator me;
 };
 
 #endif /* SRC_PROJECT_OPERATION_LASTANALYSE_H_ */

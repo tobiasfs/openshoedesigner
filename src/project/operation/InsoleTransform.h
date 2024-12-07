@@ -28,7 +28,7 @@
 
 /** \class InsoleTransform
  * 	\code #include "InsoleTransform.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
@@ -37,7 +37,7 @@
 #include "Operation.h"
 
 #include "../Configuration.h"
-#include "../Insole.h"
+#include "../object/Insole.h"
 
 #include <memory>
 class InsoleTransform: public Operation {
@@ -46,6 +46,7 @@ public:
 	virtual ~InsoleTransform() = default;
 
 	virtual bool CanRun() override;
+	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
@@ -54,15 +55,16 @@ private:
 
 public:
 
+	std::shared_ptr<Configuration> config;
 	std::shared_ptr<ParameterFormula> heelPitch;
 	std::shared_ptr<ParameterFormula> toeSpring;
 	std::shared_ptr<ParameterFormula> heelHeight;
 	std::shared_ptr<ParameterFormula> ballHeight;
 	std::shared_ptr<ParameterFormula> legLengthDifference;
 
-	std::shared_ptr<Configuration> config;
 	std::shared_ptr<Insole> in;
 	std::shared_ptr<Insole> out;
+
 };
 
 #endif /* SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_ */

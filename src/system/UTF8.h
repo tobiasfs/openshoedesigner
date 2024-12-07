@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : LastRaw.cpp
+// Name               : UTF8.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 10.11.2024
+// Created            : 04.05.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,16 +23,38 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "LastRaw.h"
+#ifndef SYSTEM_UTF8_H
+#define SYSTEM_UTF8_H
+/** \class UTF8
+ * 	\code #include "UTF8.h"\endcode
+ * 	\ingroup system
+ *  \brief UTF-8 string processing
+ *
+ * Functions to work with std::string%s that contain UTF-8 encoded characters.
+ */
+#include <stdint.h>
+#include <string>
+#include <vector>
 
-LastRaw::LastRaw(const Geometry &other) :
-		Geometry(other) {
-}
+class UTF8 {
+public:
 
-bool LastRaw::IsModified() const {
-	return modified;
-}
+	/**\brief Split a string into UTF-8 code-points
+	 *
+	 * \param str std::string to process
+	 * \return std::vector of unsigned int 32 numbers with the code points
+	 */
+	static std::vector<uint32_t> GetCodepoints(const std::string &str);
 
-void LastRaw::Modify(bool modified_) {
-	modified = modified_;
-}
+	/**\brief Count the code-points in a UTF-8 string
+	 *
+	 */
+	static size_t Length(const std::string &str);
+
+	/**\brief Count the printable code-points in a UTF-8 string
+	 *
+	 */
+	static size_t CountPrintable(const std::string &str);
+};
+
+#endif /* SYSTEM_UTF8_H */

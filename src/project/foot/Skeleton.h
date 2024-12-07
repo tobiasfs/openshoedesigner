@@ -34,15 +34,15 @@
  * in the end more difficult to use.
  */
 
-#include <GL/gl.h>
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#include "Bone.h"
-#include "../../math/MathParser.h"
+#include "../../3D/OpenGL.h"
+#include "../foot/Bone.h"
 
+class MathParser;
 class Skeleton {
 public:
 	Skeleton() = default;

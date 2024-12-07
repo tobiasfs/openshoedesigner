@@ -26,6 +26,7 @@
 
 #include "WorkerThread.h"
 #include "Project.h"
+
 #include "../Config.h"
 
 wxDEFINE_EVENT(wxEVT_COMMAND_THREAD_COMPLETED, wxThreadEvent);

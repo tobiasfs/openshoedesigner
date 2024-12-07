@@ -29,13 +29,15 @@
 
 /*!\class HeightField
  * \brief DEPRECATED: Planar 2.5D heightfield
+ * \deprecated Unused
  *
  * Grid of points with a height. This class provides some operations to generate some Polygon3 objects from it.
  */
 
 #include "AffineTransformMatrix.h"
-#include "Polygon3.h"
 #include "Vector3.h"
+
+class Polygon3;
 
 class HeightField {
 public:

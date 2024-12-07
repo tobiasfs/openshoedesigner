@@ -130,6 +130,17 @@ public:
 	 * \{
 	 */
 
+	/** \brief Sort the edges and vertices into a loop.
+	 *
+	 * The Finish() command resorts the vertices, edges (and triangles) for
+	 * better accessibility.
+	 *
+	 * For loops it is in some algorithms necessary to re-sort the edges to
+	 * form a loop or multiple loops.
+	 *
+	 */
+	void SortLoop();
+
 	Polygon3& operator+=(const Polygon3 &a); ///< Append another Polygon3 to this one
 	const Polygon3 operator+(const Polygon3 &a) const; ///< Append two Polygon3%s
 //	Polygon3& operator*=(const double val);

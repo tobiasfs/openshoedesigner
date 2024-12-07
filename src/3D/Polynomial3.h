@@ -45,7 +45,7 @@
 class Polygon3;
 struct Vector3;
 
-class Polynom3 {
+class Polynomial3 {
 public:
 	Polynomial x;
 	Polynomial y;
@@ -53,22 +53,22 @@ public:
 	double r0 = 0.0; ///< Range start
 	double r1 = 1.0; ///< Range end
 
-	static Polynom3 ByValue(double p0, const Vector3 & v0); ///< Initialize by 1 point with position and value (actually only the value is used, because it is a constant)
-	static Polynom3 ByValue(double p0, const Vector3 & v0, double p1,
-			const Vector3 & v1); ///< Initialize by 2 points with position and value
-	static Polynom3 ByValue(double p0, const Vector3 & v0, double p1,
-			const Vector3 & v1, double r2, const Vector3 & v2); ///< Initialize by 3 points with position and value
-	static Polynom3 ByValue(double p0, const Vector3 & v0, double p1,
-			const Vector3 & v1, double r2, const Vector3 & v2, double r3,
-			const Vector3 & v3); ///< Initialize by 4 points with position and value
-	static Polynom3 ByBezier(const Vector3 & v0); ///< Bezier interpolation with constant value
-	static Polynom3 ByBezier(const Vector3 & v0, const Vector3 & v1); ///< Bezier interpolation with start- and end-value
-	static Polynom3 ByBezier(const Vector3 & v0, const Vector3 & v1,
-			const Vector3 & v2); ///< Bezier interpolation with start-, support- and end-value
-	static Polynom3 ByBezier(const Vector3 & v0, const Vector3 & v1,
-			const Vector3 & v2, const Vector3 & v3); ///< Bezier interpolation with two support values
+	static Polynomial3 ByValue(double p0, const Vector3 &v0); ///< Initialize by 1 point with position and value (actually only the value is used, because it is a constant)
+	static Polynomial3 ByValue(double p0, const Vector3 &v0, double p1,
+			const Vector3 &v1); ///< Initialize by 2 points with position and value
+	static Polynomial3 ByValue(double p0, const Vector3 &v0, double p1,
+			const Vector3 &v1, double r2, const Vector3 &v2); ///< Initialize by 3 points with position and value
+	static Polynomial3 ByValue(double p0, const Vector3 &v0, double p1,
+			const Vector3 &v1, double r2, const Vector3 &v2, double r3,
+			const Vector3 &v3); ///< Initialize by 4 points with position and value
+	static Polynomial3 ByBezier(const Vector3 &v0); ///< Bezier interpolation with constant value
+	static Polynomial3 ByBezier(const Vector3 &v0, const Vector3 &v1); ///< Bezier interpolation with start- and end-value
+	static Polynomial3 ByBezier(const Vector3 &v0, const Vector3 &v1,
+			const Vector3 &v2); ///< Bezier interpolation with start-, support- and end-value
+	static Polynomial3 ByBezier(const Vector3 &v0, const Vector3 &v1,
+			const Vector3 &v2, const Vector3 &v3); ///< Bezier interpolation with two support values
 
-	static Polynom3 ByPolygon3(const Polygon3 & p, size_t order,
+	static Polynomial3 ByPolygon3(const Polygon3 &p, size_t order,
 			size_t idxStart, size_t idxEnd);
 
 	double Length(const size_t N = 20) const; ///< Returns the length of the polynomial for r = r0..r1

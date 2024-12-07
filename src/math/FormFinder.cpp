@@ -26,10 +26,11 @@
 
 #include "FormFinder.h"
 
-#include <iostream>
-#include <GL/gl.h>
+#include "../3D/Polygon3.h"
 
-#include "../Config.h"
+#include <iostream>
+
+#include "../3D/OpenGL.h"
 
 void FormFinder::AddPolygon(const Polygon3 &poly, size_t Nsections) {
 	pf.Init(2, Nsections);
@@ -37,27 +38,27 @@ void FormFinder::AddPolygon(const Polygon3 &poly, size_t Nsections) {
 	std::vector<double> x = poly.GetXVectorD();
 	std::vector<double> y = poly.GetYVectorD();
 	std::vector<double> z = poly.GetZVectorD();
-/*
-	const size_t N = poly.IsClosed() ? poly.Size() : (poly.Size() - Nsections);
-	a.resize(N);
-	b.resize(N);
-	c.resize(N);
-	d.resize(N);
-	for (size_t n = 0; n < N; ++n) {
-		a[n].x = pf.Filter(x, n);
-		a[n].y = pf.Filter(y, n);
-		a[n].z = pf.Filter(z, n);
-		b[n].x = pf.Filter(x, n);
-		b[n].y = pf.Filter(y, n);
-		b[n].z = pf.Filter(z, n);
-		c[n].x = pf.Filter(x, n);
-		c[n].y = pf.Filter(y, n);
-		c[n].z = pf.Filter(z, n);
-		d[n].x = pf.Filter(x, n);
-		d[n].y = pf.Filter(y, n);
-		d[n].z = pf.Filter(z, n);
-	}
-*/
+	/*
+	 const size_t N = poly.IsClosed() ? poly.Size() : (poly.Size() - Nsections);
+	 a.resize(N);
+	 b.resize(N);
+	 c.resize(N);
+	 d.resize(N);
+	 for (size_t n = 0; n < N; ++n) {
+	 a[n].x = pf.Filter(x, n);
+	 a[n].y = pf.Filter(y, n);
+	 a[n].z = pf.Filter(z, n);
+	 b[n].x = pf.Filter(x, n);
+	 b[n].y = pf.Filter(y, n);
+	 b[n].z = pf.Filter(z, n);
+	 c[n].x = pf.Filter(x, n);
+	 c[n].y = pf.Filter(y, n);
+	 c[n].z = pf.Filter(z, n);
+	 d[n].x = pf.Filter(x, n);
+	 d[n].y = pf.Filter(y, n);
+	 d[n].z = pf.Filter(z, n);
+	 }
+	 */
 	double pos;
 //	for (size_t n = 0; n < N; n += 1) {
 //		DEBUGOUT << n << ": ("

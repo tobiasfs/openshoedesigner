@@ -28,7 +28,7 @@
 
 /** \class FootModelUpdate
  * 	\code #include "FootModelUpdate.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
@@ -43,10 +43,11 @@
 
 class FootModelUpdate: public Operation {
 public:
-	FootModelUpdate() = default;
+	FootModelUpdate();
 	virtual ~FootModelUpdate() = default;
 
 	virtual bool CanRun() override;
+	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
@@ -62,7 +63,6 @@ public:
 	std::shared_ptr<ParameterFormula> legLengthDifference;
 
 	std::shared_ptr<FootModel> in;
-
 	std::shared_ptr<FootModel> out;
 
 protected:

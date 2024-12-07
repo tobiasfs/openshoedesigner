@@ -82,7 +82,7 @@
  * sensible integration constant to use. Maybe the function -> f(x) = x for
  * x > 0 or something.
  *
- * https://en.wikipedia.org/wiki/Kernel_(statistics)
+ * [Wikipedia: Kernel (statistics)](https://en.wikipedia.org/wiki/Kernel_(statistics))
  *
  *
  * * Epanechnikov (sharp, compact support)
@@ -108,7 +108,28 @@
 struct Kernel {
 	typedef std::function<double(double)> Function;
 
-	/**\name Modification of Kernel
+	/**\name Modification of Kernel / Currying
+	 *
+	 * [Wikipedia: Currying](https://en.wikipedia.org/wiki/Currying)
+	 *
+	 * Currying is the process of taking a function with multiple arguments
+	 * and generating a function with one argument out of it. Currying is also
+	 * known as [Schoenfinkeln](https://de.wikipedia.org/wiki/Currying).
+	 *
+	 * i.e.
+	 *
+	 * A shifted and scaled kernel would need 3 arguments: The value x, the new
+	 * center of the kernel and the scale of the kernel. By using the SubDiv
+	 * function, the center and the scale can be baked into one single function
+	 * that only needs one argument: the value x.
+	 *
+	 * f(x, a, b) -> insert const values for a and b -> g(x)
+	 *
+	 * ~~~~~~~~~~~~~~~{.cpp}
+	 * std::function<double(double)> f = Kernel::Gaussian;
+	 * std::function<double(double)> g = Kernel::SubDiv(f, 1.0, 0.3);
+	 * ~~~~~~~~~~~~~~~
+	 *
 	 * \{
 	 */
 
@@ -521,6 +542,8 @@ struct Kernel {
 	 */
 };
 
+// Currying functions
+
 inline Kernel::Function Kernel::Shift(Kernel::Function func, double x,
 		double y) {
 	return [func, x, y](double v) {
@@ -553,6 +576,7 @@ inline Kernel::Function Kernel::SubDiv(Kernel::Function func, double a,
 		return func((v - a) / b);
 	};
 }
+
 
 #endif /* MATH_KERNEL_H */
 

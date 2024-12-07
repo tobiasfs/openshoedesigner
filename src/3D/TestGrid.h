@@ -28,17 +28,19 @@
 #define L3D_TESTGRID_H
 
 /*!\class TestGrid
- * \brief ...
+ * \brief A grid of points in 3D space for testing transformation methods
+ * \ingroup Base3D
  *
- * ...
+ * Initializes a regular grid in 3D space. Then a transformation operations
+ * can be applied to the grid.
  */
+
+#include "BoundingBox.h"
+#include "Vector3.h"
 
 #include <stddef.h>
 #include <functional>
 #include <vector>
-
-#include "BoundingBox.h"
-#include "Vector3.h"
 
 class TestGrid: public BoundingBox {
 public:

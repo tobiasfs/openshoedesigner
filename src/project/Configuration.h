@@ -44,8 +44,10 @@
 #include "../3D/PointCloud.h"
 #include "../system/JSON.h"
 #include "FootMeasurements.h"
+#include "ParameterEnum.h"
 #include "ParameterEvaluator.h"
 #include "ParameterFormula.h"
+#include "ParameterString.h"
 
 #include <memory>
 
@@ -82,10 +84,9 @@ public:
 
 	// Last generator
 
-	//TODO Convert to ParameterEnum
-	enum class ModelType {
-		boneBased, lastBased
-	} modeltype = ModelType::lastBased;
+	std::shared_ptr<ParameterString>lastFilename;
+	std::shared_ptr<ParameterEnum>modelType;
+
 
 	// Insole construction
 

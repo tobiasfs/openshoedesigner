@@ -26,11 +26,16 @@
 
 #include "Skeleton.h"
 
+#include "Bone.h"
+#include "../../3D/AffineTransformMatrix.h"
+#include "../../3D/Vector3.h"
+#include "../../math/MathParser.h"
 #include "../../system/JSON.h"
+
 #include <algorithm>
-#include <GL/gl.h>
-#include <exception>
 #include <iostream>
+#include <iterator>
+#include <stdexcept>
 
 Skeleton::~Skeleton() {
 	if (m_gllist != 0)

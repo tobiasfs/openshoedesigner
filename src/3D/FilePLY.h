@@ -28,6 +28,7 @@
 #define L3D_FILEPLY_H
 
 /*!\class FilePLY
+ * \ingroup File3D
  * \brief Reading and writing PLY 3D files
  *
  * https://en.wikipedia.org/wiki/PLY_(file_format)

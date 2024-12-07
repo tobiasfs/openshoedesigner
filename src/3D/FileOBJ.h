@@ -28,6 +28,7 @@
 #define L3D_FILEOBJ_H
 
 /*!\class FileOBJ
+ * \ingroup File3D
  * \brief Wavefront OBJ file
  *
  * https://en.wikipedia.org/wiki/Wavefront_.obj_file

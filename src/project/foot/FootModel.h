@@ -89,19 +89,22 @@
  *
  */
 
+#include "Skeleton.h"
+
+#include "../../3D/AffineTransformMatrix.h"
 #include "../../3D/BoundingBox.h"
-#include "../../3D/Polygon3.h"
 #include "../../3D/Volume.h"
 #include "../../math/NelderMeadOptimizer.h"
+#include "../object/Object.h"
+//#include "../FootMeasurements.h"
 
-#include "Skeleton.h"
-#include "../FootMeasurements.h"
+#include <string>
 
-#include <wx/txtstrm.h>
-
+class FootMeasurements;
 class Shoe;
+class Polygon3;
 
-class FootModel: public Skeleton {
+class FootModel: public Skeleton, public Object {
 public:
 
 	FootModel() = default;

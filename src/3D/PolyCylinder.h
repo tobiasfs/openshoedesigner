@@ -29,6 +29,7 @@
 
 /*!\class PolyCylinder
  * \brief DEPRECATED: Stores sections of polygonwise defined shapes
+ * \deprecated Used to import from a single data-file. Largely unused.
  *
  * Useless file format, that should not be used. Use stl instead.
  * Was a good idea back then, but it is easier to model a last based

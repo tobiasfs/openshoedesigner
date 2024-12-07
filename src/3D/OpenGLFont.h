@@ -28,7 +28,7 @@
 
 /** \class OpenGLFont
  * 	\code #include "OpenGLFont.h"\endcode
- * 	\ingroup Base3D
+ * 	\ingroup OpenGL
  *  \brief Text rendered from predefined 3D letters
  *
  * Reads a file with 3D objects. Parses them into one or more fonts.

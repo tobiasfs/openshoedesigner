@@ -40,9 +40,8 @@
  *   * Andrews wave
  *   * Tukey's biweight
  *
- *   https://en.wikipedia.org/wiki/M-estimator
- *
- *   https://de.wikipedia.org/wiki/M-Sch%C3%A4tzer
+ *   [Wikipedia: M-estimator](https://en.wikipedia.org/wiki/M-estimator)
+ *   [Wikipedia: M-Schätzer](https://de.wikipedia.org/wiki/M-Sch%C3%A4tzer)
  */
 
 #include "DependentVector.h"

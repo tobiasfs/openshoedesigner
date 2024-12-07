@@ -27,10 +27,34 @@
 #include "KernelDensityEstimator.h"
 
 #include <cmath>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
+
+void KernelDensityEstimator::Clear() {
+	DependentVector::Clear();
+	coverage.clear();
+	count = 0;
+	weightsum = 0.0;
+}
+
+void KernelDensityEstimator::Resize(size_t N) {
+	DependentVector::Resize(N);
+	coverage.assign(N, 0.0);
+	count = 0;
+	weightsum = 0.0;
+}
+
+void KernelDensityEstimator::XLinspace(double x0, double x1, size_t N) {
+	DependentVector::XLinspace(x0, x1, N);
+	coverage.assign(N, 0.0);
+	count = 0;
+	weightsum = 0.0;
+}
 
 void KernelDensityEstimator::YInit(double value) {
 	DependentVector::YInit(value);
+	coverage.assign(Size(), 0.0);
 	weightsum = 0.0;
 	count = 0;
 }
@@ -69,7 +93,9 @@ void KernelDensityEstimator::Insert(double pos, double kernel(double),
 		} else {
 			v = X(n) - p;
 		}
-		Y(n) += kernel(v / sigma) / sigma * weight;
+		double f = kernel(v / sigma) / sigma;
+		coverage[n] += f;
+		Y(n) += f * weight;
 	}
 }
 
@@ -114,11 +140,18 @@ void KernelDensityEstimator::Normalize() {
 	weightsum = 1.0;
 }
 
-void KernelDensityEstimator::NormalizeByWeightSum() {
-	if (count == 0)
-		throw(std::logic_error(
-		__FILE__":Normalize - Function called, before kernel were inserted."));
-	operator/=(weightsum);
+void KernelDensityEstimator::NormalizeByCoverage() {
+	if (count == 0) {
+		std::ostringstream out;
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << "Function called, before kernel were inserted.";
+		throw std::logic_error(out.str());
+	}
+	const size_t N = Size();
+	for (size_t n = 0; n < N; ++n)
+		if (coverage[n] > FLT_EPSILON)
+			Y(n) /= coverage[n];
+	coverage.assign(N, 0.0);
 	count = 0;
 	weightsum = 1.0;
 }

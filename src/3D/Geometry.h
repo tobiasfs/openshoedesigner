@@ -75,6 +75,8 @@ public:
 		void Transform(const AffineTransformMatrix &m);
 		void FlipNormal();
 
+		Vertex Interp(const Vertex &b, const double mix) const;
+
 		Vector3 n = Vector3();
 		Color c = Color();
 		size_t group = (size_t) -1;
@@ -103,6 +105,7 @@ public:
 		 */
 		//TODO Check if anybody outside of Geometry is using this function. (Made private for that reason.)
 		bool AttachTriangle(size_t index);
+
 	public:
 		/**\brief Invert the order of vertices for this edge, if necessary
 		 *
@@ -110,9 +113,7 @@ public:
 		 * triangles stays unchanged.
 		 */
 		void Fix();
-	private:
-		void Flip();
-	public:
+
 		void FlipNormal();
 
 		/**\brief Return the index of the other vertex connected
@@ -144,7 +145,7 @@ public:
 		 * An edge serves no function and is collapsed, if both vertices are
 		 * the same vertex.
 		 *
-		 * \return True is collapsed.
+		 * \return True if collapsed.
 		 */
 		bool IsCollapsed() const;
 
@@ -261,6 +262,10 @@ public:
 	 * \{
 	 */
 
+	/**\brief Add a vertex normal, that is used with all following add-operations.
+	 *
+	 * \param n Normal to use.
+	 */
 	void SetAddNormal(const Vector3 &n);
 	void SetAddNormal(double nx, double ny, double nz);
 	void ResetAddNormal();
@@ -360,40 +365,75 @@ public:
 	 */
 	void AddSelectedFrom(const Geometry &other);
 
-	/**\brief Spread information from the vertices to the edges and triangles
+	/**\brief Fix the ordering of indices in edges and triangles
 	 *
-	 * Is called internally by Finish(), because that function averages some of
-	 * the information by combining vertices and edges.
+	 * Edges and triangles have references to vertices and edges/vertices
+	 * respectively. To compare these efficiently, the vertex/edge indices have
+	 * to be ordered. This function does that by calling the Fix function for
+	 * edges and triangles.
+	 *
+	 * For triangles only the vertex-indices are ordered. The edge-indices are
+	 * not ordered, because for this the edges need to be sorted.
+	 *
+	 * The actual direction of the edges/triangles is indicated by the .flip
+	 * member variable.
+	 *
+	 * Sort() is an extension to Fix() doing both operations.
 	 */
-	void FillNormalsAndColors();
-
 	void Fix();
-
-	/**\brief Finish the insertion process.
-	 *
-	 * Vertices are joined if closer then eps then duplicate edges are removed
-	 * as well.
-	 *
-	 * \note The .group member variables of the vertices, edges and triangles
-	 * are set to incremental values during this process.
-	 */
-	void Finish();
 
 	/**\brief Sort vertices, edges, triangle
 	 *
-	 * Unlike Finish() this function sorts all elements, but does not join
+	 * Unlike Join() this function sorts all elements, but does not join
 	 * elements that are close together.
 	 *
 	 * This function also fixes the orientations, so that always va <= vb <= vc.
-	 * The direction of the edges/triangles is indicated by the .flip member
-	 * variable.
+	 * And also, because the edges are also sorted ea <= eb <= ec.
+	 *
+	 *
+	 * Join() is an extension to Sort() that does the steps Fix(), Sort() and
+	 * finally joins duplicated vertices, edges and triangles.
+	 *
+	 * \note The .group member variables of the vertices, edges and triangles
+	 * are set to incrementing values during this process.
 	 */
 	void Sort();
 
-protected:
-	void InitMap(); //< Initializes the maps to no-operation mappings.
-	void FlipMap(); //< Sorting leaves the map inverted mapping a->b instead of b->a.
-public:
+	/**\brief Join vertices and edges, that are closer than epsilon
+	 *
+	 * Fixes and sorts all elements in the geometry and joins vertices, that
+	 * are closer than epsilon together. Afterwards some edges might be
+	 * identical because they connect the same vertices. These are dissolved.
+	 * (The normals and colors are interpolated between the two joined edges.)
+	 * The same is done for triangles.
+	 */
+	void Join();
+
+	/**\brief Spread normals from the vertices to the edges and triangles
+	 *
+	 * Is called internally by Finish(), because that function averages some of
+	 * the normal information by combining vertices and edges.
+	 *
+	 * If some normals are defined for the geometry (for triangles, edges or
+	 * vertices) these are spread to the elements without normals. If no
+	 * normals are available at all, the function CalculateNormals() is called.
+	 */
+	void PropagateNormals();
+
+	/**\brief Calculate the UV coordinate system with normal, tangent and
+	 * bi-tangent.
+	 *
+	 * These coordinate systems are used by the shaders to display the textures
+	 * correctly.
+	 */
+	void CalculateUVCoordinateSystems();
+
+	/**\brief Finish the insertion process.
+	 *
+	 * Spreads the normals, fixes, sorts and joins the vertices, edges and
+	 * triangles. Calculates the UV coordinate-systems in the triangles.
+	 */
+	void Finish();
 
 	/** \brief Update the references based on the maps.
 	 *
@@ -415,7 +455,19 @@ public:
 	 *
 	 * This function can be called at any time, because at the lowest level
 	 * the geometry should always be consistent. (After construction, after
-	 * adding shapes, after calling Final(), after Remap(), ...)
+	 * adding shapes, before and after calling Final(), after Remap(), ...)
+	 *
+	 * Usage:
+	 *
+	 * ~~~~~{.cpp}
+	 * if(obj.SelfCheckPassed()){
+	 *   std::cout << "Object is correct.\n";
+	 * }else{
+	 *   std::cout << "Object has not passed the self-check.\n";
+	 * }
+	 * ~~~~~
+	 *
+	 *
 	 *
 	 * \param maxErrorsPerType  How many errors to report to std::cerr before
 	 * 						    moving to the next problem-type
@@ -540,6 +592,54 @@ public:
 	 * \{
 	 */
 
+	/**\brief Centroid of a triangle
+	 *
+	 * Assuming the mass is distributed equally in the area of the triangle, the
+	 * center/centroid of the triangle is also the center of gravity.
+	 *
+	 * \param idx Index of the triangle in the geometry
+	 * \return Vector3 of the center of mass of the triangle.
+	 */
+	Vector3 GetTriangleCenter(size_t idx) const;
+
+	/**\brief Area of a triangle
+	 *
+	 * This is used to
+	 *
+	 * \param idx Index of the triangle
+	 * \return Area of the triangle
+	 */
+	double GetTriangleArea(size_t idx) const;
+
+	/**\brief Centroid of the tetraeder of a triangle and the center
+	 *
+	 * A triangle together with the center form a tetraeder. Together with the
+	 * volume of the tetraeder the mass distribution of the geometry can be
+	 * analyzed.
+	 *
+	 * Assuming the mass is distributed equally in the volume of the triangle, the
+	 * center/centroid of the triangle is also the center of gravity.
+	 *
+	 * \param idx Index of the triangle in the geometry
+	 * \return Vector3 of the center of mass of the tetraeder.
+	 */
+	Vector3 GetTetraederCenter(size_t idx) const;
+
+	double GetTetraederVolume(size_t idx) const;
+
+	Vector3 GetCenter() const; // Center of all vertices.
+	Vector3 GetCentroid() const; // Center of gravity of geometry.
+	double GetArea() const;
+	double GetVolume() const;
+
+	/**\brief Sum of all angles at edges with two triangles.
+	 *
+	 * Used to determine, if the normals are pointing inward or outwards.
+	 *
+	 * \return Summed-up angle in radians.
+	 */
+	double GetNormalCurvature() const;
+
 	/**\brief Cut the geometry by a plane.
 	 *
 	 * \note Only one outline is returned. If there a multiple loops in the
@@ -592,13 +692,17 @@ public:
 	void SendToGLVertexArray(const std::string fields);
 	void Bind();
 
+	/**\}
+	 */
+
+protected:
+	void InitMap(); //< Initializes the maps to no-operation mappings.
+	void FlipMap(); //< Sorting leaves the map inverted mapping a->b instead of b->a.
+
 protected:
 	inline static void GLVertex(const Vector3 &v_);
 	inline static void GLNormal(const Vector3 &n);
 	inline static void GLColor(const Color &c);
-
-	/**\}
-	 */
 
 public:
 	std::string name;

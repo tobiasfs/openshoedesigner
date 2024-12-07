@@ -26,24 +26,26 @@
 
 #include "Project.h"
 
-#include <wx/log.h>
-#include <cstdio>
-
+#include "../3D/FileOBJ.h"
 #include "../3D/FileSTL.h"
 #include "../math/MathParser.h"
 #include "WorkerThread.h"
 
-#include "../3D/FileOBJ.h"
-#if wxUSE_STD_IOSTREAM
-#include <wx/ioswrap.h>
-#else
+#include <wx/log.h>
 #include <wx/txtstrm.h>
-#endif
+#if wxUSE_STD_IOSTREAM
 #include <wx/wfstream.h>
-#include <GL/gl.h>
+#else
+#include <wx/ioswrap.h>
+#endif
+
+#include <cstdio>
 #include <float.h>
+
 #include "../gui/gui.h"
 #include "../gui/IDs.h"
+
+#include "../3D/OpenGL.h"
 
 IMPLEMENT_DYNAMIC_CLASS(Project, wxDocument)
 
@@ -63,10 +65,12 @@ Project::Project() :
 	thread0 = NULL;
 	thread1 = NULL;
 
-	parameter.SetGroup();
+	evaluator.SetGroup();
 
+	config.Register(evaluator);
 
-	parameter.SetGroup((size_t) ProjectView::Side::Left);
+	evaluator.SetGroup((size_t) ProjectView::Side::Left);
+
 //	legLengthDifference_L =
 //			parameter.Register("legLengthDifference",
 //					"Distance the right leg is longer than the left (positive number). If the right leg is shorter than the left leg the number has to be negative.",
@@ -77,7 +81,6 @@ Project::Project() :
 //			parameter.Register("legLengthDifference",
 //					"Distance the right leg is longer than the left (positive number). If the right leg is shorter than the left leg the number has to be negative.",
 //					"max(-legLengthDifferenceRef,0 cm)", 901);
-
 
 //	wxFileInputStream input("data/FootModelDefault.json");
 //	wxTextInputStream text(input);
@@ -110,7 +113,7 @@ Project::Project() :
 //	parameter.SetGroup();
 //	shoe.Register(parameter);
 
-	// The Project is not initially calculated.
+	Update();
 
 	Bind(wxEVT_COMMAND_THREAD_COMPLETED, &Project::OnCalculationDone, this);
 	Bind(wxEVT_COMMAND_THREAD_UPDATE, &Project::OnRefreshViews, this);
@@ -157,12 +160,13 @@ void Project::StopAllThreads(void) {
 
 void Project::Update(void) {
 	try {
-		parameter.Update();
-		parameter.Calculate();
+		evaluator.Update();
+		evaluator.Calculate();
 	} catch (std::exception &ex) {
 		std::cerr << "Error while updating: " << ex.what() << '\n';
-		return;
+//		return;
 	}
+	builder.Update(*this);
 //	if (useMultiThreading)
 //		std::cout << "Starting threads ...";
 //	if (measR.IsModified() || legLengthDifference->IsModified()
@@ -240,40 +244,40 @@ void Project::Update(void) {
 //		return true;
 //	}
 /*
-	 if (footL.IsModifiedPosition()) {
-	 footL.ModifyPosition(false);
-	 footL.UpdatePosition(shoe, fmax(legLengthDifference.ToDouble(), 0),
-	 measL.angleMixing.ToDouble());
-	 footL.ModifySkin(true);
-	 return true;
-	 }
+ if (footL.IsModifiedPosition()) {
+ footL.ModifyPosition(false);
+ footL.UpdatePosition(shoe, fmax(legLengthDifference.ToDouble(), 0),
+ measL.angleMixing.ToDouble());
+ footL.ModifySkin(true);
+ return true;
+ }
 
-	 if (footL.IsModifiedSkin()) {
-	 footL.ModifySkin(false);
-	 footL.CalculateSkin();
+ if (footL.IsModifiedSkin()) {
+ footL.ModifySkin(false);
+ footL.CalculateSkin();
 
-	 heightfield = footL.skin.SurfaceField();
-	 OrientedMatrix temp = heightfield.XRay(Volume::Method::MinValue);
-	 bow.Clear();
-	 for (unsigned int i = 0; i < temp.Numel(); i++) {
-	 if (temp[i] < DBL_MAX) {
-	 bow.InsertPoint(i * temp.dx + temp.origin.x, 0,
-	 temp[i] + temp.origin.z);
-	 }
-	 }
-	 xray = footL.skin.XRay(Volume::Method::MeanValue);
-	 bow = footL.GetCenterline();
-	 //	bow.elements[0] = lastvol.GetSurface(bow.elements[1],
-	 //			(bow.elements[0] - bow.elements[1]) * 2);
-	 //	size_t M = bow.elements.GetCount();
-	 //	bow.elements[M - 1] = lastvol.GetSurface(bow.elements[M - 2],
-	 //			(bow.elements[M - 1] - bow.elements[M - 2]) * 2);
-	 //
-	 bow.Resample(50);
-	 bow.Filter(20);
+ heightfield = footL.skin.SurfaceField();
+ OrientedMatrix temp = heightfield.XRay(Volume::Method::MinValue);
+ bow.Clear();
+ for (unsigned int i = 0; i < temp.Numel(); i++) {
+ if (temp[i] < DBL_MAX) {
+ bow.InsertPoint(i * temp.dx + temp.origin.x, 0,
+ temp[i] + temp.origin.z);
+ }
+ }
+ xray = footL.skin.XRay(Volume::Method::MeanValue);
+ bow = footL.GetCenterline();
+ //	bow.elements[0] = lastvol.GetSurface(bow.elements[1],
+ //			(bow.elements[0] - bow.elements[1]) * 2);
+ //	size_t M = bow.elements.GetCount();
+ //	bow.elements[M - 1] = lastvol.GetSurface(bow.elements[M - 2],
+ //			(bow.elements[M - 1] - bow.elements[M - 2]) * 2);
+ //
+ bow.Resample(50);
+ bow.Filter(20);
 
-	 return true;
-	 }*/
+ return true;
+ }*/
 //	if (lastModelL.IsModified()) {
 //		lastModelL.Modify(false);
 //		insoleL.Mirror(false);
@@ -286,7 +290,6 @@ void Project::Update(void) {
 //	std::cout << "Update L - done\n";
 //	return false;
 //}
-
 //bool Project::UpdateRight(void) {
 //	wxCriticalSectionLocker locker(CSRight);
 //	if (insoleR.IsModified()) {
@@ -325,7 +328,6 @@ void Project::Update(void) {
 //	std::cout << "Update R - done\n";
 //	return false;
 //}
-
 void Project::OnRefreshViews(wxThreadEvent &event) {
 	UpdateAllViews();
 }

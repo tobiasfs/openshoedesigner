@@ -8,7 +8,7 @@
  */
  
 /**
- * \defgroup View3D Displaying 3D scenes
+ * \defgroup OpenGL Displaying 3D scenes
  * \ingroup Base3D
  */
  

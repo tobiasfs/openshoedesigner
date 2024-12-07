@@ -29,8 +29,11 @@
 #include <algorithm>
 #include <float.h>
 #include <sstream>
+#include <list>
 
 #include "OpenGL.h"
+
+using std::swap;
 
 static const Vector3 nullvector(0.0, 0.0, 0.0);
 static const Vector3 nonnullvector(0.0, 0.0, 1.0);
@@ -84,6 +87,92 @@ void Polygon3::CloseLoopNextGroup() {
 		}
 	}
 	NextGroup();
+}
+
+void Polygon3::SortLoop() {
+
+	// Un-flip edges
+	for (Edge &ed : e)
+		if (ed.flip) {
+			ed.flip = false;
+			swap(ed.va, ed.vb);
+		}
+
+	// Sort edges for fast searching.
+	auto edge_less = [](const Edge &lhs, const Edge &rhs) {
+		if (lhs.va < rhs.va)
+			return true;
+		if (lhs.va > rhs.va)
+			return false;
+		return lhs.vb < rhs.vb;
+	};
+	std::sort(e.begin(), e.end(), edge_less);
+
+	std::vector<size_t> connections(e.size(), 0);
+	for (const Edge &ed : e)
+		connections[ed.vb]++;
+	std::list<size_t> starting_points;
+	for (size_t idx = 0; idx < connections.size(); ++idx)
+		if (connections[idx] == 0)
+			starting_points.push_back(idx);
+
+	vmap.assign(v.size(), nothing);
+	emap.assign(e.size(), nothing);
+	tmap.clear();
+	gmap.clear();
+
+	std::vector<Vertex> tempv;
+	tempv.reserve(v.size());
+	std::vector<Edge> tempe;
+	tempe.reserve(e.size());
+
+	// Form edge-loops.
+	while (true) {
+		size_t eidx;
+		size_t vidx;
+		if (!starting_points.empty()) {
+			eidx = 0;
+			vidx = starting_points.front();
+			starting_points.pop_front();
+		} else {
+			auto eh0 = std::find(emap.begin(), emap.end(), nothing);
+			if (eh0 == emap.end())
+				break;
+			eidx = eh0 - emap.begin();
+			vidx = e[eidx].va;
+		}
+		vmap[vidx] = tempv.size();
+		tempv.push_back(v[vidx]);
+
+		while (true) {
+			while (e[eidx].va < vidx && (eidx + 1) < e.size())
+				eidx++;
+			while (e[eidx].va > vidx && eidx > 0)
+				eidx--;
+
+			if (e[eidx].va != vidx)
+				break;
+
+			emap[eidx] = tempe.size();
+			tempe.push_back(e[eidx]);
+
+			vidx = e[eidx].vb;
+			if (vmap[vidx] != nothing)
+				break;
+
+			vmap[vidx] = tempv.size();
+			tempv.push_back(v[vidx]);
+		}
+	}
+
+//	std::iota(emap.begin(), emap.end(), 0);
+//	std::sort(emap.begin(), emap.end(), edge_less);
+//	for (size_t idx : emap)
+//		temp.push_back(e[idx]);
+
+	v.swap(tempv);
+	e.swap(tempe);
+	Remap(0, 0, 0);
 }
 
 Polygon3& Polygon3::operator+=(const Polygon3 &a) {
@@ -527,7 +616,7 @@ void Polygon3::Triangulate() {
 	// generates edges, that need to be ignored here.
 	const size_t Ne = e.size();
 
-	bool runagain = true; // For each area in the polygon
+	bool runagain = true;		// For each area in the polygon
 	while (runagain) {
 		runagain = false;
 
@@ -713,7 +802,7 @@ void Polygon3::Triangulate() {
 	// Clean up edges
 	for (Edge &ed : e) {
 		if (ed.ta == nothing)
-			std::swap(ed.ta, ed.tb);
+			swap(ed.ta, ed.tb);
 		ed.trianglecount = (ed.ta == nothing) ? 0 : 1;
 		if (ed.tb != nothing)
 			ed.trianglecount++;

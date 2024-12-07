@@ -29,7 +29,7 @@
 
 /*!\class OpenGLShader
  * \brief Contains shaders and the compiled shader program
- * \ingroup View3D
+ * \ingroup OpenGL
  *
  * Function to add several shaders together to a shaderprogramm.
  */

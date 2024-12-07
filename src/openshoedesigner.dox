@@ -1,6 +1,12 @@
 
 /*! \mainpage Open Shoe Designer
- *
- * \image html start.png
- *
+ 
+Shoe design software. 
+Based on foot measurements or a foot scan. 
+Generates a bone based or a last based model. 
+Supports different styles of shoes.
+Pattern editor for the upper.
+Calculates flattening of the design.
+ 
+\image html start.png
  */

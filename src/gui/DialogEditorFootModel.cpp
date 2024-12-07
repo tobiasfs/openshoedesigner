@@ -28,11 +28,10 @@
 
 #include <sstream>
 
-DialogEditorFootModel::DialogEditorFootModel(wxWindow* parent, wxWindowID id,
-		const wxString& title, const wxPoint& pos, const wxSize& size,
-		long style)
-		: GUIFrameEditorFootModel(parent, id, title, pos, size, style)
-{
+DialogEditorFootModel::DialogEditorFootModel(wxWindow *parent, wxWindowID id,
+		const wxString &title, const wxPoint &pos, const wxSize &size,
+		long style) :
+		GUIFrameEditorFootModel(parent, id, title, pos, size, style) {
 	timer.SetOwner(this);
 
 	timer.Start(100); // ms
@@ -41,8 +40,7 @@ DialogEditorFootModel::DialogEditorFootModel(wxWindow* parent, wxWindowID id,
 			wxTimerEventHandler(DialogEditorFootModel::OnTimer), NULL, this);
 }
 
-void DialogEditorFootModel::OnLoad(wxCommandEvent& event)
-{
+void DialogEditorFootModel::OnLoad(wxCommandEvent &event) {
 
 	wxFileDialog dialog(this, _("Open Foot Model..."), _T(""), _T(""),
 			_("Foot Model (*.json)|*.json|All Files|*.*"),
@@ -52,7 +50,7 @@ void DialogEditorFootModel::OnLoad(wxCommandEvent& event)
 //			dialog.SetDirectory(filepaths.lastFootDirectory);
 //		}
 
-	if(dialog.ShowModal() == wxID_OK){
+	if (dialog.ShowModal() == wxID_OK) {
 		wxFileName fileName(dialog.GetPath());
 		m_canvasFootModel->model.LoadJSON(fileName.GetFullPath().ToStdString());
 
@@ -79,8 +77,7 @@ void DialogEditorFootModel::OnLoad(wxCommandEvent& event)
 	}
 }
 
-void DialogEditorFootModel::OnSave(wxCommandEvent& event)
-{
+void DialogEditorFootModel::OnSave(wxCommandEvent &event) {
 //	FrameParent* parent = wxStaticCast(GetParent(), FrameParent);
 
 	wxFileDialog dialog(this, _("Save Foot Model As..."), _T(""), _T(""),
@@ -94,54 +91,53 @@ void DialogEditorFootModel::OnSave(wxCommandEvent& event)
 	//	if(project.fileName.IsOk()) dialog.SetFilename(
 	//			project.fileName.GetFullPath());
 
-	if(dialog.ShowModal() == wxID_OK){
+	if (dialog.ShowModal() == wxID_OK) {
 		wxFileName fileName(dialog.GetPath());
 //			Project* project = wxStaticCast(GetDocument(), Project);
 		m_canvasFootModel->model.SaveJSON(fileName.GetFullPath().ToStdString());
 	}
 }
 
-void DialogEditorFootModel::OnClose(wxCommandEvent& event)
-{
+void DialogEditorFootModel::OnClose(wxCommandEvent &event) {
 	this->Close();
 }
 
-DialogEditorFootModel::~DialogEditorFootModel()
-{
+DialogEditorFootModel::~DialogEditorFootModel() {
 
 	this->Disconnect(wxEVT_TIMER,
 			wxTimerEventHandler(DialogEditorFootModel::OnTimer),
 			NULL, this);
 }
 
-void DialogEditorFootModel::SetMidi(MidiPort* midi)
-{
+void DialogEditorFootModel::SetMidi(MidiPort *midi) {
 	device = midi->GetFirstOpenDevice(MidiPort::Direction::Input);
 
-	for(size_t n = 0; n < 32; ++n)
+	for (size_t n = 0; n < 32; ++n)
 		device->cc[n] = 0;
 	device->cc[32] = 127;
 	device->Send(0, 56);
 }
 
-void DialogEditorFootModel::OnTimer(wxTimerEvent& event)
-{
-	if(device->Poll()){
+void DialogEditorFootModel::OnTimer(wxTimerEvent &event) {
+	if (device->Poll()) {
 
 		uint8_t temp = mode;
-		for(size_t n = 32; n < 48; ++n){
-			if(n == mode) continue;
-			if(device->cc[n]) temp = n;
+		for (size_t n = 32; n < 48; ++n) {
+			if (n == mode)
+				continue;
+			if (device->cc[n])
+				temp = n;
 		}
-		if(temp != mode){
-			for(size_t n = 32; n < 48; ++n){
-				if(n != temp) device->cc[n] = 0;
+		if (temp != mode) {
+			for (size_t n = 32; n < 48; ++n) {
+				if (n != temp)
+					device->cc[n] = 0;
 			}
 			mode = temp;
-			for(uint8_t n = 48; n <= 55; ++n)
+			for (uint8_t n = 48; n <= 55; ++n)
 				device->cc[n] = 0;
 
-			switch(mode){
+			switch (mode) {
 			case 32:
 				SetSlider(48, "Tibia");
 				SetSlider(50, "Fibula");
@@ -190,7 +186,7 @@ void DialogEditorFootModel::OnTimer(wxTimerEvent& event)
 			}
 		}
 
-		switch(mode){
+		switch (mode) {
 		case 32:
 			Update(48, "Tibia");
 			Update(50, "Fibula");
@@ -244,26 +240,25 @@ void DialogEditorFootModel::OnTimer(wxTimerEvent& event)
 	}
 }
 
-void DialogEditorFootModel::Update(uint8_t idx, const std::string& name)
-{
-	std::shared_ptr <Bone> bone = m_canvasFootModel->model.GetBone(name);
-	if(bone == nullptr) return;
+void DialogEditorFootModel::Update(uint8_t idx, const std::string &name) {
+	std::shared_ptr<Bone> bone = m_canvasFootModel->model.GetBone(name);
+	if (bone == nullptr)
+		return;
 	bone->formulaS1 = MakeString((double) (device->cc[idx]) / 1000.0);
 	bone->formulaS2 = MakeString((double) (device->cc[idx + 1]) / 1000.0);
 }
 
-void DialogEditorFootModel::SetSlider(uint8_t idx, const std::string& name)
-{
-	std::shared_ptr <Bone> bone = m_canvasFootModel->model.GetBone(name);
-	if(bone == nullptr) return;
+void DialogEditorFootModel::SetSlider(uint8_t idx, const std::string &name) {
+	std::shared_ptr<Bone> bone = m_canvasFootModel->model.GetBone(name);
+	if (bone == nullptr)
+		return;
 	const double s = m_canvasFootModel->model.LRS();
 
 	device->cc[idx] = (uint8_t) (bone->s1 * 1000.0 / s);
 	device->cc[idx + 1] = (uint8_t) (bone->s2 * 1000.0 / s);
 }
 
-std::string DialogEditorFootModel::MakeString(double value)
-{
+std::string DialogEditorFootModel::MakeString(double value) {
 	std::ostringstream str;
 	str << "L*R*S*" << value;
 	return str.str();

@@ -28,27 +28,44 @@
 
 /** \class LastNormalize
  * 	\code #include "LastNormalize.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
  */
 
+#include "../object/LastRaw.h"
 #include "Operation.h"
-#include "../last/LastRaw.h"
+
+#include "../../3D/Polygon3.h"
+#include "../../math/Symmetry.h"
 #include <memory>
 
 class LastNormalize: public Operation {
 public:
-	LastNormalize() = default;
+	LastNormalize();
 	virtual ~LastNormalize() = default;
 
 	virtual bool CanRun() override;
+	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
+#ifdef DEBUG
+	virtual void Paint() const override;
+#endif
+
+protected:
+	void ReorientPCA();
+	void ReorientSymmetry();
+	void ReorientSole();
+	void ReorientFrontBack();
+	void ReorientLeftRight();
+
+public:
 	std::shared_ptr<LastRaw> in;
 	std::shared_ptr<LastRaw> out;
+
 };
 
 #endif /* SRC_PROJECT_OPERATION_LASTNORMALIZE_H_ */

@@ -79,7 +79,7 @@ double PolyCylinder::CircleSection::GetLength(void) const {
 	return d;
 }
 
-Vector3 PolyCylinder::CircleSection::Evaluate(double r) const{
+Vector3 PolyCylinder::CircleSection::Evaluate(double r) const {
 	if (r < 0.0)
 		r = 1.0 - fmod(-r, 1.0);
 	const size_t M = segments.size();
@@ -105,8 +105,8 @@ void PolyCylinder::Scale(double sx, double sy, double sz) {
 
 void PolyCylinder::Load(std::string filename) {
 	using namespace std;
-
 	std::ostringstream err;
+	err << __FILE__ << ":" << __func__ << " - ";
 	err << "The file ";
 	err << filename;
 
@@ -123,7 +123,6 @@ void PolyCylinder::Load(std::string filename) {
 		int res = fread(header, sizeof(char), 10, fhd);
 		if (res < 10) {
 			fclose(fhd);
-			std::ostringstream err;
 			err << " is to small.";
 			throw std::runtime_error(err.str());
 		}

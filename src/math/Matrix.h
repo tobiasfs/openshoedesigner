@@ -305,12 +305,12 @@ public:
 	Matrix XRay(Method method) const;
 
 	/**
-	 * \brief Matlab style output for 1-D or 2-D matrices
+	 * \brief Octave/Matlab style output for 1-D or 2-D matrices
 	 *
 	 * The output is display row-wise: Each number in a row is separated by
 	 * a comma, each row is separated by a semi-colon.
 	 *
-	 * When copied into Matlab/Octave, the matrix is interpreted/displayed
+	 * When copied into Octave/Matlab, the matrix is interpreted/displayed
 	 * correctly.
 	 */
 	friend std::ostream& operator<<(std::ostream &os, const Matrix &matrix) {

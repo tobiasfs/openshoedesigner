@@ -34,19 +34,22 @@
  * Overloaded Geometry with additional modification flag.
  */
 
+#include "../../3D/BoundingBox.h"
 #include "../../3D/Geometry.h"
+#include "Object.h"
 
-class LastRaw: public Geometry {
+class LastRaw: public Geometry, public Object {
 public:
 	LastRaw() = default;
 	LastRaw(const Geometry &other);
+	LastRaw(const Geometry &&other);
 	virtual ~LastRaw() = default;
 
-	bool IsModified() const;
-	void Modify(bool modified_ = true);
+public:
+	void UpdateRawBoundingBox();
 
-private:
-	bool modified = true;
+public:
+	BoundingBox rawBB;
 };
 
 #endif /* SRC_PROJECT_LAST_LASTRAW_H_ */

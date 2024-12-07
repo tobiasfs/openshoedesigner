@@ -29,6 +29,7 @@
 
 /*!\class BackgroundImage
  * \brief Image in 3D space for loading reference images
+ * \ingroup Base3D
  */
 
 #include "OpenGLImage.h"

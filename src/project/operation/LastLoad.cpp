@@ -30,15 +30,41 @@
 #include "../../3D/PolyCylinder.h"
 
 #include <filesystem>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 
-#include "../../Config.h"
+LastLoad::LastLoad() {
+	out = std::make_shared<LastRaw>();
+}
 
 bool LastLoad::CanRun() {
-	return filename.use_count() > 0;
+	if (filename && out)
+		return true;
+	std::ostringstream err;
+	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	if (!filename)
+		err << " Input \"filename\" not connected.";
+	if (!out)
+		err << " Output \"out\" not set.";
+	throw std::runtime_error(err.str());
+}
+
+bool LastLoad::Propagate() {
+	bool modify = false;
+	if (!CanRun())
+		return modify;
+	if (filename->IsModified()) {
+		modify = out->IsValid();
+		out->MarkValid(false);
+	}
+	return modify;
 }
 
 bool LastLoad::HasToRun() {
-	return filename->IsModified();
+	if (!CanRun())
+		return false;
+	return !out->IsValid() && out->IsNeeded();
 }
 
 void LastLoad::Run() {
@@ -47,26 +73,28 @@ void LastLoad::Run() {
 	for (auto &ch : extension)
 		ch = std::tolower(ch);
 
-	if (extension.compare("dat") == 0) {
+	if (extension.compare(".dat") == 0) {
 		PolyCylinder pc;
 		pc.Load(filepath.string());
-		raw = std::make_shared<LastRaw>(pc.GenerateGeometry(false));
+		*out = pc.GenerateGeometry(false);
 	}
-	if (extension.compare("stl") == 0) {
+	if (extension.compare(".stl") == 0) {
 		FileSTL stl(filename->GetString());
-		raw = std::make_shared<LastRaw>();
-		stl.Read(*raw);
+		out->Clear();
+		stl.Read(*out);
 	}
-	if (extension.compare("obj") == 0) {
+	if (extension.compare(".obj") == 0) {
 		FileOBJ obj(filename->GetString());
-		raw = std::make_shared<LastRaw>();
-		obj.Read(*raw);
+		out->Clear();
+		obj.Read(*out);
 	}
-	raw->CalculateNormals();
-	if (raw->IsClosed()) {
+	out->CalculateNormals();
+	if (out->IsClosed()) {
 		DEBUGOUT << "Fully closed hull loaded." << "\n";
 	} else {
 		DEBUGOUT << "Geometry has open edges." << "\n";
 	}
-	raw->Modify(true);
+	out->MarkValid(true);
+	out->MarkNeeded(false);
 }
+

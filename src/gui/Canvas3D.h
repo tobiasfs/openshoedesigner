@@ -35,13 +35,12 @@
 
 #include "../project/ProjectView.h"
 #include "../3D/OpenGLCanvas.h"
-#include "../Config.h"
 
-class Canvas3D:public OpenGLCanvas {
+class Canvas3D: public OpenGLCanvas {
 public:
-	Canvas3D(wxWindow* parent);
+	Canvas3D(wxWindow *parent);
 	virtual ~Canvas3D();
-	void SetProjectView(const ProjectView* projectview);
+	void SetProjectView(const ProjectView *projectview);
 //
 //	void ConnectMouseEvents(void);
 //	void DisconnectMouseEvents(void);
@@ -50,9 +49,9 @@ public:
 //	void OnMouseEvent(wxMouseEvent& event);
 
 private:
-	const ProjectView* projectview;
+	const ProjectView *projectview;
 
-	Vector3 a,b;
+	Vector3 a, b;
 
 };
 

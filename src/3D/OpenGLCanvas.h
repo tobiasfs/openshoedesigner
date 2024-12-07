@@ -29,7 +29,7 @@
 
 /*!\class OpenGLCanvas
  * \brief Extended wxGLCanvas
- * \ingroup View3D
+ * \ingroup OpenGL
  *
  * Provides features like:
  *  * Mouse movement
@@ -39,6 +39,7 @@
  */
 
 #include "../Config.h"
+
 #ifdef USE_6DOFCONTROLLER
 class Control3D;
 #include <wx/timer.h>
@@ -52,9 +53,6 @@ class Control3D;
 #include "AffineTransformMatrix.h"
 
 #include <wx/glcanvas.h>
-
-
-
 
 class OpenGLCanvas: public wxGLCanvas {
 public:
@@ -108,8 +106,6 @@ public:
 	AffineTransformMatrix model;
 
 protected:
-
-
 
 	int x; //!< Startpoint for mouse dragging
 	int y; //!< Startpoint for mouse dragging

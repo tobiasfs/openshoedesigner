@@ -338,4 +338,3 @@ void MatlabFile::WriteMatrix(const Matrix &M) {
 		break;
 	}
 }
-

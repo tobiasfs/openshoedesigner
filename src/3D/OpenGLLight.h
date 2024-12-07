@@ -28,8 +28,8 @@
 #define L3D_OPENGLLIGHT_H
 
 /*!\class OpenGLLight
- * \brief ...
- * \ingroup View3D
+ * \brief Definition of an OpenGL light source.
+ * \ingroup OpenGL
  *
  * When constructing a light source from this class one of the OpenGL light
  * source handles has to be passed.

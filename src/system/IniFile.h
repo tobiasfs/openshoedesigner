@@ -28,9 +28,9 @@
 #define INIFILE_H
 
 /*!\class IniFile
- * \brief ...
+ * \brief INI-file reader
  *
- * ...
+ * Read an INI configuration file and store the sections and parameters found.
  */
 
 #include <wx/string.h>

@@ -29,7 +29,7 @@
 
 /*!\class OpenGLImage
  * \brief Displaying an image in 3D space.
- * \ingroup View3D
+ * \ingroup OpenGL
  *
  * This class is derived from wxImage. Upon loading an image it creates a glTexture to
  * display the image in 3D space.
