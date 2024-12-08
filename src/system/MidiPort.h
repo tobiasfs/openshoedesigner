@@ -83,8 +83,8 @@ private:
 
 #ifdef USE_PORTMIDI
 	PmEvent buffer[1];
-	PortMidiStream *input = NULL;
-	PortMidiStream *output = NULL;
+	PortMidiStream *input = nullptr;
+	PortMidiStream *output = nullptr;
 #endif
 };
 

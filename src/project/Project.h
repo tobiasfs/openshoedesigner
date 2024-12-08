@@ -79,8 +79,8 @@
 class WorkerThread;
 
 #if wxUSE_STD_IOSTREAM
-typedef wxSTD istream DocumentIstream;
-typedef wxSTD ostream DocumentOstream;
+typedef std::istream DocumentIstream;
+typedef std::ostream DocumentOstream;
 #else // !wxUSE_STD_IOSTREAM
 typedef wxInputStream DocumentIstream;
 typedef wxOutputStream DocumentOstream;
@@ -89,14 +89,10 @@ typedef wxOutputStream DocumentOstream;
 class Project: public wxDocument {
 	friend class WorkerThread;
 public:
-	enum class Side : unsigned int {
-		LEFT = 0, RIGHT = 1
-	};
 
 public:
 	Project();
 	virtual ~Project();
-	void StopAllThreads(void); //!< Call from OnClose; the event loop has to be running.
 
 	DocumentOstream& SaveObject(DocumentOstream &ostream);
 	DocumentIstream& LoadObject(DocumentIstream &istream);
@@ -109,9 +105,9 @@ public:
 
 	void Update(void);
 
-protected:
-	bool UpdateLeft(void);
-	bool UpdateRight(void);
+	bool MeasurementsAreSymmetric() const;
+
+	void StopAllThreads(void); //!< Call from OnClose; the event loop has to be running.
 
 private:
 	void OnCalculationDone(wxThreadEvent &event);
@@ -119,10 +115,10 @@ private:
 
 public:
 
-	Configuration config;
+	std::shared_ptr<Configuration> config;
 
-	FootMeasurements footL;
-	FootMeasurements footR;
+	std::shared_ptr<FootMeasurements> footL;
+	std::shared_ptr<FootMeasurements> footR;
 
 	ParameterEvaluator evaluator;
 

@@ -390,7 +390,6 @@ public:
 	 * This function also fixes the orientations, so that always va <= vb <= vc.
 	 * And also, because the edges are also sorted ea <= eb <= ec.
 	 *
-	 *
 	 * Join() is an extension to Sort() that does the steps Fix(), Sort() and
 	 * finally joins duplicated vertices, edges and triangles.
 	 *
@@ -467,8 +466,6 @@ public:
 	 * }
 	 * ~~~~~
 	 *
-	 *
-	 *
 	 * \param maxErrorsPerType  How many errors to report to std::cerr before
 	 * 						    moving to the next problem-type
 	 * \param checkWellOrdering Additional check if the vertices in edges and
@@ -508,7 +505,7 @@ public:
 	 * Groups are not assigned to edges and vertices, because these belong to
 	 * more than one group (most of the time).
 	 *
-	 *  \param angle The angle an edge is considered "sharp".
+	 *  \param angle The angle of an edge above which the edge is considered "sharp".
 	 */
 	void CalcGroups(double angle);
 

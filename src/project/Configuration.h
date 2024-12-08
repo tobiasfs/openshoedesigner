@@ -73,20 +73,13 @@ public:
 
 	// Measurements
 
-	//TODO Convert to ParameterEnum
-	bool measurementsSymmetric = true;
-	//TODO Convert to ParameterEnum
-	enum class MeasurementSource {
-		fromMeasurements, fromFootScan
-	} measurementsource = MeasurementSource::fromMeasurements;
-
+	std::shared_ptr<ParameterEnum> measurementSource;
 	std::shared_ptr<PointCloud> footScan;
 
 	// Last generator
 
-	std::shared_ptr<ParameterString>lastFilename;
-	std::shared_ptr<ParameterEnum>modelType;
-
+	std::shared_ptr<ParameterString> lastFilename;
+	std::shared_ptr<ParameterEnum> modelType;
 
 	// Insole construction
 
@@ -100,16 +93,7 @@ public:
 	std::shared_ptr<ParameterFormula> footCompression;
 
 	// Shoe generator
-
-	//TODO Convert to ParameterEnum
-	enum class Generator {
-		Experimental, //!< Default generator for development of algorithms
-		Welted, //!< Welt-sewn shoes: Generates last, insole, sole, upper pattern and cutout
-		Cemented, //!< for cemented soles (simple, glued-together shoes)
-		Molded, //!< for industrial shoes, where the sole is injection-molded to the upper
-		Dutch, //!< Generator for dutch wooden clogs: Generates last, insole and clog
-		Geta   //!< Japanese Geta generator
-	} generator = Generator::Welted;
+	std::shared_ptr<ParameterEnum> generator;
 
 	std::shared_ptr<ParameterFormula> heelHeight;
 	std::shared_ptr<ParameterFormula> ballHeight;

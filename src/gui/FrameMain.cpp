@@ -121,7 +121,7 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 			wxCommandEventHandler(FrameMain::UpdateProject));
 
 	timer.SetOwner(this);
-	this->Connect(wxEVT_TIMER, wxTimerEventHandler(FrameMain::OnTimer), NULL,
+	this->Connect(wxEVT_TIMER, wxTimerEventHandler(FrameMain::OnTimer), nullptr,
 			this);
 	timer.Start(500);
 
@@ -130,7 +130,7 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 }
 
 FrameMain::~FrameMain() {
-	printf("FrameMain: Destructor called\n");
+	DEBUGOUT << "FrameMain: Destructor called\n";
 	this->Disconnect(ID_UPDATEPROJECT, wxEVT_COMMAND_MENU_SELECTED,
 			wxCommandEventHandler(FrameMain::UpdateProject));
 	this->Disconnect(ID_REFRESHVIEW, wxEVT_COMMAND_MENU_SELECTED,
@@ -138,8 +138,8 @@ FrameMain::~FrameMain() {
 	this->Disconnect(ID_REFRESHVIEW3D, wxEVT_COMMAND_MENU_SELECTED,
 			wxCommandEventHandler(FrameMain::RefreshCanvas));
 
-	this->Disconnect(wxEVT_TIMER, wxTimerEventHandler(FrameMain::OnTimer), NULL,
-			this);
+	this->Disconnect(wxEVT_TIMER, wxTimerEventHandler(FrameMain::OnTimer),
+			nullptr, this);
 
 	filepaths.Save(config);
 }
@@ -167,55 +167,47 @@ bool FrameMain::TransferDataToWindow() {
 
 	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
 	const Project *project = wxStaticCast(GetDocument(), Project);
-	const FootMeasurements *meas = projectview->GetActiveFootMeasurements();
-	const Configuration *config = &(project->config);
+	const auto &meas = projectview->GetActiveFootMeasurements();
+	const auto &config = project->config;
 
 	// Set checkboxes and selections in main menu
 
-//	if (project->measurementsource
-//			== Project::MeasurementSource::fromMeasurements)
-//		m_menuFoot->Check(
-//		ID_USEFOOTMEASUREMENTS,
-//				project->measurementsource
-//						== Project::MeasurementSource::fromMeasurements);
+//	if (config->measurementSource->IsSelection("fromMeasurements"))
+	m_menuFoot->Check(ID_USEFOOTMEASUREMENTS,
+			config->measurementSource->IsSelection("fromMeasurements"));
 //	if (project->measurementsource == Project::MeasurementSource::fromFootScan)
-//		m_menuFoot->Check(
-//		ID_USEFOOTSCAN,
-//				project->measurementsource
-//						== Project::MeasurementSource::fromFootScan);
-//	m_menuFoot->Check(ID_MEASUREMENTSYMMETRY, project->measurementsSymmetric);
-//
+	m_menuFoot->Check( ID_USEFOOTSCAN,
+			config->measurementSource->IsSelection("fromFootScan"));
+
+	m_menuFoot->Check(ID_MEASUREMENTSYMMETRY,
+			project->MeasurementsAreSymmetric());
+
 //	if (project->modeltype == Project::ModelType::boneBased)
-//		m_menuFoot->Check(
-//		ID_USEBONEBASEDMODEL,
-//				project->modeltype == Project::ModelType::boneBased);
+	m_menuFoot->Check(
+	ID_USEBONEBASEDMODEL, config->modelType->IsSelection("boneBased"));
 //	if (project->modeltype == Project::ModelType::lastBased)
-//		m_menuFoot->Check(
-//		ID_USELASTBASEDMODEL,
-//				project->modeltype == Project::ModelType::lastBased);
-//
+	m_menuFoot->Check(
+	ID_USELASTBASEDMODEL, config->modelType->IsSelection("lastBased"));
+
 //	if (project->generator == Project::Generator::Experimental)
-//		m_menuConstruction->Check(
-//		ID_CONSTRUCTIONEXPERIMENTAL,
-//				project->generator == Project::Generator::Experimental);
+	m_menuConstruction->Check(
+	ID_CONSTRUCTIONEXPERIMENTAL,
+			config->generator->IsSelection("Experimental"));
 //	if (project->generator == Project::Generator::Welted)
-//		m_menuConstruction->Check(
-//		ID_CONSTRUCTIONWELDED,
-//				project->generator == Project::Generator::Welted);
+	m_menuConstruction->Check(
+	ID_CONSTRUCTIONWELDED, config->generator->IsSelection("Welted"));
 //	if (project->generator == Project::Generator::Cemented)
-//		m_menuConstruction->Check(
-//		ID_CONSTRUCTIONCEMENTED,
-//				project->generator == Project::Generator::Cemented);
+	m_menuConstruction->Check(
+	ID_CONSTRUCTIONCEMENTED, config->generator->IsSelection("Cemented"));
 //	if (project->generator == Project::Generator::Molded)
-//		m_menuConstruction->Check(
-//		ID_CONSTRUCTIONMOLDED,
-//				project->generator == Project::Generator::Molded);
+	m_menuConstruction->Check(
+	ID_CONSTRUCTIONMOLDED, config->generator->IsSelection("Molded"));
 //	if (project->generator == Project::Generator::Dutch)
-//		m_menuConstruction->Check(
-//		ID_CONSTRUCTIONDUTCH, project->generator == Project::Generator::Dutch);
+	m_menuConstruction->Check(
+	ID_CONSTRUCTIONDUTCH, config->generator->IsSelection("Dutch"));
 //	if (project->generator == Project::Generator::Geta)
-//		m_menuConstruction->Check(
-//		ID_CONSTRUCTIONGETA, project->generator == Project::Generator::Geta);
+	m_menuConstruction->Check(
+	ID_CONSTRUCTIONGETA, config->generator->IsSelection("Geta"));
 
 	m_menuView->Check(ID_STEREO3D,
 			m_canvas3D->stereoMode != OpenGLCanvas::Stereo3D::Off);
@@ -235,6 +227,7 @@ bool FrameMain::TransferDataToWindow() {
 	m_menuView->Check(ID_SHOWBACKGROUND, projectview->showBackground);
 
 	// On Page "Foot":
+
 	if (projectview->active == ProjectView::Side::Left
 			|| projectview->active == ProjectView::Side::Both) {
 		m_toggleBtnEditLeft->SetValue(true);
@@ -252,113 +245,117 @@ bool FrameMain::TransferDataToWindow() {
 		m_toggleBtnEditRight1->SetValue(false);
 	}
 
-//	if (project->measurementsource
-//			== Project::MeasurementSource::fromMeasurements) {
-//		m_choicebookMeasurement->SetSelection(0);
-//	} else {
-//		m_choicebookMeasurement->SetSelection(1);
-//	}
-//	if (project->modeltype == Project::ModelType::boneBased) {
-//		m_choicebookFootModel->SetSelection(0);
-//	} else {
-//		m_choicebookFootModel->SetSelection(1);
-//	}
-//
-//	TransferParameterToTextCtrl(foot->footLength, m_textCtrlFootLength,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->ballWidth, m_textCtrlBallWidth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->bigToeGirth, m_textCtrlBigToeGirth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->littleToeGirth, m_textCtrlLittleToeGirth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->waistGirth, m_textCtrlWaistGirth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->heelGirth, m_textCtrlHeelGirth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->heelWidth, m_textCtrlHeelWidth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->angleMixing, m_textCtrlAngleMixing,
-//			UnitType::Percent);
-//	TransferParameterToTextCtrl(project->legLengthDifference,
-//			m_textCtrlLegLengthDifference, UnitType::Distance);
-//
-//	m_textCtrlShoeSizeEU->SetValue(
-//			wxString::Format(_T("%g"),
-//					round(foot->GetSize(FootMeasurements::Type::EU))));
-//	m_textCtrlShoeSizeUS->SetValue(
-//			wxString::Format(_T("%g"),
-//					round(foot->GetSize(FootMeasurements::Type::US))));
-//	m_textCtrlShoeSizeUK->SetValue(
-//			wxString::Format(_T("%g"),
-//					round(foot->GetSize(FootMeasurements::Type::UK))));
-//	m_textCtrlShoeSizeCN->SetValue(
-//			wxString::Format(_T("%g"),
-//					round(foot->GetSize(FootMeasurements::Type::CN))));
-//	m_textCtrlShoeSizeJP->SetValue(
-//			wxString::Format(_T("%g"),
-//					round(foot->GetSize(FootMeasurements::Type::JP))));
-//	m_textCtrlShoeSizeAU->SetValue(
-//			wxString::Format(_T("%g"),
-//					round(foot->GetSize(FootMeasurements::Type::AU))));
-//
-//	m_filePickerLastModel->SetFileName(
-//			wxFileName(project->lastModelL.filename));
-//
-//	// On page "Leg":
-//
-//	TransferParameterToTextCtrl(foot->belowCrutchGirth,
-//			m_textCtrlBelowCrutchGirth, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->belowCrutchLevel,
-//			m_textCtrlBelowCrutchLevel, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->middleOfCalfGirth,
-//			m_textCtrlMiddleOfCalfGirth, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->middleOfCalfLevel,
-//			m_textCtrlMiddleOfCalfLevel, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->aboveKneeGirth, m_textCtrlAboveKneeGirth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->aboveKneeLevel, m_textCtrlAboveKneeLevel,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->overKneeCapGirth,
-//			m_textCtrlOverKneeCapGirth, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->overKneeCapLevel,
-//			m_textCtrlOverKneeCapLevel, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->belowKneeGirth, m_textCtrlBelowKneeGirth,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->belowKneeLevel, m_textCtrlBelowKneeLevel,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->middleOfShankGirth,
-//			m_textCtrlMiddleOfShankGirth, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->middleOfShankLevel,
-//			m_textCtrlMiddleOfShankLevel, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->aboveAnkleGirth,
-//			m_textCtrlAboveAnkleGirth, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->aboveAnkleLevel,
-//			m_textCtrlAboveAnkleLevel, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->overAnkleBoneGirth,
-//			m_textCtrlOverAnkleBoneGirth, UnitType::Distance);
-//	TransferParameterToTextCtrl(foot->overAnkleBoneLevel,
-//			m_textCtrlOverAnkleBoneLevel, UnitType::Distance);
-//
-//	// On page "Insole":
-//
-//	TransferParameterToTextCtrl(shoe->bigToeAngle, m_textCtrlBigToeAngle,
-//			UnitType::Angle);
-//	TransferParameterToTextCtrl(shoe->littleToeAngle, m_textCtrlLittleToeAngle,
-//			UnitType::Angle);
-//	TransferParameterToTextCtrl(shoe->ballMeasurementAngle,
-//			m_textCtrlBallMeasurementAngle, UnitType::Angle);
-//	TransferParameterToTextCtrl(shoe->heelDirectionAngle,
-//			m_textCtrlHeelDirectionAngle, UnitType::Angle);
-//
-//	m_sliderTipSharpness->SetValue(shoe->tipSharpness->ToDouble());
-//
-//	TransferParameterToTextCtrl(shoe->extraLength, m_textCtrlExtraLength,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(shoe->footCompression,
-//			m_textCtrlFootCompression, UnitType::Percent);
+	if (config->measurementSource->IsSelection("fromMeasurements")) {
+		m_choicebookMeasurement->SetSelection(0);
+	} else {
+		m_choicebookMeasurement->SetSelection(1);
+	}
+	if (config->modelType->IsSelection("boneBased")) {
+		m_choicebookFootModel->SetSelection(0);
+	} else {
+		m_choicebookFootModel->SetSelection(1);
+	}
 
-	// On page "Shoe":
+	TransferParameterToTextCtrl(meas->footLength, m_textCtrlFootLength,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->ballWidth, m_textCtrlBallWidth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->bigToeGirth, m_textCtrlBigToeGirth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->littleToeGirth, m_textCtrlLittleToeGirth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->waistGirth, m_textCtrlWaistGirth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->heelGirth, m_textCtrlHeelGirth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->heelWidth, m_textCtrlHeelWidth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->angleMixing, m_textCtrlAngleMixing,
+			UnitType::Percent);
+	TransferParameterToTextCtrl(meas->legLengthDifference,
+			m_textCtrlLegLengthDifference, UnitType::Distance);
+
+	m_textCtrlShoeSizeEU->SetValue(
+			wxString::Format(_T("%g"),
+					round(meas->GetSize(FootMeasurements::Type::EU))));
+	m_textCtrlShoeSizeUS->SetValue(
+			wxString::Format(_T("%g"),
+					round(meas->GetSize(FootMeasurements::Type::US))));
+	m_textCtrlShoeSizeUK->SetValue(
+			wxString::Format(_T("%g"),
+					round(meas->GetSize(FootMeasurements::Type::UK))));
+	m_textCtrlShoeSizeCN->SetValue(
+			wxString::Format(_T("%g"),
+					round(meas->GetSize(FootMeasurements::Type::CN))));
+	m_textCtrlShoeSizeJP->SetValue(
+			wxString::Format(_T("%g"),
+					round(meas->GetSize(FootMeasurements::Type::JP))));
+	m_textCtrlShoeSizeAU->SetValue(
+			wxString::Format(_T("%g"),
+					round(meas->GetSize(FootMeasurements::Type::AU))));
+
+	m_filePickerLastModel->SetInitialDirectory(filepaths.lastShoeDirectory);
+	if (!config->lastFilename->GetString().empty()) {
+		wxFileName lastFilename;
+		lastFilename = wxString(config->lastFilename->GetString());
+		lastFilename.MakeAbsolute();
+		m_filePickerLastModel->SetFileName(lastFilename);
+	}
+
+// On page "Leg":
+
+	TransferParameterToTextCtrl(meas->belowCrutchGirth,
+			m_textCtrlBelowCrutchGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->belowCrutchLevel,
+			m_textCtrlBelowCrutchLevel, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->middleOfCalfGirth,
+			m_textCtrlMiddleOfCalfGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->middleOfCalfLevel,
+			m_textCtrlMiddleOfCalfLevel, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->aboveKneeGirth, m_textCtrlAboveKneeGirth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->aboveKneeLevel, m_textCtrlAboveKneeLevel,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->overKneeCapGirth,
+			m_textCtrlOverKneeCapGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->overKneeCapLevel,
+			m_textCtrlOverKneeCapLevel, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->belowKneeGirth, m_textCtrlBelowKneeGirth,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->belowKneeLevel, m_textCtrlBelowKneeLevel,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(meas->middleOfShankGirth,
+			m_textCtrlMiddleOfShankGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->middleOfShankLevel,
+			m_textCtrlMiddleOfShankLevel, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->aboveAnkleGirth,
+			m_textCtrlAboveAnkleGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->aboveAnkleLevel,
+			m_textCtrlAboveAnkleLevel, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->overAnkleBoneGirth,
+			m_textCtrlOverAnkleBoneGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->overAnkleBoneLevel,
+			m_textCtrlOverAnkleBoneLevel, UnitType::Distance);
+
+	// On page "Insole":
+
+	TransferParameterToTextCtrl(config->bigToeAngle, m_textCtrlBigToeAngle,
+			UnitType::Angle);
+	TransferParameterToTextCtrl(config->littleToeAngle,
+			m_textCtrlLittleToeAngle, UnitType::Angle);
+	TransferParameterToTextCtrl(config->ballMeasurementAngle,
+			m_textCtrlBallMeasurementAngle, UnitType::Angle);
+	TransferParameterToTextCtrl(config->heelDirectionAngle,
+			m_textCtrlHeelDirectionAngle, UnitType::Angle);
+
+	m_sliderTipSharpness->SetValue(config->tipSharpness->ToDouble());
+
+	TransferParameterToTextCtrl(config->extraLength, m_textCtrlExtraLength,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(config->footCompression,
+			m_textCtrlFootCompression, UnitType::Percent);
+
+// On page "Shoe":
 
 	{	// Populate the wxChoiceCtrl for the shoe-type
 		wxArrayString newStrings;
@@ -389,16 +386,16 @@ bool FrameMain::TransferDataToWindow() {
 		}
 	}
 
-//	TransferParameterToTextCtrl(shoe->heelHeight, m_textCtrlHeelHeight,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(shoe->ballHeight, m_textCtrlBallHeight,
-//			UnitType::Distance);
-//	TransferParameterToTextCtrl(shoe->heelPitch, m_textCtrlHeelPitch,
-//			UnitType::Angle);
-//	TransferParameterToTextCtrl(shoe->toeSpring, m_textCtrlToeSpring,
-//			UnitType::Angle);
-//	TransferParameterToTextCtrl(shoe->upperLevel, m_textCtrlUpperLevel,
-//			UnitType::Without);
+	TransferParameterToTextCtrl(config->heelHeight, m_textCtrlHeelHeight,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(config->ballHeight, m_textCtrlBallHeight,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(config->heelPitch, m_textCtrlHeelPitch,
+			UnitType::Angle);
+	TransferParameterToTextCtrl(config->toeSpring, m_textCtrlToeSpring,
+			UnitType::Angle);
+	TransferParameterToTextCtrl(config->upperLevel, m_textCtrlUpperLevel,
+			UnitType::Without);
 
 	loopGuard.Post();
 
@@ -406,62 +403,62 @@ bool FrameMain::TransferDataToWindow() {
 }
 
 void FrameMain::TransferParameterToTextCtrl(
-		const std::shared_ptr<Parameter> parameter, wxTextCtrl *ctrl,
+		const std::shared_ptr<ParameterFormula> parameter, wxTextCtrl *ctrl,
 		UnitType type) {
 	FrameParent *parent = wxStaticCast(GetParent(), FrameParent);
 	CollectionUnits *units = &(parent->units);
 
 	ctrl->SetToolTip(parameter->GetDescription());
 
-//	if (ctrl->HasFocus()) {
-//		ctrl->SetBackgroundColour(wxNullColour);
-//		ctrl->SetValue(parameter->GetFormula());
-//	} else {
-//		if (parameter->errorFlag) {
-//			ctrl->SetBackgroundColour(*wxRED);
-//			ctrl->SetValue(parameter->errorStr);
-//		} else {
-//			ctrl->SetBackgroundColour(wxNullColour);
-//			switch (type) {
-//			case UnitType::Without:
-//				ctrl->SetValue(
-//						wxString::Format(_T("%g"), parameter->ToDouble()));
-//				break;
-//			case UnitType::Time:
-//				ctrl->SetValue(
-//						units->Time.TextFromSIWithUnit(parameter->ToDouble()));
-//				break;
-//			case UnitType::Distance:
-//				ctrl->SetValue(
-//						units->Distance.TextFromSIWithUnit(
-//								parameter->ToDouble(), 1));
-//				break;
-//			case UnitType::SmallDistance:
-//				ctrl->SetValue(
-//						units->SmallDistance.TextFromSIWithUnit(
-//								parameter->ToDouble(), 1));
-//				break;
-//			case UnitType::Tolerance:
-//				ctrl->SetValue(
-//						units->Tolerance.TextFromSIWithUnit(
-//								parameter->ToDouble(), 1));
-//				break;
-//			case UnitType::Angle:
-//				ctrl->SetValue(
-//						units->Angle.TextFromSIWithUnit(parameter->ToDouble(),
-//								1));
-//				break;
-//			case UnitType::Percent:
-//				ctrl->SetValue(
-//						wxString::Format(_T("%g %%"),
-//								parameter->ToDouble() * 100));
-//				break;
-//			default:
-//				throw(std::logic_error(
-//						__FILE__ "TransferParameterToTextCtrl(): Unhandeled Type of unit."));
-//			}
-//		}
-//	}
+	if (ctrl->HasFocus()) {
+		ctrl->SetBackgroundColour(wxNullColour);
+		ctrl->SetValue(parameter->GetFormula());
+	} else {
+		if (parameter->errorFlag) {
+			ctrl->SetBackgroundColour(*wxRED);
+			ctrl->SetValue(parameter->errorStr);
+		} else {
+			ctrl->SetBackgroundColour(wxNullColour);
+			switch (type) {
+			case UnitType::Without:
+				ctrl->SetValue(
+						wxString::Format(_T("%g"), parameter->ToDouble()));
+				break;
+			case UnitType::Time:
+				ctrl->SetValue(
+						units->Time.TextFromSIWithUnit(parameter->ToDouble()));
+				break;
+			case UnitType::Distance:
+				ctrl->SetValue(
+						units->Distance.TextFromSIWithUnit(
+								parameter->ToDouble(), 1));
+				break;
+			case UnitType::SmallDistance:
+				ctrl->SetValue(
+						units->SmallDistance.TextFromSIWithUnit(
+								parameter->ToDouble(), 1));
+				break;
+			case UnitType::Tolerance:
+				ctrl->SetValue(
+						units->Tolerance.TextFromSIWithUnit(
+								parameter->ToDouble(), 1));
+				break;
+			case UnitType::Angle:
+				ctrl->SetValue(
+						units->Angle.TextFromSIWithUnit(parameter->ToDouble(),
+								1));
+				break;
+			case UnitType::Percent:
+				ctrl->SetValue(
+						wxString::Format(_T("%g %%"),
+								parameter->ToDouble() * 100));
+				break;
+			default:
+				throw(std::logic_error(
+						__FILE__ "TransferParameterToTextCtrl(): Unhandeled Type of unit."));
+			}
+		}
+	}
 }
 
 wxTextCtrl* FrameMain::GetTextCtrlByID(int id) {
@@ -533,7 +530,7 @@ wxTextCtrl* FrameMain::GetTextCtrlByID(int id) {
 	case ID_FOOTCOMPRESSION:
 		return m_textCtrlFootCompression;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void FrameMain::RefreshCanvas(wxCommandEvent&WXUNUSED(event)) {
@@ -559,8 +556,8 @@ void FrameMain::OnClose(wxCloseEvent &event) {
 	Project *project = wxStaticCast(doc, Project);
 	project->StopAllThreads();
 
-	printf("FrameMain: %lu docs, %lu views\n", tempDocs.GetCount(),
-			tempViews.GetCount());
+	DEBUGOUT << "FrameMain: " << tempDocs.GetCount() << " docs, ";
+	DEBUGOUT << tempViews.GetCount() << " views\n";
 
 	if (tempDocs.GetCount() > 1) {
 		event.Skip(); // Only close this window, by passing the event to the default handler.
@@ -571,7 +568,7 @@ void FrameMain::OnClose(wxCloseEvent &event) {
 		return;
 	}
 	wxWindow *main = this->GetParent();
-	printf("FrameMain: parent->Close()\n");
+	DEBUGOUT << "FrameMain: parent->Close()\n";
 	main->Close(); // Exit app by closing main window, this will close this window as well.
 }
 
@@ -795,7 +792,7 @@ void FrameMain::OnToggleButton(wxCommandEvent &event) {
 		}
 		break;
 	default:
-		printf("ToggleButton %u pressed.\n", event.GetId());
+		DEBUGOUT << "ToggleButton( " << event.GetId() << " ) pressed.\n";
 		break;
 	}
 	TransferDataToWindow();
@@ -904,38 +901,45 @@ void FrameMain::OnToggleStereo3D(wxCommandEvent &event) {
 }
 
 void FrameMain::OnSetSymmetry(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnEditShape(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnAddBridge(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnDeleteBridge(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnPatternSelect(wxTreeListEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnPatternAdd(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnPatternSelectFabric(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnChoiceDisplay(wxCommandEvent &event) {
-	DEBUGOUT << "OnChoiceDisplay( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 
 }
 
 void FrameMain::OnToggleAnkleLock(wxCommandEvent &event) {
-	DEBUGOUT << "OnToggleAnkleLock( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 
 }
 
 void FrameMain::OnFileChangedScanFile(wxFileDirPickerEvent &event) {
-	DEBUGOUT << "OnFileChangedScanFile( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnFileChangedLastFile(wxFileDirPickerEvent &event) {
@@ -973,7 +977,7 @@ void FrameMain::OnQuickSetupMeasurements(wxCommandEvent&WXUNUSED(event)) {
 void FrameMain::OnChangeModel(wxCommandEvent &event) {
 	if (loopGuard.TryWait() != wxSEMA_NO_ERROR)
 		return;
-	DEBUGOUT << "OnChangeModel( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 	Project *project = wxStaticCast(GetDocument(), Project);
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
 //	switch (event.GetId()) {
@@ -1036,7 +1040,7 @@ void FrameMain::OnCopyMeasurements(wxCommandEvent &event) {
 }
 
 void FrameMain::OnLoadFootSTL(wxCommandEvent &event) {
-	DEBUGOUT << "OnLoadFootSTL( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnEditBoneModel(wxCommandEvent &event) {
@@ -1107,7 +1111,7 @@ void FrameMain::OnSaveBoneModel(wxCommandEvent &event) {
 
 void FrameMain::OnConstructionSelection(wxCommandEvent &event) {
 	Project *project = wxStaticCast(GetDocument(), Project);
-
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 //	switch (event.GetId()) {
 //	case ID_SELECTCONSTRUCTION:
 //		project->GetCommandProcessor()->Submit(
@@ -1161,11 +1165,11 @@ void FrameMain::OnConstructionSelection(wxCommandEvent &event) {
 }
 
 void FrameMain::OnLoadPattern(wxCommandEvent &event) {
-	DEBUGOUT << "OnLoadPattern( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnSavePattern(wxCommandEvent &event) {
-	DEBUGOUT << "OnSavePattern( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnSaveLast(wxCommandEvent &event) {
@@ -1191,27 +1195,23 @@ void FrameMain::OnSaveLast(wxCommandEvent &event) {
 }
 
 void FrameMain::OnSaveInsole(wxCommandEvent &event) {
-	DEBUGOUT << "OnSaveInsole( " << event.GetId() << " )\n";
-
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnSaveSole(wxCommandEvent &event) {
-	DEBUGOUT << "OnSaveSole( " << event.GetId() << " )\n";
-
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnSaveCutaway(wxCommandEvent &event) {
-	DEBUGOUT << "OnSaveCutaway( " << event.GetId() << " )\n";
-
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnPackZip(wxCommandEvent &event) {
-	DEBUGOUT << "OnPackZip( " << event.GetId() << " )\n";
-
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnSetupBackgroundImages(wxCommandEvent &event) {
-	DEBUGOUT << "OnSetupBackgroundImages( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnDebugParser(wxCommandEvent &event) {

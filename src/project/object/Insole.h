@@ -74,25 +74,24 @@
  * The heel is normally oriented in the N-M axis.
  *
  * The coordinate system of the upper in the heel section can be oriented in
- * the N-M axis (e.g. Lloyd shoes, Apollo shoes) or in the A-C axis (e.g. Ecco shoes).
- *
- *
- *
- *
+ * the N-M axis (e.g. Lloyd shoes, Apollo shoes) or in the A-C axis (e.g. Ecco
+ * shoes).
  */
 
 #include <functional>
 #include <vector>
 
+#include "../../3D/Geometry.h"
 #include "../../3D/Polygon3.h"
 #include "../../3D/Polynomial3.h"
 #include "../../3D/Vector3.h"
 #include "../../math/Polynomial.h"
 #include "Object.h"
 
-class Insole: public Object {
+class Insole: public Geometry, public Object {
 	friend class InsoleConstruct;
 	friend class InsoleTransform;
+
 protected:
 	struct Point {
 	public:
@@ -107,7 +106,7 @@ protected:
 		void Transform(std::function<Vector3(Vector3)> func);
 	};
 
-	struct Line: public Polynomial3 {
+	class Line: public Polynomial3 {
 	public:
 		// Bezier-Circle: sqrt(2) * f = 0.551915024494 --> f = 0.39
 		void Setup(const Point &p0, const Point &p1, double f0 = 0.39,
@@ -115,13 +114,12 @@ protected:
 		void Paint(void) const;
 		bool IsInside(const double r) const;
 	};
+
 public:
+	void Transform(std::function<Vector3(Vector3)> func);
 	void Paint(void) const;
 
-	void Transform(std::function<Vector3(Vector3)> func);
-
-	void Mirror(bool isleft = true);
-
+public:
 	std::vector<Line> lines;
 	std::vector<Point> outline;
 	Polygon3 inside;
@@ -141,9 +139,6 @@ protected:
 	Insole::Point L; ///< Heel half circle outside
 	Insole::Point N; ///< Middle of heel half-circle
 	Insole::Point Z; ///< Little toe tip
-
-private:
-	bool leftside = false;
 };
 
 #endif /* PROJECT_INSOLE_H */

@@ -41,8 +41,8 @@ OpenGLText::OpenGLText() :
 OpenGLText::~OpenGLText() {
 }
 
-void OpenGLText::Paint(wxString text) const {
-	if (text.IsEmpty())
+void OpenGLText::Paint(const std::string &text) const {
+	if (text.empty())
 		return;
 	Update();
 
@@ -52,7 +52,7 @@ void OpenGLText::Paint(wxString text) const {
 	glBegin(GL_QUADS);
 
 	for (size_t n = 0; n < text.length(); n++) {
-		const unsigned char c = text.GetChar(n);
+		const unsigned char c = text[n];
 		if (c >= 128)
 			continue;
 		const double x = ((double) (c % nx) * rx);

@@ -40,7 +40,7 @@ HeightField::HeightField() {
 	Nx = 0;
 	Ny = 0;
 	N = 0;
-	value = NULL;
+	value = nullptr;
 	color.Set(0.5, 0.5, 0.5);
 }
 
@@ -48,29 +48,29 @@ HeightField::HeightField(const HeightField &other) :
 		N(other.N), Nx(other.Nx), Ny(other.Ny), dx(other.dx), dy(other.dy), color(
 				other.color), matrix(other.matrix) {
 	if (N == 0) {
-		value = NULL;
+		value = nullptr;
 		return;
 	}
 	value = new double[N];
-	if (value == NULL)
+	if (value == nullptr)
 		throw(__FILE__ ":Copy constructor - Not enough memory.");
 	for (unsigned int n = 0; n < N; n++)
 		value[n] = other.value[n];
 }
 
 HeightField::~HeightField() {
-	if (value != NULL)
+	if (value != nullptr)
 		delete[] value;
 }
 
 void HeightField::SetCount(unsigned int nx, unsigned int ny, float resolution) {
-	if (value != NULL)
+	if (value != nullptr)
 		delete[] value;
 	this->Nx = nx;
 	this->Ny = ny;
 	this->N = nx * ny;
 	value = new double[this->N];
-	if (value == NULL)
+	if (value == nullptr)
 		throw(__FILE__ ":SetCount(...) - Not enough memory.");
 	dx = resolution;
 	dy = resolution;
@@ -78,13 +78,13 @@ void HeightField::SetCount(unsigned int nx, unsigned int ny, float resolution) {
 }
 
 void HeightField::SetSize(float x, float y, float resolution) {
-	if (value != NULL)
+	if (value != nullptr)
 		delete[] value;
 	Nx = (unsigned int) ceil(x / resolution);
 	Ny = (unsigned int) ceil(y / resolution);
 	this->N = Nx * Ny;
 	value = new double[this->N];
-	if (value == NULL)
+	if (value == nullptr)
 		throw(__FILE__ ":SetSize(...) - Not enough memory.");
 	dx = resolution;
 	dy = resolution;
@@ -92,7 +92,7 @@ void HeightField::SetSize(float x, float y, float resolution) {
 }
 
 void HeightField::Clear(void) {
-	if (value == NULL)
+	if (value == nullptr)
 		return;
 	unsigned int i;
 	for (i = 0; i < N; i++)
@@ -135,7 +135,7 @@ Polygon3 HeightField::GetUnderline(void) const {
 }
 
 void HeightField::Paint(void) const {
-	if (value == NULL)
+	if (value == nullptr)
 		return;
 	glPushMatrix();
 	matrix.GLMultMatrix();

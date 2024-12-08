@@ -30,26 +30,38 @@
 #include <stdexcept>
 #include <sstream>
 
-void Configuration::Register(ParameterEvaluator &evaluator)
-//		: heelHeight("heelHeight"), ballHeight("ballHeight"), heelPitch(
-//				"heelPitch"), toeSpring("toeSpring"), bigToeAngle(
-//				"bigToeAngle"), littleToeAngle("littleToeAngle"), ballMeasurementAngle(
-//				"ballMeasurementAngle"), heelDirectionAngle(
-//				"heelDirectionAngle"), upperLevel("upperLevel"), extraLength(
-//				"extraLength"), footCompression("footCompression")
-		{
+void Configuration::Register(ParameterEvaluator &evaluator) {
 
 	lastFilename = std::make_shared<ParameterString>("lastFilename",
-			"data/Last_Default_Normalized.stl");
+			"/home/toby/Projekte/openshoedesigner/data/Last_Default_Normalized.stl");
 
-	std::initializer_list<std::string> types = { "boneBased", "lastBased" };
-	modelType = std::make_shared<ParameterEnum>("modelType", types);
+	std::initializer_list<ParameterEnum::Option> types = { { "boneBased" }, {
+			"lastBased" } };
+	modelType = std::make_shared<ParameterEnum>("modelType", types, "",
+	ID_MODELTYPE);
+	modelType->SetSelection(1);
 
-	heelHeight = evaluator.Register("heelHeight", "", "3 cm", ID_HEELHEIGHT);
-	ballHeight = evaluator.Register("ballHeight", "", "1 cm", ID_BALLHEIGHT);
-	heelPitch = evaluator.Register("heelPitch", "", "5 deg", ID_HEELPITCH);
-	toeSpring = evaluator.Register("toeSpring", "", "10 deg", ID_TOESPRING);
-	upperLevel = evaluator.Register("upperLevel", "", "0.8", ID_UPPERLEVEL);
+	std::initializer_list<ParameterEnum::Option> generators =
+			{ { "Experimental",
+					"Default generator for development of algorithms" },
+					{ "Welted",
+							"Welt-sewn shoes: Generates last, insole, sole, upper pattern and cutout" },
+					{ "Cemented",
+							"for cemented soles (simple, glued-together shoes)" },
+					{ "Molded",
+							"for industrial shoes, where the sole is injection-molded to the upper" },
+					{ "Dutch",
+							"Generator for dutch wooden clogs: Generates last, insole and clog" },
+					{ "Geta", "Japanese Geta generator" } };
+	generator = std::make_shared<ParameterEnum>("generator", generators, "",
+	ID_GENERATOR);
+	generator->SetSelection(0);
+
+	std::initializer_list<ParameterEnum::Option> sources = { {
+			"fromMeasurements" }, { "fromFootScan" } };
+	measurementSource = std::make_shared<ParameterEnum>("measurementSource",
+			sources, "");
+	measurementSource->SetSelection(0);
 
 	bigToeAngle = evaluator.Register("bigToeAngle", "", "6 deg",
 	ID_BIGTOEANGLE);
@@ -59,8 +71,8 @@ void Configuration::Register(ParameterEvaluator &evaluator)
 			"10 deg", ID_BALLMEASUREMENTANGLE);
 	heelDirectionAngle = evaluator.Register("heelDirectionAngle", "", "10 deg",
 	ID_HEELDIRECTIONANGLE);
-	tipSharpness = evaluator.Register("tipSharpness", "", "0.0",
-	ID_TIPSHARPNESS);
+
+	upperLevel = evaluator.Register("upperLevel", "", "0.8", ID_UPPERLEVEL);
 	extraLength = evaluator.Register("extraLength",
 			"Difference between foot-length and last-length. To make a"
 					" shoe walkable, this should be at least 2 cm"
@@ -73,19 +85,31 @@ void Configuration::Register(ParameterEvaluator &evaluator)
 					" prevent the foot from slipping around in the shoe."
 					" Set to 0 % for diabetic footwear.", "5/100",
 			ID_FOOTCOMPRESSION);
+
+	heelHeight = evaluator.Register("heelHeight", "", "3 cm", ID_HEELHEIGHT);
+	ballHeight = evaluator.Register("ballHeight", "", "1 cm", ID_BALLHEIGHT);
+	heelPitch = evaluator.Register("heelPitch", "", "5 deg", ID_HEELPITCH);
+	toeSpring = evaluator.Register("toeSpring", "", "10 deg", ID_TOESPRING);
+
+	tipSharpness = evaluator.Register("tipSharpness", "", "0.0",
+	ID_TIPSHARPNESS);
 }
 
 bool Configuration::IsModified(void) const {
-	return bigToeAngle->IsModified() | littleToeAngle->IsModified()
-			| ballMeasurementAngle->IsModified()
+	return measurementSource->IsModified() | lastFilename->IsModified()
+			| modelType->IsModified() | bigToeAngle->IsModified()
+			| littleToeAngle->IsModified() | ballMeasurementAngle->IsModified()
 			| heelDirectionAngle->IsModified() | upperLevel->IsModified()
 			| extraLength->IsModified() | footCompression->IsModified()
-			| heelHeight->IsModified() | ballHeight->IsModified()
-			| heelPitch->IsModified() | toeSpring->IsModified()
-			| tipSharpness->IsModified();
+			| generator->IsModified() | heelHeight->IsModified()
+			| ballHeight->IsModified() | heelPitch->IsModified()
+			| toeSpring->IsModified() | tipSharpness->IsModified();
 }
 
 void Configuration::Modify(bool modified) {
+	measurementSource->Modify(modified);
+	lastFilename->Modify(modified);
+	modelType->Modify(modified);
 	bigToeAngle->Modify(modified);
 	littleToeAngle->Modify(modified);
 	ballMeasurementAngle->Modify(modified);
@@ -93,6 +117,7 @@ void Configuration::Modify(bool modified) {
 	upperLevel->Modify(modified);
 	extraLength->Modify(modified);
 	footCompression->Modify(modified);
+	generator->Modify(modified);
 	heelHeight->Modify(modified);
 	ballHeight->Modify(modified);
 	heelPitch->Modify(modified);
@@ -102,6 +127,9 @@ void Configuration::Modify(bool modified) {
 
 bool Configuration::IsValidID(int id) {
 	switch (id) {
+	case ID_MEASUREMENTSOURCE:
+	case ID_LASTFILENAME:
+	case ID_MODELTYPE:
 	case ID_BIGTOEANGLE:
 	case ID_LITTLETOEANGLE:
 	case ID_BALLMEASUREMENTANGLE:
@@ -109,6 +137,7 @@ bool Configuration::IsValidID(int id) {
 	case ID_UPPERLEVEL:
 	case ID_EXTRALENGTH:
 	case ID_FOOTCOMPRESSION:
+	case ID_GENERATOR:
 	case ID_HEELHEIGHT:
 	case ID_BALLHEIGHT:
 	case ID_HEELPITCH:
@@ -121,6 +150,12 @@ bool Configuration::IsValidID(int id) {
 
 std::string Configuration::GetName(int id) {
 	switch (id) {
+	case ID_MEASUREMENTSOURCE:
+		return std::string("MeasurementSource");
+	case ID_LASTFILENAME:
+		return std::string("LastFilename");
+	case ID_MODELTYPE:
+		return std::string("ModelType");
 	case ID_BIGTOEANGLE:
 		return std::string("BigToeAngle");
 	case ID_LITTLETOEANGLE:
@@ -135,6 +170,8 @@ std::string Configuration::GetName(int id) {
 		return std::string("ExtraLength");
 	case ID_FOOTCOMPRESSION:
 		return std::string("FootCompression");
+	case ID_GENERATOR:
+		return std::string("Generator");
 	case ID_HEELHEIGHT:
 		return std::string("HeelHeight");
 	case ID_BALLHEIGHT:
@@ -153,6 +190,12 @@ std::string Configuration::GetName(int id) {
 
 std::shared_ptr<Parameter> Configuration::GetParameter(int id) {
 	switch (id) {
+	case ID_MEASUREMENTSOURCE:
+		return measurementSource;
+	case ID_LASTFILENAME:
+		return lastFilename;
+	case ID_MODELTYPE:
+		return modelType;
 	case ID_BIGTOEANGLE:
 		return bigToeAngle;
 	case ID_LITTLETOEANGLE:
@@ -167,6 +210,8 @@ std::shared_ptr<Parameter> Configuration::GetParameter(int id) {
 		return extraLength;
 	case ID_FOOTCOMPRESSION:
 		return footCompression;
+	case ID_GENERATOR:
+		return generator;
 	case ID_HEELHEIGHT:
 		return heelHeight;
 	case ID_BALLHEIGHT:
@@ -186,6 +231,12 @@ std::shared_ptr<Parameter> Configuration::GetParameter(int id) {
 const std::shared_ptr<const Parameter> Configuration::GetParameter(
 		int id) const {
 	switch (id) {
+	case ID_MEASUREMENTSOURCE:
+		return measurementSource;
+	case ID_LASTFILENAME:
+		return lastFilename;
+	case ID_MODELTYPE:
+		return modelType;
 	case ID_BIGTOEANGLE:
 		return bigToeAngle;
 	case ID_LITTLETOEANGLE:
@@ -200,6 +251,8 @@ const std::shared_ptr<const Parameter> Configuration::GetParameter(
 		return extraLength;
 	case ID_FOOTCOMPRESSION:
 		return footCompression;
+	case ID_GENERATOR:
+		return generator;
 	case ID_HEELHEIGHT:
 		return heelHeight;
 	case ID_BALLHEIGHT:
@@ -219,10 +272,16 @@ const std::shared_ptr<const Parameter> Configuration::GetParameter(
 void Configuration::FromJSON(const JSON &js) {
 	if (!js.IsObject()) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __func__ << ":";
 		out << " The json does not contain an object with measurements.";
 		throw std::runtime_error(out.str());
 	}
+	if (js.HasKey("measurementSource"))
+		measurementSource->SetSelection(js["measurementSource"].GetString(""));
+	if (js.HasKey("lastFilename"))
+		lastFilename->SetString(js["lastFilename"].GetString(""));
+	if (js.HasKey("modelType"))
+		modelType->SetSelection(js["modelType"].GetString(""));
 	if (js.HasKey("bigToeAngle"))
 		bigToeAngle->SetFormula(js["bigToeAngle"].GetString(""));
 	if (js.HasKey("littleToeAngle"))
@@ -238,6 +297,8 @@ void Configuration::FromJSON(const JSON &js) {
 		extraLength->SetFormula(js["extraLength"].GetString(""));
 	if (js.HasKey("footCompression"))
 		footCompression->SetFormula(js["footCompression"].GetString(""));
+	if (js.HasKey("generator"))
+		generator->SetSelection(js["generator"].GetString(""));
 	if (js.HasKey("heelHeight"))
 		heelHeight->SetFormula(js["heelHeight"].GetString(""));
 	if (js.HasKey("ballHeight"))
@@ -252,6 +313,9 @@ void Configuration::FromJSON(const JSON &js) {
 
 void Configuration::ToJSON(JSON &js) const {
 	js.SetObject(true);
+	js["measurementSource"].SetString(measurementSource->GetSelection());
+	js["lastFilename"].SetString(lastFilename->GetString());
+	js["modelType"].SetString(modelType->GetSelection());
 	js["bigToeAngle"].SetString(bigToeAngle->GetFormula());
 	js["littleToeAngle"].SetString(littleToeAngle->GetFormula());
 	js["ballMeasurementAngle"].SetString(ballMeasurementAngle->GetFormula());
@@ -259,6 +323,7 @@ void Configuration::ToJSON(JSON &js) const {
 	js["upperLevel"].SetString(upperLevel->GetFormula());
 	js["extraLength"].SetString(extraLength->GetFormula());
 	js["footCompression"].SetString(footCompression->GetFormula());
+	js["generator"].SetString(generator->GetSelection());
 	js["heelHeight"].SetString(heelHeight->GetFormula());
 	js["ballHeight"].SetString(ballHeight->GetFormula());
 	js["heelPitch"].SetString(heelPitch->GetFormula());

@@ -78,10 +78,10 @@ bool LastAnalyse::HasToRun() {
 void LastAnalyse::Run() {
 	*out = *in;
 
-	std::cout << __FILE__ << ":" << __func__ << ": ";
-	std::cout << out->GetNormalCurvature() << "\n";
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
+	DEBUGOUT << "Normal Curvature = " << out->GetNormalCurvature() << " rad\n";
 
-//	AnalyseForm();
+	AnalyseForm();
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);
@@ -91,9 +91,18 @@ void LastAnalyse::Run() {
 void LastAnalyse::Paint() const {
 	glPushMatrix();
 
+	out->Paint();
+
 	debug.Paint();
 	glScalef(10, 10, 10);
 	me.Paint();
+
+//	OpenGLMaterial mat0(OpenGLMaterial::Preset::RedPlastic);
+//	OpenGLMaterial mat1(OpenGLMaterial::Preset::GreenPlastic);
+//	mat1.UseColor();
+//	debug1.Paint();
+//	mat0.UseColor();
+//	debug0.Paint();
 
 	glPopMatrix();
 }
@@ -104,17 +113,14 @@ void LastAnalyse::AnalyseForm() {
 
 	out->UpdateRawBoundingBox();
 
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
-
 	FindAndReorientCenterplane();
 
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
+	DEBUGOUT << "Normal Curvature = " << out->GetNormalCurvature() << " rad\n";
 
-//	if (!FindMarker())
-//		return;
-//	out->MarkMeasurements();
+	if (!FindMarker())
+		return;
+	MarkMeasurements();
 
 //	kde.Clear();
 //	kde.XLinspace(0, 2 * M_PI, 360);
@@ -130,7 +136,7 @@ void LastAnalyse::AnalyseForm() {
 //	kde.Normalize();
 //	auto results = kde.FindPeaks();
 
-//	FindOutline();
+	FindOutline();
 
 // For Testing purposes change front and back.
 //	{
@@ -364,45 +370,47 @@ void LastAnalyse::AnalyseForm() {
 }
 
 void LastAnalyse::FindAndReorientCenterplane() {
+
 	const double param_soleangle = 25.0 * M_PI / 180.0;
 
 	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
 	Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0), bbc.GlobalX(0.2));
 	{
 		Vector3 r = section.GetRotationalAxis();
-		if (r.x < 0)
+		if (r.x < 0) {
 			section.Reverse();
+			section.SortLoop();
+		}
 	}
 
 	debug = section;
 
-//	{
-//		kde.XLinspace(-M_PI_2, M_PI_2, 81);
+//	kde.XLinspace(-M_PI_2, M_PI_2, 81);
 //
-//		for (size_t n = 0; n < section.VertexCount(); ++n) {
-//			const Vector3 v = section[n].n;
-//			double a = atan2(v.z, v.y);
-//			double weight = section[n].y;
-//			if (a > M_PI_2) {
-//				a = M_PI - a;
-//				weight = -weight;
-//			}
-//			if (a < -M_PI_2) {
-//				a = -M_PI - a;
-//				weight = -weight;
-//			}
-//			kde.Insert(a, Kernel::Epanechnikov, weight, 0.2);
+//	for (size_t n = 0; n < section.VertexCount(); ++n) {
+//		const Vector3 v = section[n].n;
+//		double a = atan2(v.z, v.y);
+//		double weight = section[n].y;
+//		if (a > M_PI_2) {
+//			a = M_PI - a;
+//			weight = -weight;
 //		}
-//		kde.NormalizeByCoverage();
-//
-//		auto Lmin = kde.Min();
-//		auto Lmax = kde.Max();
-//		me.XLinspace(Lmin.y, Lmax.y, 91);
-//		me.EstimateY(kde, MEstimator::HuberK(1e-3), 1.0);
-//
-//		auto Vmin = me.Min();
-//		const double Ypos = Vmin.x;
+//		if (a < -M_PI_2) {
+//			a = -M_PI - a;
+//			weight = -weight;
+//		}
+//		kde.Insert(a, Kernel::Epanechnikov, weight, 0.2);
 //	}
+//	kde.NormalizeByCoverage();
+//
+//	auto Lmin = kde.Min();
+//	auto Lmax = kde.Max();
+//	me.XLinspace(Lmin.y, Lmax.y, 91);
+//	me.EstimateY(kde, MEstimator::HuberK(1e-3), 1.0);
+//
+//	auto Vmin = me.Min();
+//	const double Ypos = Vmin.x;
+
 	Vector3 c = section.GetCenter();
 	const double Ypos = c.y;
 
@@ -434,17 +442,18 @@ void LastAnalyse::FindAndReorientCenterplane() {
 //	loop.InsertPoint(section[p0 % N], section.Normal(p0 % N));
 //	loop.InsertPoint(section[p1 % N], section.Normal(p1 % N));
 
-	auto test1 = out->IntersectPlane(Vector3(0, 0, 1), -0.001);
-	auto test2 = out->IntersectPlane(Vector3(0, 0, 1), 0.001);
+//	auto test1 = out->IntersectPlane(Vector3(0, 0, 1), -0.001);
+//	auto test2 = out->IntersectPlane(Vector3(0, 0, 1), 0.001);
 
 	out->planeXZ = out->IntersectPlane(Vector3(0, 1, 0), Ypos);
-	out->planeXZ.SortLoop();
 	{
 		// Reverse the loop to run in a positive direction in the x-z coordinate system.
 		// (Left-handed coordinate system)
 		Vector3 r = out->planeXZ.GetRotationalAxis();
-		if (r.y > 0)
+		if (r.y > 0) {
 			out->planeXZ.Reverse();
+			out->planeXZ.SortLoop();
+		}
 	}
 
 	{
@@ -828,6 +837,37 @@ bool LastAnalyse::FindMarker() {
 // Rescale test for displaying.
 //	last->angleXZ /= M_PI;
 	return true;
+}
+
+void LastAnalyse::MarkMeasurements() {
+	{
+		Vector3 n =
+				(out->planeXZ[out->idxTop] - out->planeXZ[out->idxHeelPoint]).Normal();
+		Vector3 n2(-n.z, 0, n.x);
+		out->HeelGirth = out->IntersectPlane(n2,
+				n2.Dot(out->planeXZ[out->idxHeelPoint]));
+	}
+	{
+		Vector3 n = (out->planeXZ[out->idxWaistTop]
+				- out->planeXZ[out->idxWaistBottom]).Normal();
+		Vector3 n2(-n.z, 0, n.x);
+		out->WaistGirth = out->IntersectPlane(n2,
+				n2.Dot(out->planeXZ[out->idxWaistBottom]));
+	}
+	{
+		Vector3 n = (out->planeXZ[out->idxLittleToeTop]
+				- out->planeXZ[out->idxLittleToeBottom]).Normal();
+		Vector3 n2(-n.z, 0, n.x);
+		out->LittleToeGirth = out->IntersectPlane(n2,
+				n2.Dot(out->planeXZ[out->idxLittleToeBottom]));
+	}
+	{
+		Vector3 n = (out->planeXZ[out->idxBigToeTop]
+				- out->planeXZ[out->idxBigToeBottom]).Normal();
+		Vector3 n2(-n.z, 0, n.x);
+		out->BigToeGirth = out->IntersectPlane(n2,
+				n2.Dot(out->planeXZ[out->idxBigToeBottom]));
+	}
 }
 
 void LastAnalyse::FindOutline() {

@@ -1,15 +1,7 @@
-/**
- * \defgroup ObjectOperations Operations and Objects
- *
- * For the purpose of multithreaded automation a chain of abstract operations on
- * abstract objects is used.
- *
- * The Builder object sets up the chain of objects and operations, checks the
- * modifications and needs and runs the operations in the correct order.  
- */
 
 
-/** \defgroup document Project data
+
+/** \defgroup project Project data
  
 This describes the parts that make up the data.
  

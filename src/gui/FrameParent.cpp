@@ -129,7 +129,7 @@ FrameParent::FrameParent(wxDocManager *manager, wxConfig *config,
 	dt = 500e-3; // s
 	timer.Start(round(dt * 1000.0)); // ms
 
-	this->Connect(wxEVT_TIMER, wxTimerEventHandler(FrameParent::OnTimer), NULL,
+	this->Connect(wxEVT_TIMER, wxTimerEventHandler(FrameParent::OnTimer), nullptr,
 			this);
 }
 
@@ -144,7 +144,7 @@ FrameParent::~FrameParent() {
 	settingsStereo3D.Save(config);
 
 	this->Disconnect(wxEVT_TIMER, wxTimerEventHandler(FrameParent::OnTimer),
-	NULL, this);
+	nullptr, this);
 
 	delete m_helpController;
 }
@@ -225,7 +225,7 @@ void FrameParent::OnRefreshAll3D(wxCommandEvent &event) {
 void FrameParent::OnRefreshView(wxCommandEvent &event) {
 	wxDocManager *mgr = GetDocumentManager();
 	wxDocument *doc = mgr->GetCurrentDocument();
-	if (doc != NULL)
+	if (doc != nullptr)
 		doc->UpdateAllViews();
 }
 

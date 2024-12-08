@@ -519,7 +519,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_choicebookMeasurement->AddPage( m_panelScanBased, _("Scan based"), false );
 	bSizerFoot->Add( m_choicebookMeasurement, 1, wxEXPAND | wxALL, 5 );
 
-	m_choicebookFootModel = new wxChoicebook( m_panelPageFoot, ID_FOOTMODEL, wxDefaultPosition, wxDefaultSize, wxCHB_DEFAULT );
+	m_choicebookFootModel = new wxChoicebook( m_panelPageFoot, ID_MODELTYPE, wxDefaultPosition, wxDefaultSize, wxCHB_DEFAULT );
 	m_panelBoneBasedModel = new wxPanel( m_choicebookFootModel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerBoneBasedModel;
 	bSizerBoneBasedModel = new wxBoxSizer( wxVERTICAL );
@@ -531,7 +531,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelBoneBasedModel->SetSizer( bSizerBoneBasedModel );
 	m_panelBoneBasedModel->Layout();
 	bSizerBoneBasedModel->Fit( m_panelBoneBasedModel );
-	m_choicebookFootModel->AddPage( m_panelBoneBasedModel, _("Bone based model"), true );
+	m_choicebookFootModel->AddPage( m_panelBoneBasedModel, _("Bone based model"), false );
 	m_panelLastBasedModel = new wxPanel( m_choicebookFootModel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerLastBasedModel;
 	bSizerLastBasedModel = new wxBoxSizer( wxVERTICAL );
@@ -540,14 +540,14 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_staticTextLastModel->Wrap( -1 );
 	bSizerLastBasedModel->Add( m_staticTextLastModel, 0, wxALL, 5 );
 
-	m_filePickerLastModel = new wxFilePickerCtrl( m_panelLastBasedModel, wxID_ANY, wxEmptyString, _("Select last model"), _("3D Models (*.stl, *.obj)|*.stl; *.obj|Stereolitography models(*.stl)|*.stl|Wavefront objects (*.obj)|*.obj|All files|*.*"), wxDefaultPosition, wxDefaultSize, wxFLP_DEFAULT_STYLE );
+	m_filePickerLastModel = new wxFilePickerCtrl( m_panelLastBasedModel, ID_LASTFILENAME, wxEmptyString, _("Select last model"), _("3D Models (*.stl, *.obj)|*.stl; *.obj|Stereolitography models(*.stl)|*.stl|Wavefront objects (*.obj)|*.obj|All files|*.*"), wxDefaultPosition, wxDefaultSize, wxFLP_DEFAULT_STYLE );
 	bSizerLastBasedModel->Add( m_filePickerLastModel, 0, wxALL|wxEXPAND, 5 );
 
 
 	m_panelLastBasedModel->SetSizer( bSizerLastBasedModel );
 	m_panelLastBasedModel->Layout();
 	bSizerLastBasedModel->Fit( m_panelLastBasedModel );
-	m_choicebookFootModel->AddPage( m_panelLastBasedModel, _("Last based model"), false );
+	m_choicebookFootModel->AddPage( m_panelLastBasedModel, _("Last based model"), true );
 	bSizerFoot->Add( m_choicebookFootModel, 0, wxALL|wxEXPAND, 5 );
 
 
@@ -851,7 +851,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_staticTextConstruction->Wrap( -1 );
 	bSizer28->Add( m_staticTextConstruction, 0, wxALL, 5 );
 
-	m_choicebookConstruction = new wxChoicebook( m_panelPageSole, ID_SELECTCONSTRUCTION, wxDefaultPosition, wxDefaultSize, wxCHB_DEFAULT );
+	m_choicebookConstruction = new wxChoicebook( m_panelPageSole, ID_GENERATOR, wxDefaultPosition, wxDefaultSize, wxCHB_DEFAULT );
 	m_panelExperimental = new wxPanel( m_choicebookConstruction, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerExperimental;
 	bSizerExperimental = new wxBoxSizer( wxVERTICAL );

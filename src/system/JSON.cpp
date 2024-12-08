@@ -111,7 +111,7 @@ double JSON::GetNumber(const double defaultvalue) const {
 	if (type == Type::Boolean)
 		return (valueBoolean) ? 1 : 0;
 	if (type == Type::String)
-		return strtod(valueString.c_str(), NULL);
+		return strtod(valueString.c_str(), nullptr);
 	if (type == Type::Null)
 		return defaultvalue;
 	throw(std::logic_error("Not a number."));

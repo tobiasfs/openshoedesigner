@@ -40,14 +40,14 @@ WorkerThread::WorkerThread(Project * project, size_t threadNr)
 
 WorkerThread::~WorkerThread()
 {
-	if(project != NULL){
+	if(project != nullptr){
 		wxCriticalSectionLocker enter(project->CS);
 		switch(threadNr){
 		case 0:
-			project->thread0 = NULL;
+			project->thread0 = nullptr;
 			break;
 		case 1:
-			project->thread1 = NULL;
+			project->thread1 = nullptr;
 			break;
 		}
 	}

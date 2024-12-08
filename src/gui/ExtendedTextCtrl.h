@@ -46,7 +46,7 @@ public:
 			const wxString& name = wxTextCtrlNameStr);
 	virtual ~ExtendedTextCtrl() = default;
 
-	void SetProject(Project * project = NULL);
+	void SetProject(Project * project = nullptr);
 
 protected:
 	void OnContextMenu(wxContextMenuEvent& event);
@@ -54,7 +54,7 @@ protected:
 private:
 	static bool IsKnowID(int id);
 
-	Project* project = NULL;
+	Project* project = nullptr;
 
 DECLARE_EVENT_TABLE()
 };

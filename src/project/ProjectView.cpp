@@ -65,11 +65,11 @@ ProjectView::ProjectView() :
 }
 
 ProjectView::~ProjectView() {
-	printf("ProjectView: Destructor called...\n");
+	DEBUGOUT << "ProjectView: Destructor called...\n";
 }
 
 bool ProjectView::OnCreate(wxDocument *doc, long flags) {
-	printf("ProjectView::OnCreate(...) called...\n");
+	DEBUGOUT << "ProjectView::OnCreate(...) called...\n";
 
 	if (!wxView::OnCreate(doc, flags))
 		return false;
@@ -106,6 +106,14 @@ void ProjectView::Paint(bool usePicking) const {
 	matScan.SetSimpleColor(0.4, 0.9, 0.6);
 
 	matBones.UseColor();
+
+#ifdef DEBUG
+
+	if (!usePicking) {
+		OpenGLMaterial::EnableColors();
+		matLines.UseColor(0.0);
+
+		project->builder.Paint();
 
 //	NagataPatch p0;
 //
@@ -168,6 +176,8 @@ void ProjectView::Paint(bool usePicking) const {
 //	s.Calculate();
 //	s.Paint();
 //	glPopMatrix();
+	}
+#endif
 
 	if (showLeft) {
 
@@ -207,14 +217,10 @@ void ProjectView::Paint(bool usePicking) const {
 		{
 			glPushName(3);
 
-			OpenGLMaterial::EnableColors();
-			matLines.UseColor(1.0);
-			project->builder.Paint();
-
 			matScan.UseMaterial();
 
-			if (project->lastNormalized.use_count() > 0)
-				project->lastNormalized->Paint();
+//			if (project->lastNormalized)
+//				project->lastNormalized->Paint();
 
 			glPopName();
 		}
@@ -413,20 +419,21 @@ void ProjectView::PaintBackground(bool showBehind) const {
 	}
 }
 
-const FootMeasurements* ProjectView::GetActiveFootMeasurements(void) const {
+const std::shared_ptr<FootMeasurements> ProjectView::GetActiveFootMeasurements(
+		void) const {
 	const Project *project = wxStaticCast(this->GetDocument(), Project);
-//	switch (active) {
-//	case Side::Both:
-//	case Side::Left:
-//		return &(project->measL);
-//	case Side::Right:
-//		return &(project->measR);
-//	}
-	return NULL;
+	switch (active) {
+	case Side::Both:
+	case Side::Left:
+		return project->footL;
+	case Side::Right:
+		return project->footR;
+	}
+	return nullptr;
 }
 
 void ProjectView::OnDraw(wxDC *dc) {
-	printf("ProjectView::OnDraw(...) called...\n");
+	DEBUGOUT << "ProjectView::OnDraw(...) called...\n";
 
 }
 
@@ -445,32 +452,35 @@ void ProjectView::OnUpdate3D(void) {
 }
 
 bool ProjectView::OnClose(bool deleteWindow) {
-	printf("ProjectView::OnClose(%s) called...\n",
-			deleteWindow ? "true" : "false");
+	DEBUGOUT << "ProjectView::OnClose( " << (deleteWindow ? "true" : "false")
+			<< " ) called...\n";
+
 	wxDocument *doc = GetDocument();
 	wxDocManager *manager = doc->GetDocumentManager();
 	wxList tempDocs = manager->GetDocuments();
 	wxList tempViews = doc->GetViews();
 
-	printf("ProjectView: %lu docs, %lu views\n", tempDocs.GetCount(),
-			tempViews.GetCount());
+	DEBUGOUT << "ProjectView:OnClose: " << tempDocs.GetCount() << " docs, "
+			<< tempViews.GetCount() << " views\n";
 
 	if (!wxView::OnClose(deleteWindow))
 		return false;
 	Activate(false);
 //	GetDocument()->DeleteContents();
 	wxWindow *frame = this->GetFrame();
-	if (tempDocs.GetCount() <= 1 && tempViews.GetCount() <= 1 && frame != NULL) {
+	if (tempDocs.GetCount() <= 1 && tempViews.GetCount() <= 1
+			&& frame != nullptr) {
 		wxWindow *parent = frame->GetParent();
-		printf("ProjectView: Posting wxID_EXIT to parent\n");
+		DEBUGOUT << "ProjectView:OnClose: Posting wxID_EXIT to parent\n";
 		wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, wxID_EXIT);
 		wxPostEvent(parent, event);
 	}
 
 	if (deleteWindow) {
-		printf("ProjectView: Request destruction of associated Frame\n");
+		DEBUGOUT
+				<< "ProjectView:OnClose: Request destruction of associated Frame\n";
 		frame->Destroy();
-		SetFrame(NULL);
+		SetFrame(nullptr);
 	}
 	return true;
 }

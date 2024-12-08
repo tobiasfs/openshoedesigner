@@ -1839,19 +1839,24 @@ const Geometry::Vertex& Geometry::GetTriangleVertex(const size_t indexTriangle,
 }
 
 void Geometry::Transform(const AffineTransformMatrix &matrix) {
-	for (Vertex &vertex : v)
-		vertex.Transform(matrix);
+	AffineTransformMatrix::Orientation orientation = matrix.CheckOrientation();
 
 	AffineTransformMatrix matrixnormal = matrix.GetNormalMatrix();
+	matrixnormal.Normalize();
 
-	Vector3 ex = matrixnormal.GetEx();
-	Vector3 ey = matrixnormal.GetEy();
-	Vector3 ez = matrixnormal.GetEz();
+//	Vector3 ex = matrixnormal.GetEx();
+//	Vector3 ey = matrixnormal.GetEy();
+//	Vector3 ez = matrixnormal.GetEz();
+//
+//	matrixnormal.SetEx(ex.Normal());
+//	matrixnormal.SetEy(ey.Normal());
+//	matrixnormal.SetEz(ez.Normal());
 
-	matrixnormal.SetEx(ex.Normal());
-	matrixnormal.SetEy(ey.Normal());
-	matrixnormal.SetEz(ez.Normal());
+	if (orientation == AffineTransformMatrix::Orientation::LHS)
+		FlipInsideOutside();
 
+	for (Vertex &vertex : v)
+		vertex.Transform(matrix);
 	for (Edge &edge : e)
 		edge.n = matrixnormal.Transform(edge.n);
 	for (Triangle &tri : t)

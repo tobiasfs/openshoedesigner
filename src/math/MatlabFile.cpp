@@ -31,21 +31,35 @@
 #include <cstring>
 #include <ctime>
 #include <iostream>
+#include <sstream>
 #include <stddef.h>
 #include <string>
 #include <vector>
 
+#ifdef DEBUG
+#define DEBUGOUT std::cout
+#else
+#define DEBUGOUT if(false) std::cout
+#endif
+
+#define ERROR(errortxt) { \
+		std::ostringstream err; \
+		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -"; \
+		err << errortxt; \
+		throw std::runtime_error(err.str()); \
+	}
+
 MatlabFile::MatlabFile(const MatlabFile &other) {
-	std::cerr << "MatlabFile: Copy constructor called.\n";
-	this->fhd = NULL;
+	DEBUGOUT << "MatlabFile: Copy constructor called.\n";
+	this->fhd = nullptr;
 	this->filename = other.filename;
 	this->version = other.version;
 }
 
 MatlabFile& MatlabFile::operator=(const MatlabFile &other) {
-	if (fhd != NULL)
+	if (fhd != nullptr)
 		fclose(fhd);
-	this->fhd = NULL;
+	this->fhd = nullptr;
 	this->filename = other.filename;
 	this->version = other.version;
 	return *this;
@@ -53,12 +67,12 @@ MatlabFile& MatlabFile::operator=(const MatlabFile &other) {
 
 MatlabFile::MatlabFile(const std::string &filename, Version version) {
 	this->filename = filename;
-	this->fhd = NULL;
+	this->fhd = nullptr;
 	this->version = version;
 }
 
 MatlabFile::~MatlabFile() {
-	if (fhd != NULL)
+	if (fhd != nullptr)
 		fclose(fhd);
 }
 
@@ -68,20 +82,20 @@ void MatlabFile::SetFilename(const std::string &filename) {
 }
 
 bool MatlabFile::IsOpen() const {
-	return (fhd != NULL);
+	return (fhd != nullptr);
 }
 
 void MatlabFile::Close() {
-	if (fhd != NULL)
+	if (fhd != nullptr)
 		fclose(fhd);
-	fhd = NULL;
+	fhd = nullptr;
 }
 
 void MatlabFile::SetVersion(Version version) {
 	if (this->version == version)
 		return;
-	if (fhd != NULL)
-		throw __FILE__ ": SetVersion: Cannot change version while file is open.";
+	if (fhd != nullptr)
+		ERROR("Cannot change version while file is open.");
 	this->version = version;
 }
 
@@ -90,13 +104,13 @@ MatlabFile::Version MatlabFile::GetVersion() const {
 }
 
 void MatlabFile::ReadMatrix(Matrix *M, const std::string &matrixname) {
-	if (M == NULL)
-		throw __FILE__ ": ReadData(MatlabMatrix*): Matrix == NULL.";
-	if (fhd != NULL)
-		throw __FILE__ ": ReadData(MatlabMatrix*): File is in write-mode.";
+	if (M == nullptr)
+		ERROR("Matrix " << matrixname << " is nullptr.");
+	if (fhd != nullptr)
+		ERROR("File " << filename << " has been opened in write-mode.");
 	fhd = fopen(filename.c_str(), "rb");
-	if (fhd == NULL)
-		throw __FILE__ ": ReadData(MatlabMatrix*): Could not open file.";
+	if (fhd == nullptr)
+		ERROR("Could not open file " << filename << ".");
 
 	int res;
 
@@ -104,7 +118,7 @@ void MatlabFile::ReadMatrix(Matrix *M, const std::string &matrixname) {
 	char magic[4];
 	res = fread((char*) magic, sizeof(char), 4, fhd);
 	if (res == 0)
-		throw __FILE__ ": File is empty.";
+		ERROR("File " << filename << " is empty.");
 	if (strncmp(magic, "MATL", 4) == 0)
 		version = Version::V6;
 	else
@@ -126,16 +140,20 @@ void MatlabFile::ReadMatrix(Matrix *M, const std::string &matrixname) {
 			if (res == 0)
 				break;
 			if (zero1 != 0)
-				throw __FILE__ ": ReadData(MatlabMatrix*): Wrong header.";
+				ERROR(
+						"Matrix " << matrixname << " in file " << filename << " has a broken header.");
 			res = fread(((uint32_t*) &S1), sizeof(uint32_t), 1, fhd);
 			if (S1 == 0 || res == 0)
-				throw __FILE__ ": ReadData(MatlabMatrix*): Wrong header.";
+				ERROR(
+						"Matrix " << matrixname << " in file " << filename << " has a broken header.");
 			res = fread(((uint32_t*) &S2), sizeof(uint32_t), 1, fhd);
 			if (S2 == 0 || res == 0)
-				throw __FILE__ ": ReadData(MatlabMatrix*): Wrong header.";
+				ERROR(
+						"Matrix " << matrixname << " in file " << filename << " has a broken header.");
 			res = fread(((uint32_t*) &zero2), sizeof(uint32_t), 1, fhd);
 			if (zero2 != 0 || res == 0)
-				throw __FILE__ ": ReadData(MatlabMatrix*): Wrong header.";
+				ERROR(
+						"Matrix " << matrixname << " in file " << filename << " has a broken header.");
 
 			uint32_t x;
 			res = fread(((uint32_t*) &x), sizeof(uint32_t), 1, fhd);
@@ -160,9 +178,10 @@ void MatlabFile::ReadMatrix(Matrix *M, const std::string &matrixname) {
 				M->SetSize(S1, S2);
 				res = fread(M->Pointer(), sizeof(double), M->Numel(), fhd);
 				if (res == 0)
-					throw __FILE__ ": ReadData(MatlabMatrix*): Truncated file.";
+					ERROR(
+							"For matrix " << matrixname << " from file " << filename << ": the file is truncated.");
 				fclose(fhd);
-				fhd = NULL;
+				fhd = nullptr;
 				return;
 			} else {
 				fseek(fhd,
@@ -172,7 +191,8 @@ void MatlabFile::ReadMatrix(Matrix *M, const std::string &matrixname) {
 
 				res = fread(((uint32_t*) &x), sizeof(uint32_t), 1, fhd);
 				if (res == 0)
-					throw __FILE__ ": ReadData(MatlabMatrix*): Truncated file.";
+					ERROR(
+							"For matrix " << matrixname << " from file " << filename << ": the file is truncated.");
 			}
 		} while (!feof(fhd));
 	}
@@ -181,27 +201,29 @@ void MatlabFile::ReadMatrix(Matrix *M, const std::string &matrixname) {
 		char headertext[125];
 		res = fread((char*) headertext, sizeof(char), 124, fhd);
 		if (res == 0)
-			throw __FILE__ ": ReadData(MatlabMatrix*): Headertext incomplete.";
+			ERROR(
+					"For matrix " << matrixname << " from file " << filename << ": the header is incomplete.");
 		headertext[124] = 0;
-		throw __FILE__": ReadMatrix for this version not implemented.";
+		ERROR("This function is not implemented for MAT files Version 6 (yet).");
 	}
 		break;
 	default:
-		throw __FILE__": ReadMatrix for this version not implemented.";
+		ERROR("Not implemented.")
+		;
 		break;
 	}
 
 	fclose(fhd);
-	fhd = NULL;
+	fhd = nullptr;
 }
 
 void MatlabFile::WriteMatrix(const Matrix &M) {
 	if (M.GetVariableName().size() == 0)
-		throw __FILE__ ": WriteMatrix: Variablename empty.";
-	if (fhd == NULL) {
+		ERROR("Variablename is empty.");
+	if (fhd == nullptr) {
 		fhd = fopen(filename.c_str(), "wb");
-		if (fhd == NULL)
-			throw __FILE__ ": WriteData: Could not open file.";
+		if (fhd == nullptr)
+			ERROR("Could not open file " << filename << ".");
 
 		// Write Header
 		switch (version) {
@@ -262,7 +284,7 @@ void MatlabFile::WriteMatrix(const Matrix &M) {
 			if (M.Size(NDim) > 1)
 				break;
 		if (NDim == 0)
-			throw __FILE__ ": WriteData(MatlabMatrix*): Matrix has no Dimensions.";
+			ERROR("Matrix " << M.GetVariableName() << " has no dimensions.");
 
 		const uint8_t zeros8 = 0;
 		const uint32_t zeros32 = 0;
@@ -334,7 +356,8 @@ void MatlabFile::WriteMatrix(const Matrix &M) {
 	}
 		break;
 	default:
-		throw __FILE__": ReadMatrix for this version not implemented.";
+		ERROR("Not implemented.")
+		;
 		break;
 	}
 }

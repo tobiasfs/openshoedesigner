@@ -46,7 +46,7 @@
 
 Canvas3D::Canvas3D(wxWindow *parent) :
 		OpenGLCanvas(parent) {
-	projectview = NULL;
+	projectview = nullptr;
 }
 
 Canvas3D::~Canvas3D() {
@@ -55,126 +55,61 @@ Canvas3D::~Canvas3D() {
 //void Canvas3D::ConnectMouseEvents(void)
 //{
 //	this->Connect(wxEVT_MOTION, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_MOUSEWHEEL, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_RIGHT_DCLICK,
-//			wxMouseEventHandler(Canvas3D::OnMouseEvent), NULL, this);
+//			wxMouseEventHandler(Canvas3D::OnMouseEvent), nullptr, this);
 //	this->Connect(wxEVT_MIDDLE_DOWN,
-//			wxMouseEventHandler(Canvas3D::OnMouseEvent), NULL, this);
+//			wxMouseEventHandler(Canvas3D::OnMouseEvent), nullptr, this);
 //	this->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_LEFT_DCLICK,
-//			wxMouseEventHandler(Canvas3D::OnMouseEvent), NULL, this);
+//			wxMouseEventHandler(Canvas3D::OnMouseEvent), nullptr, this);
 //	this->Connect(wxEVT_LEFT_UP, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //}
 //
 //void Canvas3D::DisconnectMouseEvents(void)
 //{
 //	this->Connect(wxEVT_LEFT_UP, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_LEFT_DCLICK,
-//			wxMouseEventHandler(Canvas3D::OnMouseEvent), NULL, this);
+//			wxMouseEventHandler(Canvas3D::OnMouseEvent), nullptr, this);
 //	this->Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_MIDDLE_DOWN,
-//			wxMouseEventHandler(Canvas3D::OnMouseEvent), NULL, this);
+//			wxMouseEventHandler(Canvas3D::OnMouseEvent), nullptr, this);
 //	this->Connect(wxEVT_RIGHT_DCLICK,
-//			wxMouseEventHandler(Canvas3D::OnMouseEvent), NULL, this);
+//			wxMouseEventHandler(Canvas3D::OnMouseEvent), nullptr, this);
 //	this->Connect(wxEVT_RIGHT_DOWN, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_MOUSEWHEEL, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //	this->Connect(wxEVT_MOTION, wxMouseEventHandler(Canvas3D::OnMouseEvent),
-//	NULL, this);
+//	nullptr, this);
 //}
 
-void Canvas3D::SetProjectView(const ProjectView *projectview) {
-	this->projectview = projectview;
+void Canvas3D::SetProjectView(const ProjectView *projectview_) {
+	projectview = projectview_;
 }
 
 void Canvas3D::Render() {
-	if (projectview == NULL)
+	if (projectview == nullptr)
 		return;
 	projectview->PaintBackground(true);
 
 	glClear( GL_DEPTH_BUFFER_BIT);
+
+	// XY in the plane and Z pointing upwards.
 	glRotatef(-90, 1, 0, 0);
-//	glRotatef(-10, 0, 0, 1);
 
-	if (projectview->showCoordinateSystem) {
+	if (projectview->showCoordinateSystem)
+		PaintCorrdinateSystem();
 
-		OpenGLMaterial matX(0.8, 0.0, 0.0, 0.8);
-		OpenGLMaterial matY(0.0, 0.8, 0.0, 0.8);
-		OpenGLMaterial matZ(0.0, 0.0, 0.8, 0.8);
-
-		const double len = 0.3;
-		const double rad = 0.04;
-		const uint_fast8_t N = 4;
-
-		matX.UseMaterial();
-		glBegin(GL_LINES);
-		glNormal3f(-1, 0, 0);
-		glVertex3f(-len, 0, 0);
-		glNormal3f(1, 0, 0);
-		glVertex3f(len, 0, 0);
-		glEnd();
-		matY.UseMaterial();
-		glBegin(GL_LINES);
-		glNormal3f(0, -1, 0);
-		glVertex3f(0, -len, 0);
-		glNormal3f(0, 1, 0);
-		glVertex3f(0, len, 0);
-		glEnd();
-		matZ.UseMaterial();
-		glBegin(GL_LINES);
-		glNormal3f(0.0, 0.0, -1.0);
-		glVertex3f(0, 0, -len);
-		glNormal3f(0.0, 0.0, 1.0);
-		glVertex3f(0, 0, len);
-		glEnd();
-
-		const double n0 = cos(M_PI_4);
-		const double n1 = sin(M_PI_4);
-
-		matX.UseMaterial();
-		glBegin(GL_LINES);
-		for (uint_fast8_t n = 0; n < N; n++) {
-			const double a = 2 * M_PI / N * (double) n;
-			const double c = cos(a);
-			const double s = sin(a);
-
-			glNormal3d(n0, c * n1, s * n1);
-			glVertex3d(len, 0, 0);
-			glVertex3d(len - rad, rad * c, rad * s);
-		}
-		glEnd();
-		matY.UseMaterial();
-		glBegin(GL_LINES);
-		for (uint_fast8_t n = 0; n < N; n++) {
-			const double a = 2 * M_PI / N * (double) n;
-			const double c = cos(a);
-			const double s = sin(a);
-			glNormal3d(s * n1, n0, c * n1);
-			glVertex3d(0, len, 0);
-			glVertex3d(rad * s, len - rad, rad * c);
-		}
-		glEnd();
-		matZ.UseMaterial();
-		glBegin(GL_LINES);
-		for (uint_fast8_t n = 0; n < N; n++) {
-			const double a = 2 * M_PI / N * (double) n;
-			const double c = cos(a);
-			const double s = sin(a);
-			glNormal3d(c * n1, s * n1, n0);
-			glVertex3d(0, 0, len);
-			glVertex3d(rad * c, rad * s, len - rad);
-		}
-		glEnd();
-	}
+	// Paint a 3D cursor on the surface of the last.
 	{
 		OpenGLMaterial matCursor(1, 1, 1, 0.9);
 		matCursor.UseMaterial();
@@ -189,16 +124,81 @@ void Canvas3D::Render() {
 }
 
 void Canvas3D::RenderPick() {
-	if (projectview == NULL)
+	if (projectview == nullptr)
 		return;
 	glClear( GL_DEPTH_BUFFER_BIT);
 	projectview->Paint(true);
 }
 
+void Canvas3D::PaintCorrdinateSystem() {
+	OpenGLMaterial matX(0.8, 0.0, 0.0, 0.8);
+	OpenGLMaterial matY(0.0, 0.8, 0.0, 0.8);
+	OpenGLMaterial matZ(0.0, 0.0, 0.8, 0.8);
+	const double len = 0.3;
+	const double rad = 0.04;
+	const uint_fast8_t N = 4;
+	matX.UseMaterial();
+	glBegin(GL_LINES);
+	glNormal3f(-1, 0, 0);
+	glVertex3f(-len, 0, 0);
+	glNormal3f(1, 0, 0);
+	glVertex3f(len, 0, 0);
+	glEnd();
+	matY.UseMaterial();
+	glBegin(GL_LINES);
+	glNormal3f(0, -1, 0);
+	glVertex3f(0, -len, 0);
+	glNormal3f(0, 1, 0);
+	glVertex3f(0, len, 0);
+	glEnd();
+	matZ.UseMaterial();
+	glBegin(GL_LINES);
+	glNormal3f(0.0, 0.0, -1.0);
+	glVertex3f(0, 0, -len);
+	glNormal3f(0.0, 0.0, 1.0);
+	glVertex3f(0, 0, len);
+	glEnd();
+	const double n0 = cos(M_PI_4);
+	const double n1 = sin(M_PI_4);
+	matX.UseMaterial();
+	glBegin(GL_LINES);
+	for (uint_fast8_t n = 0; n < N; n++) {
+		const double a = 2 * M_PI / N * (double) (n);
+		const double c = cos(a);
+		const double s = sin(a);
+		glNormal3d(n0, c * n1, s * n1);
+		glVertex3d(len, 0, 0);
+		glVertex3d(len - rad, rad * c, rad * s);
+	}
+	glEnd();
+	matY.UseMaterial();
+	glBegin(GL_LINES);
+	for (uint_fast8_t n = 0; n < N; n++) {
+		const double a = 2 * M_PI / N * (double) (n);
+		const double c = cos(a);
+		const double s = sin(a);
+		glNormal3d(s * n1, n0, c * n1);
+		glVertex3d(0, len, 0);
+		glVertex3d(rad * s, len - rad, rad * c);
+	}
+	glEnd();
+	matZ.UseMaterial();
+	glBegin(GL_LINES);
+	for (uint_fast8_t n = 0; n < N; n++) {
+		const double a = 2 * M_PI / N * (double) (n);
+		const double c = cos(a);
+		const double s = sin(a);
+		glNormal3d(c * n1, s * n1, n0);
+		glVertex3d(0, 0, len);
+		glVertex3d(rad * c, rad * s, len - rad);
+	}
+	glEnd();
+}
+
 //void Canvas3D::OnMouseEvent(wxMouseEvent& event)
 //{
 //	event.Skip();
-//	if(projectview == NULL) return;
+//	if(projectview == nullptr) return;
 //	Project* project = wxStaticCast(projectview->GetDocument(), Project);
 //
 //	if(event.Moving()){

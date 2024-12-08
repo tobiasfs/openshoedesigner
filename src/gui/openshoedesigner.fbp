@@ -29,7 +29,7 @@
         <property name="use_array_enum">0</property>
         <property name="use_enum">0</property>
         <property name="use_microsoft_bom">0</property>
-        <object class="Frame" expanded="1">
+        <object class="Frame" expanded="0">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -3714,7 +3714,7 @@
                                                                 <property name="font"></property>
                                                                 <property name="gripper">0</property>
                                                                 <property name="hidden">0</property>
-                                                                <property name="id">ID_FOOTMODEL</property>
+                                                                <property name="id">ID_MODELTYPE</property>
                                                                 <property name="max_size"></property>
                                                                 <property name="maximize_button">0</property>
                                                                 <property name="maximum_size"></property>
@@ -3742,7 +3742,7 @@
                                                                 <event name="OnChoicebookPageChanged">OnPageChange</event>
                                                                 <object class="choicebookpage" expanded="0">
                                                                     <property name="label">Bone based model</property>
-                                                                    <property name="select">1</property>
+                                                                    <property name="select">0</property>
                                                                     <object class="wxPanel" expanded="0">
                                                                         <property name="BottomDockable">1</property>
                                                                         <property name="LeftDockable">1</property>
@@ -3878,7 +3878,7 @@
                                                                 </object>
                                                                 <object class="choicebookpage" expanded="0">
                                                                     <property name="label">Last based model</property>
-                                                                    <property name="select">0</property>
+                                                                    <property name="select">1</property>
                                                                     <object class="wxPanel" expanded="0">
                                                                         <property name="BottomDockable">1</property>
                                                                         <property name="LeftDockable">1</property>
@@ -4027,7 +4027,7 @@
                                                                                     <property name="font"></property>
                                                                                     <property name="gripper">0</property>
                                                                                     <property name="hidden">0</property>
-                                                                                    <property name="id">wxID_ANY</property>
+                                                                                    <property name="id">ID_LASTFILENAME</property>
                                                                                     <property name="max_size"></property>
                                                                                     <property name="maximize_button">0</property>
                                                                                     <property name="maximum_size"></property>
@@ -7938,7 +7938,7 @@
                                                                 <property name="font"></property>
                                                                 <property name="gripper">0</property>
                                                                 <property name="hidden">0</property>
-                                                                <property name="id">ID_SELECTCONSTRUCTION</property>
+                                                                <property name="id">ID_GENERATOR</property>
                                                                 <property name="max_size"></property>
                                                                 <property name="maximize_button">0</property>
                                                                 <property name="maximum_size"></property>

@@ -80,7 +80,7 @@ public:
 
 protected:
 
-	void MarkMeasurements();
+
 
 	Polygon3 planeXZ;
 	DependentVector angleXZ;

@@ -276,10 +276,10 @@ void Matrix::Insert(const double *value, const size_t count) {
 		throw(std::logic_error(
 				std::string(__FILE__)
 						+ ": Insert(double*,count): Matrix is full."));
-	if (value == NULL)
+	if (value == nullptr)
 		throw(std::logic_error(
 				std::string(__FILE__)
-						+ ": Insert(double*,count): value == NULL."));
+						+ ": Insert(double*,count): value == nullptr."));
 	for (size_t i = 0; i < count; ++i)
 		values[bufferpos++] = value[i];
 }
@@ -290,10 +290,10 @@ void Matrix::Insert(const double *value, const size_t count, const size_t p1) {
 		throw(std::logic_error(
 				std::string(__FILE__)
 						+ ": Insert(col,double*,count): Matix full."));
-	if (value == NULL)
+	if (value == nullptr)
 		throw(std::logic_error(
 				std::string(__FILE__)
-						+ ": Insert(col,double*,count): value == NULL."));
+						+ ": Insert(col,double*,count): value == nullptr."));
 	for (size_t i = 0; i < count; ++i)
 		values[bufferpos++] = value[i];
 }
@@ -303,10 +303,10 @@ void Matrix::Insert(const float *value, const size_t count) {
 		throw(std::logic_error(
 				std::string(__FILE__)
 						+ ": Insert(float*,count): Matrix is full."));
-	if (value == NULL)
+	if (value == nullptr)
 		throw(std::logic_error(
 				std::string(__FILE__)
-						+ ": Insert(float*,count): value == NULL."));
+						+ ": Insert(float*,count): value == nullptr."));
 	for (size_t i = 0; i < count; i++)
 		values[bufferpos++] = (double) value[i];
 }
@@ -316,9 +316,10 @@ void Matrix::Insert(const bool *value, const size_t count) {
 		throw(std::logic_error(
 				std::string(__FILE__)
 						+ ": Insert(bool*,count): Matrix is full."));
-	if (value == NULL)
+	if (value == nullptr)
 		throw(std::logic_error(
-				std::string(__FILE__) + ": Insert(bool*,count): value == NULL."));
+				std::string(__FILE__)
+						+ ": Insert(bool*,count): value == nullptr."));
 	for (size_t i = 0; i < count; i++)
 		values[bufferpos++] = value[i] ? 1.0 : 0.0;
 }
@@ -526,7 +527,7 @@ bool Matrix::Invert() {
 				p[k] = i;
 			}
 		}
-		if (max == 0.0)
+		if (fabs(max) <= DBL_EPSILON)
 			return false;
 		if (p[k] != k) {
 			for (size_t j = 0; j < N; ++j)
@@ -617,7 +618,7 @@ void Matrix::AlignAtZero() {
 
 void Matrix::Normalize(double max) {
 	double m = this->MaxAbs();
-	if (m == 0.0)
+	if (fabs(m) <= DBL_EPSILON)
 		return;
 	m = max / m;
 	for (size_t n = 0; n < values.size(); n++)
@@ -631,7 +632,7 @@ void Matrix::Normalize(double min, double max) {
 	}
 	this->AlignAtZero();
 	double m = this->Max();
-	if (m == 0.0)
+	if (fabs(m) <= DBL_EPSILON)
 		return;
 	m = (max - min) / m;
 	for (size_t n = 0; n < values.size(); ++n)

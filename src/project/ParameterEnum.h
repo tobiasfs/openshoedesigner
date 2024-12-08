@@ -42,13 +42,40 @@
 
 class ParameterEnum: public Parameter {
 public:
+	class Option {
+	public:
+		Option() = delete;
+		Option(const std::string &name_, const std::string &description_ = "",
+				const size_t id_ = (size_t) -1);
+
+		std::string name;
+		std::string description;
+		size_t id;
+	};
+
+public:
 	ParameterEnum() = delete;
 	ParameterEnum(const std::string &name_,
-			std::initializer_list<std::string> values_,
-			const std::string &description_ = std::string(""),
+			std::initializer_list<Option> values_,
+			const std::string &description_ = "",
 			const size_t id_ = (size_t) -1, const size_t group_ = (size_t) -1);
 	virtual ~ParameterEnum() = default;
 
+	bool IsValid() const;
+	bool IsSelection(const std::string &selection_) const;
+	void SetSelection(const std::string &selection_);
+	void SetSelection(const size_t selection_);
+	size_t GetSelectionIdx() const;
+	std::string GetSelection() const;
+
+	size_t Size() const;
+	std::string GetName(size_t idx) const;
+	std::string GetDescription(size_t idx) const;
+	size_t GetID(size_t idx) const;
+
+private:
+	std::vector<Option> options;
+	size_t selection = (size_t) -1;
 };
 
 #endif /* SRC_PROJECT_PARAMETERENUM_H_ */

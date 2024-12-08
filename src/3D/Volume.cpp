@@ -154,7 +154,7 @@ void Volume::AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
 	const Vector3 h2 = p2 - origin;
 	Vector3 n = h2 - h1;
 	const double nd = n.Abs();
-	if (nd == 0) {
+	if (fabs(nd) < FLT_EPSILON) {
 		AddSphere(p1, fmax(r1, r2), k1);
 		return;
 	}
@@ -255,7 +255,7 @@ void Volume::AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
 	const Vector3 h2 = p2 - origin;
 	Vector3 n = h2 - h1;
 	const float nd = n.Abs();
-	if (nd == 0) {
+	if (fabs(nd) < FLT_EPSILON) {
 		AddSphere(p1, fmax(r1, r2), k1);
 		return;
 	}
@@ -527,13 +527,6 @@ const static int8_t cap[144] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 7, 1, 0,
 
 void Volume::CalcSurface(void) {
 //	setlocale(LC_ALL, "C"); // To get a 3.1415 instead 3,1415 or else on every computer.
-//	wxTextFile temp(_T("~/octave/oneslice.m"));
-//	if(!temp.Exists())
-//		temp.Create();
-//	else
-//		temp.Open();
-//	temp.Clear();
-//	temp.AddLine(_T("M=[ ..."));
 
 	const size_t Nx = Size(0);
 	const size_t Ny = Size(1);
@@ -558,8 +551,6 @@ void Volume::CalcSurface(void) {
 	for (size_t k = 0; k < Nz - 1; ++k) {
 		for (size_t j = 0; j < Ny - 1; ++j) {
 			for (size_t i = 0; i < Nx - 1; ++i) {
-//				if(k == 60) temp.AddLine(
-//						wxString::Format(_T("%.3f,..."), values[c]));
 
 				const double v0 = values[c];
 				const double v1 = values[c + 1];

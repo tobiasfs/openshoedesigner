@@ -79,7 +79,7 @@ public:
 
 private:
 	Version version = Version::V6;
-	FILE *fhd = NULL;
+	FILE *fhd = nullptr;
 	std::string filename;
 };
 

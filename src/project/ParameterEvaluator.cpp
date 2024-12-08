@@ -59,8 +59,8 @@ std::shared_ptr<ParameterFormula> ParameterEvaluator::Register(
 			lookupGroupIdx[group] = (groupIdx.size() - 1);
 		}
 	}
-	auto var = std::make_shared<ParameterFormula>(variablename, description, formula,
-			id, group);
+	auto var = std::make_shared<ParameterFormula>(variablename, description,
+			formula, id, group);
 	parameter.push_back(var);
 
 //	const size_t idx = parameter.size();
@@ -71,8 +71,8 @@ std::shared_ptr<ParameterFormula> ParameterEvaluator::Register(
 	return var;
 }
 
-std::shared_ptr<ParameterFormula> ParameterEvaluator::GetParameter(const size_t id,
-		const size_t group) {
+std::shared_ptr<ParameterFormula> ParameterEvaluator::GetParameter(
+		const size_t id, const size_t group) {
 	for (std::shared_ptr<ParameterFormula> &param : parameter) {
 		if (param->id != id)
 			continue;
@@ -129,8 +129,8 @@ bool ParameterEvaluator::ConnectExternal(size_t n, std::set<size_t> &open) {
 				}
 				for (size_t i = 1; i < groupIdx.size(); ++i) {
 					// Clone for every group >= 1
-					std::shared_ptr<ParameterFormula> temp =
-							std::make_shared<ParameterFormula>(*parameter[n]);
+					std::shared_ptr<ParameterFormula> temp = std::make_shared<
+							ParameterFormula>(*parameter[n]);
 					temp->group = groupIdx[i];
 					temp->extra = true;
 					parameter.push_back(temp);
@@ -142,6 +142,8 @@ bool ParameterEvaluator::ConnectExternal(size_t n, std::set<size_t> &open) {
 			// The parameter to be referenced was found. It is connected
 			// via a std::weak_ptr.
 			parameter[n]->parser.externalvariables[idxNeededVar] = parameter[m];
+			// Rewrite the opcodes to reference an external variable instead
+			// of an internal one.
 			for (auto &op : parameter[n]->parser.instructions) {
 				if (op.idx != idxNeededVar)
 					continue;
@@ -205,6 +207,9 @@ void ParameterEvaluator::Reset() {
 	// Reset some flags in the the parameters
 	for (auto &param : parameter) {
 		param->unstable = false;
+		param->errorFlag = false;
+		param->errorStr.clear();
+
 		// Reset the parameter groups for the global parameters
 		if (param->base)
 			param->group = (size_t) (-1);
@@ -212,21 +217,20 @@ void ParameterEvaluator::Reset() {
 }
 
 void ParameterEvaluator::Update() {
+	std::set<size_t> open;
 
 	// Reset some flags in the the parameters
 	Reset();
 
-	// Initialize all parser
-	// TODO Remove if not necessary (check IsModified of parameter?)
-	//	for (auto &param : parameter)
-	//		param->Init();
+	// Note that the parsers are initialized in
+	// the ParameterFormula::SetFormula()-function. Calling the Init()-function
+	// on every Update() would be too expensive.
 
 	// Connect externals ad determine the execution order of the formula
 	// evaluations. This has to be done in one go, because global parameters
 	// need to be split after descending into variants and coming back to
 	// global parameters.
 
-	std::set<size_t> open;
 	for (size_t n = 0; n < parameter.size(); ++n)
 		open.insert(n);
 	evaluationOrder.clear();
@@ -245,17 +249,56 @@ void ParameterEvaluator::Update() {
 		}
 
 		if (N0 == open.size()) {
+			// The size of the open list did not reduce, so either a
+			// reference was not found or a loop exists, that cannot be
+			// resolved.
 			std::ostringstream err;
-			err << "The formulas entered contain a reference loop over ";
-			bool first = true;
+
+			bool hasMissingReferences = false;
 			for (size_t idx : open) {
-				if (first)
-					first = false;
-				else
-					err << ", ";
-				err << parameter[idx]->name;
+				const size_t neededGroup = parameter[idx]->group;
+				for (const auto &neededVar : parameter[idx]->parser.variables) {
+					if (!neededVar.isinput)
+						continue;
+					auto varcmp = [neededGroup, name = neededVar.name](
+							const std::shared_ptr<ParameterFormula> &p) {
+						if (neededGroup != (size_t) (-1)
+								&& p->group != (size_t) (-1)
+								&& neededGroup != p->group)
+							return false;
+						return (name.compare(p->name) == 0);
+					};
+					const auto found = std::find_if(parameter.begin(),
+							parameter.end(), varcmp);
+					if (found == parameter.end()) {
+						err << "The variable \"" << parameter[idx]->name;
+						err << "\" has a reference to \"";
+						err << neededVar.name << "\" which does not exist. ";
+						hasMissingReferences = true;
+						parameter[idx]->errorFlag = true;
+						if (parameter[idx]->errorStr.empty()) {
+							parameter[idx]->errorStr =
+									"These variables do not exist: ";
+							parameter[idx]->errorStr += neededVar.name;
+						} else {
+							parameter[idx]->errorStr += ", " + neededVar.name;
+						}
+					}
+				}
 			}
-			err << '.';
+			if (!hasMissingReferences) {
+				for (size_t idx : open) {
+					err << "The formulas entered contain a reference loop ";
+					err << "over ";
+					bool first = true;
+					if (first)
+						first = false;
+					else
+						err << ", ";
+					err << parameter[idx]->name;
+				}
+				err << '.';
+			}
 			throw std::runtime_error(err.str());
 		}
 		N0 = open.size();

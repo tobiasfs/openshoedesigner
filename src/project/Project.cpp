@@ -52,6 +52,13 @@ IMPLEMENT_DYNAMIC_CLASS(Project, wxDocument)
 Project::Project() :
 		wxDocument() {
 
+	evaluator.SetGroup();
+	config = std::make_shared<Configuration>();
+	config->Register(evaluator);
+	footL = std::make_shared<FootMeasurements>();
+	footL->Register(evaluator);
+	footR = footL;
+
 //	vol.SetSize(4, 4, 4, 0.1);
 //	vol.SetOrigin(Vector3(-0.15, -0.15, -0.15));
 
@@ -62,14 +69,8 @@ Project::Project() :
 //		vol[n] = 0.0;
 //	vol.CalcSurface();
 
-	thread0 = NULL;
-	thread1 = NULL;
-
-	evaluator.SetGroup();
-
-	config.Register(evaluator);
-
-	evaluator.SetGroup((size_t) ProjectView::Side::Left);
+	thread0 = nullptr;
+	thread1 = nullptr;
 
 //	legLengthDifference_L =
 //			parameter.Register("legLengthDifference",
@@ -124,105 +125,14 @@ Project::~Project() {
 	Unbind(wxEVT_COMMAND_THREAD_COMPLETED, &Project::OnCalculationDone, this);
 	{
 		wxCriticalSectionLocker locker(CSLeft);
-		if (thread0 != NULL)
+		if (thread0 != nullptr)
 			thread0->Delete();
 	}
 	{
 		wxCriticalSectionLocker locker(CSRight);
-		if (thread1 != NULL)
+		if (thread1 != nullptr)
 			thread1->Delete();
 	}
-}
-
-void Project::StopAllThreads(void) {
-	{
-		wxCriticalSectionLocker enter(CS);
-		if (thread0) {
-			if (thread0->Delete() != wxTHREAD_NO_ERROR)
-				wxLogError
-				("Can't delete thread0!");
-		}
-		if (thread1) {
-			if (thread1->Delete() != wxTHREAD_NO_ERROR)
-				wxLogError
-				("Can't delete thread1!");
-		}
-	}
-	while (true) {
-		{
-			wxCriticalSectionLocker enter(CS);
-			if (thread0 == NULL && thread1 == NULL)
-				break;
-		}
-		wxThread::This()->Sleep(1);
-	}
-}
-
-void Project::Update(void) {
-	try {
-		evaluator.Update();
-		evaluator.Calculate();
-	} catch (std::exception &ex) {
-		std::cerr << "Error while updating: " << ex.what() << '\n';
-//		return;
-	}
-	builder.Update(*this);
-//	if (useMultiThreading)
-//		std::cout << "Starting threads ...";
-//	if (measR.IsModified() || legLengthDifference->IsModified()
-//			|| shoe.IsModified() || lastModelR.IsModified()) {
-//
-//		if (measR.IsModified())
-//			footR.ModifyForm(true);
-//		measR.Modify(false);
-//		insoleR.Modify(true);
-//
-//		if (measR.IsModified())
-//			footR.ModifyForm(true);
-//
-//		if (thread1 == NULL) {
-//			if (useMultiThreading) {
-//				thread1 = new WorkerThread(this, 1);
-//				if (thread1->Run() != wxTHREAD_NO_ERROR) {
-//					wxLogError
-//					("Can't create the thread1!");
-//					delete thread1;
-//					thread1 = NULL;
-//				}
-//			} else {
-//				while (UpdateRight())
-//					;
-//			}
-//		}
-//
-//	}
-//	if (measL.IsModified() || legLengthDifference->IsModified()
-//			|| shoe.IsModified() || lastModelL.IsModified()) {
-//		if (measL.IsModified())
-//			footL.ModifyForm(true);
-//		//measL->Modify(false);
-//		legLengthDifference->Modify(false);
-//		//shoe->Modify(false);
-//		insoleL.Modify(true);
-//
-//		if (thread0 == NULL) {
-//			if (useMultiThreading) {
-//				thread0 = new WorkerThread(this, 0);
-//				if (thread0->Run() != wxTHREAD_NO_ERROR) {
-//					wxLogError
-//					("Can't create the thread0!");
-//					delete thread0;
-//					thread0 = NULL;
-//				}
-//			} else {
-//				while (UpdateLeft())
-//					;
-//			}
-//		}
-//	}
-//	if (useMultiThreading)
-//		std::cout << " done.\n";
-	UpdateAllViews();
 }
 
 //bool Project::UpdateLeft(void) {
@@ -328,15 +238,8 @@ void Project::Update(void) {
 //	std::cout << "Update R - done\n";
 //	return false;
 //}
-void Project::OnRefreshViews(wxThreadEvent &event) {
-	UpdateAllViews();
-}
-
-void Project::OnCalculationDone(wxThreadEvent &event) {
-	CS.Enter();
-
-	CS.Leave();
-	UpdateAllViews(); // This has been done by OnRefreshViews.
+bool Project::MeasurementsAreSymmetric() const {
+	return footL == footR;
 }
 
 DocumentIstream& Project::LoadObject(DocumentIstream &istream) {
@@ -442,3 +345,115 @@ void Project::SaveSkin(wxString fileName, bool left, bool right) {
 //		temp.Write(footR.skin.geometry);
 }
 
+void Project::Update(void) {
+	try {
+		evaluator.Update();
+		evaluator.Calculate();
+	} catch (std::exception &ex) {
+		std::cerr << "Error while updating: " << ex.what() << '\n';
+//		return;
+	}
+
+#ifdef DEBUG
+	builder.Update(*this);
+	lastNormalized->MarkNeeded(true);
+#endif
+
+	builder.Update(*this);
+
+	config->Modify(false);
+	footL->Modify(false);
+	footR->Modify(false);
+
+//	if (useMultiThreading)
+//		std::cout << "Starting threads ...";
+//	if (measR.IsModified() || legLengthDifference->IsModified()
+//			|| shoe.IsModified() || lastModelR.IsModified()) {
+//
+//		if (measR.IsModified())
+//			footR.ModifyForm(true);
+//		measR.Modify(false);
+//		insoleR.Modify(true);
+//
+//		if (measR.IsModified())
+//			footR.ModifyForm(true);
+//
+//		if (thread1 == nullptr) {
+//			if (useMultiThreading) {
+//				thread1 = new WorkerThread(this, 1);
+//				if (thread1->Run() != wxTHREAD_NO_ERROR) {
+//					wxLogError
+//					("Can't create the thread1!");
+//					delete thread1;
+//					thread1 = nullptr;
+//				}
+//			} else {
+//				while (UpdateRight())
+//					;
+//			}
+//		}
+//
+//	}
+//	if (measL.IsModified() || legLengthDifference->IsModified()
+//			|| shoe.IsModified() || lastModelL.IsModified()) {
+//		if (measL.IsModified())
+//			footL.ModifyForm(true);
+//		//measL->Modify(false);
+//		legLengthDifference->Modify(false);
+//		//shoe->Modify(false);
+//		insoleL.Modify(true);
+//
+//		if (thread0 == nullptr) {
+//			if (useMultiThreading) {
+//				thread0 = new WorkerThread(this, 0);
+//				if (thread0->Run() != wxTHREAD_NO_ERROR) {
+//					wxLogError
+//					("Can't create the thread0!");
+//					delete thread0;
+//					thread0 = nullptr;
+//				}
+//			} else {
+//				while (UpdateLeft())
+//					;
+//			}
+//		}
+//	}
+//	if (useMultiThreading)
+//		std::cout << " done.\n";
+	UpdateAllViews();
+}
+
+void Project::OnRefreshViews(wxThreadEvent &event) {
+	UpdateAllViews();
+}
+
+void Project::OnCalculationDone(wxThreadEvent &event) {
+	CS.Enter();
+
+	CS.Leave();
+	UpdateAllViews(); // This has been done by OnRefreshViews.
+}
+
+void Project::StopAllThreads(void) {
+	{
+		wxCriticalSectionLocker enter(CS);
+		if (thread0) {
+			if (thread0->Delete() != wxTHREAD_NO_ERROR)
+				wxLogError
+				("Can't delete thread0!");
+		}
+		if (thread1) {
+			if (thread1->Delete() != wxTHREAD_NO_ERROR)
+				wxLogError
+				("Can't delete thread1!");
+		}
+	}
+	while (true) {
+		{
+			wxCriticalSectionLocker enter(CS);
+			if (thread0 == nullptr && thread1 == nullptr)
+				break;
+		}
+		wxThread::This()->Sleep(1);
+	}
+}

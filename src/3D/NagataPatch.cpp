@@ -63,7 +63,7 @@ Vector3 NagataPatch::c(const Vector3& d, const Vector3& n0, const Vector3 n1)
 	const float dd = d.Dot(dv);
 	const float c_ = n0.Dot(n0 - dv * 2.0);
 	const float dc = n0.Dot(dv);
-	if(c_ == 1.0 || c_ == -1) return Vector3();
+	if(c_ >= 1.0 || c_ <= -1.0) return Vector3();
 	return v_ * (dd / (1 - dc)) + dv * (d_ / dc);
 }
 

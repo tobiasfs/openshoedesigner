@@ -73,7 +73,7 @@ OpenGLCanvas::OpenGLCanvas(wxWindow *parent, wxWindowID id, const wxPoint &pos,
 	leftEyeG = 0;
 	leftEyeB = 0;
 
-	rotationMode = Rotation::Interwoven;
+	rotationMode = Rotation::Turntable;
 
 	this->Connect(wxEVT_PAINT, wxPaintEventHandler(OpenGLCanvas::OnPaint),
 			nullptr, this);
@@ -259,11 +259,11 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 					Vector3(1, 0, 0), -M_PI / 2);
 			turntableX += (double) (event.m_x - x) / 100;
 			turntableY += (double) (event.m_y - y) / 100;
-			rotmat = AffineTransformMatrix::RotationAroundVector(
-					Vector3(1, 0, 0), turntableY) * rotmat;
 			rotmat = rotmat
 					* AffineTransformMatrix::RotationAroundVector(
-							Vector3(0, 0, 1), turntableX);
+							Vector3(0, 1, 0), turntableX);
+			rotmat = AffineTransformMatrix::RotationAroundVector(
+					Vector3(1, 0, 0), turntableY) * rotmat;
 			break;
 		}
 		}

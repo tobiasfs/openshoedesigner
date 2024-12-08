@@ -26,18 +26,11 @@
 
 #include "CollectionFilepaths.h"
 
-CollectionFilepaths::CollectionFilepaths()
-{
-}
-
-CollectionFilepaths::~CollectionFilepaths()
-{
-}
 
 bool CollectionFilepaths::Load(wxConfig* config)
 {
-	wxASSERT(config!=NULL);
-	if(config == NULL) return false;
+	wxASSERT(config!=nullptr);
+	if(config == nullptr) return false;
 
 	wxString cwd = wxFileName::GetCwd();
 	config->Read(_T("LastFootDirectory"), &lastFootDirectory, cwd);
@@ -49,8 +42,8 @@ bool CollectionFilepaths::Load(wxConfig* config)
 
 bool CollectionFilepaths::Save(wxConfig* config)
 {
-	wxASSERT(config!=NULL);
-	if(config == NULL) return false;
+	wxASSERT(config!=nullptr);
+	if(config == nullptr) return false;
 
 	config->Write(_T("LastFootDirectory"), lastFootDirectory);
 	config->Write(_T("LastShoeDirectory"), lastShoeDirectory);

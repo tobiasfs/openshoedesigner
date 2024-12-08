@@ -46,6 +46,10 @@ public:
 //	void DisconnectMouseEvents(void);
 	void Render();
 	void RenderPick();
+
+protected:
+	void PaintCorrdinateSystem();
+
 //	void OnMouseEvent(wxMouseEvent& event);
 
 private:

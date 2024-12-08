@@ -65,6 +65,7 @@ private:
 
 	void FindAndReorientCenterplane();
 	bool FindMarker();
+	void MarkMeasurements();
 	void FindOutline();
 	size_t FindTopPoint(size_t idx, size_t idxStart, size_t idxEnd) const;
 	DependentVector OrthogonalPoint(const Vector3 &p) const;
@@ -85,6 +86,9 @@ private:
 	Polygon3 debug;
 	KernelDensityEstimator kde;
 	MEstimator me;
+
+//	LastModel debug0;
+//	LastModel debug1;
 };
 
 #endif /* SRC_PROJECT_OPERATION_LASTANALYSE_H_ */

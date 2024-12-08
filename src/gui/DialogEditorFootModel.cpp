@@ -37,7 +37,7 @@ DialogEditorFootModel::DialogEditorFootModel(wxWindow *parent, wxWindowID id,
 	timer.Start(100); // ms
 
 	this->Connect(wxEVT_TIMER,
-			wxTimerEventHandler(DialogEditorFootModel::OnTimer), NULL, this);
+			wxTimerEventHandler(DialogEditorFootModel::OnTimer), nullptr, this);
 }
 
 void DialogEditorFootModel::OnLoad(wxCommandEvent &event) {
@@ -105,8 +105,7 @@ void DialogEditorFootModel::OnClose(wxCommandEvent &event) {
 DialogEditorFootModel::~DialogEditorFootModel() {
 
 	this->Disconnect(wxEVT_TIMER,
-			wxTimerEventHandler(DialogEditorFootModel::OnTimer),
-			NULL, this);
+			wxTimerEventHandler(DialogEditorFootModel::OnTimer), nullptr, this);
 }
 
 void DialogEditorFootModel::SetMidi(MidiPort *midi) {
@@ -188,49 +187,49 @@ void DialogEditorFootModel::OnTimer(wxTimerEvent &event) {
 
 		switch (mode) {
 		case 32:
-			Update(48, "Tibia");
-			Update(50, "Fibula");
-			Update(52, "Talus");
-			Update(54, "Talus2");
+			Update_(48, "Tibia");
+			Update_(50, "Fibula");
+			Update_(52, "Talus");
+			Update_(54, "Talus2");
 			break;
 		case 33:
-			Update(52, "Calcaneus");
-			Update(48, "Cuboideum");
-			Update(50, "Naviculare");
+			Update_(52, "Calcaneus");
+			Update_(48, "Cuboideum");
+			Update_(50, "Naviculare");
 			break;
 		case 34:
-			Update(48, "Cuneiforme1");
-			Update(50, "Cuneiforme2");
-			Update(52, "Cuneiforme3");
+			Update_(48, "Cuneiforme1");
+			Update_(50, "Cuneiforme2");
+			Update_(52, "Cuneiforme3");
 			break;
 		case 35:
-			Update(48, "Metatarsalis1");
-			Update(50, "PhalanxI1");
-			Update(52, "PhalanxII1");
-			Update(54, "PhalanxIII1");
+			Update_(48, "Metatarsalis1");
+			Update_(50, "PhalanxI1");
+			Update_(52, "PhalanxII1");
+			Update_(54, "PhalanxIII1");
 			break;
 		case 36:
-			Update(48, "Metatarsalis2");
-			Update(50, "PhalanxI2");
-			Update(52, "PhalanxII2");
-			Update(54, "PhalanxIII2");
+			Update_(48, "Metatarsalis2");
+			Update_(50, "PhalanxI2");
+			Update_(52, "PhalanxII2");
+			Update_(54, "PhalanxIII2");
 			break;
 		case 37:
-			Update(48, "Metatarsalis3");
-			Update(50, "PhalanxI3");
-			Update(52, "PhalanxII3");
-			Update(54, "PhalanxIII3");
+			Update_(48, "Metatarsalis3");
+			Update_(50, "PhalanxI3");
+			Update_(52, "PhalanxII3");
+			Update_(54, "PhalanxIII3");
 			break;
 		case 38:
-			Update(48, "Metatarsalis4");
-			Update(50, "PhalanxI4");
-			Update(52, "PhalanxII4");
-			Update(54, "PhalanxIII4");
+			Update_(48, "Metatarsalis4");
+			Update_(50, "PhalanxI4");
+			Update_(52, "PhalanxII4");
+			Update_(54, "PhalanxIII4");
 			break;
 		case 39:
-			Update(48, "Metatarsalis5");
-			Update(50, "PhalanxI5");
-			Update(52, "PhalanxII5");
+			Update_(48, "Metatarsalis5");
+			Update_(50, "PhalanxI5");
+			Update_(52, "PhalanxII5");
 			break;
 		}
 
@@ -240,7 +239,7 @@ void DialogEditorFootModel::OnTimer(wxTimerEvent &event) {
 	}
 }
 
-void DialogEditorFootModel::Update(uint8_t idx, const std::string &name) {
+void DialogEditorFootModel::Update_(uint8_t idx, const std::string &name) {
 	std::shared_ptr<Bone> bone = m_canvasFootModel->model.GetBone(name);
 	if (bone == nullptr)
 		return;

@@ -33,7 +33,7 @@ StopWatch::StopWatch() {
 #if __cplusplus >= 201103L
 	t0Wall = std::chrono::steady_clock::now();
 #else
-	t0Wall = time(NULL);
+	t0Wall = time(nullptr);
 #endif
 }
 
@@ -47,7 +47,7 @@ void StopWatch::Reset() {
 #if __cplusplus >= 201103L
 	t0Wall = std::chrono::steady_clock::now();
 #else
-	t0Wall = time(NULL);
+	t0Wall = time(nullptr);
 #endif
 }
 
@@ -58,7 +58,7 @@ void StopWatch::Restart() {
 #if __cplusplus >= 201103L
 	t0Wall = std::chrono::steady_clock::now();
 #else
-	t0Wall = time(NULL);
+	t0Wall = time(nullptr);
 #endif
 }
 
@@ -67,7 +67,7 @@ void StopWatch::Start() {
 #if __cplusplus >= 201103L
 	t0Wall = std::chrono::steady_clock::now();
 #else
-	t0Wall = time(NULL);
+	t0Wall = time(nullptr);
 #endif
 }
 
@@ -78,8 +78,8 @@ void StopWatch::Stop() {
 			std::chrono::steady_clock::now() - t0Wall)).count();
 	t0Wall = std::chrono::steady_clock::now();
 #else
-	deltaWall += ((double) difftime(time(NULL), t0Wall));
-	t0Wall = time(NULL);
+	deltaWall += ((double) difftime(time(nullptr), t0Wall));
+	t0Wall = time(nullptr);
 #endif
 	t0CPU = clock();
 }

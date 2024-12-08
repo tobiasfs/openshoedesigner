@@ -33,7 +33,7 @@
  * Read an INI configuration file and store the sections and parameters found.
  */
 
-#include <wx/string.h>
+#include <string>
 #include <vector>
 
 class IniFile {
@@ -42,32 +42,36 @@ public:
 	public:
 		class Parameter {
 		public:
-			Parameter(wxString name, wxString value);
-			wxString name;
-			wxString value;
+			Parameter(std::string name, std::string value);
+			std::string name;
+			std::string value;
 		};
 	public:
-		Section(wxString name);
-		wxString name;
-		std::vector <Parameter> param;
-		wxString GetParameter(wxString name, wxString defaultvalue = _T("")) const;
-
+		Section(std::string name);
+		std::string name;
+		std::vector<Parameter> param;
+		std::string GetParameter(std::string name,
+				std::string defaultvalue = "") const;
 	};
 
 public:
 	IniFile(bool casesensitive = true);
-	IniFile(wxString filename, bool casesensitive = true);
-	virtual ~IniFile();
-	bool ReadFile(wxString filename);
+	IniFile(std::string filename, bool casesensitive = true);
+	virtual ~IniFile() = default;
 
-	const Section* FindSection(wxString name) const;
-	const Section* NextSection(const IniFile::Section * lastsection) const;
+	void ReadFile(std::string filename);
 
-	std::vector <Section> section;
+	const Section* FindSection(std::string name) const;
+	const Section* NextSection(const IniFile::Section *lastsection) const;
+
+	std::vector<Section> section;
+	bool casesensitive;
+
 private:
-	const bool casesensitive;
+	static std::string CleanString(std::string text);
+	static bool StringCmp(const std::string &lhs, const std::string &rhs);
+	static bool StringCmpI(const std::string &lhs, const std::string &rhs);
 
-	wxString CleanString(wxString text);
 };
 
 #endif /* INIFILE_H */

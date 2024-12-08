@@ -130,6 +130,53 @@ void FootMeasurements::Register(ParameterEvaluator &evaluator) {
 			ID_MEASUREMENT_OVERANKLEBONELEVEL);
 }
 
+double FootMeasurements::GetSize(Type type) const {
+	switch (type) {
+	case Type::EU:
+		return (footLength->ToDouble() + 1.5e-2) * 150;
+	case Type::US:
+		return (footLength->ToDouble()) / 2.54e-2 * 3 - 21.5;
+	case Type::CN:
+		return std::round((footLength->ToDouble() * 100.0) / 0.5) * 0.5;
+	case Type::UK:
+		return (footLength->ToDouble() + 1.5e-2) / 8.46e-3 - 25;
+	case Type::JP:
+		return std::round((footLength->ToDouble() * 1000.0) / 5) * 5;
+	case Type::AU:
+		return (footLength->ToDouble() + 1.5e-2) / 8.46e-3 - 25;
+	case Type::mm:
+		return footLength->ToDouble() * 1000.0;
+	case Type::cm:
+		return footLength->ToDouble() * 100.0;
+	case Type::in:
+		return footLength->ToDouble() / 0.0254;
+	case Type::ft:
+		return footLength->ToDouble() / 0.3048;
+	}
+	return 0;
+}
+
+void FootMeasurements::LoadJSON(std::string filename) {
+	JSON js;
+	try {
+		js = JSON::Load(filename);
+	} catch (std::exception &e) {
+		std::ostringstream out;
+		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << " Error opening file:" << filename << ' ';
+		out << e.what();
+		throw std::runtime_error(out.str());
+	}
+
+	FromJSON(js);
+}
+
+void FootMeasurements::SaveJSON(std::string filename) const {
+	JSON js;
+	ToJSON(js);
+	js.Save(filename);
+}
+
 bool FootMeasurements::IsModified(void) const {
 	return legLengthDifference->IsModified() | footLength->IsModified()
 			| ballWidth->IsModified() | bigToeGirth->IsModified()
@@ -172,32 +219,6 @@ void FootMeasurements::Modify(bool modified) {
 	aboveAnkleLevel->Modify(modified);
 	overAnkleBoneGirth->Modify(modified);
 	overAnkleBoneLevel->Modify(modified);
-}
-
-double FootMeasurements::GetSize(Type type) const {
-	switch (type) {
-	case Type::EU:
-		return (footLength->ToDouble() + 1.5e-2) * 150;
-	case Type::US:
-		return (footLength->ToDouble()) / 2.54e-2 * 3 - 21.5;
-	case Type::CN:
-		return std::round((footLength->ToDouble() * 100.0) / 0.5) * 0.5;
-	case Type::UK:
-		return (footLength->ToDouble() + 1.5e-2) / 8.46e-3 - 25;
-	case Type::JP:
-		return std::round((footLength->ToDouble() * 1000.0) / 5) * 5;
-	case Type::AU:
-		return (footLength->ToDouble() + 1.5e-2) / 8.46e-3 - 25;
-	case Type::mm:
-		return footLength->ToDouble() * 1000.0;
-	case Type::cm:
-		return footLength->ToDouble() * 100.0;
-	case Type::in:
-		return footLength->ToDouble() / 0.0254;
-	case Type::ft:
-		return footLength->ToDouble() / 0.3048;
-	}
-	return 0;
 }
 
 bool FootMeasurements::IsValidID(int id) {
@@ -410,7 +431,7 @@ const std::shared_ptr<const Parameter> FootMeasurements::GetParameter(
 void FootMeasurements::FromJSON(const JSON &js) {
 	if (!js.IsObject()) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __func__ << ":";
 		out << " The json does not contain an object with measurements.";
 		throw std::runtime_error(out.str());
 	}
@@ -494,25 +515,4 @@ void FootMeasurements::ToJSON(JSON &js) const {
 	js["aboveAnkleLevel"].SetString(aboveAnkleLevel->GetFormula());
 	js["overAnkleBoneGirth"].SetString(overAnkleBoneGirth->GetFormula());
 	js["overAnkleBoneLevel"].SetString(overAnkleBoneLevel->GetFormula());
-}
-
-void FootMeasurements::LoadJSON(std::string filename) {
-	JSON js;
-	try {
-		js = JSON::Load(filename);
-	} catch (std::exception &e) {
-		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
-		out << " Error opening file:" << filename << ' ';
-		out << e.what();
-		throw std::runtime_error(out.str());
-	}
-
-	FromJSON(js);
-}
-
-void FootMeasurements::SaveJSON(std::string filename) const {
-	JSON js;
-	ToJSON(js);
-	js.Save(filename);
 }

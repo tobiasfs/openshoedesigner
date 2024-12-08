@@ -79,7 +79,7 @@ protected:
 public:
 	bool TransferDataFromWindow();
 	bool TransferDataToWindow();
-	void TransferParameterToTextCtrl(const std::shared_ptr<Parameter>,
+	void TransferParameterToTextCtrl(const std::shared_ptr<ParameterFormula>,
 			wxTextCtrl *ctrl, UnitType type);
 	wxTextCtrl* GetTextCtrlByID(int id);
 

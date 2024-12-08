@@ -431,8 +431,8 @@ void OpenGLMaterialX::Image::LoadFromString(std::string &imagedata) {
 		if (this->data.size() == 0)
 			throw std::runtime_error(
 					" : Could not allocate memory for pngimage.");
-		if (png_image_finish_read(&pngimage, NULL, this->data.data(), 0,
-		NULL) == 0)
+		if (png_image_finish_read(&pngimage, nullptr, this->data.data(), 0,
+				nullptr) == 0)
 			throw std::runtime_error(
 					" : Could not finish reading the pngimage.");
 		this->w = pngimage.width;

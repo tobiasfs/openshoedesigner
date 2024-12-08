@@ -39,12 +39,14 @@ LastLoad::LastLoad() {
 }
 
 bool LastLoad::CanRun() {
-	if (filename && out)
+	if (filename && !filename->GetString().empty() && out)
 		return true;
 	std::ostringstream err;
 	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
 	if (!filename)
 		err << " Input \"filename\" not connected.";
+	if (filename->GetString().empty())
+		err << " Input \"filename\" is empty.";
 	if (!out)
 		err << " Output \"out\" not set.";
 	throw std::runtime_error(err.str());
@@ -97,4 +99,3 @@ void LastLoad::Run() {
 	out->MarkValid(true);
 	out->MarkNeeded(false);
 }
-

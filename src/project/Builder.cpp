@@ -37,14 +37,14 @@
 #include <stdexcept>
 
 void Builder::Setup(Project &project) {
-	Configuration &config = project.config;
-	FootMeasurements &footL = project.footL;
-	FootMeasurements &footR = project.footR;
+	auto &config = project.config;
+	auto &footL = project.footL;
+	auto &footR = project.footR;
 
 	operations.clear();
 
 	LastLoad opLoad;
-	opLoad.filename = config.lastFilename;
+	opLoad.filename = config->lastFilename;
 	operations.push_back(std::make_shared<LastLoad>(opLoad));
 
 	LastNormalize opNormalize;
@@ -66,17 +66,13 @@ void Builder::Update(Project &project) {
 	if (setup_modified)
 		Setup(project);
 
-#ifdef DEBUG
-	project.lastNormalized->MarkNeeded(true);
-#endif
-
 	bool setup_complete = true;
 	for (const auto &op : operations)
 		setup_complete &= op->CanRun();
 	if (!setup_complete) {
-		std::ostringstream out;
-		out << __FILE__ << ":Setup - Error in setup routine.";
-		throw std::runtime_error(out.str());
+		std::ostringstream err;
+		err << __FILE__ << ":Setup - Error in setup routine.";
+		throw std::runtime_error(err.str());
 	}
 
 	bool propagation_complete = false;

@@ -152,12 +152,10 @@ openshoedesigner::openshoedesigner() {
 	}
 	locale.AddCatalog("wxstd");
 
-
-
 }
 
 openshoedesigner::~openshoedesigner() {
-	printf("wxApp: Destructor called\n");
+	DEBUGOUT << "wxApp: Destructor called\n";
 	delete config; // config is written back on deletion of object
 }
 
@@ -199,7 +197,7 @@ bool openshoedesigner::OnInit() {
 	docManager->FileHistoryLoad(*config);
 
 	wxFrame *parent;
-	parent = new FrameParent(docManager, config, NULL, wxID_ANY,
+	parent = new FrameParent(docManager, config, nullptr, wxID_ANY,
 			GetAppDisplayName());
 
 	SetTopWindow(parent);
@@ -244,7 +242,7 @@ int openshoedesigner::OnExit() {
 	wxDocManager *const docManager = wxDocManager::GetDocumentManager();
 	docManager->FileHistorySave(*config);
 	delete docManager;
-	printf("wxApp: Exiting Application\n");
+	DEBUGOUT << "wxApp: Exiting Application\n";
 	return wxApp::OnExit();
 }
 

@@ -74,8 +74,6 @@ void Polygon25::PolygonFillHoles() {
 void Polygon25::PolygonSmooth() {
 	auto temp = v;
 
-
-
 	for (size_t i = 0; i < v.size(); i++) {
 		Vector3 d;
 		if (i == 0)
@@ -116,6 +114,8 @@ void Polygon25::PolygonDiminish(double r) {
 
 bool Polygon25::IsElementInside(const Vector3 &vTest) const {
 	// Using the Jordan Polygon Theorem
+
+	// TODO Check the numerical stability of this algorithm. Some suspicious ==s are used.
 
 	int_fast8_t c = 1;
 	size_t E = v.size();
@@ -220,7 +220,7 @@ double Polygon25::DistanceToElement(const size_t elementInPolygon,
 	//	solve([x1=x2,y1=y2],[r,s])
 
 	double denom = (qx - px) * vy + (-qy + py) * vx;
-	if (denom == 0.0)
+	if (fabs(denom) <= FLT_EPSILON)
 		return DBL_MAX;
 	double r = (-vx * y + vy * x - px * vy + py * vx) / denom;
 	double s = ((-qx + px) * y + (qy - py) * x - px * qy + py * qx) / denom;

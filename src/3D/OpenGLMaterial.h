@@ -92,22 +92,25 @@ public:
 	}; //<! Preset materials
 
 	OpenGLMaterial();
-	explicit OpenGLMaterial(Preset preset, float emit = 0.0);
-	OpenGLMaterial(float r, float g, float b, float emit = 0.0);
+	explicit OpenGLMaterial(Preset preset, float emit = 0.0,
+			float opacity = 1.0);
+	OpenGLMaterial(float r, float g, float b, float emit = 0.0, float opacity =
+			1.0);
 	virtual ~OpenGLMaterial() = default;
 
 	void Set(Preset preset); ///< Set the material to a preset.
 	static std::string GetPresetName(Preset preset); ///< Return the name of a preset.
 
-	void SetSimpleColor(float r, float g, float b, float emit = 0.0); ///< Equivalent to using the glColor command.
-	void SetSimpleColor(Vector3 c, float emit = 0.0); ///< Uses x,y,z of a vector as the color components.
+	void SetSimpleColor(float r, float g, float b, float emit = 0.0,
+			float opacity = 1.0); ///< Equivalent to using the glColor command.
+	void SetSimpleColor(Vector3 c, float emit = 0.0, float opacity = 1.0); ///< Uses x,y,z of a vector as the color components.
 
 	void UseMaterial() const; ///< Start using this material. Turns off glColor command.
 	void UseColor() const; ///< Activates glColor and sets the diffuse color of this material.
-	void UseColor(float emit) const; ///< Activates glColor and sets the diffuse color of this material.
+	void UseColor(float emit_) const; ///< Activates glColor and sets the diffuse color of this material.
 	static void EnableColors(); ///< Switch back to using glColor.
 
-	static bool ColorsAllowed(); ///< Test, if colores are allowed to use.
+	static bool ColorsAllowed(); ///< Test, if colors are allowed to use.
 
 	std::string ToString() const;
 
@@ -116,6 +119,7 @@ public:
 	Vector3 specular;
 	Vector3 emission;
 	float shininess;
+	float opacity = 1.0;
 };
 
 #endif /* L3D_OPENGLMATERIAL_H */

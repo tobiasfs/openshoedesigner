@@ -112,7 +112,7 @@ void PolyCylinder::Load(std::string filename) {
 
 	FILE *fhd = fopen(filename.c_str(), "rb");
 
-	if (fhd == NULL) {
+	if (fhd == nullptr) {
 		err << " could not be opened for reading.";
 		throw std::runtime_error(err.str());
 	}

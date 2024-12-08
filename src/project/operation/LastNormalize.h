@@ -58,13 +58,17 @@ public:
 protected:
 	void ReorientPCA();
 	void ReorientSymmetry();
-	void ReorientSole();
-	void ReorientFrontBack();
+	void ReorientSole(); ///< Find sole
+	void ReorientFrontBack(); ///< Test for front/back reversal
 	void ReorientLeftRight();
 
 public:
 	std::shared_ptr<LastRaw> in;
 	std::shared_ptr<LastRaw> out;
+
+	LastRaw debug0;
+	LastRaw debug1;
+
 
 };
 

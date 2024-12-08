@@ -37,15 +37,14 @@
 
 #include "OpenGLImage.h"
 
-#include <stdint.h>
-#include <wx/string.h>
+#include <string>
 
 class OpenGLText: public OpenGLImage {
 public:
 	OpenGLText();
 	virtual ~OpenGLText();
 
-	void Paint(wxString text) const;
+	void Paint(const std::string &text) const;
 
 private:
 	unsigned int nx;

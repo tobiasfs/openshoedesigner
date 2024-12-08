@@ -26,63 +26,68 @@
 
 #include "IniFile.h"
 
-#include <wx/txtstrm.h>
-#include <wx/wfstream.h>
-#include <cstdio>
+#include <stddef.h>
 
-IniFile::Section::Parameter::Parameter(wxString name, wxString value)
-		: name(name), value(value)
-{
+#include <algorithm>
+#include <cctype>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+
+#define ERROR(errortxt) { \
+		std::ostringstream err; \
+		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -"; \
+		err << errortxt; \
+		throw std::runtime_error(err.str()); \
+	}
+
+IniFile::Section::Parameter::Parameter(std::string name, std::string value) :
+		name(name), value(value) {
 }
 
-IniFile::Section::Section(wxString name)
-		: name(name)
-{
+IniFile::Section::Section(std::string name) :
+		name(name) {
 }
 
-IniFile::IniFile(bool casesensitive)
-		: casesensitive(casesensitive)
-{
+IniFile::IniFile(bool casesensitive) :
+		casesensitive(casesensitive) {
 }
 
-IniFile::IniFile(wxString filename, bool casesensitive)
-		: casesensitive(casesensitive)
-{
+IniFile::IniFile(std::string filename, bool casesensitive) :
+		casesensitive(casesensitive) {
 	ReadFile(filename);
 }
 
-IniFile::~IniFile()
-{
-}
+void IniFile::ReadFile(std::string filename) {
+	std::ifstream text(filename);
+	if (!text.is_open() || !text.good())
+		ERROR("The file " << filename << " could not be opened for reading.");
 
-bool IniFile::ReadFile(wxString filename)
-{
-
-	wxFileInputStream input(filename);
-	if(!input.IsOk() || !input.CanRead()) return false;
-
-	wxTextInputStream text(input);
-	wxString sectionName("default");
+	std::string sectionName("default");
 
 	section.clear();
 
 	size_t lineCount = 0;
 	// NOTE: When changing to std::istream, check https://stackoverflow.com/questions/5605125/why-is-iostreameof-inside-a-loop-condition-i-e-while-stream-eof-cons
-	while(!input.Eof()){
-		const wxString x = text.ReadLine();
+	while (!text.eof()) {
+		std::string x;
+		std::getline(text, x);
 		lineCount++;
-		if(x.IsEmpty()) continue;
+		if (x.empty())
+			continue;
 		const size_t posFirstChar = x.find_first_not_of(" \f\n\r\t");
 		const size_t posComment = x.find_first_of(";#-%");
-		if(posFirstChar == std::string::npos) continue;
-		if(posComment != std::string::npos && posComment == posFirstChar) continue;
+		if (posFirstChar == std::string::npos)
+			continue;
+		if (posComment != std::string::npos && posComment == posFirstChar)
+			continue;
 		const size_t posLeftBracket = x.find_first_of('[');
-		if(posLeftBracket != std::string::npos
-				&& posLeftBracket == posFirstChar){
+		if (posLeftBracket != std::string::npos
+				&& posLeftBracket == posFirstChar) {
 			size_t posRightBracket = x.find_last_of(']');
-			if(posRightBracket == std::string::npos){
-				printf("INI-File has a broken section header in line %lu.\n",
-						lineCount);
+			if (posRightBracket == std::string::npos) {
+				ERROR(
+						"INI-File " << filename << " has a broken section header in line " << lineCount << ".");
 				posRightBracket = x.length();
 			}
 			sectionName = x.substr(posLeftBracket + 1,
@@ -92,18 +97,14 @@ bool IniFile::ReadFile(wxString filename)
 			continue;
 		}
 		size_t posEqual = x.find_first_of('=');
-		if(posEqual != std::string::npos){
-			if(posEqual == 0){
-				printf(
-						"In line %lu of the INI file there is no key before the equal sign.\n",
-						lineCount);
-				return false;
+		if (posEqual != std::string::npos) {
+			if (posEqual == 0) {
+				ERROR(
+						"In line " << lineCount << " of the INI file " << filename << " there is no key before the equal sign.");
 			}
-			if(posEqual == x.length() - 1){
-				printf(
-						"In line %lu of the INI file there is no value after the equal sign.\n",
-						lineCount);
-				return false;
+			if (posEqual == x.length() - 1) {
+				ERROR(
+						"In line " << lineCount << " of the INI file there is no value after the equal sign.\n");
 			}
 			const size_t poskey0 = x.find_first_not_of(" \f\n\r\t");
 			const size_t poskey1 = x.find_last_not_of(" \f\n\r\t",
@@ -112,69 +113,83 @@ bool IniFile::ReadFile(wxString filename)
 					posEqual + 1);
 			const size_t posvalue1 = x.find_last_not_of(" \f\n\r\t");
 
-			wxString key = CleanString(
+			std::string key = CleanString(
 					x.substr(poskey0, poskey1 - poskey0 + 1));
-			wxString value = CleanString(
+			std::string value = CleanString(
 					x.substr(posvalue0, posvalue1 - posvalue0 + 1));
 
-			if(!section.empty()){
+			if (!section.empty()) {
 				IniFile::Section::Parameter param(key, value);
 				section.back().param.push_back(param);
 			}
 		}
 	}
-	return true;
 }
 
-wxString IniFile::CleanString(wxString text)
-{
-	const size_t n0 = text.find_first_of("\"");
-	const size_t n1 = text.find_last_of("\"");
-	if(n0 == std::string::npos || n1 == std::string::npos) return text;
-	if(n0 == n1) return text;
-	text = text.substr(n0, n1 - n0);
-	return text;
-}
-
-wxString IniFile::Section::GetParameter(wxString name,
-		wxString defaultvalue) const
-{
-	for(size_t n = 0; n < param.size(); ++n){
-		if((param[n].name.CmpNoCase(name) == 0)){
+std::string IniFile::Section::GetParameter(std::string name,
+		std::string defaultvalue) const {
+	for (size_t n = 0; n < param.size(); ++n) {
+		if (StringCmpI(param[n].name, name)) {
 			return param[n].value;
 		}
 	}
 	return defaultvalue;
 }
 
-const IniFile::Section* IniFile::FindSection(wxString name) const
-{
-	for(size_t n = 0; n < section.size(); ++n){
-		if((IniFile::casesensitive && section[n].name.Cmp(name) == 0)
-				|| (!IniFile::casesensitive
-						&& section[n].name.CmpNoCase(name) == 0)){
-			return &(section[n]);
-		}
+const IniFile::Section* IniFile::FindSection(std::string name) const {
+	if (IniFile::casesensitive) {
+		for (size_t n = 0; n < section.size(); ++n)
+			if (StringCmp(section[n].name, name))
+				return &(section[n]);
+	} else {
+		for (size_t n = 0; n < section.size(); ++n)
+			if (StringCmpI(section[n].name, name))
+				return &(section[n]);
 	}
-	return NULL;
+	return nullptr;
 }
 
 const IniFile::Section* IniFile::NextSection(
-		const IniFile::Section * lastsection) const
-{
+		const IniFile::Section *lastsection) const {
 	bool temp = false;
-	wxString name;
-	for(size_t n = 0; n < section.size(); ++n){
-		if(temp
-				&& ((IniFile::casesensitive && section[n].name.Cmp(name) == 0)
-						|| (!IniFile::casesensitive
-								&& section[n].name.CmpNoCase(name) == 0))){
-			return &(section[n]);
+	std::string name;
+	for (size_t n = 0; n < section.size(); ++n) {
+		if (temp) {
+			if (IniFile::casesensitive) {
+				if (StringCmp(section[n].name, name))
+					return &(section[n]);
+			} else {
+				if (StringCmpI(section[n].name, name))
+					return &(section[n]);
+			}
 		}
-		if(lastsection == &(section[n])){
+		if (lastsection == &(section[n])) {
 			temp = true;
 			name = section[n].name;
 		}
 	}
-	return NULL;
+	return nullptr;
+}
+
+std::string IniFile::CleanString(std::string text) {
+	const size_t n0 = text.find_first_of("\"");
+	const size_t n1 = text.find_last_of("\"");
+	if (n0 == std::string::npos || n1 == std::string::npos)
+		return text;
+	if (n0 == n1)
+		return text;
+	text = text.substr(n0, n1 - n0);
+	return text;
+}
+
+bool IniFile::StringCmp(const std::string &lhs, const std::string &rhs) {
+	return lhs == rhs;
+}
+
+bool IniFile::StringCmpI(const std::string &lhs, const std::string &rhs) {
+	auto eqi = [](char lhs, char rhs) {
+		return std::tolower(static_cast<unsigned char>(lhs))
+				== std::tolower(static_cast<unsigned char>(rhs));
+	};
+	return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), eqi);
 }

@@ -79,11 +79,12 @@ public:
 	bool showCoordinateSystem;
 	bool showBackground;
 
-	const FootMeasurements* GetActiveFootMeasurements(void) const;
+	const std::shared_ptr<FootMeasurements> GetActiveFootMeasurements(
+			void) const;
 
 	bool OnCreate(wxDocument *doc, long flags);
 	void OnDraw(wxDC *dc);
-	void OnUpdate(wxView *sender, wxObject *hint = NULL);
+	void OnUpdate(wxView *sender, wxObject *hint = nullptr);
 	void OnUpdate3D(void);
 	bool OnClose(bool deleteWindow = true);
 

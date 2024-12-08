@@ -150,7 +150,7 @@ void LastModel::Paint() const {
 
 	glNormal3f(0, -1, 0);
 
-	//	PaintMarker(0, font, "0");
+	PaintMarker(0, font, "0");
 	PaintMarker(idxZero, font, "Back");
 	PaintMarker(idxHeel, font, "Heel");
 	PaintMarker(idxHeelPoint, font, "HeelPoint");
@@ -898,31 +898,6 @@ void LastModel::UpdateForm(const Insole &insole,
 //	}
 }
 
-void LastModel::MarkMeasurements() {
-
-	{
-		Vector3 n = (planeXZ[idxTop] - planeXZ[idxHeelPoint]).Normal();
-		Vector3 n2(-n.z, 0, n.x);
-		HeelGirth = IntersectPlane(n2, n2.Dot(planeXZ[idxHeelPoint]));
-	}
-	{
-		Vector3 n = (planeXZ[idxWaistTop] - planeXZ[idxWaistBottom]).Normal();
-		Vector3 n2(-n.z, 0, n.x);
-		WaistGirth = IntersectPlane(n2, n2.Dot(planeXZ[idxWaistBottom]));
-	}
-	{
-		Vector3 n =
-				(planeXZ[idxLittleToeTop] - planeXZ[idxLittleToeBottom]).Normal();
-		Vector3 n2(-n.z, 0, n.x);
-		LittleToeGirth = IntersectPlane(n2,
-				n2.Dot(planeXZ[idxLittleToeBottom]));
-	}
-	{
-		Vector3 n = (planeXZ[idxBigToeTop] - planeXZ[idxBigToeBottom]).Normal();
-		Vector3 n2(-n.z, 0, n.x);
-		BigToeGirth = IntersectPlane(n2, n2.Dot(planeXZ[idxBigToeBottom]));
-	}
-}
 
 LastModel::LastModel(const Geometry &geo) :
 		LastRaw(geo) {

@@ -27,6 +27,7 @@
 
 #include "../../3D/Polygon3.h"
 #include "../../3D/OpenGL.h"
+#include "../../3D/OpenGLMaterial.h"
 #include "../../math/Exporter.h"
 #include "../../math/FourierTransform.h"
 #include "../../math/Kernel.h"
@@ -79,58 +80,30 @@ bool LastNormalize::HasToRun() {
 
 void LastNormalize::Run() {
 	*out = *in;
-	out->Transform(AffineTransformMatrix::Scaling(0.1));
+//	out->Transform(AffineTransformMatrix::Scaling(0.1));
 	out->UpdateRawBoundingBox();
 
-	out->paintNormals = true;
+//	out->paintNormals = true;
 
 	DEBUGOUT << "Before LastNormalize::Run: Volume: " << out->GetVolume()
 			<< '\n';
 
 	ReorientPCA();
-
-//	out->Transform(
-//			AffineTransformMatrix::RotationAroundVector( { 1, 0, 0 }, 0.6));
-//	out->UpdateRawBoundingBox();
-	std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
-
 	ReorientSymmetry();
-
-	std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
-
 	ReorientSole();
-
-	std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
-
 	ReorientFrontBack();
-
-	std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
-
 	ReorientLeftRight();
 
-	std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
+//	debug0 = *out;
+//	debug1 = *out;
 
 	out->UpdateRawBoundingBox();
 	out->CalculateNormals();
 
-	std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
-
 	DEBUGOUT << "After LastNormalize::Run: Volume: " << out->GetVolume()
 			<< '\n';
-	std::cout << "In " << __LINE__ << ": Curvature = "
-			<< out->GetNormalCurvature() << " rad\n";
+//	DEBUGOUT << "In " << __LINE__ << ": Curvature = "
+//			<< out->GetNormalCurvature() << " rad\n";
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);
@@ -138,15 +111,21 @@ void LastNormalize::Run() {
 
 #ifdef DEBUG
 void LastNormalize::Paint() const {
-//	glPushMatrix();
+	glPushMatrix();
 //	glRotatef(-90, 0, 1, 0);
 //	glRotatef(90, 1, 0, 0);
 //	symmetry.Paint();
 
 //	kde.Paint();
 
-//	glPopMatrix();
-//	debug.Paint();
+//	OpenGLMaterial mat0(OpenGLMaterial::Preset::RedPlastic);
+//	OpenGLMaterial mat1(OpenGLMaterial::Preset::GreenPlastic);
+//	mat1.UseColor();
+//	debug1.Paint();
+//	mat0.UseColor();
+//	debug0.Paint();
+
+	glPopMatrix();
 }
 #endif
 
@@ -173,10 +152,7 @@ void LastNormalize::ReorientPCA() {
 	// Remove orientation
 	AffineTransformMatrix temp(pca.X, pca.Y, pca.Z, pca.center);
 	temp.Orthogonalize();
-
-	std::cout << temp.ToString() << "\n";
 	temp.Invert();
-	std::cout << temp.ToString() << "\n";
 
 	out->Transform(temp);
 	out->UpdateRawBoundingBox();
@@ -192,7 +168,7 @@ void LastNormalize::ReorientSymmetry() {
 //		UpdateRawBoundingBox();
 	}
 
-	Exporter ex("/tmp/debug.mat", "X");
+//	Exporter ex("/tmp/debug.mat", "X");
 
 	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
 //		debug.Clear();
@@ -202,7 +178,7 @@ void LastNormalize::ReorientSymmetry() {
 		Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0),
 				bbc.GlobalX(cut));
 
-		ex.Add(section);
+//		ex.Add(section);
 
 		Vector3 rot = section.GetRotationalAxis();
 		if (rot.x < 0)
@@ -236,18 +212,18 @@ void LastNormalize::ReorientSymmetry() {
 
 	symmetry.Normalize();
 
-	ex.Add(symmetry, "symmetry");
+//	ex.Add(symmetry, "symmetry");
 
 	auto results = symmetry.FindPeaks(0.01);
 	if (results.empty()) {
-		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
-		out << "The function did not find any features.";
-		throw std::runtime_error(out.str());
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		err << "The function did not find any features.";
+		throw std::runtime_error(err.str());
 	}
 	AffineTransformMatrix comp;
 	comp *= AffineTransformMatrix::RotationAroundVector(Vector3(1, 0, 0),
-	M_PI_2 - results[0].x);
+			-M_PI_2 - results[0].x);
 	DEBUGOUT << "Peak at " << results[0].x * 180.0 / M_PI << " degrees.\n";
 	DEBUGOUT << "Rotate by: " << (M_PI_2 - results[0].x) * 180.0 / M_PI
 			<< " degrees.\n";
@@ -257,8 +233,6 @@ void LastNormalize::ReorientSymmetry() {
 }
 
 void LastNormalize::ReorientSole() {
-	// Find sole
-	// Class-global for debugging / painting during development
 
 	KernelDensityEstimator kde;
 	kde.Clear();
@@ -302,7 +276,7 @@ void LastNormalize::ReorientSole() {
 	out->UpdateRawBoundingBox();
 }
 
-void LastNormalize::ReorientFrontBack() { // Test for front/back reversal
+void LastNormalize::ReorientFrontBack() {
 
 //		loop.Clear();
 	std::vector<double> ratio;
@@ -426,9 +400,10 @@ void LastNormalize::ReorientLeftRight() {
 	loop = out->IntersectPlane(Vector3(1, 0, 0), bbc.GlobalX(0.5));
 
 	Vector3 rot = loop.GetRotationalAxis();
-	if (rot.x > 0)
+	if (rot.x > 0) {
 		loop.Reverse();
-
+		loop.SortLoop();
+	}
 	const double Lmax = loop.GetLength();
 	for (size_t n = 0; n < loop.Size(); ++n) {
 		const Vector3 temp = (loop[(n + 1) % loop.Size()] - loop[n]);
@@ -460,8 +435,7 @@ void LastNormalize::ReorientLeftRight() {
 		AffineTransformMatrix temp;
 		temp.ScaleGlobal(1.0, -1.0, 1.0);
 		out->Transform(temp);
-		out->FlipInsideOutside();
-		//			DEBUGOUT << "Flip sides left to right.\n";
+		DEBUGOUT << "Flip sides left to right.\n";
 
 		out->UpdateRawBoundingBox();
 	}

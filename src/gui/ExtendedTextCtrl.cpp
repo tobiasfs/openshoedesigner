@@ -47,7 +47,7 @@ void ExtendedTextCtrl::SetProject(Project* project)
 
 void ExtendedTextCtrl::OnContextMenu(wxContextMenuEvent& event)
 {
-	if(project == NULL || !IsKnowID(event.GetId())){
+	if(project == nullptr || !IsKnowID(event.GetId())){
 		event.Skip();
 		return;
 	}

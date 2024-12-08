@@ -39,15 +39,15 @@
 
 class CollectionFilepaths {
 public:
-	CollectionFilepaths();
-	virtual ~CollectionFilepaths();
+	CollectionFilepaths() = default;
+	virtual ~CollectionFilepaths() = default;
 
 	wxString lastFootDirectory;
 	wxString lastShoeDirectory;
 	wxString lastOutputDirectory;
 
-	bool Load(wxConfig * config);
-	bool Save(wxConfig * config);
+	bool Load(wxConfig *config);
+	bool Save(wxConfig *config);
 };
 
 #endif /* COLLECTIONFILEPATHS_H */

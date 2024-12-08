@@ -47,8 +47,8 @@ SettingsStereo3D::~SettingsStereo3D()
 
 bool SettingsStereo3D::Load(wxConfig* config)
 {
-	wxASSERT(config!=NULL);
-	if(config == NULL) return false;
+	wxASSERT(config!=nullptr);
+	if(config == nullptr) return false;
 
 	long lval;
 	config->Read(_T("Stereo3DColorLeftEyeRed"), &lval, 140l);
@@ -78,8 +78,8 @@ bool SettingsStereo3D::Load(wxConfig* config)
 
 bool SettingsStereo3D::Save(wxConfig* config)
 {
-	wxASSERT(config!=NULL);
-	if(config == NULL) return false;
+	wxASSERT(config!=nullptr);
+	if(config == nullptr) return false;
 
 	config->Write(_T("Stereo3DColorLeftEyeRed"), (long) leftEyeR);
 	config->Write(_T("Stereo3DColorLeftEyeGreen"), (long) leftEyeG);

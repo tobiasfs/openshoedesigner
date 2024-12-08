@@ -26,6 +26,7 @@
 
 #include "Unit.h"
 
+#include <cfloat>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
@@ -195,7 +196,7 @@ std::ostream& operator<<(std::ostream &out, const Unit &unit) {
 //	out << "]";
 	out << unit.ToString();
 	out << ", [" << unit.ToString() << "]";
-	if (unit.factor != 1.0)
+	if (fabs(unit.factor - 1.0) > DBL_EPSILON)
 		out << "/" << unit.factor;
 	out << " = [" << unit.otherName << "]";
 

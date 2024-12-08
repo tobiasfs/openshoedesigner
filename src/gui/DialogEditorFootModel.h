@@ -38,31 +38,31 @@
 #include "../system/MidiPort.h"
 #include "gui.h"
 
-class DialogEditorFootModel:public GUIFrameEditorFootModel {
+class DialogEditorFootModel: public GUIFrameEditorFootModel {
 public:
-	DialogEditorFootModel(wxWindow* parent, wxWindowID id = wxID_ANY,
-			const wxString& title = _("Foot model editor"), const wxPoint& pos =
-					wxDefaultPosition, const wxSize& size = wxSize(715, 351),
+	DialogEditorFootModel(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxString &title = _("Foot model editor"), const wxPoint &pos =
+					wxDefaultPosition, const wxSize &size = wxSize(715, 351),
 			long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 	virtual ~DialogEditorFootModel();
 
-	void OnLoad(wxCommandEvent& event);
-	void OnSave(wxCommandEvent& event);
-	void OnClose(wxCommandEvent& event);
+	void OnLoad(wxCommandEvent &event);
+	void OnSave(wxCommandEvent &event);
+	void OnClose(wxCommandEvent &event);
 
-	void SetMidi(MidiPort * midi);
+	void SetMidi(MidiPort *midi);
 
 	wxTimer timer;
 
-	void OnTimer(wxTimerEvent& event);
+	void OnTimer(wxTimerEvent &event);
 
 private:
 	uint8_t mode = 0;
-	void SetSlider(uint8_t idx, const std::string & name);
-	void Update(uint8_t idx, const std::string & name);
+	void SetSlider(uint8_t idx, const std::string &name);
+	void Update_(uint8_t idx, const std::string &name);
 	static std::string MakeString(double value);
 
-	std::shared_ptr <MidiDevice> device;
+	std::shared_ptr<MidiDevice> device;
 };
 
 #endif /* GUI_DIALOGEDITORFOOTMODEL_H */

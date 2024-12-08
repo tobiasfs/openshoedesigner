@@ -38,13 +38,15 @@ OpenGLMaterial::OpenGLMaterial() {
 	shininess = 32;
 }
 
-OpenGLMaterial::OpenGLMaterial(Preset preset, float emit) {
+OpenGLMaterial::OpenGLMaterial(Preset preset, float emit, float opacity_) {
 	Set(preset);
 	emission = diffuse * emit;
+	opacity = opacity_;
 }
 
-OpenGLMaterial::OpenGLMaterial(float r, float g, float b, float emit) {
-	SetSimpleColor(r, g, b, emit);
+OpenGLMaterial::OpenGLMaterial(float r, float g, float b, float emit,
+		float opacity_) {
+	SetSimpleColor(r, g, b, emit, opacity_);
 }
 
 void OpenGLMaterial::Set(Preset preset) {
@@ -382,16 +384,18 @@ std::string OpenGLMaterial::GetPresetName(OpenGLMaterial::Preset preset) {
 	return ("");
 }
 
-void OpenGLMaterial::SetSimpleColor(float r, float g, float b, float emit) {
+void OpenGLMaterial::SetSimpleColor(float r, float g, float b, float emit,
+		float opacity_) {
 	ambient.Set(r, g, b);
 	diffuse.Set(r, g, b);
 	specular.Zero();
 	emission = diffuse * emit;
 	shininess = 0;
+	opacity = opacity_;
 }
 
-void OpenGLMaterial::SetSimpleColor(Vector3 c, float emit) {
-	SetSimpleColor(c.x, c.y, c.z, emit);
+void OpenGLMaterial::SetSimpleColor(Vector3 c, float emit, float opacity_) {
+	SetSimpleColor(c.x, c.y, c.z, emit, opacity_);
 }
 
 bool OpenGLMaterial::ColorsAllowed() {
@@ -403,8 +407,6 @@ bool OpenGLMaterial::ColorsAllowed() {
 void OpenGLMaterial::UseMaterial() const {
 	if (!ColorsAllowed())
 		return;
-
-	double opacity = 0.5;
 
 	glDisable(GL_COLOR_MATERIAL);
 	GLfloat buffer[4];
@@ -435,28 +437,28 @@ void OpenGLMaterial::UseColor(float emit) const {
 	if (!ColorsAllowed())
 		return;
 	glEnable(GL_COLOR_MATERIAL);
-	GLfloat buffer[] = { 0, 0, 0, 1 };
+	GLfloat buffer[] = { 0, 0, 0, opacity };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buffer);
 	buffer[0] = diffuse.x * emit;
 	buffer[1] = diffuse.y * emit;
 	buffer[2] = diffuse.z * emit;
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buffer);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0);
-	glColor3f(diffuse.x, diffuse.y, diffuse.z);
+	glColor4f(diffuse.x, diffuse.y, diffuse.z, opacity);
 }
 
 void OpenGLMaterial::UseColor() const {
 	if (!ColorsAllowed())
 		return;
 	glEnable(GL_COLOR_MATERIAL);
-	GLfloat buffer[] = { 0, 0, 0, 1 };
+	GLfloat buffer[] = { 0, 0, 0, opacity };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buffer);
 	buffer[0] = emission.x;
 	buffer[1] = emission.y;
 	buffer[2] = emission.z;
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buffer);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0);
-	glColor3f(diffuse.x, diffuse.y, diffuse.z);
+	glColor4f(diffuse.x, diffuse.y, diffuse.z, opacity);
 }
 
 void OpenGLMaterial::EnableColors() {
@@ -479,8 +481,8 @@ std::string OpenGLMaterial::ToString() const {
 	out << specular.x << ',' << specular.y << ',' << specular.z;
 	out << "],emission:[";
 	out << emission.x << ',' << emission.y << ',' << emission.z;
-	out << "],shininess:";
-	out << shininess;
+	out << "],shininess:" << shininess;
+	out << "],opacity:" << opacity;
 	out << "]}";
 	return out.str();
 }

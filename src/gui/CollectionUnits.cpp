@@ -60,8 +60,8 @@ CollectionUnits::CollectionUnits() {
 }
 
 bool CollectionUnits::Load(wxConfig* config) {
-	wxASSERT(config!=NULL);
-	if (config == NULL)
+	wxASSERT(config!=nullptr);
+	if (config == nullptr)
 		return false;
 
 	wxString temp;
@@ -105,8 +105,8 @@ bool CollectionUnits::Load(wxConfig* config) {
 }
 
 bool CollectionUnits::Save(wxConfig* config) {
-	wxASSERT(config!=NULL);
-	if (config == NULL)
+	wxASSERT(config!=nullptr);
+	if (config == nullptr)
 		return false;
 
 	config->Write(_T("UnitTime"), wxString(Time.GetOtherName()));
