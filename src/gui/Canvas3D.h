@@ -42,8 +42,8 @@ public:
 	virtual ~Canvas3D();
 	void SetProjectView(const ProjectView *projectview);
 //
-//	void ConnectMouseEvents(void);
-//	void DisconnectMouseEvents(void);
+//	void ConnectMouseEvents();
+//	void DisconnectMouseEvents();
 	void Render();
 	void RenderPick();
 

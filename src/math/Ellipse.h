@@ -57,8 +57,8 @@ public:
 	double w = 0.0; ///< Width of the ellipse in x-direction
 	double h = 0.0; ///< Height of the ellipse in y-direction
 
-	double Excentricity(void) const;
-	double Circumfence(void) const;
+	double Excentricity() const;
+	double Circumfence() const;
 
 	/** \brief Steiner construction
 	 *
@@ -74,7 +74,7 @@ public:
 	 */
 	std::vector<Point> SteinerConstruction(size_t nrOfPoints) const;
 
-	void Paint(void) const;
+	void Paint() const;
 
 private:
 	double E(const double e) const; ///< Complete elliptic integral of the 2nd kind as series evaluation

@@ -41,13 +41,16 @@ ParameterEnum::ParameterEnum(const std::string &name_,
 }
 
 void ParameterEnum::SetSelection(const size_t selection_) {
+	size_t oldSelection = selection;
 	if (selection_ >= options.size())
 		selection = (size_t) -1;
 	else
 		selection = selection_;
+	modified = (selection != oldSelection);
 }
 
 void ParameterEnum::SetSelection(const std::string &selection_) {
+	size_t oldSelection = selection;
 	auto cmp = [&selection_](const Option &opt) {
 		return selection_ == opt.name;
 	};
@@ -69,6 +72,7 @@ void ParameterEnum::SetSelection(const std::string &selection_) {
 	} else {
 		selection = ref - options.begin();
 	}
+	modified = (selection != oldSelection);
 }
 
 bool ParameterEnum::IsSelection(const std::string &selection_) const {

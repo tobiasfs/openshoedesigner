@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : CommandShoePreset.h
+// Name               : CommandShoeSetParameter.h
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
@@ -24,33 +24,55 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef COMMANDSHOEPRESET_H
-#define COMMANDSHOEPRESET_H
+#ifndef COMMANDSHOESETPARAMETER_H
+#define COMMANDSHOESETPARAMETER_H
 
-/*!\class CommandShoePreset
+/*!\class CommandShoeSetParameter
  * \ingroup command
- * \brief Command to select a preset for the shoe
+ * \brief Command to set the parameters of the shoe
  *
  * ...
  */
 
 #include <wx/cmdproc.h>
-#include "../Project.h"
+#include <string>
+#include <vector>
 
-class CommandShoePreset:public wxCommand {
+class Parameter;
+class Project;
+
+class CommandConfigSetParameter: public wxCommand {
 public:
-	CommandShoePreset(const wxString& name, Project* project, int preset);
+	CommandConfigSetParameter(const wxString &name, Project *project);
+	CommandConfigSetParameter(const wxString &name, Project *project,
+			const size_t key, const std::string &newFormula);
 
-	bool Do(void);
-	bool Undo(void);
+	void AddValue(const size_t key, const std::string &newFormula);
+	void AddValue(const size_t key, const size_t group,
+			const std::string &newFormula);
 
-protected:
-	Project* project;
-	int preset;
+	bool Do();
+	bool Undo();
 
-	std::string oldHeelHeight;
-	std::string oldBallHeight;
-	std::string oldToeAngle;
+//protected:
+//	bool SetNew(const std::pair<int, std::string> &kv, Parameter &pf);
+//	void SetOld(const std::pair<int, std::string> &kv, Parameter &pf);
+
+//	ParameterFormula* GetParameterByID(Shoe *shoe, int id);
+
+private:
+	struct Change {
+	public:
+		size_t id = (size_t) -1;
+		size_t group = (size_t) -1;
+		std::string oldFormula;
+		std::string newFormula;
+	};
+
+	Project *project;
+
+	std::vector<Change> changes;
 };
 
-#endif /* COMMANDSHOEPRESET_H */
+#endif /* COMMANDSHOESETPARAMETER_H */
+

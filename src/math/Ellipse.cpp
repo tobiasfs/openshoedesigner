@@ -29,7 +29,7 @@
 #include <cmath>
 #include "../3D/OpenGL.h"
 
-double Ellipse::Excentricity(void) const {
+double Ellipse::Excentricity() const {
 	const double a = (h > w) ? h : w;
 	const double b = (h > w) ? w : h;
 	return sqrt(1 - (a * a) / (b * b));
@@ -48,7 +48,7 @@ double Ellipse::E(const double e) const {
 	return h * M_PI / 2.0;
 }
 
-double Ellipse::Circumfence(void) const {
+double Ellipse::Circumfence() const {
 	const double a = (h > w) ? h : w;
 	const double e = Excentricity();
 	return 4.0 * a * E(e);
@@ -80,7 +80,7 @@ std::vector<Ellipse::Point> Ellipse::SteinerConstruction(
 	return temp;
 }
 
-void Ellipse::Paint(void) const {
+void Ellipse::Paint() const {
 	const double dr = 0.1;
 	glBegin(GL_LINE_STRIP);
 	for (double r = -1.0; r <= (1.0 + dr / 2); r += dr) {

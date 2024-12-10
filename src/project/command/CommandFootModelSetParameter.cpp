@@ -42,7 +42,7 @@ CommandFootModelSetParameter::CommandFootModelSetParameter(const wxString &name,
 	this->newFormula = newFormula;
 }
 
-bool CommandFootModelSetParameter::Do(void) {
+bool CommandFootModelSetParameter::Do() {
 	if (project == NULL)
 		return false;
 	return false;
@@ -117,7 +117,7 @@ bool CommandFootModelSetParameter::Do(void) {
 	return true;
 }
 
-bool CommandFootModelSetParameter::Undo(void) {
+bool CommandFootModelSetParameter::Undo() {
 	if (project == NULL)
 		return false;
 	return false;

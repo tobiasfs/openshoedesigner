@@ -70,8 +70,8 @@ public:
 
 	void Init(size_t order, size_t N);
 
-	size_t Size(void) const;
-	size_t GetOrder(void) const;
+	size_t Size() const;
+	size_t GetOrder() const;
 
 	Polynomial Filter(const std::vector <double> &vec, size_t pos = 0) const;
 

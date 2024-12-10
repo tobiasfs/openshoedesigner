@@ -26,37 +26,42 @@
 
 #include "CommandFootMeasurementsCopy.h"
 
-CommandFootMeasurementsCopy::CommandFootMeasurementsCopy(const wxString& name,
-		Project* project, bool LeftToRight)
-		: wxCommand(true, name), project(project), LeftToRight(LeftToRight)
-{
+#include <stdexcept>
+
+CommandFootMeasurementsCopy::CommandFootMeasurementsCopy(const wxString &name,
+		Project *project, ProjectView::Side toSide_) :
+		wxCommand(true, name), project(project), toSide(toSide_) {
+	if (toSide_ == ProjectView::Side::Both)
+		throw std::logic_error(
+				"CommandFootMeasurementsCopy - Cannot copy to both sides.");
 }
 
-bool CommandFootMeasurementsCopy::Do(void)
-{
-	if(project == NULL) return false;
-	if(LeftToRight){
-		oldValue = project->measR;
-		project->measR = project->measL;
-		project->measR.Modify(true);
-	}else{
-		oldValue = project->measL;
-		project->measL = project->measR;
-		project->measL.Modify(true);
+bool CommandFootMeasurementsCopy::Do() {
+	if (project == NULL)
+		return false;
+	if (toSide == ProjectView::Side::Left) {
+		oldValue = project->footL;
+		project->footL = project->footR;
+		project->footL.Modify(true);
+	} else {
+		oldValue = project->footR;
+		project->footR = project->footL;
+		project->footR.Modify(true);
 	}
 	project->Update();
 	return true;
 }
 
-bool CommandFootMeasurementsCopy::Undo(void)
-{
-	if(project == NULL) return false;
-	if(LeftToRight){
-		project->measR = oldValue;
-		project->measR.Modify(true);
-	}else{
-		project->measL = oldValue;
-		project->measL.Modify(true);
+bool CommandFootMeasurementsCopy::Undo() {
+	if (project == NULL)
+		return false;
+
+	if (toSide == ProjectView::Side::Left) {
+		project->footL = oldValue;
+		project->footL.Modify(true);
+	} else {
+		project->footR = oldValue;
+		project->footR.Modify(true);
 	}
 	project->Update();
 	return true;

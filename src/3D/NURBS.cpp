@@ -264,7 +264,7 @@ double NURBS::GetV(int block, int subBlock) {
 		return v0 + (double) block * dv + ((double) subBlock + 0.5) * dsv;
 }
 
-void NURBS::Paint(void) const {
+void NURBS::Paint() const {
 	if (controlPointSize > 0) {
 		glBegin(GL_POINTS);
 		glColor3f(1, 1, 0);

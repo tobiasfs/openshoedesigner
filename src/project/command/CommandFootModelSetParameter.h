@@ -49,8 +49,8 @@ public:
 	CommandFootModelSetParameter(const wxString &name, Project *project,
 			size_t boneNr, Type field, std::string newFormula);
 
-	bool Do(void);
-	bool Undo(void);
+	bool Do();
+	bool Undo();
 
 protected:
 	Project *project;

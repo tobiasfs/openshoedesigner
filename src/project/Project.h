@@ -103,11 +103,10 @@ public:
 	void SaveLast(wxString fileName, bool left, bool right);
 	void SaveSkin(wxString fileName, bool left, bool right);
 
-	void Update(void);
+	void Register();
+	void Update();
 
-	bool MeasurementsAreSymmetric() const;
-
-	void StopAllThreads(void); //!< Call from OnClose; the event loop has to be running.
+	void StopAllThreads(); //!< Call from OnClose; the event loop has to be running.
 
 private:
 	void OnCalculationDone(wxThreadEvent &event);
@@ -115,10 +114,10 @@ private:
 
 public:
 
-	std::shared_ptr<Configuration> config;
+	Configuration config;
 
-	std::shared_ptr<FootMeasurements> footL;
-	std::shared_ptr<FootMeasurements> footR;
+	FootMeasurements footL;
+	FootMeasurements footR;
 
 	ParameterEvaluator evaluator;
 

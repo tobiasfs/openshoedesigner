@@ -72,7 +72,7 @@ void OpenGLShader::AddShader(GLenum type, const std::string &program_) {
 	}
 }
 
-bool OpenGLShader::LinkShader(void) {
+bool OpenGLShader::LinkShader() {
 	glDeleteProgram(program);
 	program = glCreateProgram();
 
@@ -100,7 +100,7 @@ bool OpenGLShader::LinkShader(void) {
 	return true;
 }
 
-bool OpenGLShader::Start(void) {
+bool OpenGLShader::Start() {
 	if (program == 0)
 		return false;
 	glUseProgram(program);
@@ -125,7 +125,7 @@ void OpenGLShader::AddShaderFromFile(GLenum type,
 	AddShader(type, program_);
 }
 
-void OpenGLShader::Stop(void) {
+void OpenGLShader::Stop() {
 	glUseProgram(0);
 }
 

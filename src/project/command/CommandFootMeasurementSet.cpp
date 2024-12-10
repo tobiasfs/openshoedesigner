@@ -29,33 +29,28 @@
 
 CommandFootMeasurementSet::CommandFootMeasurementSet(const wxString &name,
 		Project *project, ProjectView::Side active, int parameter,
-		wxString value) :
-		wxCommand(true, name), project(project), active(active), parameter(
-				parameter), value(value) {
+		const std::string &value) :
+		wxCommand(true, name), project(project), active(active), parameterID(
+				parameter), newValue(value) {
 }
 
-bool CommandFootMeasurementSet::Do(void) {
+bool CommandFootMeasurementSet::Do() {
 	if (project == NULL)
 		return false;
 
 	bool hasChanged = false;
+
 	if (active == ProjectView::Side::Left
 			|| active == ProjectView::Side::Both) {
-		FootMeasurements * meas = &(project->measL);
-		oldValueLeft = Replace(meas, parameter, value);
-		bool temp = !value.IsSameAs(oldValueLeft);
-		if (temp)
-			meas->Modify(true);
-		hasChanged |= temp;
+		FootMeasurements &meas = project->footL;
+		oldValueLeft = Replace(meas, parameterID, newValue);
+		hasChanged |= meas.GetParameter(parameterID)->IsModified();
 	}
 	if (active == ProjectView::Side::Right
 			|| active == ProjectView::Side::Both) {
-		FootMeasurements * meas = &(project->measR);
-		oldValueRight = Replace(meas, parameter, value);
-		bool temp = !value.IsSameAs(oldValueRight);
-		if (temp)
-			meas->Modify(true);
-		hasChanged |= temp;
+		FootMeasurements &meas = project->footR;
+		oldValueRight = Replace(meas, parameterID, newValue);
+		hasChanged |= meas.GetParameter(parameterID)->IsModified();
 	}
 	if (hasChanged)
 		project->Update();
@@ -63,42 +58,37 @@ bool CommandFootMeasurementSet::Do(void) {
 	return hasChanged;
 }
 
-bool CommandFootMeasurementSet::Undo(void) {
+bool CommandFootMeasurementSet::Undo() {
 	if (project == NULL)
 		return false;
 
 	bool hasChanged = false;
 	if (active == ProjectView::Side::Left
 			|| active == ProjectView::Side::Both) {
-		FootMeasurements *meas = &(project->measL);
-		wxString currentValue;
-		currentValue = Replace(meas, parameter, oldValueLeft);
-		bool temp = !currentValue.IsSameAs(oldValueLeft);
-		if (temp)
-			meas->Modify(true);
-		hasChanged |= temp;
+		FootMeasurements &meas = project->footL;
+		std::string currentValue;
+		currentValue = Replace(meas, parameterID, oldValueLeft);
+		hasChanged |= meas.GetParameter(parameterID)->IsModified();
 
 	}
 	if (active == ProjectView::Side::Right
 			|| active == ProjectView::Side::Both) {
-		FootMeasurements *meas = &(project->measR);
-		wxString currentValue;
-		currentValue = Replace(meas, parameter, oldValueRight);
-		bool temp = !currentValue.IsSameAs(oldValueRight);
-		if (temp)
-			meas->Modify(true);
-		hasChanged |= temp;
+		FootMeasurements &meas = project->footR;
+		std::string currentValue;
+		currentValue = Replace(meas, parameterID, oldValueRight);
+		hasChanged |= meas.GetParameter(parameterID)->IsModified();
 	}
 	if (hasChanged)
 		project->Update();
+
 	return true;
 }
 
-wxString CommandFootMeasurementSet::Replace(FootMeasurements *meas,
-		int parameter, wxString newValue) {
-	wxString lastValue;
-//	Parameter &param = meas->GetParameter(parameter);
-//	lastValue = param.formula;
-//	param.formula = newValue.ToStdString();
+std::string CommandFootMeasurementSet::Replace(FootMeasurements &meas, int ID,
+		std::string newFormula) {
+	std::string lastValue;
+	std::shared_ptr<ParameterFormula> param = meas.GetParameter(ID);
+	lastValue = param->GetFormula();
+	param->SetFormula(newFormula);
 	return lastValue;
 }

@@ -33,7 +33,7 @@ DialogSetupMidi::DialogSetupMidi(wxWindow* parent, MidiPort * midi,
 {
 }
 
-void DialogSetupMidi::UpdateDevices(void)
+void DialogSetupMidi::UpdateDevices()
 {
 	auto devicenames = midi->GetDeviceNames();
 	m_choice->Clear();

@@ -56,17 +56,17 @@ public:
 	void AddBone(const std::string &name);
 	bool Connect(const std::string &parent, const std::string &child);
 
-	void Update(void);
-	void Render(void) const;
+	void Update();
+	void Render() const;
 
 	std::shared_ptr<Bone> GetBone(const std::string &name);
 
-	size_t GetBoneCount(void) const;
+	size_t GetBoneCount() const;
 
 	void UpdateBonesFromFormula(MathParser &parser);
 
-	void ResetRotation(void);
-	void RestoreRotation(void);
+	void ResetRotation();
+	void RestoreRotation();
 
 	std::vector<std::shared_ptr<Bone>> bones;
 private:

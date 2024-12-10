@@ -47,7 +47,7 @@ public:
 
 	void AddPolygon(const Polygon3 &poly, size_t Nsections);
 
-	void Paint(void) const;
+	void Paint() const;
 
 	std::vector<Vector3> a;
 	std::vector<Vector3> b;

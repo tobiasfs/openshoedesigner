@@ -109,20 +109,20 @@ public:
 	double roty = 0.0; //!< Rotation around (up x normal) axis
 	double rotz = 0.0; //!< Rotation around up axis
 
-	double GetXMax(void) const;
-	double GetXMin(void) const;
-	double GetZMin(void) const;
+	double GetXMax() const;
+	double GetXMin() const;
+	double GetZMin() const;
 
-	void Update(void);
+	void Update();
 
 	double rotyBackup = 0.0; //!< Rotation along the x axis
 	double rotzBackup = 0.0; //!< Rotation along the y axis
-	void PushRotation(void);
-	void PopRotation(void);
+	void PushRotation();
+	void PopRotation();
 
-	void Paint(void) const;
+	void Paint() const;
 
-	void UpdateHierarchy(void);
+	void UpdateHierarchy();
 private:
 	double CalculateAnchorPoint(const Vector3 & p) const;
 };

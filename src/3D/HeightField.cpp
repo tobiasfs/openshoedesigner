@@ -91,7 +91,7 @@ void HeightField::SetSize(float x, float y, float resolution) {
 	Clear();
 }
 
-void HeightField::Clear(void) {
+void HeightField::Clear() {
 	if (value == nullptr)
 		return;
 	unsigned int i;
@@ -106,7 +106,7 @@ void HeightField::SetValues(double *v, unsigned int size) {
 		this->value[n] = v[n];
 }
 
-Polygon3 HeightField::GetUnderline(void) const {
+Polygon3 HeightField::GetUnderline() const {
 	Polygon3 temp;
 
 	Vector3 p(0, 0, 0);
@@ -134,7 +134,7 @@ Polygon3 HeightField::GetUnderline(void) const {
 	return temp;
 }
 
-void HeightField::Paint(void) const {
+void HeightField::Paint() const {
 	if (value == nullptr)
 		return;
 	glPushMatrix();

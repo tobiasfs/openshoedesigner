@@ -24,98 +24,92 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "CommandShoeSetParameter.h"
-
-#include <exception>
+#include "CommandConfigSetParameter.h"
 
 #include "../../gui/gui.h"
-#include "../../math/Parameter.h"
+#include "../ParameterFormula.h"
 #include "../Project.h"
 
-CommandShoeSetParameter::CommandShoeSetParameter(const wxString &name,
+#include <exception>
+#include <sstream>
+
+CommandConfigSetParameter::CommandConfigSetParameter(const wxString &name,
 		Project *project) :
 		wxCommand(true, name), project(project) {
 }
 
-CommandShoeSetParameter::CommandShoeSetParameter(const wxString &name,
+CommandConfigSetParameter::CommandConfigSetParameter(const wxString &name,
 		Project *project, const size_t key, const std::string &newFormula) :
 		wxCommand(true, name), project(project) {
 	AddValue(key, newFormula);
 }
 
-void CommandShoeSetParameter::AddValue(const size_t key,
+void CommandConfigSetParameter::AddValue(const size_t key,
 		const std::string &newFormula) {
 	AddValue(key, (size_t) -1, newFormula);
 }
 
-void CommandShoeSetParameter::AddValue(const size_t key, const size_t group,
+void CommandConfigSetParameter::AddValue(const size_t key, const size_t group,
 		const std::string &newFormula) {
-	CommandShoeSetParameter::Change temp;
+	CommandConfigSetParameter::Change temp;
 	temp.id = key;
 	temp.group = group;
 	temp.newFormula = newFormula;
 	changes.push_back(temp);
 }
 
-bool CommandShoeSetParameter::Do(void) {
+bool CommandConfigSetParameter::Do() {
 	if (project == NULL)
 		return false;
 
-	ParameterEvaluator &params = project->parameter;
+	ParameterEvaluator &params = project->evaluator;
 	params.Reset();
 
+	bool modified = false;
+
 	for (auto &change : changes) {
-		std::shared_ptr<Parameter> param = params.GetParameter(change.id,
+		std::shared_ptr<ParameterFormula> param = params.GetParameter(change.id,
 				change.group);
+		if (!param) {
+			std::ostringstream err;
+			err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+			err << "The parameter with the ID = " << change.id;
+			if (change.group != (size_t) -1)
+				err << " in group = " << change.group;
+			err << " does not exist";
+			err << " and cannot be set to " << change.newFormula << ".";
+			throw std::logic_error(err.str());
+		}
 		change.oldFormula = param->GetFormula();
 		param->SetFormula(change.newFormula);
+		modified |= param->IsModified();
 	}
-
-//	bool hasChanged = false;
-//	for (auto &kv : newParameter) {
-//		Parameter &p = shoe->GetParameter(kv.first);
-//		hasChanged |= SetNew(kv, p);
-//	}
-//	if (hasChanged) {
-//		shoe->Modify(true);
 	project->Update();
-//	}
-//	return hasChanged;
-	return true;
+	return modified;
 }
 
-bool CommandShoeSetParameter::Undo(void) {
+bool CommandConfigSetParameter::Undo() {
 	if (project == NULL)
 		return false;
 
-	ParameterEvaluator &params = project->parameter;
+	ParameterEvaluator &params = project->evaluator;
 	params.Reset();
 
 	for (auto &change : changes) {
-		std::shared_ptr<Parameter> param = params.GetParameter(change.id,
+		std::shared_ptr<ParameterFormula> param = params.GetParameter(change.id,
 				change.group);
+		if (!param) {
+			std::ostringstream err;
+			err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+			err << "The parameter with the ID = " << change.id;
+			if (change.group != (size_t) -1)
+				err << " in group = " << change.group;
+			err << " does not exist";
+			err << " and cannot be set to " << change.newFormula << ".";
+			throw std::logic_error(err.str());
+		}
 		param->SetFormula(change.oldFormula);
 	}
-
-//	for (auto &kv : oldParameter) {
-//		Parameter &p = shoe->GetParameter(kv.first);
-//		SetOld(kv, p);
-//	}
-//	shoe->Modify(true);
 	project->Update();
 	return true;
 }
-
-//bool CommandShoeSetParameter::SetNew(const std::pair<int, std::string> &kv,
-//		Parameter &pf) {
-//	bool changed = pf.formula.compare(kv.second) != 0;
-//	oldParameter[kv.first] = pf.formula;
-//	pf.formula = kv.second;
-//	return changed;
-//}
-//
-//void CommandShoeSetParameter::SetOld(const std::pair<int, std::string> &kv,
-//		Parameter &pf) {
-//	pf.formula = oldParameter[kv.first];
-//}
-

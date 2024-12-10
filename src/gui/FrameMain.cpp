@@ -42,16 +42,13 @@
 
 #include "../project/command/CommandFootMeasurementSet.h"
 #include "../project/command/CommandFootModelSetParameter.h"
-#include "../project/command/CommandProjectSetLegLengthDifference.h"
-#include "../project/command/CommandShoePreset.h"
-#include "../project/command/CommandShoeSetParameter.h"
-
 #include "../icons/FootMeasurements.xpm"
 #include "../icons/FootMeasurements_small.xpm"
 #include "../project/command/CommandFootMeasurementsCopy.h"
-#include "../project/command/CommandProjectSetParameter.h"
-
 #include "FrameParent.h"
+
+#include "../project/command/CommandConfigSetEnum.h"
+#include "../project/command/CommandConfigSetParameter.h"
 
 FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 		wxDocParentFrame *parent) :
@@ -167,47 +164,45 @@ bool FrameMain::TransferDataToWindow() {
 
 	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
 	const Project *project = wxStaticCast(GetDocument(), Project);
-	const auto &meas = projectview->GetActiveFootMeasurements();
+	const FootMeasurements *meas = projectview->GetActiveFootMeasurements();
 	const auto &config = project->config;
 
 	// Set checkboxes and selections in main menu
 
 //	if (config->measurementSource->IsSelection("fromMeasurements"))
 	m_menuFoot->Check(ID_USEFOOTMEASUREMENTS,
-			config->measurementSource->IsSelection("fromMeasurements"));
+			config.measurementSource->IsSelection("fromMeasurements"));
 //	if (project->measurementsource == Project::MeasurementSource::fromFootScan)
 	m_menuFoot->Check( ID_USEFOOTSCAN,
-			config->measurementSource->IsSelection("fromFootScan"));
+			config.measurementSource->IsSelection("fromFootScan"));
 
-	m_menuFoot->Check(ID_MEASUREMENTSYMMETRY,
-			project->MeasurementsAreSymmetric());
+	m_menuFoot->Check(ID_MEASUREMENTSYMMETRY, false);
 
 //	if (project->modeltype == Project::ModelType::boneBased)
 	m_menuFoot->Check(
-	ID_USEBONEBASEDMODEL, config->modelType->IsSelection("boneBased"));
+	ID_USEBONEBASEDMODEL, config.modelType->IsSelection("boneBased"));
 //	if (project->modeltype == Project::ModelType::lastBased)
 	m_menuFoot->Check(
-	ID_USELASTBASEDMODEL, config->modelType->IsSelection("lastBased"));
+	ID_USELASTBASEDMODEL, config.modelType->IsSelection("lastBased"));
 
 //	if (project->generator == Project::Generator::Experimental)
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONEXPERIMENTAL,
-			config->generator->IsSelection("Experimental"));
+	ID_CONSTRUCTIONEXPERIMENTAL, config.generator->IsSelection("Experimental"));
 //	if (project->generator == Project::Generator::Welted)
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONWELDED, config->generator->IsSelection("Welted"));
+	ID_CONSTRUCTIONWELDED, config.generator->IsSelection("Welted"));
 //	if (project->generator == Project::Generator::Cemented)
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONCEMENTED, config->generator->IsSelection("Cemented"));
+	ID_CONSTRUCTIONCEMENTED, config.generator->IsSelection("Cemented"));
 //	if (project->generator == Project::Generator::Molded)
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONMOLDED, config->generator->IsSelection("Molded"));
+	ID_CONSTRUCTIONMOLDED, config.generator->IsSelection("Molded"));
 //	if (project->generator == Project::Generator::Dutch)
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONDUTCH, config->generator->IsSelection("Dutch"));
+	ID_CONSTRUCTIONDUTCH, config.generator->IsSelection("Dutch"));
 //	if (project->generator == Project::Generator::Geta)
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONGETA, config->generator->IsSelection("Geta"));
+	ID_CONSTRUCTIONGETA, config.generator->IsSelection("Geta"));
 
 	m_menuView->Check(ID_STEREO3D,
 			m_canvas3D->stereoMode != OpenGLCanvas::Stereo3D::Off);
@@ -245,12 +240,12 @@ bool FrameMain::TransferDataToWindow() {
 		m_toggleBtnEditRight1->SetValue(false);
 	}
 
-	if (config->measurementSource->IsSelection("fromMeasurements")) {
+	if (config.measurementSource->IsSelection("fromMeasurements")) {
 		m_choicebookMeasurement->SetSelection(0);
 	} else {
 		m_choicebookMeasurement->SetSelection(1);
 	}
-	if (config->modelType->IsSelection("boneBased")) {
+	if (config.modelType->IsSelection("boneBased")) {
 		m_choicebookFootModel->SetSelection(0);
 	} else {
 		m_choicebookFootModel->SetSelection(1);
@@ -295,9 +290,9 @@ bool FrameMain::TransferDataToWindow() {
 					round(meas->GetSize(FootMeasurements::Type::AU))));
 
 	m_filePickerLastModel->SetInitialDirectory(filepaths.lastShoeDirectory);
-	if (!config->lastFilename->GetString().empty()) {
+	if (!config.lastFilename->GetString().empty()) {
 		wxFileName lastFilename;
-		lastFilename = wxString(config->lastFilename->GetString());
+		lastFilename = wxString(config.lastFilename->GetString());
 		lastFilename.MakeAbsolute();
 		m_filePickerLastModel->SetFileName(lastFilename);
 	}
@@ -339,23 +334,23 @@ bool FrameMain::TransferDataToWindow() {
 
 	// On page "Insole":
 
-	TransferParameterToTextCtrl(config->bigToeAngle, m_textCtrlBigToeAngle,
+	TransferParameterToTextCtrl(config.bigToeAngle, m_textCtrlBigToeAngle,
 			UnitType::Angle);
-	TransferParameterToTextCtrl(config->littleToeAngle,
-			m_textCtrlLittleToeAngle, UnitType::Angle);
-	TransferParameterToTextCtrl(config->ballMeasurementAngle,
+	TransferParameterToTextCtrl(config.littleToeAngle, m_textCtrlLittleToeAngle,
+			UnitType::Angle);
+	TransferParameterToTextCtrl(config.ballMeasurementAngle,
 			m_textCtrlBallMeasurementAngle, UnitType::Angle);
-	TransferParameterToTextCtrl(config->heelDirectionAngle,
+	TransferParameterToTextCtrl(config.heelDirectionAngle,
 			m_textCtrlHeelDirectionAngle, UnitType::Angle);
 
-	m_sliderTipSharpness->SetValue(config->tipSharpness->ToDouble());
+	m_sliderTipSharpness->SetValue(config.tipSharpness->ToDouble());
 
-	TransferParameterToTextCtrl(config->extraLength, m_textCtrlExtraLength,
+	TransferParameterToTextCtrl(config.extraLength, m_textCtrlExtraLength,
 			UnitType::Distance);
-	TransferParameterToTextCtrl(config->footCompression,
+	TransferParameterToTextCtrl(config.footCompression,
 			m_textCtrlFootCompression, UnitType::Percent);
 
-// On page "Shoe":
+	// On page "Shoe":
 
 	{	// Populate the wxChoiceCtrl for the shoe-type
 		wxArrayString newStrings;
@@ -386,16 +381,20 @@ bool FrameMain::TransferDataToWindow() {
 		}
 	}
 
-	TransferParameterToTextCtrl(config->heelHeight, m_textCtrlHeelHeight,
+	TransferParameterToTextCtrl(config.heelHeight, m_textCtrlHeelHeight,
 			UnitType::Distance);
-	TransferParameterToTextCtrl(config->ballHeight, m_textCtrlBallHeight,
+	TransferParameterToTextCtrl(config.ballHeight, m_textCtrlBallHeight,
 			UnitType::Distance);
-	TransferParameterToTextCtrl(config->heelPitch, m_textCtrlHeelPitch,
+	TransferParameterToTextCtrl(config.heelPitch, m_textCtrlHeelPitch,
 			UnitType::Angle);
-	TransferParameterToTextCtrl(config->toeSpring, m_textCtrlToeSpring,
+	TransferParameterToTextCtrl(config.toeSpring, m_textCtrlToeSpring,
 			UnitType::Angle);
-	TransferParameterToTextCtrl(config->upperLevel, m_textCtrlUpperLevel,
+	TransferParameterToTextCtrl(config.upperLevel, m_textCtrlUpperLevel,
 			UnitType::Without);
+
+	// On page "Sole"
+
+	m_choicebookConstruction->SetSelection(config.generator->GetSelectionIdx());
 
 	loopGuard.Post();
 
@@ -408,17 +407,18 @@ void FrameMain::TransferParameterToTextCtrl(
 	FrameParent *parent = wxStaticCast(GetParent(), FrameParent);
 	CollectionUnits *units = &(parent->units);
 
-	ctrl->SetToolTip(parameter->GetDescription());
-
-	if (ctrl->HasFocus()) {
-		ctrl->SetBackgroundColour(wxNullColour);
+	if (parameter->errorFlag) {
+		ctrl->SetBackgroundColour(*wxRED);
 		ctrl->SetValue(parameter->GetFormula());
+		ctrl->SetToolTip(parameter->errorStr);
 	} else {
-		if (parameter->errorFlag) {
-			ctrl->SetBackgroundColour(*wxRED);
-			ctrl->SetValue(parameter->errorStr);
+		if (ctrl->HasFocus()) {
+			ctrl->SetBackgroundColour(wxNullColour);
+			ctrl->SetToolTip(parameter->GetDescription());
+			ctrl->SetValue(parameter->GetFormula());
 		} else {
 			ctrl->SetBackgroundColour(wxNullColour);
+			ctrl->SetToolTip(parameter->GetDescription());
 			switch (type) {
 			case UnitType::Without:
 				ctrl->SetValue(
@@ -611,9 +611,12 @@ void FrameMain::OnSetFocus(wxFocusEvent &event) {
 	const int id = event.GetId();
 	const Project *project = wxStaticCast(GetDocument(), Project);
 	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	if (!project->evaluator.HasID(id, (size_t) projectview->active))
+	size_t pva = (size_t) (
+			(projectview->active == ProjectView::Side::Both) ?
+					ProjectView::Side::Left : projectview->active);
+	if (!project->evaluator.HasID(id, pva))
 		return;
-
+	//TODO ?
 	if (id == ID_TIPSHARPNESS)
 		return;
 	TransferDataToWindow();
@@ -623,8 +626,12 @@ void FrameMain::OnKillFocus(wxFocusEvent &event) {
 	const int id = event.GetId();
 	const Project *project = wxStaticCast(GetDocument(), Project);
 	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	if (!project->evaluator.HasID(id, (size_t) projectview->active))
+	size_t pva = (size_t) (
+			(projectview->active == ProjectView::Side::Both) ?
+					ProjectView::Side::Left : projectview->active);
+	if (!project->evaluator.HasID(id, (size_t) pva))
 		return;
+	//TODO ?
 	if (id == ID_TIPSHARPNESS)
 		return;
 	TransferDataToWindow();
@@ -636,30 +643,20 @@ void FrameMain::OnTextEnter(wxCommandEvent &event) {
 	const std::string newFormula = event.GetString().ToStdString();
 	const int id = event.GetId();
 
-//	if(Shoe::IsValidID(id)){
-//
-//	}
-//	if(FootMeasurements::IsValidID(id)){
-//		CommandFootMeasurementSet * cmd = new CommandFootMeasurementSet(
-//				wxString::Format(_("Set %s to %s"),
-//						FootMeasurements::GetName(id), newFormula), project,
-//				projectview->active, id, newFormula);
-//		project->GetCommandProcessor()->Submit(cmd);
-//
-//	}
-//	if(Shoe::IsValidID(id)){
-//		CommandShoeSetParameter * cmd = new CommandShoeSetParameter(
-//				wxString::Format(_("Set %s to %s"), Shoe::GetName(id),
-//						newFormula), project);
-//		cmd->AddValue(id, newFormula.ToStdString());
-//		project->GetCommandProcessor()->Submit(cmd);
-//	}
-//	if (id == ID_MEASUREMENT_LEGLENGTHDIFFERENCE) {
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetLegLengthDifference(
-//						wxString::Format(_("Set leg length difference to %s"),
-//								newFormula), project, newFormula));
-//	}
+	if (FootMeasurements::IsValidID(id)) {
+		CommandFootMeasurementSet *cmd = new CommandFootMeasurementSet(
+				wxString::Format(_("Set %s to %s"),
+						FootMeasurements::GetName(id), newFormula), project,
+				projectview->active, id, newFormula);
+		project->GetCommandProcessor()->Submit(cmd);
+
+	} else if (Configuration::IsValidID(id)) {
+		CommandConfigSetParameter *cmd = new CommandConfigSetParameter(
+				wxString::Format(_("Set %s to %s"), Configuration::GetName(id),
+						newFormula), project);
+		cmd->AddValue(id, newFormula);
+		project->GetCommandProcessor()->Submit(cmd);
+	}
 
 	switch (event.GetId()) {
 	case ID_MEASUREMENT_FOOTLENGTH:
@@ -747,28 +744,29 @@ void FrameMain::OnChoice(wxCommandEvent &event) {
 	if (!jsp.IsObject())
 		return;
 
-//	CommandShoeSetParameter *cmd = new CommandShoeSetParameter(
-//			wxString::Format(_("Selected Preset %s"), event.GetString()),
-//			project);
-//	if (jsp.HasKey("HeelHeight"))
-//		cmd->AddValue(ID_HEELHEIGHT, jsp["HeelHeight"].GetString());
-//	if (jsp.HasKey("BallHeight"))
-//		cmd->AddValue(ID_BALLHEIGHT, jsp["BallHeight"].GetString());
-//	if (jsp.HasKey("HeelPitch"))
-//		cmd->AddValue(ID_HEELPITCH, jsp["HeelPitch"].GetString());
-//	if (jsp.HasKey("ToeSpring"))
-//		cmd->AddValue(ID_TOESPRING, jsp["ToeSpring"].GetString());
-//	if (jsp.HasKey("UpperLevel"))
-//		cmd->AddValue(ID_UPPERLEVEL, jsp["UpperLevel"].GetString());
-//	if (jsp.HasKey("ExtraLength"))
-//		cmd->AddValue(ID_EXTRALENGTH, jsp["ExtraLength"].GetString());
-//	if (jsp.HasKey("FootCompression"))
-//		cmd->AddValue(ID_FOOTCOMPRESSION, jsp["FootCompression"].GetString());
-//	project->GetCommandProcessor()->Submit(cmd);
+	CommandConfigSetParameter *cmd = new CommandConfigSetParameter(
+			wxString::Format(_("Selected Preset %s"), event.GetString()),
+			project);
+	if (jsp.HasKey("HeelHeight"))
+		cmd->AddValue(ID_HEELHEIGHT, jsp["HeelHeight"].GetString());
+	if (jsp.HasKey("BallHeight"))
+		cmd->AddValue(ID_BALLHEIGHT, jsp["BallHeight"].GetString());
+	if (jsp.HasKey("HeelPitch"))
+		cmd->AddValue(ID_HEELPITCH, jsp["HeelPitch"].GetString());
+	if (jsp.HasKey("ToeSpring"))
+		cmd->AddValue(ID_TOESPRING, jsp["ToeSpring"].GetString());
+	if (jsp.HasKey("UpperLevel"))
+		cmd->AddValue(ID_UPPERLEVEL, jsp["UpperLevel"].GetString());
+	if (jsp.HasKey("ExtraLength"))
+		cmd->AddValue(ID_EXTRALENGTH, jsp["ExtraLength"].GetString());
+	if (jsp.HasKey("FootCompression"))
+		cmd->AddValue(ID_FOOTCOMPRESSION, jsp["FootCompression"].GetString());
+	project->GetCommandProcessor()->Submit(cmd);
 	TransferDataToWindow();
 }
 
 void FrameMain::OnToggleButton(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
 	Project *project = wxStaticCast(GetDocument(), Project);
 //	if (project->measurementsSymmetric) {
@@ -799,39 +797,42 @@ void FrameMain::OnToggleButton(wxCommandEvent &event) {
 }
 
 void FrameMain::OnCheckBox(wxCommandEvent &event) {
-	DEBUGOUT << "OnCheckBox( " << event.GetId() << " )\n";
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnListCtrlOnSelectionChanged(wxDataViewEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 }
 
 void FrameMain::OnPageChange(wxNotebookEvent &event) {
 	if (loopGuard.TryWait() != wxSEMA_NO_ERROR)
 		return;
-	DEBUGOUT << "OnPageChange( " << event.GetId() << " )\n";
+
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 
 	Project *project = wxStaticCast(GetDocument(), Project);
-//	switch (event.GetId()) {
-//	case ID_MEASUREMENTSOURCE:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Set source."), project,
-//						event.GetId(),
-//						m_choicebookMeasurement->GetSelection()));
-//		break;
-//	case ID_FOOTMODEL:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Set footmodel."), project,
-//						event.GetId(), m_choicebookFootModel->GetSelection()));
-//		break;
-//	default:
-//		return;
-//	}
+	switch (event.GetId()) {
+	case ID_MEASUREMENTSOURCE:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Set source."), project,
+						event.GetId(),
+						m_choicebookMeasurement->GetSelection()));
+		break;
+	case ID_MODELTYPE:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Set footmodel."), project,
+						event.GetId(), m_choicebookFootModel->GetSelection()));
+		break;
+	default:
+		return;
+	}
 	loopGuard.Post();
 	TransferDataToWindow();
 
 }
 
 void FrameMain::OnViewChange(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
 	TransferDataFromWindow();
 
@@ -848,6 +849,7 @@ void FrameMain::OnViewChange(wxCommandEvent &event) {
 }
 
 void FrameMain::On3DSelect(wxMouseEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 	int x = event.GetX();
 	int y = event.GetY();
 	OpenGLPick result;
@@ -958,19 +960,19 @@ void FrameMain::OnQuickSetupMeasurements(wxCommandEvent&WXUNUSED(event)) {
 
 		wxString lengthStr = units->Distance.TextFromSIWithUnit(dialog.length);
 
-//		project->GetCommandProcessor()->Submit(
-//				new CommandFootMeasurementSet(
-//				_("Set footlength to ") + lengthStr, project,
-//						projectview->active, ID_MEASUREMENT_FOOTLENGTH,
-//						lengthStr));
-//
-//		wxString widthStr = wxString::Format(_T("footLength/%g"),
-//				2.7 / dialog.width);
-//		project->GetCommandProcessor()->Submit(
-//				new CommandFootMeasurementSet(
-//				_("Set ballwidth to ") + widthStr, project,
-//						projectview->active, ID_MEASUREMENT_BALLWIDTH,
-//						widthStr));
+		project->GetCommandProcessor()->Submit(
+				new CommandFootMeasurementSet(
+				_("Set footlength to ") + lengthStr, project,
+						projectview->active, ID_MEASUREMENT_FOOTLENGTH,
+						lengthStr.ToStdString()));
+
+		wxString widthStr = wxString::Format(_T("footLength/%g"),
+				2.7 / dialog.width);
+		project->GetCommandProcessor()->Submit(
+				new CommandFootMeasurementSet(
+				_("Set ballwidth to ") + widthStr, project,
+						projectview->active, ID_MEASUREMENT_BALLWIDTH,
+						widthStr.ToStdString()));
 	}
 }
 
@@ -978,45 +980,44 @@ void FrameMain::OnChangeModel(wxCommandEvent &event) {
 	if (loopGuard.TryWait() != wxSEMA_NO_ERROR)
 		return;
 	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+
 	Project *project = wxStaticCast(GetDocument(), Project);
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-//	switch (event.GetId()) {
+	switch (event.GetId()) {
 //	case ID_MEASUREMENTSYMMETRY:
 //		projectview->active = ProjectView::Side::Both;
 //		project->GetCommandProcessor()->Submit(
 //				new CommandProjectSetParameter(_("Change symmetry"), project,
 //				ID_MEASUREMENTSYMMETRY, (int) !project->measurementsSymmetric));
 //		break;
-//	case ID_USEFOOTMEASUREMENTS:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Use foot measurements"),
-//						project,
-//						ID_MEASUREMENTSOURCE,
-//						(int) Project::MeasurementSource::fromMeasurements));
-//		break;
-//	case ID_USEFOOTSCAN:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Use foot scan"), project,
-//				ID_MEASUREMENTSOURCE,
-//						(int) Project::MeasurementSource::fromFootScan));
-//		break;
-//	case ID_USEBONEBASEDMODEL:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Use bone-based model"),
-//						project,
-//						ID_FOOTMODEL, (int) Project::ModelType::boneBased));
-//		break;
-//	case ID_USELASTBASEDMODEL:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Use last-based model"),
-//						project,
-//						ID_FOOTMODEL, (int) Project::ModelType::lastBased));
-//		break;
-//	}
+	case ID_USEFOOTMEASUREMENTS:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Use foot measurements"), project,
+				ID_MEASUREMENTSOURCE, 0));
+		break;
+	case ID_USEFOOTSCAN:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Use foot scan"), project,
+				ID_MEASUREMENTSOURCE, 1));
+		break;
+	case ID_USEBONEBASEDMODEL:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Use bone-based model"), project,
+				ID_MODELTYPE, 0));
+		break;
+	case ID_USELASTBASEDMODEL:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Use last-based model"), project,
+				ID_MODELTYPE, 1));
+		break;
+	}
 	loopGuard.Post();
+	TransferDataToWindow();
 }
 
 void FrameMain::OnCopyMeasurements(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+
 	Project *project = wxStaticCast(GetDocument(), Project);
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
 //	switch (event.GetId()) {
@@ -1037,6 +1038,7 @@ void FrameMain::OnCopyMeasurements(wxCommandEvent &event) {
 //						_("Copy right to left measurements"), project, false));
 //		break;
 //	}
+	TransferDataToWindow();
 }
 
 void FrameMain::OnLoadFootSTL(wxCommandEvent &event) {
@@ -1044,6 +1046,8 @@ void FrameMain::OnLoadFootSTL(wxCommandEvent &event) {
 }
 
 void FrameMain::OnEditBoneModel(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+
 	DialogEditorFootModel *dialog = new DialogEditorFootModel(this);
 
 	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
@@ -1058,6 +1062,7 @@ void FrameMain::OnEditBoneModel(wxCommandEvent &event) {
 }
 
 void FrameMain::OnLoadBoneModel(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 	FrameParent *parent = wxStaticCast(GetParent(), FrameParent);
 
 	wxFileDialog dialog(this, _("Open Foot Model..."), _T(""), _T(""),
@@ -1083,6 +1088,7 @@ void FrameMain::OnLoadBoneModel(wxCommandEvent &event) {
 }
 
 void FrameMain::OnSaveBoneModel(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 	FrameParent *parent = wxStaticCast(GetParent(), FrameParent);
 
 	wxFileDialog dialog(this, _("Save Foot Model As..."), _T(""), _T(""),
@@ -1110,57 +1116,54 @@ void FrameMain::OnSaveBoneModel(wxCommandEvent &event) {
 }
 
 void FrameMain::OnConstructionSelection(wxCommandEvent &event) {
+
 	Project *project = wxStaticCast(GetDocument(), Project);
 	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-//	switch (event.GetId()) {
+
+	switch (event.GetId()) {
 //	case ID_SELECTCONSTRUCTION:
 //		project->GetCommandProcessor()->Submit(
 //				new CommandProjectSetParameter(_("Set construction method"),
 //						project,
 //						ID_SELECTCONSTRUCTION, event.GetSelection()));
 //		break;
-//	case ID_CONSTRUCTIONEXPERIMENTAL:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(
-//						_("Select experimental generator"), project,
-//						ID_SELECTCONSTRUCTION,
-//						(int) Project::Generator::Experimental));
-//		break;
-//	case ID_CONSTRUCTIONWELDED:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Select welted construction"),
-//						project,
-//						ID_SELECTCONSTRUCTION,
-//						(int) Project::Generator::Welted));
-//		break;
-//	case ID_CONSTRUCTIONCEMENTED:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(
-//						_("Select cemented construction"), project,
-//						ID_SELECTCONSTRUCTION,
-//						(int) Project::Generator::Cemented));
-//		break;
-//	case ID_CONSTRUCTIONMOLDED:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(
-//						_("Select molded sole construction"), project,
-//						ID_SELECTCONSTRUCTION,
-//						(int) Project::Generator::Molded));
-//		break;
-//	case ID_CONSTRUCTIONDUTCH:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(
-//						_("Select generator for Dutch clogs"), project,
-//						ID_SELECTCONSTRUCTION,
-//						(int) Project::Generator::Dutch));
-//		break;
-//	case ID_CONSTRUCTIONGETA:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(
-//						_("Select generator for Japanese getas"), project,
-//						ID_SELECTCONSTRUCTION, (int) Project::Generator::Geta));
-//		break;
-//	}
+	case ID_CONSTRUCTIONEXPERIMENTAL:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select experimental generator"),
+						project,
+						ID_GENERATOR, (int) 0));
+		break;
+	case ID_CONSTRUCTIONWELDED:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select welted construction"),
+						project,
+						ID_GENERATOR, (int) 1));
+		break;
+	case ID_CONSTRUCTIONCEMENTED:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select cemented construction"),
+						project,
+						ID_GENERATOR, (int) 2));
+		break;
+	case ID_CONSTRUCTIONMOLDED:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select molded sole construction"),
+						project,
+						ID_GENERATOR, (int) 3));
+		break;
+	case ID_CONSTRUCTIONDUTCH:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select generator for Dutch clogs"),
+						project,
+						ID_GENERATOR, (int) 4));
+		break;
+	case ID_CONSTRUCTIONGETA:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(
+						_("Select generator for Japanese getas"), project,
+						ID_GENERATOR, (int) 5));
+		break;
+	}
 	TransferDataToWindow();
 }
 
@@ -1173,6 +1176,7 @@ void FrameMain::OnSavePattern(wxCommandEvent &event) {
 }
 
 void FrameMain::OnSaveLast(wxCommandEvent &event) {
+	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
 	wxFileDialog dialog(this, _("Save last..."), _T(""), _T(""),
 			_("STL file (*.stl)|*.stl|All files|*.*"),
 			wxFD_SAVE | wxFD_OVERWRITE_PROMPT);

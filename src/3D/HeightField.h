@@ -50,11 +50,11 @@ public:
 
 	void SetValues(double *v, unsigned int size);
 
-	Polygon3 GetUnderline(void) const;
+	Polygon3 GetUnderline() const;
 
-	void Clear(void);
+	void Clear();
 
-	void Paint(void) const;
+	void Paint() const;
 
 private:
 

@@ -64,12 +64,12 @@ void Symmetry::AddTransform(const FourierTransform &transform) {
 	}
 }
 
-void Symmetry::Normalize(void) {
+void Symmetry::Normalize() {
 	KernelDensityEstimator::Normalize();
 	this->operator/=(Kernel::Epanechnikov(0) / sigma);
 }
 
-void Symmetry::Paint(void) const {
+void Symmetry::Paint() const {
 	glPushMatrix();
 	KernelDensityEstimator::Paint();
 	glRotatef(180.0, 0.0, 0.0, 1.0);

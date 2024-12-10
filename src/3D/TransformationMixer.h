@@ -102,7 +102,7 @@ public:
 			std::function<double(double)> kernel,
 			std::function<Vector3(Vector3)> transformation);
 
-	size_t Size(void) const;
+	size_t Size() const;
 
 	Vector3 operator()(const Vector3 &v) const;
 

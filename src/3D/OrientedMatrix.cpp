@@ -140,7 +140,7 @@ Vector3 OrientedMatrix::GetGrad(Vector3 p) const {
 	return temp;
 }
 
-OrientedMatrix OrientedMatrix::SurfaceField(void) const {
+OrientedMatrix OrientedMatrix::SurfaceField() const {
 	const size_t Nx = Size(1);
 	const size_t Ny = Size(2);
 	const size_t Nz = Size(3);
@@ -174,7 +174,7 @@ OrientedMatrix OrientedMatrix::SurfaceField(void) const {
 	return temp;
 }
 
-void OrientedMatrix::Paint(void) const {
+void OrientedMatrix::Paint() const {
 	const size_t Nx = Size(1);
 	const size_t Ny = Size(2);
 	const size_t Nz = Size(3);

@@ -124,21 +124,21 @@
 //
 //}
 
-void FootModel::PaintBones(void) const {
+void FootModel::PaintBones() const {
 	glPushMatrix();
 	origin.GLMultMatrix();
 	Skeleton::Render();
 	glPopMatrix();
 }
 
-void FootModel::PaintSkin(void) const {
+void FootModel::PaintSkin() const {
 	glPushMatrix();
 	origin.GLMultMatrix();
 	skin.PaintSurface();
 	glPopMatrix();
 }
 
-//void FootModel::InitBones(void)
+//void FootModel::InitBones()
 //{
 //	Tibia->anchorD = 0.0143493;
 //	Tibia->anchorN.Set(0.00240981, 0.00711795, 0);
@@ -477,7 +477,7 @@ void FootModel::PaintSkin(void) const {
 //	return true;
 //}
 
-void FootModel::Mirror(void) {
+void FootModel::Mirror() {
 	for (auto &bone : bones) {
 		bone->p1.y = -bone->p1.y;
 		bone->p2.y = -bone->p2.y;
@@ -510,7 +510,7 @@ void FootModel::UpdateForm(const FootMeasurements &measurements) {
 	ModifyForm(true);
 }
 
-void FootModel::CalculateBones(void) {
+void FootModel::CalculateBones() {
 	MathParser parser;
 
 	parser.SetVariable("L", MathParser::Value(L));
@@ -520,7 +520,7 @@ void FootModel::CalculateBones(void) {
 	Skeleton::Update();
 }
 
-void FootModel::CalculateSkin(void) {
+void FootModel::CalculateSkin() {
 	BoundingBox bb;
 	for (auto &bone : bones) {
 		bb.Insert(
@@ -566,7 +566,7 @@ void FootModel::CalculateSkin(void) {
 	ModifySkin(true);
 }
 
-Polygon3 FootModel::GetCenterline(void) const {
+Polygon3 FootModel::GetCenterline() const {
 	Polygon3 temp;
 
 //	temp.InsertPoint(
@@ -594,15 +594,15 @@ Polygon3 FootModel::GetCenterline(void) const {
 	return temp;
 }
 
-bool FootModel::IsModifiedForm(void) const {
+bool FootModel::IsModifiedForm() const {
 	return modifiedForm;
 }
 
-bool FootModel::IsModifiedPosition(void) const {
+bool FootModel::IsModifiedPosition() const {
 	return modifiedPosition;
 }
 
-bool FootModel::IsModifiedSkin(void) const {
+bool FootModel::IsModifiedSkin() const {
 	return modifiedSkin;
 }
 

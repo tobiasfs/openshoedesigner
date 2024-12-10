@@ -41,17 +41,17 @@
 #include "../Project.h"
 #include "../ProjectView.h"
 
-class CommandFootMeasurementsCopy:public wxCommand {
+class CommandFootMeasurementsCopy: public wxCommand {
 public:
-	CommandFootMeasurementsCopy(const wxString& name, Project* project,
-			bool LeftToRight);
+	CommandFootMeasurementsCopy(const wxString &name, Project *project,
+			ProjectView::Side toSide);
 
-	bool Do(void);
-	bool Undo(void);
+	bool Do();
+	bool Undo();
 
 protected:
-	Project* project;
-	bool LeftToRight;
+	Project *project;
+	ProjectView::Side toSide;
 	FootMeasurements oldValue;
 };
 

@@ -28,7 +28,7 @@
 
 #include "OpenGL.h"
 
-void BackgroundImage::Paint(void) const {
+void BackgroundImage::Paint() const {
 	if (showFront && showBack)
 		glDisable(GL_CULL_FACE);
 	if (showFront && !showBack)

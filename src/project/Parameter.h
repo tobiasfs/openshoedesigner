@@ -44,7 +44,6 @@
  *
  */
 class Parameter: public MathParser::Variable {
-
 public:
 	Parameter() = delete;
 	explicit Parameter(const std::string &name, const std::string &description =
@@ -75,8 +74,8 @@ public:
 	 */
 	std::string GetDescription() const;
 
-protected:
 
+protected:
 	/**\brief ID for parameter
 	 *
 	 * ID assigned to this Parameter. It is advisable to add the wxWidgets GUI
@@ -85,11 +84,15 @@ protected:
 	 */
 	size_t id;
 
+public:
 	/**\brief Optional grouping of variables.
 	 *
 	 * This can be thought of as a namespace for the variables. If the same
 	 * variable exists multiple times, the variables from the same namespace
 	 * are preferred for calculating the formulas.
+	 *
+	 * This value might change later on, when parameter are made symmetric
+	 * or unsymmetric (i.e. they are split into two).
 	 */
 	size_t group;
 
@@ -97,7 +100,11 @@ protected:
 
 	/**\brief Indicates a change in value.
 	 *
-	 * True, if the value has changed by more than FLT_EPSILON in the last call to Calculate.
+	 * This value is set to true depending on the implementation of the
+	 * concrete Parameter. For ParameterFormulas for example, this flag is set
+	 * to true, also when the value was changed by a calculation because of
+	 * changed referenced variables.
+	 *
 	 */
 	bool modified = true;
 

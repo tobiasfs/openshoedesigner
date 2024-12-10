@@ -323,6 +323,12 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 
 	bSizerEditLeftRight->Add( m_toggleBtnEditRight, 1, wxALL, 5 );
 
+	wxString m_radioBoxMeasurementsSideChoices[] = { _("Left"), _("Both"), _("Right") };
+	int m_radioBoxMeasurementsSideNChoices = sizeof( m_radioBoxMeasurementsSideChoices ) / sizeof( wxString );
+	m_radioBoxMeasurementsSide = new wxRadioBox( m_panelPageFoot, ID_EDITSIDE, _("Edit Measurements"), wxDefaultPosition, wxDefaultSize, m_radioBoxMeasurementsSideNChoices, m_radioBoxMeasurementsSideChoices, 1, wxRA_SPECIFY_ROWS );
+	m_radioBoxMeasurementsSide->SetSelection( 1 );
+	bSizerEditLeftRight->Add( m_radioBoxMeasurementsSide, 0, wxALL, 5 );
+
 
 	bSizerFoot->Add( bSizerEditLeftRight, 0, wxEXPAND, 5 );
 

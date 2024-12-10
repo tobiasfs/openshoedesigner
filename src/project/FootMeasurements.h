@@ -66,9 +66,8 @@ public:
 	};
 
 public:
-	FootMeasurements() = default;
+	FootMeasurements();
 	void Register(ParameterEvaluator &evaluator);
-
 	void Modify(bool modified = true);
 	bool IsModified() const; //!< Returns \b true if the measurements have been modified.
 
@@ -77,8 +76,8 @@ public:
 
 	static std::string GetName(int id);
 	static bool IsValidID(int id);
-	std::shared_ptr<Parameter> GetParameter(int id);
-	const std::shared_ptr<const Parameter> GetParameter(int id) const;
+	std::shared_ptr<ParameterFormula> GetParameter(int id);
+	const std::shared_ptr<const ParameterFormula> GetParameter(int id) const;
 
 	double GetSize(Type type) const;
 
@@ -90,12 +89,6 @@ public:
 	/**\brief Leg-length difference
 	 *
 	 * This value is stored in the Variable legLengthDifference.
-	 *
-	 * The two additional variables legLengthDifference_L and
-	 * legLengthDifference_R contain calculation for the absolute values of the
-	 * leg-length difference for both sides. It is up to the writer of the
-	 * formulas to use this value in the calculation of the heelHeight and
-	 * maybe the ballHeight as well.
 	 */
 	std::shared_ptr<ParameterFormula> legLengthDifference;
 

@@ -50,7 +50,7 @@ public:
 	Vector3 operator()(const float u, const float v) const;
 	Vector3 Normal(const float u, const float v) const;
 
-	void Paint(void) const;
+	void Paint() const;
 
 private:
 	Vector3 c00;

@@ -28,7 +28,7 @@
 
 #include "OpenGL.h"
 
-void PointCloud::InitExample(void) {
+void PointCloud::InitExample() {
 	const size_t N = 10000;
 	p.resize(N);
 	for (size_t n = 0; n < N; ++n) {
@@ -47,7 +47,7 @@ void PointCloud::InitExample(void) {
 	}
 }
 
-void PointCloud::Paint(void) {
+void PointCloud::Paint() {
 	glBegin(GL_POINTS);
 	const size_t N = p.size();
 	for (size_t n = 0; n < N; ++n)

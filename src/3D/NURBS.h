@@ -57,7 +57,7 @@ public:
 	Vector3 Position(double u, double v) const;
 	Vector3 Normal(double u, double v) const;
 
-	void Paint(void) const;
+	void Paint() const;
 	void Paint(int blockU, int blockV) const;
 
 	int controlPointSize; // 0 or negative = do not draw

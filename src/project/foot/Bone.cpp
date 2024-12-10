@@ -30,7 +30,7 @@
 
 #include "../../3D/OpenGL.h"
 
-void Bone::UpdateHierarchy(void) {
+void Bone::UpdateHierarchy() {
 	if (parentTo.expired()) {
 		hierarchyLevel = 0;
 	} else {
@@ -56,7 +56,7 @@ double Bone::CalculateAnchorPoint(const Vector3 &p) const {
 	return (a - ar1) / (ar2 - ar1);
 }
 
-void Bone::Update(void) {
+void Bone::Update() {
 	if (!initialized) {
 //		lengthinit = (p2-p1).Abs();
 //		matrixinit.Normalize();
@@ -127,31 +127,31 @@ void Bone::Update(void) {
 	p2 = matrix.Transform(length, 0, 0);
 }
 
-double Bone::GetXMax(void) const {
+double Bone::GetXMax() const {
 	return fmax(p1.x + r1 + s1, p2.x + r1 + s1);
 }
 
-double Bone::GetXMin(void) const {
+double Bone::GetXMin() const {
 	return fmin(p1.x - r1 - s1, p2.x - r1 - s1);
 }
 
-double Bone::GetZMin(void) const {
+double Bone::GetZMin() const {
 	return fmin(p1.z - r1 - s1, p2.z - r1 - s1);
 }
 
-void Bone::PushRotation(void) {
+void Bone::PushRotation() {
 	rotyBackup = roty;
 	rotzBackup = rotz;
 	roty = 0.0;
 	rotz = 0.0;
 }
 
-void Bone::PopRotation(void) {
+void Bone::PopRotation() {
 	roty = rotyBackup;
 	rotz = rotzBackup;
 }
 
-void Bone::Paint(void) const {
+void Bone::Paint() const {
 	const size_t N = 40; // Cap segments
 	const size_t M = 40; // Segments around the bone
 

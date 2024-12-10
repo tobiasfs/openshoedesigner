@@ -132,8 +132,16 @@ public:
 
 	/**\name Variable manipulation
 	 *
+	 *	Manipulate the variable list. Variables are created while parsing the
+	 *	code. The can later (or even earlier) be created and accessed to add
+	 *	values to the variables for the code to manipulate.
+	 *
+	 *	External variables are a mechanism, that is used by the
+	 *	ParameterEvaluator for handling acyclic directed graphs of multiple
+	 *	evaluators connected with each other.
 	 * \{
 	 */
+	void ClearVariables();
 	size_t SetVariable(const std::string &variablename, const Value &value);
 	size_t SetVariable(const size_t idx, const Value &value);
 	size_t GetVariableIndex(const std::string &variablename) const;

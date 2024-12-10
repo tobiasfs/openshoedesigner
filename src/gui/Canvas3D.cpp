@@ -52,7 +52,7 @@ Canvas3D::Canvas3D(wxWindow *parent) :
 Canvas3D::~Canvas3D() {
 }
 
-//void Canvas3D::ConnectMouseEvents(void)
+//void Canvas3D::ConnectMouseEvents()
 //{
 //	this->Connect(wxEVT_MOTION, wxMouseEventHandler(Canvas3D::OnMouseEvent),
 //	nullptr, this);
@@ -72,7 +72,7 @@ Canvas3D::~Canvas3D() {
 //	nullptr, this);
 //}
 //
-//void Canvas3D::DisconnectMouseEvents(void)
+//void Canvas3D::DisconnectMouseEvents()
 //{
 //	this->Connect(wxEVT_LEFT_UP, wxMouseEventHandler(Canvas3D::OnMouseEvent),
 //	nullptr, this);

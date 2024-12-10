@@ -80,7 +80,7 @@ size_t TransformationMixer::AddPlane(Vector3 pointonplane, Vector3 normal,
 	return elements.size() - 1;
 }
 
-size_t TransformationMixer::Size(void) const {
+size_t TransformationMixer::Size() const {
 	return elements.size();
 }
 

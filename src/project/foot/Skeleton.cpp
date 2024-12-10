@@ -91,7 +91,7 @@ void Skeleton::AddBone(const std::string &name) {
 	bones.push_back(std::make_shared<Bone>(name));
 }
 
-size_t Skeleton::GetBoneCount(void) const {
+size_t Skeleton::GetBoneCount() const {
 	return bones.size();
 }
 
@@ -255,13 +255,13 @@ void Skeleton::UpdateBonesFromFormula(MathParser &parser) {
 	update = true;
 }
 
-void Skeleton::Update(void) {
+void Skeleton::Update() {
 	for (auto &bone : bones)
 		bone->Update();
 	update = true;
 }
 
-void Skeleton::Render(void) const {
+void Skeleton::Render() const {
 	if (m_gllist == 0) {
 		m_gllist = glGenLists(1);
 		update = true;
@@ -282,12 +282,12 @@ void Skeleton::Render(void) const {
 	}
 }
 
-void Skeleton::ResetRotation(void) {
+void Skeleton::ResetRotation() {
 	for (auto &bone : bones)
 		bone->PushRotation();
 }
 
-void Skeleton::RestoreRotation(void) {
+void Skeleton::RestoreRotation() {
 	for (auto &bone : bones)
 		bone->PopRotation();
 }

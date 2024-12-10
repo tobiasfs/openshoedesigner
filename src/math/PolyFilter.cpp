@@ -140,11 +140,11 @@ void PolyFilter::Init(size_t order, size_t size) {
 	this->order = order;
 }
 
-size_t PolyFilter::Size(void) const {
+size_t PolyFilter::Size() const {
 	return filter_a.size();
 }
 
-size_t PolyFilter::GetOrder(void) const {
+size_t PolyFilter::GetOrder() const {
 	return order;
 }
 

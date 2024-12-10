@@ -60,15 +60,15 @@ public:
 			Polynomial dz;
 			Segment() = default;
 			void Scale(double sy = 1.0, double sz = 1.0);
-			void Paint(void) const;
-			double GetLength(void) const;
+			void Paint() const;
+			double GetLength() const;
 		};
 		std::vector<Segment> segments;
 		CircleSection() = default;
 		void Scale(double sy = 1.0, double sz = 1.0);
 		Vector3 Evaluate(double r) const;
-		double GetLength(void) const;
-		void Paint(void) const;
+		double GetLength() const;
+		void Paint() const;
 	};
 	std::vector<CircleSection> sections;
 	double dx = 1.0;
@@ -78,9 +78,9 @@ public:
 
 	void Load(std::string filename);
 
-	void Paint(void) const;
+	void Paint() const;
 	Geometry GenerateGeometry(bool mirrored = false) const;
-	// void Test(void);
+	// void Test();
 
 	// TODO: Write the following function, if this class is really used:
 	// void GenerateHull(Geometry &hull, bool mirrored = false);

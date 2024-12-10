@@ -39,7 +39,7 @@
  * can be assigned. These can be thought of as variants for variables.
  *
  * For example:
- *  if there is one variable with the same name but available in two or
+ *  If there is one variable with the same name but available in two or
  *  more different variants. This variable can be assigned
  *  to a group.
  *
@@ -71,6 +71,8 @@ class ParameterEvaluator {
 public:
 	ParameterEvaluator();
 
+	void Clear();
+
 	/**\brief Select the group the next Parameters are registered to
 	 *
 	 * If this function is called with no parameter, the next Parameter%s
@@ -81,8 +83,6 @@ public:
 	 * handling is done.
 	 */
 	void SetGroup(const size_t group = (size_t) -1);
-
-	//const Evaluation& GetGroup(const size_t group) const;
 
 	/**\ Register a Parameter to the collection.
 	 *
@@ -100,6 +100,9 @@ public:
 			const std::string &description = "",
 			const std::string &formula = "", size_t id = (size_t) -1,
 			size_t group = (size_t) -1);
+
+	void Register(std::shared_ptr<ParameterFormula> &parameter, size_t group =
+			(size_t) -1);
 
 	void Reset();
 
@@ -142,7 +145,7 @@ private:
 
 //	std::vector<Evaluation> evaluations;
 
-	size_t currentGroup = (size_t) 0;
+	size_t currentGroup = (size_t) -1;
 //	size_t maxGroupIdx = (size_t) 0;
 
 };

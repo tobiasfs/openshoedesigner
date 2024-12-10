@@ -35,30 +35,31 @@
  */
 
 #include <wx/cmdproc.h>
-#include <wx/string.h>
+#include <string>
 
 #include "../Parameter.h"
 #include "../Project.h"
 #include "../ProjectView.h"
 
-class CommandFootMeasurementSet:public wxCommand {
+class CommandFootMeasurementSet: public wxCommand {
 public:
-	CommandFootMeasurementSet(const wxString& name, Project* project,
-			ProjectView::Side active, int parameter, wxString value);
+	CommandFootMeasurementSet(const wxString &name, Project *project,
+			ProjectView::Side active, int parameter, const std::string &value);
 
-	bool Do(void);
-	bool Undo(void);
+	bool Do();
+	bool Undo();
 
 protected:
 
-	wxString Replace(FootMeasurements *meas,int parameter, wxString newValue);
+	std::string Replace(FootMeasurements &meas, int ID,
+			std::string newFormula);
 
-	Project* project;
+	Project *project;
 	ProjectView::Side active;
-	int parameter;
-	wxString value;
-	wxString oldValueLeft;
-	wxString oldValueRight;
+	int parameterID;
+	std::string newValue;
+	std::string oldValueLeft;
+	std::string oldValueRight;
 };
 
 #endif /* COMMANDFOOTMEASUREMENTSET_H */

@@ -79,21 +79,20 @@ public:
 	bool showCoordinateSystem;
 	bool showBackground;
 
-	const std::shared_ptr<FootMeasurements> GetActiveFootMeasurements(
-			void) const;
+	const FootMeasurements* GetActiveFootMeasurements(void) const;
 
 	bool OnCreate(wxDocument *doc, long flags);
 	void OnDraw(wxDC *dc);
 	void OnUpdate(wxView *sender, wxObject *hint = nullptr);
-	void OnUpdate3D(void);
+	void OnUpdate3D();
 	bool OnClose(bool deleteWindow = true);
 
 private:
-	void PaintLast(void) const;
-	void PaintSole(void) const;
-	void PaintUpper(void) const;
-	void PaintCutaway(void) const;
-	void PaintFloor(void) const;
+	void PaintLast() const;
+	void PaintSole() const;
+	void PaintUpper() const;
+	void PaintCutaway() const;
+	void PaintFloor() const;
 
 DECLARE_DYNAMIC_CLASS(ProjectView)
 

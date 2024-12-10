@@ -50,6 +50,15 @@ std::shared_ptr<ParameterFormula> ParameterEvaluator::Register(
 		const std::string &variablename, const std::string &description,
 		const std::string &formula, size_t id, size_t group) {
 
+	auto variable = std::make_shared<ParameterFormula>(variablename,
+			description, formula, id, group);
+	Register(variable, group);
+
+	return variable;
+}
+
+void ParameterEvaluator::Register(std::shared_ptr<ParameterFormula> &variable,
+		size_t group) {
 	if (group == (size_t) -1) {
 		group = currentGroup;
 	} else {
@@ -59,16 +68,10 @@ std::shared_ptr<ParameterFormula> ParameterEvaluator::Register(
 			lookupGroupIdx[group] = (groupIdx.size() - 1);
 		}
 	}
-	auto var = std::make_shared<ParameterFormula>(variablename, description,
-			formula, id, group);
-	parameter.push_back(var);
 
-//	const size_t idx = parameter.size();
-//	lookup[variablename] = idx;
-//	lookupID[id] = idx;
-//	parameterNames.insert(variablename);
-
-	return var;
+	variable->group = group;
+	parameter.push_back(variable);
+	parameter.back()->base = (group == (size_t) -1);
 }
 
 std::shared_ptr<ParameterFormula> ParameterEvaluator::GetParameter(
@@ -162,35 +165,6 @@ bool ParameterEvaluator::ConnectExternal(size_t n, std::set<size_t> &open) {
 			break;
 		}
 	}
-
-	//				std::string name = var.name;
-	//			if (!var.isinput)
-	//				throw std::runtime_error(
-	//						"The variable " + name
-	//								+ " should be an input to the parameter "
-	//								+ param->name + ".");
-	//			if (!var.isoutput)
-	//				throw std::runtime_error(
-	//						"The variable " + name
-	//								+ " should be set in the parameter "
-	//								+ param->name + ".");
-	//
-	//			auto res = parameter.end();
-	//			for (auto &x : parameter) {
-	//				if (x->name.compare(name) == 0) {
-	////					res = *x;
-	//					break;
-	//				}
-	//			}
-	//
-	//			if (res == parameter.end())
-	//				throw std::runtime_error(
-	//						"The variable " + name
-	//								+ " was not found. It is needed to calculate the parameter "
-	//								+ param->name + ".");
-	//
-	//
-
 	return skip;
 }
 
@@ -207,8 +181,8 @@ void ParameterEvaluator::Reset() {
 	// Reset some flags in the the parameters
 	for (auto &param : parameter) {
 		param->unstable = false;
-		param->errorFlag = false;
-		param->errorStr.clear();
+//		param->errorFlag = false;
+//		param->errorStr.clear();
 
 		// Reset the parameter groups for the global parameters
 		if (param->base)
@@ -271,8 +245,11 @@ void ParameterEvaluator::Update() {
 					const auto found = std::find_if(parameter.begin(),
 							parameter.end(), varcmp);
 					if (found == parameter.end()) {
-						err << "The variable \"" << parameter[idx]->name;
-						err << "\" has a reference to \"";
+						err << "The variable ";
+						err << "\"" << parameter[idx]->name << "\"";
+						if (parameter[idx]->group != (size_t) -1)
+							err << " in group " << parameter[idx]->group;
+						err << " has a reference to \"";
 						err << neededVar.name << "\" which does not exist. ";
 						hasMissingReferences = true;
 						parameter[idx]->errorFlag = true;
@@ -311,3 +288,10 @@ void ParameterEvaluator::Calculate() {
 		parameter[idx]->Calculate();
 }
 
+void ParameterEvaluator::Clear() {
+	parameter.clear();
+	groupIdx.clear();
+	lookupGroupIdx.clear();
+	evaluationOrder.clear();
+	currentGroup = (size_t) -1;
+}

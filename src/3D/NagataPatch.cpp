@@ -87,7 +87,7 @@ Vector3 NagataPatch::Normal(const float u, const float v) const
 	return (nu * nv).Normal();
 }
 
-void NagataPatch::Paint(void) const
+void NagataPatch::Paint() const
 {
 	const float du = 0.1;
 	const float dv = 0.1;

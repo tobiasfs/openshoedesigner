@@ -54,7 +54,15 @@ std::string ParameterFormula::GetFormula() const {
 }
 
 void ParameterFormula::Init() {
-	parser.ParseExpression(formula);
+	parser.ClearVariables();
+	errorFlag = false;
+	errorStr.clear();
+	try {
+		parser.ParseExpression(formula);
+	} catch (const std::exception &ex) {
+		errorFlag = true;
+		errorStr = ex.what();
+	}
 }
 
 double ParameterFormula::Calculate() {

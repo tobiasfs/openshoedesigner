@@ -361,32 +361,32 @@ void ProjectView::Paint(bool usePicking) const {
 	OpenGLMaterial::EnableColors();
 }
 
-void ProjectView::PaintLast(void) const {
+void ProjectView::PaintLast() const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
 
 //	project->lastvol.Paint();
 //	project->lastvol.PaintSurface();
 }
 
-void ProjectView::PaintSole(void) const {
+void ProjectView::PaintSole() const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
 
 //	project->sole.Paint();
 }
 
-void ProjectView::PaintUpper(void) const {
+void ProjectView::PaintUpper() const {
 	Project *project = wxStaticCast(this->GetDocument(), Project);
 	glColor3f(0.1, 0.4, 0.0);
 //	project->lastModelL.PaintAnalysis();
 
 }
 
-void ProjectView::PaintCutaway(void) const {
+void ProjectView::PaintCutaway() const {
 	Project *project = wxStaticCast(this->GetDocument(), Project);
 //	project->xray.Paint();
 }
 
-void ProjectView::PaintFloor(void) const {
+void ProjectView::PaintFloor() const {
 	const float d = 0.5;
 	const int N = 10;
 	const float dd = d / (float) N;
@@ -419,15 +419,14 @@ void ProjectView::PaintBackground(bool showBehind) const {
 	}
 }
 
-const std::shared_ptr<FootMeasurements> ProjectView::GetActiveFootMeasurements(
-		void) const {
+const FootMeasurements* ProjectView::GetActiveFootMeasurements(void) const {
 	const Project *project = wxStaticCast(this->GetDocument(), Project);
 	switch (active) {
 	case Side::Both:
 	case Side::Left:
-		return project->footL;
+		return &(project->footL);
 	case Side::Right:
-		return project->footR;
+		return &(project->footR);
 	}
 	return nullptr;
 }
@@ -444,7 +443,7 @@ void ProjectView::OnUpdate(wxView *sender, wxObject *hint) {
 	wxView::OnUpdate(sender, hint);
 }
 
-void ProjectView::OnUpdate3D(void) {
+void ProjectView::OnUpdate3D() {
 	FrameMain *frame = wxStaticCast(GetFrame(), FrameMain);
 	FrameParent *parentframe = wxStaticCast(frame->GetParent(), FrameParent);
 	parentframe->settingsStereo3D.WriteToCanvas(frame->m_canvas3D);

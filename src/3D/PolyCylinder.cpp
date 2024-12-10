@@ -39,7 +39,7 @@ void PolyCylinder::CircleSection::Segment::Scale(double sy, double sz) {
 	dz = z.Derivative();
 }
 
-double PolyCylinder::CircleSection::Segment::GetLength(void) const {
+double PolyCylinder::CircleSection::Segment::GetLength() const {
 	double d = 0;
 
 	const double dr = 0.1;
@@ -51,7 +51,7 @@ double PolyCylinder::CircleSection::Segment::GetLength(void) const {
 	return d;
 }
 
-void PolyCylinder::CircleSection::Segment::Paint(void) const {
+void PolyCylinder::CircleSection::Segment::Paint() const {
 	glBegin(GL_LINE_STRIP);
 
 	const double dr = 0.2;
@@ -72,7 +72,7 @@ void PolyCylinder::CircleSection::Scale(double sy, double sz) {
 		segments[n].Scale(sy, sz);
 }
 
-double PolyCylinder::CircleSection::GetLength(void) const {
+double PolyCylinder::CircleSection::GetLength() const {
 	double d = 0.0;
 	for (size_t n = 0; n < segments.size(); ++n)
 		d += segments[n].GetLength();
@@ -92,7 +92,7 @@ Vector3 PolyCylinder::CircleSection::Evaluate(double r) const {
 	return Vector3(0, segments[m].y(q), segments[m].z(q));
 }
 
-void PolyCylinder::CircleSection::Paint(void) const {
+void PolyCylinder::CircleSection::Paint() const {
 	for (size_t n = 0; n < segments.size(); ++n)
 		segments[n].Paint();
 }
@@ -200,7 +200,7 @@ void PolyCylinder::Load(std::string filename) {
 	dx = 1.0 / dim[0];
 }
 
-void PolyCylinder::Paint(void) const {
+void PolyCylinder::Paint() const {
 	glPushMatrix();
 	for (size_t n = 0; n < sections.size(); ++n) {
 		sections[n].Paint();
@@ -286,7 +286,7 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 	return geometry;
 }
 
-//void PolyCylinder::Test(void) {
+//void PolyCylinder::Test() {
 //	double L = sections[0].GetLength();
 //	std::fprintf(stdout, "%g mm\n", L * 1e3);
 //}

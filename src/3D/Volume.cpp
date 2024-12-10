@@ -57,7 +57,7 @@ Volume::~Volume() {
 		glDeleteLists(m_gllist, 1);
 }
 
-void Volume::Clear(void) {
+void Volume::Clear() {
 	values.assign(values.size(), 0.0);
 }
 
@@ -525,7 +525,7 @@ const static int8_t cap[144] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 7, 1, 0,
 		1, 0, 6, 3, 1, 6, 4, 3, 6, 2, 1, 4, 1, 7, 4, 7, 6, 4, 4, 2, 0, 6, 4, 0,
 		-1, -1, -1 };
 
-void Volume::CalcSurface(void) {
+void Volume::CalcSurface() {
 //	setlocale(LC_ALL, "C"); // To get a 3.1415 instead 3,1415 or else on every computer.
 
 	const size_t Nx = Size(0);
@@ -1015,7 +1015,7 @@ void Volume::CalcSurface(void) {
 	update = true;
 }
 
-void Volume::PaintSurface(void) const {
+void Volume::PaintSurface() const {
 	glPushMatrix();
 	glTranslated(origin.x, origin.y, origin.z);
 	if (m_gllist == 0) {

@@ -71,7 +71,7 @@ void FormFinder::AddPolygon(const Polygon3 &poly, size_t Nsections) {
 
 }
 
-void FormFinder::Paint(void) const {
+void FormFinder::Paint() const {
 	const double eps = 1e-9;
 	const size_t N = a.size();
 	for (size_t n = 0; n < N; n += pf.Size()) {

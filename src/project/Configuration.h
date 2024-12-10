@@ -53,18 +53,18 @@
 
 class Configuration {
 public:
-	Configuration() = default;
+	Configuration();
 	virtual ~Configuration() = default;
 
-	void Register(ParameterEvaluator &evaluator_);
+	void Register(ParameterEvaluator &evaluator);
 
 	bool IsModified() const; //!< Returns \b true if the measurements have been modified since last update.
 	void Modify(bool modified = true);
 
 	static bool IsValidID(int id);
 	static std::string GetName(int id);
-	std::shared_ptr<Parameter> GetParameter(int id);
-	const std::shared_ptr<const Parameter> GetParameter(int id) const;
+	std::shared_ptr<ParameterFormula> GetParameter(int id);
+	const std::shared_ptr<const ParameterFormula> GetParameter(int id) const;
 
 	void FromJSON(const JSON &js);
 	void ToJSON(JSON &js) const;

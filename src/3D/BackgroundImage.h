@@ -43,7 +43,7 @@ public:
 	BackgroundImage() = default;
 	virtual ~BackgroundImage() = default;
 
-	void Paint(void) const;
+	void Paint() const;
 
 	Orientation orientation = Orientation::Right;
 	bool showBehindGeometry = false;

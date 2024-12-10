@@ -1109,7 +1109,7 @@ std::string OpenGLMaterialX::GenerateFragmentShader() {
 	return code.str();
 }
 
-bool OpenGLMaterialX::Start(void) {
+bool OpenGLMaterialX::Start() {
 	if (!OpenGLShader::Start())
 		return false;
 	for (const auto &image : images) {

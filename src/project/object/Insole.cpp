@@ -67,7 +67,7 @@ bool Insole::Line::IsInside(const double r) const {
 	return (r >= r0 && r <= r1);
 }
 
-void Insole::Line::Paint(void) const {
+void Insole::Line::Paint() const {
 	glBegin(GL_LINE_STRIP);
 	for (double r = -0.0; r < 1.0001; r += 0.01) {
 		glVertex3d(x(r), y(r), z(r));
@@ -98,7 +98,7 @@ void Insole::Transform(std::function<Vector3(Vector3)> func) {
 	}
 }
 
-void Insole::Paint(void) const {
+void Insole::Paint() const {
 //	for(auto & line : lines)
 //		line.Paint();
 

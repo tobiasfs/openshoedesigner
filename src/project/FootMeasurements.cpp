@@ -33,48 +33,49 @@
 #include <stdexcept>
 #include <sstream>
 
-void FootMeasurements::Register(ParameterEvaluator &evaluator) {
+FootMeasurements::FootMeasurements() {
 
-	legLengthDifference = evaluator.Register("legLengthDifferenceRef",
-			"Distance the right leg is longer than the left (positive number)."
-					" If the right leg is shorter than the left leg"
-					" the number has to be negative.", "0.0 cm",
+	legLengthDifference = std::make_shared<ParameterFormula>(
+			"legLengthDifference", "Distance this leg is longer than the other."
+					" Set this on only one leg. Negative numbers mean,"
+					" that this leg is shorter.", "0.0 cm",
 			ID_MEASUREMENT_LEGLENGTHDIFFERENCE);
 
-	footLength = evaluator.Register("footLength",
+	footLength = std::make_shared<ParameterFormula>("footLength",
 			"Length of the foot (not length of the last)."
 					" Measured from the longest toe to the heel.",
 			"(39/3*2-1.5) cm", ID_MEASUREMENT_FOOTLENGTH);
 
-	ballWidth = evaluator.Register("ballWidth",
+	ballWidth = std::make_shared<ParameterFormula>("ballWidth",
 			"Width of the foot from the ball of the little toe to"
 					" the ball of the big toe. Measured at the"
 					" widest part of the foot. The angle is"
 					" normally not 90 degrees from the heel to"
 					" toe line. (See also the Sole tab for this angle.)",
 			"footLength/2.5", ID_MEASUREMENT_BALLWIDTH);
-	bigToeGirth = evaluator.Register("bigToeGirth",
+	bigToeGirth = std::make_shared<ParameterFormula>("bigToeGirth",
 			"Grith around the big toe ball of the foot."
 					" The measurement tape is only tensioned very lightly.",
 			"ballWidth*2.1", ID_MEASUREMENT_BIGTOEGIRTH);
-	littleToeGirth = evaluator.Register("littleToeGirth",
+	littleToeGirth = std::make_shared<ParameterFormula>("littleToeGirth",
 			"Measurement around the small toe ball."
 					" The measurement tape is tightened, because this part"
 					" has to support the foots position in the shoe.",
 			"ballWidth*2.1",
 			ID_MEASUREMENT_LITTLETOEGIRTH);
-	waistGirth = evaluator.Register("waistGirth",
+	waistGirth = std::make_shared<ParameterFormula>("waistGirth",
 			"Measured around the middle of the foot over the"
 					" metatarsalis bone. (That little dent You can feel"
 					" in the middle of the outside of Your foot.)",
 			"bigToeGirth*0.9", ID_MEASUREMENT_WAISTGIRTH);
-	heelGirth = evaluator.Register("heelGirth", "", "waistGirth*1.3",
-	ID_MEASUREMENT_HEELGIRTH);
-	heelWidth = evaluator.Register("heelWidth",
+	heelGirth = std::make_shared<ParameterFormula>("heelGirth", "",
+			"waistGirth*1.3",
+			ID_MEASUREMENT_HEELGIRTH);
+	heelWidth = std::make_shared<ParameterFormula>("heelWidth",
 			"Width of the heel at 1/6 of the length of the foot.",
 			"ballWidth*3/4", ID_MEASUREMENT_HEELWIDTH);
 
-	angleMixing = evaluator.Register("angleMixing",
+	angleMixing = std::make_shared<ParameterFormula>("angleMixing",
 			"Mixing determines how much of the needed bending of the foot"
 					" is done by the heel and how much is spread on the"
 					" forefoot. 0% is all heel, 100% is all forefoot."
@@ -82,51 +83,54 @@ void FootMeasurements::Register(ParameterEvaluator &evaluator) {
 					" misalignment of the foot is to be compensated.", "0.1",
 			ID_MEASUREMENT_ANGLEMIXING);
 
-	belowCrutchGirth = evaluator.Register("belowCrutchGirth",
+	belowCrutchGirth = std::make_shared<ParameterFormula>("belowCrutchGirth",
 			"Below crutch girth", "footLength*2.5",
 			ID_MEASUREMENT_BELOWCRUTCHGIRTH);
-	belowCrutchLevel = evaluator.Register("belowCrutchLevel",
+	belowCrutchLevel = std::make_shared<ParameterFormula>("belowCrutchLevel",
 			"Below crutch level", "footLength*3",
 			ID_MEASUREMENT_BELOWCRUTCHLEVEL);
-	middleOfCalfGirth = evaluator.Register("middleOfCalfGirth",
+	middleOfCalfGirth = std::make_shared<ParameterFormula>("middleOfCalfGirth",
 			"Middle of calf girth", "(belowCrutchGirth+footLength)/2",
 			ID_MEASUREMENT_MIDDLEOFCALFGIRTH);
-	middleOfCalfLevel = evaluator.Register("middleOfCalfLevel",
+	middleOfCalfLevel = std::make_shared<ParameterFormula>("middleOfCalfLevel",
 			"Middle of calf level", "belowCrutchLevel*0.825",
 			ID_MEASUREMENT_MIDDLEOFCALFLEVEL);
-	aboveKneeGirth = evaluator.Register("aboveKneeGirth", "Above knee girth",
-			"footLength*1.4",
+	aboveKneeGirth = std::make_shared<ParameterFormula>("aboveKneeGirth",
+			"Above knee girth", "footLength*1.4",
 			ID_MEASUREMENT_ABOVEKNEEGIRTH);
-	aboveKneeLevel = evaluator.Register("aboveKneeLevel", "Above knee level",
-			"middleOfCalfLevel*0.785", ID_MEASUREMENT_ABOVEKNEELEVEL);
-	overKneeCapGirth = evaluator.Register("overKneeCapGirth",
+	aboveKneeLevel = std::make_shared<ParameterFormula>("aboveKneeLevel",
+			"Above knee level", "middleOfCalfLevel*0.785",
+			ID_MEASUREMENT_ABOVEKNEELEVEL);
+	overKneeCapGirth = std::make_shared<ParameterFormula>("overKneeCapGirth",
 			"Over knee cap girth", "footLength*1.5",
 			ID_MEASUREMENT_OVERKNEECAPGIRTH);
-	overKneeCapLevel = evaluator.Register("overKneeCapLevel",
+	overKneeCapLevel = std::make_shared<ParameterFormula>("overKneeCapLevel",
 			"Over knee cap level", "aboveKneeLevel-footLength/6",
 			ID_MEASUREMENT_OVERKNEECAPLEVEL);
-	belowKneeGirth = evaluator.Register("belowKneeGirth", "Below knee girth",
-			"footLength*1.2",
+	belowKneeGirth = std::make_shared<ParameterFormula>("belowKneeGirth",
+			"Below knee girth", "footLength*1.2",
 			ID_MEASUREMENT_BELOWKNEEGIRTH);
-	belowKneeLevel = evaluator.Register("belowKneeLevel", "Below knee level",
-			"overKneeCapLevel-footLength/6", ID_MEASUREMENT_BELOWKNEELEVEL);
-	middleOfShankGirth = evaluator.Register("middleOfShankGirth",
-			"Middle of shank girth", "footLength*1.3",
+	belowKneeLevel = std::make_shared<ParameterFormula>("belowKneeLevel",
+			"Below knee level", "overKneeCapLevel-footLength/6",
+			ID_MEASUREMENT_BELOWKNEELEVEL);
+	middleOfShankGirth = std::make_shared<ParameterFormula>(
+			"middleOfShankGirth", "Middle of shank girth", "footLength*1.3",
 			ID_MEASUREMENT_MIDDLEOFSHANKGIRTH);
-	middleOfShankLevel = evaluator.Register("middleOfShankLevel",
-			"Middle of shank level", "overKneeCapLevel*0.7",
+	middleOfShankLevel = std::make_shared<ParameterFormula>(
+			"middleOfShankLevel", "Middle of shank level",
+			"overKneeCapLevel*0.7",
 			ID_MEASUREMENT_MIDDLEOFSHANKLEVEL);
-	aboveAnkleGirth = evaluator.Register("aboveAnkleGirth", "Above ankle girth",
-			"footLength*0.8",
+	aboveAnkleGirth = std::make_shared<ParameterFormula>("aboveAnkleGirth",
+			"Above ankle girth", "footLength*0.8",
 			ID_MEASUREMENT_ABOVEANKLEGIRTH);
-	aboveAnkleLevel = evaluator.Register("aboveAnkleLevel", "Above ankle level",
-			"footLength/2",
+	aboveAnkleLevel = std::make_shared<ParameterFormula>("aboveAnkleLevel",
+			"Above ankle level", "footLength/2",
 			ID_MEASUREMENT_ABOVEANKLELEVEL);
-	overAnkleBoneGirth = evaluator.Register("overAnkleBoneGirth",
-			"Over ankle bone girth", "footLength",
+	overAnkleBoneGirth = std::make_shared<ParameterFormula>(
+			"overAnkleBoneGirth", "Over ankle bone girth", "footLength",
 			ID_MEASUREMENT_OVERANKLEBONEGIRTH);
-	overAnkleBoneLevel = evaluator.Register("overAnkleBoneLevel",
-			"Over ankle bone level", "footLength/3",
+	overAnkleBoneLevel = std::make_shared<ParameterFormula>(
+			"overAnkleBoneLevel", "Over ankle bone level", "footLength/3",
 			ID_MEASUREMENT_OVERANKLEBONELEVEL);
 }
 
@@ -177,7 +181,37 @@ void FootMeasurements::SaveJSON(std::string filename) const {
 	js.Save(filename);
 }
 
-bool FootMeasurements::IsModified(void) const {
+// Autogenerated code below. Do not modify, modification will be overwritten.
+
+void FootMeasurements::Register(ParameterEvaluator &evaluator) {
+	evaluator.Register(legLengthDifference);
+	evaluator.Register(footLength);
+	evaluator.Register(ballWidth);
+	evaluator.Register(bigToeGirth);
+	evaluator.Register(littleToeGirth);
+	evaluator.Register(waistGirth);
+	evaluator.Register(heelGirth);
+	evaluator.Register(heelWidth);
+	evaluator.Register(angleMixing);
+	evaluator.Register(belowCrutchGirth);
+	evaluator.Register(belowCrutchLevel);
+	evaluator.Register(middleOfCalfGirth);
+	evaluator.Register(middleOfCalfLevel);
+	evaluator.Register(aboveKneeGirth);
+	evaluator.Register(aboveKneeLevel);
+	evaluator.Register(overKneeCapGirth);
+	evaluator.Register(overKneeCapLevel);
+	evaluator.Register(belowKneeGirth);
+	evaluator.Register(belowKneeLevel);
+	evaluator.Register(middleOfShankGirth);
+	evaluator.Register(middleOfShankLevel);
+	evaluator.Register(aboveAnkleGirth);
+	evaluator.Register(aboveAnkleLevel);
+	evaluator.Register(overAnkleBoneGirth);
+	evaluator.Register(overAnkleBoneLevel);
+}
+
+bool FootMeasurements::IsModified() const {
 	return legLengthDifference->IsModified() | footLength->IsModified()
 			| ballWidth->IsModified() | bigToeGirth->IsModified()
 			| littleToeGirth->IsModified() | waistGirth->IsModified()
@@ -307,11 +341,11 @@ std::string FootMeasurements::GetName(int id) {
 		return std::string("OverAnkleBoneLevel");
 	default:
 		throw(std::invalid_argument(
-				std::string(__FILE__) + " : GetName : Passed invalid ID."));
+				std::string(__FILE__) + " : GetParameter : Passed invalid ID."));
 	}
 }
 
-std::shared_ptr<Parameter> FootMeasurements::GetParameter(int id) {
+std::shared_ptr<ParameterFormula> FootMeasurements::GetParameter(int id) {
 	switch (id) {
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 		return legLengthDifference;
@@ -369,7 +403,7 @@ std::shared_ptr<Parameter> FootMeasurements::GetParameter(int id) {
 	}
 }
 
-const std::shared_ptr<const Parameter> FootMeasurements::GetParameter(
+const std::shared_ptr<const ParameterFormula> FootMeasurements::GetParameter(
 		int id) const {
 	switch (id) {
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:

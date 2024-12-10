@@ -44,7 +44,7 @@ void Builder::Setup(Project &project) {
 	operations.clear();
 
 	LastLoad opLoad;
-	opLoad.filename = config->lastFilename;
+	opLoad.filename = config.lastFilename;
 	operations.push_back(std::make_shared<LastLoad>(opLoad));
 
 	LastNormalize opNormalize;

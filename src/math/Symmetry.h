@@ -49,9 +49,9 @@ public:
 
 	void Init(size_t N);
 	void AddTransform(const FourierTransform &transform);
-	void Normalize(void);
+	void Normalize();
 
-	void Paint(void) const;
+	void Paint() const;
 
 public:
 	double sigma = 0.2;

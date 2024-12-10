@@ -111,13 +111,13 @@ protected:
 		// Bezier-Circle: sqrt(2) * f = 0.551915024494 --> f = 0.39
 		void Setup(const Point &p0, const Point &p1, double f0 = 0.39,
 				double f1 = 0.39);
-		void Paint(void) const;
+		void Paint() const;
 		bool IsInside(const double r) const;
 	};
 
 public:
 	void Transform(std::function<Vector3(Vector3)> func);
-	void Paint(void) const;
+	void Paint() const;
 
 public:
 	std::vector<Line> lines;

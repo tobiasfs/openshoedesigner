@@ -72,17 +72,17 @@ public:
 	unsigned int pointsize;
 	double length;
 
-	void Clear(void);
+	void Clear();
 	void AddVector(const Vector3 &vector, bool corner = false);
 	void AddVector(float x, float y, float z = 0.0, bool corner = false);
 	void Close(bool close = true);
 	void Symmetric(bool symmetric = true);
 	void Normalize(bool normalize = true);
-	void Calculate(void);
+	void Calculate();
 
 	Vector3 Evaluate(double r);
 
-	void Paint(void) const;
+	void Paint() const;
 };
 
 #endif /* SPLINE3_H */

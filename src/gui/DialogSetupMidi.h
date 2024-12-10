@@ -44,7 +44,7 @@ public:
 			long style = wxDEFAULT_DIALOG_STYLE);
 
 	virtual ~DialogSetupMidi() = default;
-	void UpdateDevices(void);
+	void UpdateDevices();
 	void OnConnectDisconnect(wxCommandEvent& event);
 	void OnClose(wxCommandEvent& event);
 

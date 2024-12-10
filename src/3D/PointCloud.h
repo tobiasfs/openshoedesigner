@@ -43,9 +43,9 @@ public:
 	PointCloud() = default;
 	virtual ~PointCloud() = default;
 
-	void InitExample(void);
+	void InitExample();
 
-	void Paint(void);
+	void Paint();
 
 	std::vector<Vector3> p;
 };

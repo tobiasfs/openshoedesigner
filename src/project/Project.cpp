@@ -52,12 +52,7 @@ IMPLEMENT_DYNAMIC_CLASS(Project, wxDocument)
 Project::Project() :
 		wxDocument() {
 
-	evaluator.SetGroup();
-	config = std::make_shared<Configuration>();
-	config->Register(evaluator);
-	footL = std::make_shared<FootMeasurements>();
-	footL->Register(evaluator);
-	footR = footL;
+	Register(); // Register all ParameterFormulas with the ParameterEvaluator.
 
 //	vol.SetSize(4, 4, 4, 0.1);
 //	vol.SetOrigin(Vector3(-0.15, -0.15, -0.15));
@@ -71,17 +66,6 @@ Project::Project() :
 
 	thread0 = nullptr;
 	thread1 = nullptr;
-
-//	legLengthDifference_L =
-//			parameter.Register("legLengthDifference",
-//					"Distance the right leg is longer than the left (positive number). If the right leg is shorter than the left leg the number has to be negative.",
-//					"max(legLengthDifferenceRef,0 cm)", 900);
-//
-//	parameter.SetGroup((size_t) ProjectView::Side::Right);
-//	legLengthDifference_R =
-//			parameter.Register("legLengthDifference",
-//					"Distance the right leg is longer than the left (positive number). If the right leg is shorter than the left leg the number has to be negative.",
-//					"max(-legLengthDifferenceRef,0 cm)", 901);
 
 //	wxFileInputStream input("data/FootModelDefault.json");
 //	wxTextInputStream text(input);
@@ -135,7 +119,7 @@ Project::~Project() {
 	}
 }
 
-//bool Project::UpdateLeft(void) {
+//bool Project::UpdateLeft() {
 //	wxCriticalSectionLocker locker(CSLeft);
 //	if (insoleL.IsModified()) {
 //		insoleL.Modify(false);
@@ -200,7 +184,7 @@ Project::~Project() {
 //	std::cout << "Update L - done\n";
 //	return false;
 //}
-//bool Project::UpdateRight(void) {
+//bool Project::UpdateRight() {
 //	wxCriticalSectionLocker locker(CSRight);
 //	if (insoleR.IsModified()) {
 //		insoleR.Modify(false);
@@ -238,8 +222,92 @@ Project::~Project() {
 //	std::cout << "Update R - done\n";
 //	return false;
 //}
-bool Project::MeasurementsAreSymmetric() const {
-	return footL == footR;
+void Project::Register() {
+	evaluator.Clear();
+	evaluator.SetGroup();
+	config.Register(evaluator);
+	evaluator.SetGroup((size_t) ProjectView::Side::Left);
+	footL.Register(evaluator);
+	evaluator.SetGroup((size_t) ProjectView::Side::Right);
+	footR.Register(evaluator);
+}
+
+void Project::Update() {
+	try {
+		evaluator.Update();
+		evaluator.Calculate();
+	} catch (std::exception &ex) {
+		std::cerr << "Error while updating: " << ex.what() << '\n';
+//		return;
+	}
+
+#ifdef DEBUG
+	builder.Update(*this);
+	lastNormalized->MarkNeeded(true);
+#endif
+
+	builder.Update(*this);
+
+	config.Modify(false);
+	footL.Modify(false);
+	footR.Modify(false);
+
+//	if (useMultiThreading)
+//		std::cout << "Starting threads ...";
+//	if (measR.IsModified() || legLengthDifference->IsModified()
+//			|| shoe.IsModified() || lastModelR.IsModified()) {
+//
+//		if (measR.IsModified())
+//			footR.ModifyForm(true);
+//		measR.Modify(false);
+//		insoleR.Modify(true);
+//
+//		if (measR.IsModified())
+//			footR.ModifyForm(true);
+//
+//		if (thread1 == nullptr) {
+//			if (useMultiThreading) {
+//				thread1 = new WorkerThread(this, 1);
+//				if (thread1->Run() != wxTHREAD_NO_ERROR) {
+//					wxLogError
+//					("Can't create the thread1!");
+//					delete thread1;
+//					thread1 = nullptr;
+//				}
+//			} else {
+//				while (UpdateRight())
+//					;
+//			}
+//		}
+//
+//	}
+//	if (measL.IsModified() || legLengthDifference->IsModified()
+//			|| shoe.IsModified() || lastModelL.IsModified()) {
+//		if (measL.IsModified())
+//			footL.ModifyForm(true);
+//		//measL->Modify(false);
+//		legLengthDifference->Modify(false);
+//		//shoe->Modify(false);
+//		insoleL.Modify(true);
+//
+//		if (thread0 == nullptr) {
+//			if (useMultiThreading) {
+//				thread0 = new WorkerThread(this, 0);
+//				if (thread0->Run() != wxTHREAD_NO_ERROR) {
+//					wxLogError
+//					("Can't create the thread0!");
+//					delete thread0;
+//					thread0 = nullptr;
+//				}
+//			} else {
+//				while (UpdateLeft())
+//					;
+//			}
+//		}
+//	}
+//	if (useMultiThreading)
+//		std::cout << " done.\n";
+	UpdateAllViews();
 }
 
 DocumentIstream& Project::LoadObject(DocumentIstream &istream) {
@@ -345,84 +413,6 @@ void Project::SaveSkin(wxString fileName, bool left, bool right) {
 //		temp.Write(footR.skin.geometry);
 }
 
-void Project::Update(void) {
-	try {
-		evaluator.Update();
-		evaluator.Calculate();
-	} catch (std::exception &ex) {
-		std::cerr << "Error while updating: " << ex.what() << '\n';
-//		return;
-	}
-
-#ifdef DEBUG
-	builder.Update(*this);
-	lastNormalized->MarkNeeded(true);
-#endif
-
-	builder.Update(*this);
-
-	config->Modify(false);
-	footL->Modify(false);
-	footR->Modify(false);
-
-//	if (useMultiThreading)
-//		std::cout << "Starting threads ...";
-//	if (measR.IsModified() || legLengthDifference->IsModified()
-//			|| shoe.IsModified() || lastModelR.IsModified()) {
-//
-//		if (measR.IsModified())
-//			footR.ModifyForm(true);
-//		measR.Modify(false);
-//		insoleR.Modify(true);
-//
-//		if (measR.IsModified())
-//			footR.ModifyForm(true);
-//
-//		if (thread1 == nullptr) {
-//			if (useMultiThreading) {
-//				thread1 = new WorkerThread(this, 1);
-//				if (thread1->Run() != wxTHREAD_NO_ERROR) {
-//					wxLogError
-//					("Can't create the thread1!");
-//					delete thread1;
-//					thread1 = nullptr;
-//				}
-//			} else {
-//				while (UpdateRight())
-//					;
-//			}
-//		}
-//
-//	}
-//	if (measL.IsModified() || legLengthDifference->IsModified()
-//			|| shoe.IsModified() || lastModelL.IsModified()) {
-//		if (measL.IsModified())
-//			footL.ModifyForm(true);
-//		//measL->Modify(false);
-//		legLengthDifference->Modify(false);
-//		//shoe->Modify(false);
-//		insoleL.Modify(true);
-//
-//		if (thread0 == nullptr) {
-//			if (useMultiThreading) {
-//				thread0 = new WorkerThread(this, 0);
-//				if (thread0->Run() != wxTHREAD_NO_ERROR) {
-//					wxLogError
-//					("Can't create the thread0!");
-//					delete thread0;
-//					thread0 = nullptr;
-//				}
-//			} else {
-//				while (UpdateLeft())
-//					;
-//			}
-//		}
-//	}
-//	if (useMultiThreading)
-//		std::cout << " done.\n";
-	UpdateAllViews();
-}
-
 void Project::OnRefreshViews(wxThreadEvent &event) {
 	UpdateAllViews();
 }
@@ -434,7 +424,7 @@ void Project::OnCalculationDone(wxThreadEvent &event) {
 	UpdateAllViews(); // This has been done by OnRefreshViews.
 }
 
-void Project::StopAllThreads(void) {
+void Project::StopAllThreads() {
 	{
 		wxCriticalSectionLocker enter(CS);
 		if (thread0) {
@@ -457,3 +447,4 @@ void Project::StopAllThreads(void) {
 		wxThread::This()->Sleep(1);
 	}
 }
+

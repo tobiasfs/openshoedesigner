@@ -98,14 +98,14 @@ public:
 	 *
 	 * @return Volume with heightfield
 	 */
-	OrientedMatrix SurfaceField(void) const;
+	OrientedMatrix SurfaceField() const;
 
 	/*! \brief Render the data
 	 *
 	 * After the Marching-Cubes algorithm has run, the generated Geometry can be
 	 * rendered with OpenGL commands.
 	 */
-	void Paint(void) const;
+	void Paint() const;
 
 	/*! \brief Rotate Volume
 	 *

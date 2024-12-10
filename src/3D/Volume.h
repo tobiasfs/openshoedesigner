@@ -75,7 +75,7 @@ public:
 	Volume& operator=(const Volume &other);
 	virtual ~Volume();
 
-	void Clear(void);
+	void Clear();
 	void AddHalfplane(const Vector3 &p1, float d0, float k0);
 	void AddSphere(const Vector3 &p1, float r1, float k1);
 	void AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
@@ -91,14 +91,14 @@ public:
 	 * of the data in the volume. The surface is assumed at the level of the
 	 * internal variable "surface".
 	 */
-	void CalcSurface(void);
+	void CalcSurface();
 
 	/*! \brief Render the data
 	 *
 	 * After the Marching-Cubes algorithm has run, the generated Geometry can be
 	 * rendered with OpenGL commands.
 	 */
-	void PaintSurface(void) const;
+	void PaintSurface() const;
 
 	/*! \brief Point on the surface
 	 *

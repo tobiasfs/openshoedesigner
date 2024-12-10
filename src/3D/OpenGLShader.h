@@ -50,7 +50,7 @@ public:
 	void AddShader(GLenum type, const std::string &program_);
 	void AddShaderFromFile(GLenum type, const std::string &filename_);
 
-	bool LinkShader(void);
+	bool LinkShader();
 
 	bool SetUniformBool(const std::string &name, const GLboolean x) const;
 	bool SetUniformInt(const std::string &name, const GLint x) const;
@@ -70,8 +70,8 @@ public:
 
 	GLint GetUniformLocation(const std::string &name) const;
 
-	virtual bool Start(void);
-	static void Stop(void);
+	virtual bool Start();
+	static void Stop();
 
 private:
 	std::map<GLenum, GLuint> shader;

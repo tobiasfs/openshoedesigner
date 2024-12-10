@@ -116,6 +116,11 @@ MathParser::Variable::Variable(const std::string &name) :
 		name(name) {
 }
 
+void MathParser::ClearVariables() {
+	variables.clear();
+	externalvariables.clear();
+}
+
 size_t MathParser::SetVariable(const std::string &variablename,
 		const Value &value) {
 	const auto idx = SetupIdentifier(variablename);
@@ -3031,3 +3036,4 @@ std::array<MathParser::ActionType,
 	}
 	return table;
 }
+

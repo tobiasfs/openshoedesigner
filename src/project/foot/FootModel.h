@@ -110,27 +110,27 @@ public:
 	FootModel() = default;
 	virtual ~FootModel() = default;
 
-	void Mirror(void);
+	void Mirror();
 
-	bool IsModifiedForm(void) const;
-	bool IsModifiedPosition(void) const;
-	bool IsModifiedSkin(void) const;
+	bool IsModifiedForm() const;
+	bool IsModifiedPosition() const;
+	bool IsModifiedSkin() const;
 	void ModifyForm(bool modified = true);
 	void ModifyPosition(bool modified = true);
 	void ModifySkin(bool modified = true);
 
-	void PaintBones(void) const;
-	void PaintSkin(void) const;
+	void PaintBones() const;
+	void PaintSkin() const;
 
 //	bool LoadModel(wxTextInputStream* stream);
 //	bool SaveModel(wxTextOutputStream* stream);
 
 	void UpdateForm(const FootMeasurements &measurements);
 
-	void CalculateBones(void);
-	void CalculateSkin(void);
+	void CalculateBones();
+	void CalculateSkin();
 
-	Polygon3 GetCenterline(void) const; //!< (Re-)move?
+	Polygon3 GetCenterline() const; //!< (Re-)move?
 
 	AffineTransformMatrix origin; //!< Origin for drawing. The origin of the model is the ankle.
 
@@ -142,7 +142,7 @@ public:
 	double LRS() const;
 
 private:
-//	void InitBones(void);
+//	void InitBones();
 
 	bool modifiedForm = true;
 	bool modifiedPosition = true;

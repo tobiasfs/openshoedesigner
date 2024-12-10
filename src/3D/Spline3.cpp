@@ -38,7 +38,7 @@ Spline3::Spline3() {
 	length = 1.0;
 }
 
-void Spline3::Clear(void) {
+void Spline3::Clear() {
 	points.clear();
 }
 
@@ -68,7 +68,7 @@ void Spline3::Normalize(bool normalize) {
 	this->normalized = normalize;
 }
 
-void Spline3::Calculate(void) {
+void Spline3::Calculate() {
 	const size_t N = points.size();
 	if (N == 0)
 		return;
@@ -223,7 +223,7 @@ Vector3 Spline3::Evaluate(double r) {
 	return temp;
 }
 
-void Spline3::Paint(void) const {
+void Spline3::Paint() const {
 	{
 		if (closed)
 			glBegin(GL_LINE_LOOP);

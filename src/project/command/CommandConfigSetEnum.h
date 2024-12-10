@@ -39,19 +39,19 @@
 
 #include "../Project.h"
 
-class CommandProjectSetParameter:public wxCommand {
+class CommandConfigSetEnum: public wxCommand {
 public:
-	CommandProjectSetParameter(const wxString& name, Project* project,
-			int parameter, int value);
+	CommandConfigSetEnum(const wxString &name, Project *project, int parameter,
+			size_t value);
 
-	bool Do(void);
-	bool Undo(void);
+	bool Do();
+	bool Undo();
 
 protected:
-	Project* project;
+	Project *project;
 	int parameter;
-	int value;
-	int oldValue;
+	size_t newValue;
+	size_t oldValue;
 	FootMeasurements oldMeasurements;
 
 };

@@ -172,7 +172,7 @@ public:
 	 *
 	 * \return Boolean if the shader could start (i.e. no compilation errors)
 	 */
-	virtual bool Start(void);
+	virtual bool Start();
 
 	/**\brief Write the shader code.
 	 *
