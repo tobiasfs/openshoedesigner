@@ -37,9 +37,6 @@ StopWatch::StopWatch() {
 #endif
 }
 
-StopWatch::~StopWatch() {
-}
-
 void StopWatch::Reset() {
 	deltaCPU = 0.0;
 	deltaWall = 0.0;

@@ -74,6 +74,8 @@ public:
 	 */
 	std::string GetDescription() const;
 
+	virtual std::string GetString() const = 0;
+	virtual void SetString(const std::string &newString_) = 0;
 
 protected:
 	/**\brief ID for parameter

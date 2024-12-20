@@ -35,18 +35,23 @@
 
 #include "gui.h"
 
-class FrameBoneModel:public GUIFrameBoneModel {
+class FrameBoneModel: public GUIFrameBoneModel {
 public:
-	FrameBoneModel(wxWindow* parent, wxWindowID id = wxID_ANY,
-			const wxString& title = _("Bone Model Setup"), const wxPoint& pos =
-					wxDefaultPosition, const wxSize& size = wxSize(672, 458),
+	FrameBoneModel(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxString &title = _("Bone Model Setup"), const wxPoint &pos =
+					wxDefaultPosition, const wxSize &size = wxSize(672, 458),
 			long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
-	virtual ~FrameBoneModel();
+	virtual ~FrameBoneModel() = default;
 
+	bool TransferDataToWindow() override;
+	bool TransferDataFromWindow() override;
 
-	bool TransferDataToWindow();
-	bool TransferDataFromWindow();
-
+protected:
+	void OnCellChange(wxGridEvent &event) override;
+	void OnReset(wxCommandEvent &event) override;
+	void OnLoad(wxCommandEvent &event) override;
+	void OnSaveAs(wxCommandEvent &event) override;
+	void OnSave(wxCommandEvent &event) override;
 };
 
 #endif /* GUI_FRAMEBONEMODEL_H */

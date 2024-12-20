@@ -31,9 +31,13 @@
 #include <sstream>
 #include <stdexcept>
 
+std::string InsoleTransform::GetName() const {
+	return "InsoleTransform";
+}
+
 bool InsoleTransform::CanRun() {
 	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	bool hasMissingConnection = false;
 
 	if (!config) {
@@ -69,8 +73,11 @@ bool InsoleTransform::CanRun() {
 		hasMissingConnection = true;
 		err << " Output \"out\" not set.";
 	}
-	if (hasMissingConnection)
-		throw std::runtime_error(err.str());
+	if (hasMissingConnection){
+		error = err.str();
+		throw std::logic_error(err.str());
+	}
+	error.clear();
 	return true;
 }
 

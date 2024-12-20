@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 30.10.2015
 // Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -27,12 +27,11 @@
 
 #include <wx/dcclient.h>
 
-PanelPlotSimple::PanelPlotSimple(wxWindow* parent, wxWindowID id,
-		const wxPoint& pos, const wxSize& size, long style) :
-		wxPanel(parent, id, pos, size, style)
-{
+PanelPlotSimple::PanelPlotSimple(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style) :
+		wxPanel(parent, id, pos, size, style) {
 	this->SetBackgroundColour(wxColour(200, 200, 200));
-	
+
 	// Connect Events
 	this->Connect(wxEVT_LEFT_DOWN,
 			wxMouseEventHandler(PanelPlotSimple::OnLeftDown));
@@ -42,8 +41,7 @@ PanelPlotSimple::PanelPlotSimple(wxWindow* parent, wxWindowID id,
 
 }
 
-PanelPlotSimple::~PanelPlotSimple()
-{
+PanelPlotSimple::~PanelPlotSimple() {
 	// Disconnect Events
 	this->Disconnect(wxEVT_LEFT_DOWN,
 			wxMouseEventHandler(PanelPlotSimple::OnLeftDown));
@@ -54,13 +52,11 @@ PanelPlotSimple::~PanelPlotSimple()
 	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(PanelPlotSimple::OnSize));
 }
 
-void PanelPlotSimple::OnSize(wxSizeEvent& event)
-{
+void PanelPlotSimple::OnSize(wxSizeEvent &event) {
 	this->Refresh();
 }
 
-void PanelPlotSimple::OnPaint(wxPaintEvent& event)
-{
+void PanelPlotSimple::OnPaint(wxPaintEvent &event) {
 
 	wxPoint temp;
 	wxPaintDC dc(this);
@@ -72,7 +68,7 @@ void PanelPlotSimple::OnPaint(wxPaintEvent& event)
 	float scaleX = (float) sz.x / width;
 	float scaleY = (float) sz.y / (height);
 
-	float scaleFactor = (scaleX < scaleY)? scaleX : scaleY;
+	float scaleFactor = (scaleX < scaleY) ? scaleX : scaleY;
 	scaleFactor *= 0.9;
 
 	int mx = sz.x / 2;
@@ -84,13 +80,11 @@ void PanelPlotSimple::OnPaint(wxPaintEvent& event)
 	dc.DrawText(text, 10, 10);
 }
 
-void PanelPlotSimple::OnMotion(wxMouseEvent& event)
-{
+void PanelPlotSimple::OnMotion(wxMouseEvent &event) {
 
 }
 
-void PanelPlotSimple::OnLeftDown(wxMouseEvent& event)
-{
+void PanelPlotSimple::OnLeftDown(wxMouseEvent &event) {
 
 }
 

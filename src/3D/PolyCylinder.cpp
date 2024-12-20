@@ -106,7 +106,7 @@ void PolyCylinder::Scale(double sx, double sy, double sz) {
 void PolyCylinder::Load(std::string filename) {
 	using namespace std;
 	std::ostringstream err;
-	err << __FILE__ << ":" << __func__ << " - ";
+	err << __FILE__ << ":" << __FUNCTION__ << " - ";
 	err << "The file ";
 	err << filename;
 

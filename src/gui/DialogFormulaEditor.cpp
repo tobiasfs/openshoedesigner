@@ -26,24 +26,25 @@
 
 #include "DialogFormulaEditor.h"
 
-DialogFormulaEditor::DialogFormulaEditor(wxWindow* parent)
-		: GUIDialogFormulaEditor(parent)
-{
+DialogFormulaEditor::DialogFormulaEditor(wxWindow *parent) :
+		GUIDialogFormulaEditor(parent) {
 }
 
-DialogFormulaEditor::~DialogFormulaEditor()
-{
+void DialogFormulaEditor::OnItemActivated(wxDataViewEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }
 
-void DialogFormulaEditor::OnItemActivated(wxDataViewEvent& event)
-{
-}
-
-void DialogFormulaEditor::OnClearFormula(wxCommandEvent& event)
-{
+void DialogFormulaEditor::OnButtonClear(wxCommandEvent &event) {
 	m_textCtrlFormula->SetValue(_T(""));
 }
 
-void DialogFormulaEditor::OnCopyResultToFormula(wxCommandEvent& event)
-{
+void DialogFormulaEditor::OnButtonCopy(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
+}
+
+void DialogFormulaEditor::OnTextEnter(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }

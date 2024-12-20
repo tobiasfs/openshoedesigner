@@ -44,7 +44,7 @@ void Builder::Setup(Project &project) {
 	operations.clear();
 
 	LastLoad opLoad;
-	opLoad.filename = config.lastFilename;
+	opLoad.filename = config.filenameLast;
 	operations.push_back(std::make_shared<LastLoad>(opLoad));
 
 	LastNormalize opNormalize;
@@ -61,20 +61,25 @@ void Builder::Setup(Project &project) {
 }
 
 void Builder::Update(Project &project) {
+	error.clear();
 	bool setup_modified = operations.empty();
 
 	if (setup_modified)
 		Setup(project);
 
 	bool setup_complete = true;
-	for (const auto &op : operations)
+	std::ostringstream err;
+	for (const auto &op : operations) {
 		setup_complete &= op->CanRun();
-	if (!setup_complete) {
-		std::ostringstream err;
-		err << __FILE__ << ":Setup - Error in setup routine.";
-		throw std::runtime_error(err.str());
+		if (!op->error.empty()) {
+			err << op->GetName() << ": " << op->error << "\n";
+		}
 	}
-
+	if (!setup_complete) {
+		err << __FILE__ << ":Setup - Error in setup routine.";
+		error = err.str();
+		return;
+	}
 	bool propagation_complete = false;
 	while (!propagation_complete) {
 		propagation_complete = true;

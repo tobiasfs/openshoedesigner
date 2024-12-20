@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameParent.h
-// Purpose            : 
+// Purpose            : Parent-frame for the application
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -28,7 +28,7 @@
 #define FRAMEPARENT_H
 
 /*!\class FrameParent
- * \brief Parentframe for the application
+ * \brief Parent-frame for the application
  *
  * Parent frame for SDI application.
  */
@@ -56,40 +56,40 @@
 #include "DialogSetupStereo3D.h"
 #include "DialogSetupUnits.h"
 
-class FrameParent:public wxDocParentFrame {
+class FrameParent: public wxDocParentFrame {
 public:
-	FrameParent(wxDocManager *manager, wxConfig* config, wxFrame *parent,
-			wxWindowID id, const wxString& title);
+	FrameParent(wxDocManager *manager, wxConfig *config, wxFrame *parent,
+			wxWindowID id, const wxString &title);
 	virtual ~FrameParent();
 
 public:
-	void OnChangeLanguage(wxCommandEvent& event);
-	void OnSetupStereo3D(wxCommandEvent& event);
+	void OnChangeLanguage(wxCommandEvent &event);
+	void OnSetupStereo3D(wxCommandEvent &event);
 
 #ifdef USE_6DOFCONTROLLER
-	void OnSetupController(wxCommandEvent& event);
+	void OnSetupController(wxCommandEvent &event);
 #endif
 #ifdef USE_PORTMIDI
-	void OnSetupMidi(wxCommandEvent& event);
+	void OnSetupMidi(wxCommandEvent &event);
 #endif
-	void OnSetupUnits(wxCommandEvent& event);
-	void OnSetupPaths(wxCommandEvent& event);
+	void OnSetupUnits(wxCommandEvent &event);
+	void OnSetupPaths(wxCommandEvent &event);
 
-	void OnRefreshAll(wxCommandEvent& event);
-	void OnRefreshAll3D(wxCommandEvent& event);
-	void OnRefreshView(wxCommandEvent& event);
-	void OnRefreshView3D(wxCommandEvent& event);
+	void OnRefreshAll(wxCommandEvent &event);
+	void OnRefreshAll3D(wxCommandEvent &event);
+	void OnRefreshView(wxCommandEvent &event);
+	void OnRefreshView3D(wxCommandEvent &event);
 
-	void OnTimer(wxTimerEvent& event);
+	void OnTimer(wxTimerEvent &event);
 
-	void OnHelp(wxCommandEvent& WXUNUSED(event));
+	void OnHelp(wxCommandEvent&WXUNUSED(event));
 
 public:
-	wxConfig * config;
+	wxConfig *config;
 
-	wxLogWindow * logWindow;
-	wxHelpController* m_helpController;
-	DialogSetupStereo3D * dialogSetupStereo3D;
+	wxLogWindow *logWindow;
+	wxHelpController *m_helpController;
+	DialogSetupStereo3D *dialogSetupStereo3D;
 	SettingsStereo3D settingsStereo3D;
 	CollectionUnits units;
 	CollectionFilepaths filepaths;
@@ -99,7 +99,7 @@ public:
 #endif
 #ifdef USE_PORTMIDI
 	MidiPort midi;
-	DialogSetupMidi* dialogSetupMidi;
+	DialogSetupMidi *dialogSetupMidi;
 #endif
 
 	wxTimer timer; ///> Animation timer

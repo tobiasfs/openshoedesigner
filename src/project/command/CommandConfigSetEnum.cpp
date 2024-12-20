@@ -32,26 +32,45 @@ CommandConfigSetEnum::CommandConfigSetEnum(const wxString &name,
 		Project *project, int parameter, size_t value) :
 		wxCommand(true, name), project(project), parameter(parameter), newValue(
 				value) {
-	DEBUGOUT << __func__ << ": " << name << "\n";
+	DEBUGOUT << __FUNCTION__ << ": " << name << "\n";
 	oldValue = 0;
 }
 
 bool CommandConfigSetEnum::Do() {
-	DEBUGOUT << __func__ << ".\n";
+	DEBUGOUT << __FUNCTION__ << ".\n";
 
 	switch (parameter) {
 	case ID_MEASUREMENTSOURCE:
 		oldValue = (int) project->config.measurementSource->GetSelectionIdx();
 		project->config.measurementSource->SetSelection(newValue);
 		break;
-	case ID_MODELTYPE:
-		oldValue = (int) project->config.modelType->GetSelectionIdx();
-		project->config.modelType->SetSelection(newValue);
+	case ID_LASTCONSTRUCTIONTYPE:
+		oldValue =
+				(int) project->config.lastConstructionType->GetSelectionIdx();
+		project->config.lastConstructionType->SetSelection(newValue);
+		break;
+	case ID_LASTMODIFY:
+		oldValue = (int) project->config.lastModify->GetSelectionIdx();
+		project->config.lastModify->SetSelection(newValue);
+		break;
+	case ID_LASTREORIENT:
+		oldValue = (int) project->config.lastReorient->GetSelectionIdx();
+		project->config.lastReorient->SetSelection(newValue);
+		break;
+	case ID_HEELCONSTRUCTIONTYPE:
+		oldValue =
+				(int) project->config.heelConstructionType->GetSelectionIdx();
+		project->config.heelConstructionType->SetSelection(newValue);
+		break;
+	case ID_HEELREORIENT:
+		oldValue = (int) project->config.heelReorient->GetSelectionIdx();
+		project->config.heelReorient->SetSelection(newValue);
 		break;
 	case ID_GENERATOR:
 		oldValue = (int) project->config.generator->GetSelectionIdx();
 		project->config.generator->SetSelection(newValue);
 		break;
+
 	default:
 		return false;
 	}
@@ -60,20 +79,29 @@ bool CommandConfigSetEnum::Do() {
 }
 
 bool CommandConfigSetEnum::Undo() {
-	DEBUGOUT << __func__ << ".\n";
+	DEBUGOUT << __FUNCTION__ << ".\n";
 
 	switch (parameter) {
 
 	case ID_MEASUREMENTSOURCE:
-		oldValue = (int) project->config.measurementSource->GetSelectionIdx();
 		project->config.measurementSource->SetSelection(oldValue);
 		break;
-	case ID_MODELTYPE:
-		oldValue = (int) project->config.modelType->GetSelectionIdx();
-		project->config.modelType->SetSelection(oldValue);
+	case ID_LASTCONSTRUCTIONTYPE:
+		project->config.lastConstructionType->SetSelection(oldValue);
+		break;
+	case ID_LASTMODIFY:
+		project->config.lastModify->SetSelection(oldValue);
+		break;
+	case ID_LASTREORIENT:
+		project->config.lastReorient->SetSelection(oldValue);
+		break;
+	case ID_HEELCONSTRUCTIONTYPE:
+		project->config.heelConstructionType->SetSelection(oldValue);
+		break;
+	case ID_HEELREORIENT:
+		project->config.heelReorient->SetSelection(oldValue);
 		break;
 	case ID_GENERATOR:
-		oldValue = (int) project->config.generator->GetSelectionIdx();
 		project->config.generator->SetSelection(oldValue);
 		break;
 

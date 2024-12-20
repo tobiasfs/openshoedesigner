@@ -51,8 +51,8 @@ public:
 	void AddValue(const size_t key, const size_t group,
 			const std::string &newFormula);
 
-	bool Do();
-	bool Undo();
+	bool Do() override;
+	bool Undo() override;
 
 //protected:
 //	bool SetNew(const std::pair<int, std::string> &kv, Parameter &pf);

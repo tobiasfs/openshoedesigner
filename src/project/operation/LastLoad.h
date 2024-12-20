@@ -47,6 +47,7 @@ public:
 	LastLoad();
 	virtual ~LastLoad() = default;
 
+	virtual std::string GetName() const override;
 	virtual bool CanRun() override;
 	virtual bool Propagate() override;
 	virtual bool HasToRun() override;

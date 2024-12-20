@@ -36,20 +36,22 @@
 #include "gui.h"
 #include "../system/MidiPort.h"
 
-class DialogSetupMidi:public GUIDialogMidiSetup {
+class DialogSetupMidi: public GUIDialogMidiSetup {
 public:
-	DialogSetupMidi(wxWindow* parent, MidiPort * midi, wxWindowID id = wxID_ANY,
-			const wxString& title = _("Midi Controller"), const wxPoint& pos =
-					wxDefaultPosition, const wxSize& size = wxSize(321, 175),
+	DialogSetupMidi(wxWindow *parent, MidiPort *midi, wxWindowID id = wxID_ANY,
+			const wxString &title = _("Midi Controller"), const wxPoint &pos =
+					wxDefaultPosition, const wxSize &size = wxSize(321, 175),
 			long style = wxDEFAULT_DIALOG_STYLE);
 
 	virtual ~DialogSetupMidi() = default;
 	void UpdateDevices();
-	void OnConnectDisconnect(wxCommandEvent& event);
-	void OnClose(wxCommandEvent& event);
+	void OnConnectDisconnect(wxCommandEvent &event) override;
+	void OnClose(wxCommandEvent &event) override;
 
-	MidiPort * midi;
+	MidiPort *midi;
 
+protected:
+	virtual void OnChoice(wxCommandEvent &event);
 };
 
 #endif /* DIALOGSETUPMIDI_H */

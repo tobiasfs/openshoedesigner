@@ -36,9 +36,6 @@ FrameDebugParser::FrameDebugParser(wxWindow *parent) :
 //	parser.AddAllowedUnit("ft", 0.3048);
 }
 
-FrameDebugParser::~FrameDebugParser() {
-}
-
 void FrameDebugParser::OnCloseX(wxCloseEvent &event) {
 	this->Hide();
 }

@@ -26,35 +26,44 @@
 
 #include "FrameMain.h"
 
-#include "IDs.h"
 #include "DialogQuickInitFoot.h"
 #include "FrameDebugParser.h"
 #include "DialogEditorFootModel.h"
+#include "FrameSetupBackgroundImages.h"
 
-#include "../3D/FileSTL.h"
-#include "../languages.h"
-#include <wx/cmdproc.h>
-#include <wx/filedlg.h>
-#include <wx/filename.h>
-#include <wx/dir.h>
-#include <math.h>
-#include <cfloat>
-
-#include "../project/command/CommandFootMeasurementSet.h"
-#include "../project/command/CommandFootModelSetParameter.h"
-#include "../icons/FootMeasurements.xpm"
 #include "../icons/FootMeasurements_small.xpm"
-#include "../project/command/CommandFootMeasurementsCopy.h"
-#include "FrameParent.h"
+#include "../icons/FootMeasurements.xpm"
 
 #include "../project/command/CommandConfigSetEnum.h"
 #include "../project/command/CommandConfigSetParameter.h"
+#include "../project/command/CommandConfigSetString.h"
+#include "../project/command/CommandFootMeasurementsCopy.h"
+#include "../project/command/CommandFootMeasurementSet.h"
+#include "../project/command/CommandFootModelSetParameter.h"
+
+#include "FrameParent.h"
+
+#include "IDs.h"
+#include "../languages.h"
+#include "SemaphoreTryLocker.h"
+
+#include <wx/cmdproc.h>
+#include <wx/dir.h>
+#include <wx/filedlg.h>
+#include <wx/filename.h>
+
+#include <cfloat>
+#include <cmath>
 
 FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 		wxDocParentFrame *parent) :
 		GUIFrameMain(doc, view, parent), bm0(FootMeasurements_small_xpm), bm1(
 				FootMeasurements_xpm), loopGuard(1, 1) {
+
+	DEBUGOUT << "FrameMain: Constructor called.\n";
+
 	this->config = config;
+
 
 	presets = JSON::Load("data/Presets.json");
 
@@ -82,7 +91,7 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 	m_menuEdit->Append(ID_UPDATEPROJECT, _("&Update") + wxT("\tF5"),
 			_T("Recalculated the shoe."));
 
-	m_menuPreferences->Append(ID_SETUPLANGUAGE, _T("Change Language"));
+	m_menuPreferences->Append(ID_SETUPPATHS, _("Setup &Paths"));
 #ifdef USE_6DOFCONTROLLER
 	m_menuPreferences->Append(ID_SETUPCONTROLLER, _("Setup 6DOF &Controller"));
 #endif
@@ -90,6 +99,7 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 #ifdef USE_PORTMIDI
 	m_menuPreferences->Append(ID_SETUPMIDI, _("Setup &MIDI"));
 #endif
+	m_menuPreferences->Append(ID_SETUPLANGUAGE, _T("Change Language"));
 	m_menuPreferences->Append(ID_SETUPUNITS,
 	_("Setup &Units") + wxT("\tCtrl+U"));
 
@@ -107,6 +117,11 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 	settings->WriteToCanvas(m_canvas3D);
 
 	filepaths.Load(config);
+
+	m_editorCode->SetLexer(wxSTC_LEX_CPP);
+	m_editorCode->SetWrapMode(wxSTC_WRAP_WORD);
+	m_editorCode->SetWrapVisualFlags(wxSTC_WRAPVISUALFLAG_END);
+	m_editorCode->StyleSetForeground(wxSTC_C_NUMBER, wxColour("BLUE"));
 
 	TransferDataToWindow();
 
@@ -127,7 +142,7 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 }
 
 FrameMain::~FrameMain() {
-	DEBUGOUT << "FrameMain: Destructor called\n";
+	DEBUGOUT << "FrameMain: Destructor called.\n";
 	this->Disconnect(ID_UPDATEPROJECT, wxEVT_COMMAND_MENU_SELECTED,
 			wxCommandEventHandler(FrameMain::UpdateProject));
 	this->Disconnect(ID_REFRESHVIEW, wxEVT_COMMAND_MENU_SELECTED,
@@ -143,23 +158,25 @@ FrameMain::~FrameMain() {
 
 bool FrameMain::TransferDataFromWindow() {
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	projectview->showBones = m_menuView->IsChecked(ID_SHOWBONES);
-	projectview->showSkin = m_menuView->IsChecked(ID_SHOWSKIN);
-	projectview->showLeg = m_menuView->IsChecked(ID_SHOWLEG);
-	projectview->showLast = m_menuView->IsChecked(ID_SHOWLAST);
-	projectview->showInsole = m_menuView->IsChecked(ID_SHOWINSOLE);
-	projectview->showUpper = m_menuView->IsChecked(ID_SHOWUPPER);
-	projectview->showSole = m_menuView->IsChecked(ID_SHOWSOLE);
-	projectview->showCutaway = m_menuView->IsChecked(ID_SHOWCUTAWAY);
-	projectview->showFloor = m_menuView->IsChecked(ID_SHOWFLOOR);
+	projectview->showBones = m_menuView->IsChecked(ID_BONES);
+	projectview->showSkin = m_menuView->IsChecked(ID_SKIN);
+	projectview->showLeg = m_menuView->IsChecked(ID_LEG);
+	projectview->showLast = m_menuView->IsChecked(ID_LAST);
+	projectview->showInsole = m_menuView->IsChecked(ID_INSOLE);
+	projectview->showUpper = m_menuView->IsChecked(ID_UPPER);
+	projectview->showSole = m_menuView->IsChecked(ID_SOLE);
+	projectview->showCutaway = m_menuView->IsChecked(ID_CUTAWAY);
+	projectview->showFloor = m_menuView->IsChecked(ID_FLOOR);
 	projectview->showCoordinateSystem = m_menuView->IsChecked(
-	ID_SHOWCOORDINATESYSTEM);
-	projectview->showBackground = m_menuView->IsChecked(ID_SHOWBACKGROUND);
+	ID_COORDINATESYSTEM);
+	projectview->showBackground = m_menuView->IsChecked(ID_BACKGROUND);
 	return true;
 }
 
 bool FrameMain::TransferDataToWindow() {
-	if (loopGuard.TryWait() != wxSEMA_NO_ERROR)
+//	return true;
+	SemaphoreTryLocker locker(loopGuard);
+	if (!locker.IsOK())
 		return false;
 
 	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
@@ -169,87 +186,67 @@ bool FrameMain::TransferDataToWindow() {
 
 	// Set checkboxes and selections in main menu
 
-//	if (config->measurementSource->IsSelection("fromMeasurements"))
-	m_menuFoot->Check(ID_USEFOOTMEASUREMENTS,
-			config.measurementSource->IsSelection("fromMeasurements"));
-//	if (project->measurementsource == Project::MeasurementSource::fromFootScan)
-	m_menuFoot->Check( ID_USEFOOTSCAN,
-			config.measurementSource->IsSelection("fromFootScan"));
+	m_menuFootParameters->Check(ID_MEASUREMENTS,
+			config.measurementSource->IsSelection("measurementBased"));
+	m_menuFootParameters->Check(ID_SCAN,
+			config.measurementSource->IsSelection("scanBased"));
 
-	m_menuFoot->Check(ID_MEASUREMENTSYMMETRY, false);
+	m_menuLastModel->Check(ID_CONSTRUCTION,
+			config.lastConstructionType->IsSelection("construct"));
+	m_menuLastModel->Check(ID_BONES,
+			config.lastConstructionType->IsSelection("boneBased"));
+	m_menuLastModel->Check(ID_LAST,
+			config.lastConstructionType->IsSelection("loadFromFile"));
 
-//	if (project->modeltype == Project::ModelType::boneBased)
-	m_menuFoot->Check(
-	ID_USEBONEBASEDMODEL, config.modelType->IsSelection("boneBased"));
-//	if (project->modeltype == Project::ModelType::lastBased)
-	m_menuFoot->Check(
-	ID_USELASTBASEDMODEL, config.modelType->IsSelection("lastBased"));
-
-//	if (project->generator == Project::Generator::Experimental)
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONEXPERIMENTAL, config.generator->IsSelection("Experimental"));
-//	if (project->generator == Project::Generator::Welted)
+	ID_CONSTRUCTION_EXPERIMENTAL,
+			config.generator->IsSelection("experimental"));
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONWELDED, config.generator->IsSelection("Welted"));
-//	if (project->generator == Project::Generator::Cemented)
+	ID_CONSTRUCTION_WELDED, config.generator->IsSelection("welted"));
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONCEMENTED, config.generator->IsSelection("Cemented"));
-//	if (project->generator == Project::Generator::Molded)
+	ID_CONSTRUCTION_CEMENTED, config.generator->IsSelection("cemented"));
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONMOLDED, config.generator->IsSelection("Molded"));
-//	if (project->generator == Project::Generator::Dutch)
+	ID_CONSTRUCTION_MOLDED, config.generator->IsSelection("molded"));
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONDUTCH, config.generator->IsSelection("Dutch"));
-//	if (project->generator == Project::Generator::Geta)
+	ID_CONSTRUCTION_DUTCH, config.generator->IsSelection("dutch"));
 	m_menuConstruction->Check(
-	ID_CONSTRUCTIONGETA, config.generator->IsSelection("Geta"));
+	ID_CONSTRUCTION_GETA, config.generator->IsSelection("geta"));
 
 	m_menuView->Check(ID_STEREO3D,
 			m_canvas3D->stereoMode != OpenGLCanvas::Stereo3D::Off);
-	m_menuView->Check(ID_SHOWLEFT, projectview->showLeft);
-	m_menuView->Check(ID_SHOWRIGHT, projectview->showRight);
-	m_menuView->Check(ID_SHOWBONES, projectview->showBones);
-	m_menuView->Check(ID_SHOWSKIN, projectview->showSkin);
-	m_menuView->Check(ID_SHOWLEG, projectview->showLeg);
-	m_menuView->Check(ID_SHOWLAST, projectview->showLast);
-	m_menuView->Check(ID_SHOWINSOLE, projectview->showInsole);
-	m_menuView->Check(ID_SHOWSOLE, projectview->showSole);
-	m_menuView->Check(ID_SHOWUPPER, projectview->showUpper);
-	m_menuView->Check(ID_SHOWCUTAWAY, projectview->showCutaway);
-	m_menuView->Check(ID_SHOWFLOOR, projectview->showFloor);
-	m_menuView->Check(ID_SHOWCOORDINATESYSTEM,
-			projectview->showCoordinateSystem);
-	m_menuView->Check(ID_SHOWBACKGROUND, projectview->showBackground);
+	m_menuView->Check(ID_LEFT, projectview->showLeft);
+	m_menuView->Check(ID_RIGHT, projectview->showRight);
+	m_menuView->Check(ID_BONES, projectview->showBones);
+	m_menuView->Check(ID_SKIN, projectview->showSkin);
+	m_menuView->Check(ID_LEG, projectview->showLeg);
+	m_menuView->Check(ID_LAST, projectview->showLast);
+	m_menuView->Check(ID_INSOLE, projectview->showInsole);
+	m_menuView->Check(ID_SOLE, projectview->showSole);
+	m_menuView->Check(ID_UPPER, projectview->showUpper);
+	m_menuView->Check(ID_CUTAWAY, projectview->showCutaway);
+	m_menuView->Check(ID_FLOOR, projectview->showFloor);
+	m_menuView->Check(ID_COORDINATESYSTEM, projectview->showCoordinateSystem);
+	m_menuView->Check(ID_BACKGROUND, projectview->showBackground);
 
 	// On Page "Foot":
 
-	if (projectview->active == ProjectView::Side::Left
-			|| projectview->active == ProjectView::Side::Both) {
-		m_toggleBtnEditLeft->SetValue(true);
-		m_toggleBtnEditLeft1->SetValue(true);
-	} else {
-		m_toggleBtnEditLeft->SetValue(false);
-		m_toggleBtnEditLeft1->SetValue(false);
-	}
-	if (projectview->active == ProjectView::Side::Right
-			|| projectview->active == ProjectView::Side::Both) {
-		m_toggleBtnEditRight->SetValue(true);
-		m_toggleBtnEditRight1->SetValue(true);
-	} else {
-		m_toggleBtnEditRight->SetValue(false);
-		m_toggleBtnEditRight1->SetValue(false);
+	switch (projectview->active) {
+	case ProjectView::Side::Left:
+		m_radioBtnEditLeft->SetValue(true);
+		m_radioBtnEditLegLeft->SetValue(true);
+		break;
+	case ProjectView::Side::Both:
+		m_radioBtnEditBoth->SetValue(true);
+		m_radioBtnEditLegBoth->SetValue(true);
+		break;
+	case ProjectView::Side::Right:
+		m_radioBtnEditRight->SetValue(true);
+		m_radioBtnEditLegRight->SetValue(true);
+		break;
 	}
 
-	if (config.measurementSource->IsSelection("fromMeasurements")) {
-		m_choicebookMeasurement->SetSelection(0);
-	} else {
-		m_choicebookMeasurement->SetSelection(1);
-	}
-	if (config.modelType->IsSelection("boneBased")) {
-		m_choicebookFootModel->SetSelection(0);
-	} else {
-		m_choicebookFootModel->SetSelection(1);
-	}
+	m_choicebookMeasurementSource->SetSelection(
+			config.measurementSource->GetSelectionIdx());
 
 	TransferParameterToTextCtrl(meas->footLength, m_textCtrlFootLength,
 			UnitType::Distance);
@@ -289,12 +286,12 @@ bool FrameMain::TransferDataToWindow() {
 			wxString::Format(_T("%g"),
 					round(meas->GetSize(FootMeasurements::Type::AU))));
 
-	m_filePickerLastModel->SetInitialDirectory(filepaths.lastShoeDirectory);
-	if (!config.lastFilename->GetString().empty()) {
-		wxFileName lastFilename;
-		lastFilename = wxString(config.lastFilename->GetString());
-		lastFilename.MakeAbsolute();
-		m_filePickerLastModel->SetFileName(lastFilename);
+	m_filePickerScan->SetInitialDirectory(filepaths.measurementDirectory);
+	if (!config.filenameScan->GetString().empty()) {
+		wxFileName filenameScan;
+		filenameScan = wxString(config.filenameScan->GetString());
+		filenameScan.MakeAbsolute();
+		m_filePickerScan->SetFileName(filenameScan);
 	}
 
 // On page "Leg":
@@ -332,7 +329,10 @@ bool FrameMain::TransferDataToWindow() {
 	TransferParameterToTextCtrl(meas->overAnkleBoneLevel,
 			m_textCtrlOverAnkleBoneLevel, UnitType::Distance);
 
-	// On page "Insole":
+	// On page "Last":
+
+	m_choicebookLastConstructionType->SetSelection(
+			config.lastConstructionType->GetSelectionIdx());
 
 	TransferParameterToTextCtrl(config.bigToeAngle, m_textCtrlBigToeAngle,
 			UnitType::Angle);
@@ -342,13 +342,43 @@ bool FrameMain::TransferDataToWindow() {
 			m_textCtrlBallMeasurementAngle, UnitType::Angle);
 	TransferParameterToTextCtrl(config.heelDirectionAngle,
 			m_textCtrlHeelDirectionAngle, UnitType::Angle);
-
-	m_sliderTipSharpness->SetValue(config.tipSharpness->ToDouble());
-
+	TransferParameterToTextCtrl(config.tipSharpness, m_textCtrlTipSharpness,
+			UnitType::Without);
 	TransferParameterToTextCtrl(config.extraLength, m_textCtrlExtraLength,
 			UnitType::Distance);
 	TransferParameterToTextCtrl(config.footCompression,
 			m_textCtrlFootCompression, UnitType::Percent);
+
+	m_filePickerBoneModel->SetInitialDirectory(filepaths.measurementDirectory);
+	if (!config.filenameBoneModel->GetString().empty()) {
+		wxFileName filenameLast;
+		filenameLast = wxString(config.filenameBoneModel->GetString());
+		filenameLast.MakeAbsolute();
+		m_filePickerBoneModel->SetFileName(filenameLast);
+	}
+	m_filePickerLast->SetInitialDirectory(filepaths.lastDirectory);
+	if (!config.filenameLast->GetString().empty()) {
+		wxFileName filenameLast;
+		filenameLast = wxString(config.filenameLast->GetString());
+		filenameLast.MakeAbsolute();
+		m_filePickerLast->SetFileName(filenameLast);
+	}
+
+	m_checkBoxLastModify->SetValue(config.lastModify->IsSelection("true"));
+	m_checkBoxLastReorient->SetValue(config.lastReorient->IsSelection("true"));
+
+	m_choicebookHeelConstructionType->SetSelection(
+			config.heelConstructionType->GetSelectionIdx());
+
+	m_filePickerHeel->SetInitialDirectory(filepaths.lastDirectory);
+	if (!config.filenameHeel->GetString().empty()) {
+		wxFileName filenameLast;
+		filenameLast = wxString(config.filenameHeel->GetString());
+		filenameLast.MakeAbsolute();
+		m_filePickerHeel->SetFileName(filenameLast);
+	}
+
+	m_checkBoxHeelReorient->SetValue(config.heelReorient->IsSelection("true"));
 
 	// On page "Shoe":
 
@@ -360,10 +390,10 @@ bool FrameMain::TransferDataToWindow() {
 			for (size_t n = 0; n < jsst.Size(); ++n)
 				newStrings.Add(jsst[n]["Name"].GetString());
 		}
-		wxArrayString temp = m_choiceShoeType->GetStrings();
+		wxArrayString temp = m_choicePresetShoeType->GetStrings();
 		if (newStrings != temp) {
-			m_choiceShoeType->Set(newStrings);
-			m_choiceShoeType->SetSelection(0);
+			m_choicePresetShoeType->Set(newStrings);
+			m_choicePresetShoeType->SetSelection(0);
 		}
 	}
 	{	// Populate the wxChoiceCtrl for the shaft-height.
@@ -374,10 +404,10 @@ bool FrameMain::TransferDataToWindow() {
 			for (size_t n = 0; n < jsh.Size(); ++n)
 				newStrings.Add(jsh[n]["Name"].GetString());
 		}
-		wxArrayString temp = m_choiceShoeHeight->GetStrings();
+		wxArrayString temp = m_choicePresetShoeStyle->GetStrings();
 		if (newStrings != temp) {
-			m_choiceShoeHeight->Set(newStrings);
-			m_choiceShoeHeight->SetSelection(0);
+			m_choicePresetShoeStyle->Set(newStrings);
+			m_choicePresetShoeStyle->SetSelection(0);
 		}
 	}
 
@@ -392,11 +422,34 @@ bool FrameMain::TransferDataToWindow() {
 	TransferParameterToTextCtrl(config.upperLevel, m_textCtrlUpperLevel,
 			UnitType::Without);
 
-	// On page "Sole"
+	const bool enable = config.heelConstructionType->IsSelection("construct");
+	m_choicePresetShoeType->Enable(enable);
+	m_textCtrlHeelHeight->Enable(enable);
+	m_textCtrlBallHeight->Enable(enable);
+	m_textCtrlHeelPitch->Enable(enable);
+	m_textCtrlToeSpring->Enable(enable);
 
 	m_choicebookConstruction->SetSelection(config.generator->GetSelectionIdx());
 
-	loopGuard.Post();
+	TransferParameterToTextCtrl(config.thickness, m_textCtrlThickness,
+			UnitType::Distance);
+	TransferParameterToTextCtrl(config.weltSize, m_textCtrlWeltSize,
+			UnitType::Distance);
+
+// On page "Heel"
+
+	TransferParameterToTextCtrl(config.supportHeelRadius,
+			m_textCtrlSupportHeelRadius, UnitType::Distance);
+	TransferParameterToTextCtrl(config.supportHeelOffset,
+			m_textCtrlSupportHeelOffset, UnitType::Distance);
+	TransferParameterToTextCtrl(config.supportToeRadius,
+			m_textCtrlSupportToeRadius, UnitType::Distance);
+	TransferParameterToTextCtrl(config.supportToeOffset,
+			m_textCtrlSupportToeOffset, UnitType::Distance);
+
+// On page "Pattern"
+
+// On page "Flattening"
 
 	return true;
 }
@@ -409,13 +462,13 @@ void FrameMain::TransferParameterToTextCtrl(
 
 	if (parameter->errorFlag) {
 		ctrl->SetBackgroundColour(*wxRED);
-		ctrl->SetValue(parameter->GetFormula());
+		ctrl->SetValue(parameter->GetString());
 		ctrl->SetToolTip(parameter->errorStr);
 	} else {
 		if (ctrl->HasFocus()) {
 			ctrl->SetBackgroundColour(wxNullColour);
 			ctrl->SetToolTip(parameter->GetDescription());
-			ctrl->SetValue(parameter->GetFormula());
+			ctrl->SetValue(parameter->GetString());
 		} else {
 			ctrl->SetBackgroundColour(wxNullColour);
 			ctrl->SetToolTip(parameter->GetDescription());
@@ -533,22 +586,6 @@ wxTextCtrl* FrameMain::GetTextCtrlByID(int id) {
 	return nullptr;
 }
 
-void FrameMain::RefreshCanvas(wxCommandEvent&WXUNUSED(event)) {
-	m_canvas3D->Refresh();
-	Refresh();
-}
-
-void FrameMain::RefreshView(wxCommandEvent &event) {
-	TransferDataToWindow();
-	this->Refresh(); // FIXME: Recursive refresh does not work with GTK1. Call Refresh on every child-dialog by hand.
-}
-
-void FrameMain::UpdateProject(wxCommandEvent &event) {
-	Project *project = wxStaticCast(GetDocument(), Project);
-	project->Update();
-	RefreshView(event);
-}
-
 void FrameMain::OnClose(wxCloseEvent &event) {
 	wxDocument *doc = this->GetDocument();
 	wxList tempDocs = doc->GetDocumentManager()->GetDocuments();
@@ -570,6 +607,11 @@ void FrameMain::OnClose(wxCloseEvent &event) {
 	wxWindow *main = this->GetParent();
 	DEBUGOUT << "FrameMain: parent->Close()\n";
 	main->Close(); // Exit app by closing main window, this will close this window as well.
+}
+
+void FrameMain::OnMouseWheel(wxMouseEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
 }
 
 void FrameMain::OnSize(wxSizeEvent &event) {
@@ -605,21 +647,118 @@ void FrameMain::OnTimer(wxTimerEvent &event) {
 
 	this->Refresh();
 #endif
+
+	const auto x = m_canvas3D->unitAtOrigin;
+	wxString stat = wxString::Format(_T("unitAtOrigin = %f"), x);
+	SetStatusText(stat, 0);
 }
 
-void FrameMain::OnSetFocus(wxFocusEvent &event) {
-	const int id = event.GetId();
-	const Project *project = wxStaticCast(GetDocument(), Project);
-	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	size_t pva = (size_t) (
-			(projectview->active == ProjectView::Side::Both) ?
-					ProjectView::Side::Left : projectview->active);
-	if (!project->evaluator.HasID(id, pva))
-		return;
-	//TODO ?
-	if (id == ID_TIPSHARPNESS)
-		return;
+void FrameMain::RefreshCanvas(wxCommandEvent&WXUNUSED(event)) {
+	m_canvas3D->Refresh();
+	Refresh();
+}
+
+void FrameMain::RefreshView(wxCommandEvent &event) {
 	TransferDataToWindow();
+	this->Refresh(); // FIXME: Recursive refresh does not work with GTK1. Call Refresh on every child-dialog by hand.
+}
+
+void FrameMain::UpdateProject(wxCommandEvent &event) {
+	Project *project = wxStaticCast(GetDocument(), Project);
+	project->Update();
+	RefreshView(event);
+}
+
+void FrameMain::OnCheckBox(wxCommandEvent &event) {
+	Project *project = wxStaticCast(GetDocument(), Project);
+
+	bool value = event.GetSelection();
+	DEBUGOUT << __FUNCTION__ << "(" << value << ")\n";
+
+	switch (event.GetId()) {
+	case ID_LASTMODIFY:
+	case ID_LASTREORIENT:
+	case ID_HEELREORIENT: {
+		CommandConfigSetEnum *cmd = new CommandConfigSetEnum(
+				wxString::Format(_("Checkbox: %s"), event.GetString()), project,
+				event.GetId(), value ? 1 : 0);
+		project->GetCommandProcessor()->Submit(cmd);
+	}
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented\n";
+		break;
+	}
+
+	TransferDataToWindow();
+}
+
+void FrameMain::OnChoice(wxCommandEvent &event) {
+	Project *project = wxStaticCast(GetDocument(), Project);
+
+	int n = event.GetSelection();
+	n = n - 1; // The first selection is the "Custom" selection.
+	if (n < 0)
+		return;
+	int id = event.GetId();
+	std::string key;
+	switch (id) {
+	case
+	ID_PRESETSHOETYPE:
+		key = "Type";
+		break;
+	case ID_PRESETSHOEHEIGHT:
+		key = "Height";
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
+		event.Skip();
+		return;
+	}
+	JSON &jsst = presets[key];
+	if (!jsst.IsArray())
+		return;
+	JSON &jsp = jsst[n];
+	if (!jsp.IsObject())
+		return;
+
+	CommandConfigSetParameter *cmd = new CommandConfigSetParameter(
+			wxString::Format(_("Selected Preset %s"), event.GetString()),
+			project);
+	if (jsp.HasKey("HeelHeight"))
+		cmd->AddValue(ID_HEELHEIGHT, jsp["HeelHeight"].GetString());
+	if (jsp.HasKey("BallHeight"))
+		cmd->AddValue(ID_BALLHEIGHT, jsp["BallHeight"].GetString());
+	if (jsp.HasKey("HeelPitch"))
+		cmd->AddValue(ID_HEELPITCH, jsp["HeelPitch"].GetString());
+	if (jsp.HasKey("ToeSpring"))
+		cmd->AddValue(ID_TOESPRING, jsp["ToeSpring"].GetString());
+	if (jsp.HasKey("UpperLevel"))
+		cmd->AddValue(ID_UPPERLEVEL, jsp["UpperLevel"].GetString());
+	if (jsp.HasKey("ExtraLength"))
+		cmd->AddValue(ID_EXTRALENGTH, jsp["ExtraLength"].GetString());
+	if (jsp.HasKey("FootCompression"))
+		cmd->AddValue(ID_FOOTCOMPRESSION, jsp["FootCompression"].GetString());
+	project->GetCommandProcessor()->Submit(cmd);
+	TransferDataToWindow();
+}
+
+void FrameMain::OnFileChanged(wxFileDirPickerEvent &event) {
+	Project *project = wxStaticCast(GetDocument(), Project);
+	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+	const std::string newFilename = event.GetPath().ToStdString();
+	const int id = event.GetId();
+
+	if (Configuration::IsValidID(id)) {
+		CommandConfigSetString *cmd = new CommandConfigSetString(
+				wxString::Format(_("Set %s to %s"), Configuration::GetName(id),
+						newFilename), project, id, newFilename);
+		project->GetCommandProcessor()->Submit(cmd);
+	}
+	project->Update();
+	RefreshView(event);
 }
 
 void FrameMain::OnKillFocus(wxFocusEvent &event) {
@@ -631,8 +770,88 @@ void FrameMain::OnKillFocus(wxFocusEvent &event) {
 					ProjectView::Side::Left : projectview->active);
 	if (!project->evaluator.HasID(id, (size_t) pva))
 		return;
-	//TODO ?
-	if (id == ID_TIPSHARPNESS)
+
+	TransferDataToWindow();
+}
+
+void FrameMain::OnListCtrlOnSelectionChanged(wxDataViewEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
+}
+
+void FrameMain::OnPageChanged(wxNotebookEvent &event) {
+	SemaphoreTryLocker locker(loopGuard);
+	if (!locker.IsOK())
+		return;
+
+	Project *project = wxStaticCast(GetDocument(), Project);
+	switch (event.GetId()) {
+	case ID_MEASUREMENTSOURCE:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Set measurement source."), project,
+						event.GetId(),
+						m_choicebookMeasurementSource->GetSelection()));
+		break;
+	case ID_LASTCONSTRUCTIONTYPE:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Set last generation."), project,
+						event.GetId(),
+						m_choicebookLastConstructionType->GetSelection()));
+		break;
+	case ID_HEELCONSTRUCTIONTYPE:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Set heel construction."), project,
+						event.GetId(),
+						m_choicebookHeelConstructionType->GetSelection()));
+		break;
+	case ID_GENERATOR:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Set shoe generator."), project,
+						event.GetId(),
+						m_choicebookConstruction->GetSelection()));
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
+		return;
+	}
+
+	locker.UnLock();
+	TransferDataToWindow();
+}
+
+void FrameMain::OnRadioButton(wxCommandEvent &event) {
+	SemaphoreTryLocker locker(loopGuard);
+	if (!locker.IsOK())
+		return;
+	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+	switch (event.GetId()) {
+	case ID_LEFT:
+		projectview->active = ProjectView::Side::Left;
+		break;
+	case ID_BOTH:
+		projectview->active = ProjectView::Side::Both;
+		break;
+	case ID_RIGHT:
+		projectview->active = ProjectView::Side::Right;
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
+		break;
+	}
+	locker.UnLock();
+	TransferDataToWindow();
+}
+
+void FrameMain::OnSetFocus(wxFocusEvent &event) {
+	const int id = event.GetId();
+	const Project *project = wxStaticCast(GetDocument(), Project);
+	const ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+	size_t pva = (size_t) (
+			(projectview->active == ProjectView::Side::Both) ?
+					ProjectView::Side::Left : projectview->active);
+	if (!project->evaluator.HasID(id, pva))
 		return;
 	TransferDataToWindow();
 }
@@ -699,157 +918,20 @@ void FrameMain::OnTextEnter(wxCommandEvent &event) {
 	case ID_UPPERLEVEL:
 	case ID_EXTRALENGTH:
 	case ID_FOOTCOMPRESSION:
+	case ID_WELTSIZE:
+	case ID_THICKNESS:
 		m_panelPageShoe->Navigate(
 				wxNavigationKeyEvent::FromTab
 						| wxNavigationKeyEvent::IsForward);
 		break;
-	}
-}
-
-void FrameMain::OnMouseWheel(wxMouseEvent &event) {
-	DEBUGOUT << "OnMouseWheel( " << event.GetId() << " )\n";
-
-}
-
-void FrameMain::OnScroll(wxScrollEvent &event) {
-	DEBUGOUT << "OnScroll( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnChoice(wxCommandEvent &event) {
-	Project *project = wxStaticCast(GetDocument(), Project);
-
-	int n = event.GetSelection();
-	n = n - 1; // The first selection is the "Custom" selection.
-	if (n < 0)
-		return;
-	int id = event.GetId();
-	std::string key;
-	switch (id) {
-	case
-	ID_PRESETSHOETYPE:
-		key = "Type";
-		break;
-	case ID_PRESETSHOEHEIGHT:
-		key = "Height";
-		break;
 	default:
-		DEBUGOUT << "OnChoice( " << event.GetId() << " )\n";
-		event.Skip();
-		return;
-	}
-	JSON &jsst = presets[key];
-	if (!jsst.IsArray())
-		return;
-	JSON &jsp = jsst[n];
-	if (!jsp.IsObject())
-		return;
-
-	CommandConfigSetParameter *cmd = new CommandConfigSetParameter(
-			wxString::Format(_("Selected Preset %s"), event.GetString()),
-			project);
-	if (jsp.HasKey("HeelHeight"))
-		cmd->AddValue(ID_HEELHEIGHT, jsp["HeelHeight"].GetString());
-	if (jsp.HasKey("BallHeight"))
-		cmd->AddValue(ID_BALLHEIGHT, jsp["BallHeight"].GetString());
-	if (jsp.HasKey("HeelPitch"))
-		cmd->AddValue(ID_HEELPITCH, jsp["HeelPitch"].GetString());
-	if (jsp.HasKey("ToeSpring"))
-		cmd->AddValue(ID_TOESPRING, jsp["ToeSpring"].GetString());
-	if (jsp.HasKey("UpperLevel"))
-		cmd->AddValue(ID_UPPERLEVEL, jsp["UpperLevel"].GetString());
-	if (jsp.HasKey("ExtraLength"))
-		cmd->AddValue(ID_EXTRALENGTH, jsp["ExtraLength"].GetString());
-	if (jsp.HasKey("FootCompression"))
-		cmd->AddValue(ID_FOOTCOMPRESSION, jsp["FootCompression"].GetString());
-	project->GetCommandProcessor()->Submit(cmd);
-	TransferDataToWindow();
-}
-
-void FrameMain::OnToggleButton(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	Project *project = wxStaticCast(GetDocument(), Project);
-//	if (project->measurementsSymmetric) {
-//		projectview->active = ProjectView::Side::Both;
-//		TransferDataToWindow();
-//		return;
-//	}
-	switch (event.GetId()) {
-	case ID_EDITLEFT:
-		if (projectview->active == ProjectView::Side::Right) {
-			projectview->active = ProjectView::Side::Both;
-		} else {
-			projectview->active = ProjectView::Side::Right;
-		}
-		break;
-	case ID_EDITRIGHT:
-		if (projectview->active == ProjectView::Side::Left) {
-			projectview->active = ProjectView::Side::Both;
-		} else {
-			projectview->active = ProjectView::Side::Left;
-		}
-		break;
-	default:
-		DEBUGOUT << "ToggleButton( " << event.GetId() << " ) pressed.\n";
 		break;
 	}
-	TransferDataToWindow();
-}
-
-void FrameMain::OnCheckBox(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnListCtrlOnSelectionChanged(wxDataViewEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnPageChange(wxNotebookEvent &event) {
-	if (loopGuard.TryWait() != wxSEMA_NO_ERROR)
-		return;
-
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-
-	Project *project = wxStaticCast(GetDocument(), Project);
-	switch (event.GetId()) {
-	case ID_MEASUREMENTSOURCE:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(_("Set source."), project,
-						event.GetId(),
-						m_choicebookMeasurement->GetSelection()));
-		break;
-	case ID_MODELTYPE:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(_("Set footmodel."), project,
-						event.GetId(), m_choicebookFootModel->GetSelection()));
-		break;
-	default:
-		return;
-	}
-	loopGuard.Post();
-	TransferDataToWindow();
-
-}
-
-void FrameMain::OnViewChange(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-	TransferDataFromWindow();
-
-	switch (event.GetId()) {
-	case ID_SHOWLEFT:
-		projectview->showLeft = event.IsChecked();
-		break;
-	case ID_SHOWRIGHT:
-		projectview->showRight = event.IsChecked();
-		break;
-	}
-	TransferDataToWindow();
-	Refresh();
 }
 
 void FrameMain::On3DSelect(wxMouseEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
 	int x = event.GetX();
 	int y = event.GetY();
 	OpenGLPick result;
@@ -858,8 +940,7 @@ void FrameMain::On3DSelect(wxMouseEvent &event) {
 		result.SortByNear();
 
 		switch (result.Get(0, 0)) {
-//		case 1:
-//			{
+		case 1: {
 //				const int boneNr = result.Get(2);
 //				ProjectView* projectview = wxStaticCast(GetView(), ProjectView);
 //				const Foot *foot = projectview->foot;
@@ -870,16 +951,15 @@ void FrameMain::On3DSelect(wxMouseEvent &event) {
 //					m_gridBoneDiameter->SelectRow(boneNr);
 //					m_gridSkin->SelectRow(boneNr);
 //				}
-//				break;
-//			}
-//		case 3:
-//			{
+			break;
+		}
+		case 3: {
 //				wxString temp;
 //				temp = wxString::Format(_T("U: %i, V: %i"), result.Get(2),
 //						result.Get(3));
 //				m_statusBar->SetStatusText(temp);
-//				break;
-//			}
+			break;
+		}
 		default: {
 			m_statusBar->SetStatusText(wxString());
 			break;
@@ -891,66 +971,97 @@ void FrameMain::On3DSelect(wxMouseEvent &event) {
 	}
 }
 
-void FrameMain::OnToggleStereo3D(wxCommandEvent &event) {
-	if (m_canvas3D->stereoMode == OpenGLCanvas::Stereo3D::Off) {
-		m_canvas3D->stereoMode = OpenGLCanvas::Stereo3D::Anaglyph;
-	} else {
-		m_canvas3D->stereoMode = OpenGLCanvas::Stereo3D::Off;
-	}
-	m_menuView->Check(ID_STEREO3D,
-			m_canvas3D->stereoMode != OpenGLCanvas::Stereo3D::Off);
-	Refresh();
+void FrameMain::OnBackgroundImagesSetup(wxCommandEvent &event) {
+	(new FrameSetupBackgroundImages(this))->Show();
 }
 
-void FrameMain::OnSetSymmetry(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
+void FrameMain::OnConstructionChanged(wxCommandEvent &event) {
+	SemaphoreTryLocker locker(loopGuard);
+	if (!locker.IsOK())
+		return;
 
-void FrameMain::OnEditShape(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
 
-void FrameMain::OnAddBridge(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnDeleteBridge(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnPatternSelect(wxTreeListEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnPatternAdd(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnPatternSelectFabric(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnChoiceDisplay(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-
-}
-
-void FrameMain::OnToggleAnkleLock(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-
-}
-
-void FrameMain::OnFileChangedScanFile(wxFileDirPickerEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnFileChangedLastFile(wxFileDirPickerEvent &event) {
 	Project *project = wxStaticCast(GetDocument(), Project);
-	project->LoadLastModel(event.GetPath());
-	Refresh();
+
+	switch (event.GetId()) {
+
+	case ID_CONSTRUCTION_EXPERIMENTAL:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select experimental generator"),
+						project,
+						ID_GENERATOR, (int) 0));
+		break;
+	case ID_CONSTRUCTION_WELDED:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select welted construction"),
+						project,
+						ID_GENERATOR, (int) 1));
+		break;
+	case ID_CONSTRUCTION_CEMENTED:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select cemented construction"),
+						project,
+						ID_GENERATOR, (int) 2));
+		break;
+	case ID_CONSTRUCTION_MOLDED:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select molded sole construction"),
+						project,
+						ID_GENERATOR, (int) 3));
+		break;
+	case ID_CONSTRUCTION_DUTCH:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(_("Select generator for Dutch clogs"),
+						project,
+						ID_GENERATOR, (int) 4));
+		break;
+	case ID_CONSTRUCTION_GETA:
+		project->GetCommandProcessor()->Submit(
+				new CommandConfigSetEnum(
+						_("Select generator for Japanese getas"), project,
+						ID_GENERATOR, (int) 5));
+		break;
+	}
+	locker.UnLock();
+	TransferDataToWindow();
 }
 
-void FrameMain::OnQuickSetupMeasurements(wxCommandEvent&WXUNUSED(event)) {
+void FrameMain::OnMeasurementsCopy(wxCommandEvent &event) {
+	Project *project = wxStaticCast(GetDocument(), Project);
+	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+	switch (event.GetId()) {
+	case ID_ACTIVETOINACTIVE:
+		project->GetCommandProcessor()->Submit(
+				new CommandFootMeasurementsCopy(
+						_("Copy active to inactive measurements"), project,
+						projectview->active == ProjectView::Side::Left ?
+								ProjectView::Side::Right :
+								ProjectView::Side::Left));
+		break;
+	case ID_LEFTTORIGHT:
+		project->GetCommandProcessor()->Submit(
+				new CommandFootMeasurementsCopy(
+						_("Copy left to right measurements"), project,
+						ProjectView::Side::Right));
+		break;
+	case ID_RIGHTTOLEFT:
+		project->GetCommandProcessor()->Submit(
+				new CommandFootMeasurementsCopy(
+						_("Copy right to left measurements"), project,
+						ProjectView::Side::Left));
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
+		break;
+		return;
+	}
+	TransferDataToWindow();
+}
+
+void FrameMain::OnMeasurementsQuickSetup(wxCommandEvent&WXUNUSED(event)) {
 	DialogQuickInitFoot dialog(this);
 	if (dialog.ShowModal() == wxID_OK) {
 		Project *project = wxStaticCast(GetDocument(), Project);
@@ -976,249 +1087,234 @@ void FrameMain::OnQuickSetupMeasurements(wxCommandEvent&WXUNUSED(event)) {
 	}
 }
 
-void FrameMain::OnChangeModel(wxCommandEvent &event) {
-	if (loopGuard.TryWait() != wxSEMA_NO_ERROR)
+void FrameMain::OnModelChanged(wxCommandEvent &event) {
+	SemaphoreTryLocker locker(loopGuard);
+	if (!locker.IsOK())
 		return;
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 
 	Project *project = wxStaticCast(GetDocument(), Project);
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
 	switch (event.GetId()) {
-//	case ID_MEASUREMENTSYMMETRY:
-//		projectview->active = ProjectView::Side::Both;
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Change symmetry"), project,
-//				ID_MEASUREMENTSYMMETRY, (int) !project->measurementsSymmetric));
-//		break;
-	case ID_USEFOOTMEASUREMENTS:
+	case ID_MEASUREMENTS:
 		project->GetCommandProcessor()->Submit(
 				new CommandConfigSetEnum(_("Use foot measurements"), project,
 				ID_MEASUREMENTSOURCE, 0));
 		break;
-	case ID_USEFOOTSCAN:
+	case ID_SCAN:
 		project->GetCommandProcessor()->Submit(
 				new CommandConfigSetEnum(_("Use foot scan"), project,
 				ID_MEASUREMENTSOURCE, 1));
 		break;
-	case ID_USEBONEBASEDMODEL:
+	case ID_BONES:
 		project->GetCommandProcessor()->Submit(
 				new CommandConfigSetEnum(_("Use bone-based model"), project,
-				ID_MODELTYPE, 0));
+				ID_LASTCONSTRUCTIONTYPE, 0));
 		break;
-	case ID_USELASTBASEDMODEL:
+	case ID_LAST:
 		project->GetCommandProcessor()->Submit(
 				new CommandConfigSetEnum(_("Use last-based model"), project,
-				ID_MODELTYPE, 1));
+				ID_LASTCONSTRUCTIONTYPE, 1));
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
 		break;
 	}
-	loopGuard.Post();
+	locker.UnLock();
 	TransferDataToWindow();
 }
 
-void FrameMain::OnCopyMeasurements(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+void FrameMain::OnParserDebug(wxCommandEvent &event) {
+	(new FrameDebugParser(this))->Show();
+}
 
-	Project *project = wxStaticCast(GetDocument(), Project);
+void FrameMain::OnPatternSelect(wxTreeListEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
+}
+
+void FrameMain::OnPatternSelectFabric(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetSelection() << " ) not implemented.\n";
+}
+
+void FrameMain::OnToggleStereo3D(wxCommandEvent &event) {
+	if (m_canvas3D->stereoMode == OpenGLCanvas::Stereo3D::Off) {
+		m_canvas3D->stereoMode = OpenGLCanvas::Stereo3D::Anaglyph;
+	} else {
+		m_canvas3D->stereoMode = OpenGLCanvas::Stereo3D::Off;
+	}
+	m_menuView->Check(ID_STEREO3D,
+			m_canvas3D->stereoMode != OpenGLCanvas::Stereo3D::Off);
+	Refresh();
+}
+
+void FrameMain::OnViewChanged(wxCommandEvent &event) {
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-//	switch (event.GetId()) {
-//	case ID_COPYACTIVETOINACTIVE:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandFootMeasurementsCopy(
-//						_("Copy active to inactive measurements"), project,
-//						projectview->active != ProjectView::Side::Right));
-//		break;
-//	case ID_COPYLEFTTORIGHT:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandFootMeasurementsCopy(
-//						_("Copy left to right measurements"), project, true));
-//		break;
-//	case ID_COPYRIGHTTOLEFT:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandFootMeasurementsCopy(
-//						_("Copy right to left measurements"), project, false));
-//		break;
-//	}
+	TransferDataFromWindow();
+
+	switch (event.GetId()) {
+	case ID_LEFT:
+		projectview->showLeft = event.IsChecked();
+		break;
+	case ID_RIGHT:
+		projectview->showRight = event.IsChecked();
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
+	}
 	TransferDataToWindow();
+	Refresh();
 }
 
-void FrameMain::OnLoadFootSTL(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+void FrameMain::OnButtonAdd(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
 }
 
-void FrameMain::OnEditBoneModel(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+void FrameMain::OnButtonCopy(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
+}
 
-	DialogEditorFootModel *dialog = new DialogEditorFootModel(this);
+void FrameMain::OnButtonDelete(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
+}
 
-	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
-	try {
+void FrameMain::OnButtonTestStitch(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
+}
+
+void FrameMain::OnObjectEdit(wxCommandEvent &event) {
+	switch (event.GetId()) {
+
+	case ID_BONES_EDIT:
+		try {
+			DialogEditorFootModel *dialog = new DialogEditorFootModel(this);
 #ifdef USE_PORTMIDI
-		dialog->SetMidi(&(parentframe->midi));
-		dialog->Show();
+			FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+			dialog->SetMidi(&(parentframe->midi));
 #endif
-	} catch (std::exception &e) {
-		DEBUGOUT << "Exception: " << e.what() << "\n";
+			dialog->Show();
+		} catch (std::exception &e) {
+			DEBUGOUT << "Exception: " << e.what() << "\n";
+		}
+		break;
+
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
+		break;
 	}
 }
 
-void FrameMain::OnLoadBoneModel(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+void FrameMain::OnObjectLoad(wxCommandEvent &event) {
 	FrameParent *parent = wxStaticCast(GetParent(), FrameParent);
 
-	wxFileDialog dialog(this, _("Open Foot Model..."), _T(""), _T(""),
-			_("Foot Model (*.fmd; *.txt)|*.fmd;*.txt|All Files|*.*"),
-			wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+	switch (event.GetId()) {
+	case ID_LAST: {
+		wxFileDialog dialog(this, _("Open Bone Model..."), _T(""), _T(""),
+				_("Bone Model (*.fmd; *.txt)|*.fmd;*.txt|All Files|*.*"),
+				wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
-	if (wxDir::Exists(filepaths.lastFootDirectory)) {
-		dialog.SetDirectory(filepaths.lastFootDirectory);
-	}
+		if (wxDir::Exists(filepaths.lastDirectory)) {
+			dialog.SetDirectory(filepaths.lastDirectory);
+		}
 
-	if (dialog.ShowModal() == wxID_OK) {
-		wxFileName fileName(dialog.GetPath());
-		Project *project = wxStaticCast(GetDocument(), Project);
+		if (dialog.ShowModal() == wxID_OK) {
+			wxFileName fileName(dialog.GetPath());
+			wxString fileString = fileName.GetFullPath();
+			Project *project = wxStaticCast(GetDocument(), Project);
 
-		try {
-			project->LoadFootModel(fileName.GetFullPath());
-			filepaths.lastFootDirectory = fileName.GetPath();
-			TransferDataToWindow();
-		} catch (const std::exception &ex) {
-			std::cerr << "Could not save Foot model: " << ex.what() << '\n';
+			try {
+				int id = event.GetId();
+				CommandConfigSetString *cmd = new CommandConfigSetString(
+						wxString::Format(_("Set %s to %s"),
+								Configuration::GetName(id), fileString),
+						project, id, fileString.ToStdString());
+				project->GetCommandProcessor()->Submit(cmd);
+
+			} catch (const std::exception &ex) {
+				std::cerr << "Could not load bone model: " << ex.what() << '\n';
+			}
 		}
 	}
+		break;
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
+		break;
+	}
+	TransferDataToWindow();
 }
 
-void FrameMain::OnSaveBoneModel(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+void FrameMain::OnObjectSave(wxCommandEvent &event) {
+
 	FrameParent *parent = wxStaticCast(GetParent(), FrameParent);
+	int id = event.GetId();
 
-	wxFileDialog dialog(this, _("Save Foot Model As..."), _T(""), _T(""),
-			_("Foot Model (*.fmd; *.txt)|*.fmd;*.txt|All Files|*.*"),
-			wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	switch (id) {
+	case ID_BONES: {
+		wxFileDialog dialog(this, _("Save Foot Model As..."), _T(""), _T(""),
+				_("Foot Model (*.fmd; *.txt)|*.fmd;*.txt|All Files|*.*"),
+				wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
-	if (wxDir::Exists(filepaths.lastFootDirectory)) {
-		dialog.SetDirectory(filepaths.lastFootDirectory);
-	}
+		if (wxDir::Exists(filepaths.lastDirectory)) {
+			dialog.SetDirectory(filepaths.lastDirectory);
+		}
 
 //	if(project.fileName.IsOk()) dialog.SetFilename(
 //			project.fileName.GetFullPath());
 
-	if (dialog.ShowModal() == wxID_OK) {
-		wxFileName fileName(dialog.GetPath());
-		Project *project = wxStaticCast(GetDocument(), Project);
-		try {
-			project->SaveFootModel(fileName.GetFullPath());
-			filepaths.lastFootDirectory = fileName.GetPath();
-			TransferDataToWindow();
-		} catch (const std::exception &ex) {
-			std::cerr << "Could not save bone-model: " << ex.what() << '\n';
+		if (dialog.ShowModal() == wxID_OK) {
+			wxFileName fileName(dialog.GetPath());
+			Project *project = wxStaticCast(GetDocument(), Project);
+			try {
+				project->SaveFootModel(fileName.GetFullPath());
+				filepaths.lastDirectory = fileName.GetPath();
+				TransferDataToWindow();
+			} catch (const std::exception &ex) {
+				std::cerr << "Could not save bone-model: " << ex.what() << '\n';
+			}
+			DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+							<< event.GetId() << " ) not implemented.\n";
 		}
 	}
-}
+		break;
 
-void FrameMain::OnConstructionSelection(wxCommandEvent &event) {
+	case ID_LAST: {
 
-	Project *project = wxStaticCast(GetDocument(), Project);
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
+		wxFileDialog dialog(this, _("Save last..."), _T(""), _T(""),
+				_("STL file (*.stl)|*.stl|All files|*.*"),
+				wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
-	switch (event.GetId()) {
-//	case ID_SELECTCONSTRUCTION:
-//		project->GetCommandProcessor()->Submit(
-//				new CommandProjectSetParameter(_("Set construction method"),
-//						project,
-//						ID_SELECTCONSTRUCTION, event.GetSelection()));
-//		break;
-	case ID_CONSTRUCTIONEXPERIMENTAL:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(_("Select experimental generator"),
-						project,
-						ID_GENERATOR, (int) 0));
+		if (dialog.ShowModal() == wxID_OK) {
+			wxFileName fileName;
+			fileName = dialog.GetPath();
+			Project *project = wxStaticCast(GetDocument(), Project);
+			ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+			//		if (project->modeltype == Project::ModelType::boneBased) {
+			//			project->SaveSkin(fileName.GetFullPath(),
+			//					projectview->active != ProjectView::Side::Right,
+			//					projectview->active == ProjectView::Side::Right);
+			//		} else {
+			//			project->SaveLast(fileName.GetFullPath(),
+			//					projectview->active != ProjectView::Side::Right,
+			//					projectview->active == ProjectView::Side::Right);
+			//		}
+			DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+							<< event.GetId() << " ) not implemented.\n";
+		}
+	}
 		break;
-	case ID_CONSTRUCTIONWELDED:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(_("Select welted construction"),
-						project,
-						ID_GENERATOR, (int) 1));
-		break;
-	case ID_CONSTRUCTIONCEMENTED:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(_("Select cemented construction"),
-						project,
-						ID_GENERATOR, (int) 2));
-		break;
-	case ID_CONSTRUCTIONMOLDED:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(_("Select molded sole construction"),
-						project,
-						ID_GENERATOR, (int) 3));
-		break;
-	case ID_CONSTRUCTIONDUTCH:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(_("Select generator for Dutch clogs"),
-						project,
-						ID_GENERATOR, (int) 4));
-		break;
-	case ID_CONSTRUCTIONGETA:
-		project->GetCommandProcessor()->Submit(
-				new CommandConfigSetEnum(
-						_("Select generator for Japanese getas"), project,
-						ID_GENERATOR, (int) 5));
+	default:
+		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+				<< event.GetId() << " ) not implemented.\n";
 		break;
 	}
-	TransferDataToWindow();
 }
-
-void FrameMain::OnLoadPattern(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnSavePattern(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnSaveLast(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-	wxFileDialog dialog(this, _("Save last..."), _T(""), _T(""),
-			_("STL file (*.stl)|*.stl|All files|*.*"),
-			wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-
-	if (dialog.ShowModal() == wxID_OK) {
-		wxFileName fileName;
-		fileName = dialog.GetPath();
-		Project *project = wxStaticCast(GetDocument(), Project);
-		ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-//		if (project->modeltype == Project::ModelType::boneBased) {
-//			project->SaveSkin(fileName.GetFullPath(),
-//					projectview->active != ProjectView::Side::Right,
-//					projectview->active == ProjectView::Side::Right);
-//		} else {
-//			project->SaveLast(fileName.GetFullPath(),
-//					projectview->active != ProjectView::Side::Right,
-//					projectview->active == ProjectView::Side::Right);
-//		}
-	}
-}
-
-void FrameMain::OnSaveInsole(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnSaveSole(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnSaveCutaway(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnPackZip(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnSetupBackgroundImages(wxCommandEvent &event) {
-	DEBUGOUT << __func__ << "( " << event.GetId() << " )\n";
-}
-
-void FrameMain::OnDebugParser(wxCommandEvent &event) {
-	(new FrameDebugParser(this))->Show();
-}
-

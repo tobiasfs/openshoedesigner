@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 01.11.2017
 // Copyright          : (C) 2017 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -35,28 +35,20 @@
 
 #include <wx/panel.h>
 
-class PanelPattern:public wxPanel {
+class PanelPattern: public wxPanel {
 public:
-	PanelPattern(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos =
-			wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =
+	PanelPattern(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
+					wxDefaultSize, long style =
 			wxTAB_TRAVERSAL);
 	virtual ~PanelPattern();
 
-	// Member Variables
-public:
-
-private:
-
-	//Methods
-public:
-
-private:
-
-	void OnPaint(wxPaintEvent& event);
+protected:
+	void OnPaint(wxPaintEvent &event);
 	void OnSize(wxSizeEvent &event);
 
-	void OnMotion(wxMouseEvent& event);
-	void OnLeftDown(wxMouseEvent& event);
+	void OnMotion(wxMouseEvent &event);
+	void OnLeftDown(wxMouseEvent &event);
 };
 
 #endif /* PANELPATTERN_H */

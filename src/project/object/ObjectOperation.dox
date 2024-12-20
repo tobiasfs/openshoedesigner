@@ -1,0 +1,29 @@
+/**\defgroup ObjectOperations Operations and Objects
+
+For the purpose of multi-threaded automation a chain of abstract operations on
+abstract objects is used.
+The Builder object sets up the chain of objects and operations, checks the
+modifications and needs and runs the operations in the correct order.
+
+\dot
+  digraph classes {
+    rankdir = LR
+    
+    obj0 [ label="Object" URL="\ref Object"];
+    op0 [ label="Operation" URL="\ref Operation"];
+    obj1 [ label="Object" URL="\ref Object"];
+    op1 [ label="Operation" URL="\ref Operation"];
+    obj2 [ label="Object" URL="\ref Object"];
+	obj0 -> op0
+	op0 -> obj1
+	obj1 -> op1
+	op1 -> obj2
+
+    b [ label="Builder" URL="\ref Builder"];
+   	b -> op0  [style=dashed constraint=false];
+   	b -> op1  [style=dashed constraint=false];
+  }
+\enddot
+
+ */
+ 

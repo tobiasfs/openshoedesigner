@@ -1,12 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Aug 20 2017)
+// C++ code generated with wxFormBuilder (version 3.10.1-0-g8feb16b)
 // http://www.wxformbuilder.org/
 //
-// PLEASE DO "NOT" EDIT THIS FILE!
+// PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef GUISETUPSTEREO3D_H
-#define GUISETUPSTEREO3D_H
+#pragma once
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -22,6 +21,9 @@
 #include "CanvasStereoTest.h"
 #include <wx/clrpicker.h>
 #include <wx/button.h>
+#include <wx/bitmap.h>
+#include <wx/image.h>
+#include <wx/icon.h>
 #include <wx/textctrl.h>
 #include <wx/frame.h>
 
@@ -49,58 +51,57 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUISetupStereo3D
 ///////////////////////////////////////////////////////////////////////////////
-class GUISetupStereo3D : public wxFrame 
+class GUISetupStereo3D : public wxFrame
 {
 	private:
-	
+
 	protected:
-		wxStaticText* m_staticText120;
+		wxStaticText* m_staticTextLeftEye;
 		wxSlider* m_sliderLR;
 		wxSlider* m_sliderLG;
 		wxSlider* m_sliderLB;
 		CanvasStereoTest * m_canvas;
-		wxStaticText* m_staticText1201;
+		wxStaticText* m_staticTextRightEye;
 		wxSlider* m_sliderRR;
 		wxSlider* m_sliderRG;
 		wxSlider* m_sliderRB;
 		wxColourPickerCtrl* m_colourPickerLeft;
 		wxButton* m_buttonSwapColors;
 		wxColourPickerCtrl* m_colourPickerRight;
-		wxStaticText* m_staticText113;
+		wxStaticText* m_staticTextLR;
 		wxTextCtrl* m_textCtrlLR;
-		wxStaticText* m_staticText1131;
+		wxStaticText* m_staticTextLG;
 		wxTextCtrl* m_textCtrlLG;
-		wxStaticText* m_staticText11311;
+		wxStaticText* m_staticTextLB;
 		wxTextCtrl* m_textCtrlLB;
 		wxSlider* m_sliderEyeDistance;
-		wxStaticText* m_staticText125;
+		wxStaticText* m_staticTextEyeDistance;
 		wxTextCtrl* m_textCtrlEyeDistance;
 		wxStaticText* m_staticTextUnitEyeDistance;
 		wxSlider* m_sliderFocalDistance;
-		wxStaticText* m_staticText127;
+		wxStaticText* m_staticTextFocalDistance;
 		wxTextCtrl* m_textCtrlFocalDistance;
 		wxStaticText* m_staticTextUnitFocalDistance;
-		wxStaticText* m_staticText1132;
+		wxStaticText* m_staticTextRR;
 		wxTextCtrl* m_textCtrlRR;
-		wxStaticText* m_staticText11312;
+		wxStaticText* m_staticTextRG;
 		wxTextCtrl* m_textCtrlRG;
-		wxStaticText* m_staticText113111;
+		wxStaticText* m_staticTextRB;
 		wxTextCtrl* m_textCtrlRB;
-		
-		// Virtual event handlers, overide them in your derived class
+
+		// Virtual event handlers, override them in your derived class
 		virtual void OnXClose( wxCloseEvent& event ) = 0;
 		virtual void OnScroll( wxScrollEvent& event ) = 0;
 		virtual void OnColorChanged( wxColourPickerEvent& event ) = 0;
 		virtual void OnSwap( wxCommandEvent& event ) = 0;
 		virtual void OnTextChange( wxCommandEvent& event ) = 0;
-		
-	
+
+
 	public:
-		
+
 		GUISetupStereo3D( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Setup Stereo "), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 771,691 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-		
+
 		~GUISetupStereo3D();
-	
+
 };
 
-#endif // GUISETUPSTEREO3D_H

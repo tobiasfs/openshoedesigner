@@ -31,74 +31,124 @@
 #include <sstream>
 
 Configuration::Configuration() {
-	lastFilename = std::make_shared<ParameterString>("lastFilename",
-			"data/Last_Default_Normalized.stl");
-
-	std::initializer_list<ParameterEnum::Option> types = { { "boneBased" }, {
-			"lastBased" } };
-	modelType = std::make_shared<ParameterEnum>("modelType", types, "",
-	ID_MODELTYPE);
-	modelType->SetSelection(1);
-
-	std::initializer_list<ParameterEnum::Option> generators =
-			{ { "Experimental",
-					"Default generator for development of algorithms" },
-					{ "Welted",
-							"Welt-sewn shoes: Generates last, insole, sole, upper pattern and cutout" },
-					{ "Cemented",
-							"for cemented soles (simple, glued-together shoes)" },
-					{ "Molded",
-							"for industrial shoes, where the sole is injection-molded to the upper" },
-					{ "Dutch",
-							"Generator for dutch wooden clogs: Generates last, insole and clog" },
-					{ "Geta", "Japanese Geta generator" } };
-	generator = std::make_shared<ParameterEnum>("generator", generators, "",
-	ID_GENERATOR);
-	generator->SetSelection(0);
 
 	std::initializer_list<ParameterEnum::Option> sources = { {
-			"fromMeasurements" }, { "fromFootScan" } };
+			"measurementBased" }, { "scanBased" } };
 	measurementSource = std::make_shared<ParameterEnum>("measurementSource",
 			sources, "");
 	measurementSource->SetSelection(0);
 
-	bigToeAngle = std::make_shared<ParameterFormula>("bigToeAngle", "", "6 deg",
+	filenameScan = std::make_shared<ParameterString>("filenameScan", "");
+
+	std::initializer_list<ParameterEnum::Option> types = { { "construct" }, {
+			"boneBased" }, { "loadFromFile" } };
+	lastConstructionType = std::make_shared<ParameterEnum>(
+			"lastConstructionType", types, "",
+			ID_LASTCONSTRUCTIONTYPE);
+	lastConstructionType->SetSelection(0);
+
+	bigToeAngle = std::make_shared<ParameterFormula>("bigToeAngle", "6 deg", "",
 	ID_BIGTOEANGLE);
-	littleToeAngle = std::make_shared<ParameterFormula>("littleToeAngle", "",
-			"2 deg",
+	littleToeAngle = std::make_shared<ParameterFormula>("littleToeAngle",
+			"2 deg", "",
 			ID_LITTLETOEANGLE);
 	ballMeasurementAngle = std::make_shared<ParameterFormula>(
-			"ballMeasurementAngle", "", "10 deg", ID_BALLMEASUREMENTANGLE);
+			"ballMeasurementAngle", "10 deg", "", ID_BALLMEASUREMENTANGLE);
 	heelDirectionAngle = std::make_shared<ParameterFormula>(
-			"heelDirectionAngle", "", "10 deg",
+			"heelDirectionAngle", "10 deg", "",
 			ID_HEELDIRECTIONANGLE);
-
-	upperLevel = std::make_shared<ParameterFormula>("upperLevel", "", "0.8",
-	ID_UPPERLEVEL);
+	tipSharpness = std::make_shared<ParameterFormula>("tipSharpness", "0", "",
+	ID_TIPSHARPNESS);
 	extraLength = std::make_shared<ParameterFormula>("extraLength",
+			"footLength/15",
 			"Difference between foot-length and last-length. To make a"
 					" shoe walkable, this should be at least 2 cm"
 					" (Standard value used in the shoe industry).",
-			"footLength/15", ID_EXTRALENGTH);
+			ID_EXTRALENGTH);
 	footCompression = std::make_shared<ParameterFormula>("footCompression",
-			"Pressure from the sides of the shoe onto the foot."
+			"5/100", "Pressure from the sides of the shoe onto the foot."
 					" Higher values give a tighter fit of the shoe."
 					" This is needed for example with high heels to"
 					" prevent the foot from slipping around in the shoe."
-					" Set to 0 % for diabetic footwear.", "5/100",
+					" Set to 0 % for diabetic footwear.",
 			ID_FOOTCOMPRESSION);
 
-	heelHeight = std::make_shared<ParameterFormula>("heelHeight", "", "3 cm",
+	filenameBoneModel = std::make_shared<ParameterString>("filenameBoneModel",
+			"");
+	filenameLast = std::make_shared<ParameterString>("filenameLast", "");
+
+	std::initializer_list<ParameterEnum::Option> boolean = { { "false" }, {
+			"true" } };
+	lastModify = std::make_shared<ParameterEnum>("lastModify", boolean, "",
+	ID_LASTMODIFY);
+	lastReorient = std::make_shared<ParameterEnum>("lastReorient", boolean, "",
+	ID_LASTREORIENT);
+
+	std::initializer_list<ParameterEnum::Option> heeltypes = { { "construct" },
+			{ "loadFromFile" } };
+	heelConstructionType = std::make_shared<ParameterEnum>(
+			"heelConstructionType", heeltypes, "",
+			ID_LASTCONSTRUCTIONTYPE);
+	heelConstructionType->SetSelection(0);
+
+	filenameHeel = std::make_shared<ParameterString>("filenameHeel", "");
+	heelReorient = std::make_shared<ParameterEnum>("heelReorient", boolean, "",
+	ID_HEELREORIENT);
+
+	heelHeight = std::make_shared<ParameterFormula>("heelHeight", "3 cm", "",
 	ID_HEELHEIGHT);
-	ballHeight = std::make_shared<ParameterFormula>("ballHeight", "", "1 cm",
+	ballHeight = std::make_shared<ParameterFormula>("ballHeight", "1 cm", "",
 	ID_BALLHEIGHT);
-	heelPitch = std::make_shared<ParameterFormula>("heelPitch", "", "5 deg",
+	heelPitch = std::make_shared<ParameterFormula>("heelPitch", "5 deg", "",
 	ID_HEELPITCH);
-	toeSpring = std::make_shared<ParameterFormula>("toeSpring", "", "10 deg",
+	toeSpring = std::make_shared<ParameterFormula>("toeSpring", "10 deg", "",
 	ID_TOESPRING);
 
-	tipSharpness = std::make_shared<ParameterFormula>("tipSharpness", "", "0.0",
-	ID_TIPSHARPNESS);
+	upperLevel = std::make_shared<ParameterFormula>("upperLevel", "0.8", "",
+	ID_UPPERLEVEL);
+
+	std::initializer_list<ParameterEnum::Option> generators =
+			{ { "experimental",
+					"Default generator for development of algorithms" },
+					{ "welted",
+							"Welt-sewn shoes: Generates last, insole, sole, upper pattern and cutout" },
+					{ "cemented",
+							"for cemented soles (simple, glued-together shoes)" },
+					{ "molded",
+							"for industrial shoes, where the sole is injection-molded to the upper" },
+					{ "dutch",
+							"Generator for dutch wooden clogs: Generates last, insole and clog" },
+					{ "geta", "Japanese Geta generator" } };
+	generator = std::make_shared<ParameterEnum>("generator", generators, "",
+	ID_GENERATOR);
+	generator->SetSelection(0);
+
+	weltSize = std::make_shared<ParameterFormula>("weltSize", "0 mm", "",
+	ID_WELTSIZE);
+
+	thickness = std::make_shared<ParameterFormula>("thickness", "1 cm",
+			"Thickness of the outer layer of the shoe.",
+			ID_THICKNESS);
+
+	supportHeelRadius = std::make_shared<ParameterFormula>("supportHeelRadius",
+			"100 cm",
+			"Radius of the walking support under the heel of the shoe.",
+			ID_SUPPORTHEELRADIUS);
+	supportHeelOffset =
+			std::make_shared<ParameterFormula>("supportHeelOffset", "0 cm",
+					"Offset of the walking support from the point directly under the heel forward.",
+					ID_SUPPORTHEELOFFSET);
+	supportToeRadius = std::make_shared<ParameterFormula>("supportToeRadius",
+			"100 cm", "Radius of the walking support under the toes.",
+			ID_SUPPORTTOERADIUS);
+	supportToeOffset =
+			std::make_shared<ParameterFormula>("supportToeOffset", "0.0 cm",
+					"Distance how far the 90-deg-point is set back from the ball of the foot. Recommended is 0 cm.",
+					ID_SUPPORTTOEOFFSET);
+
+	heelCode = std::make_shared<ParameterString>("heelCode", "",
+			"Code for generating the heel of the shoe.", ID_HEELCODE);
+
 }
 
 // Autogenerated code below. Do not modify, modification will be overwritten.
@@ -108,64 +158,105 @@ void Configuration::Register(ParameterEvaluator &evaluator) {
 	evaluator.Register(littleToeAngle);
 	evaluator.Register(ballMeasurementAngle);
 	evaluator.Register(heelDirectionAngle);
-	evaluator.Register(upperLevel);
+	evaluator.Register(tipSharpness);
 	evaluator.Register(extraLength);
 	evaluator.Register(footCompression);
 	evaluator.Register(heelHeight);
 	evaluator.Register(ballHeight);
 	evaluator.Register(heelPitch);
 	evaluator.Register(toeSpring);
-	evaluator.Register(tipSharpness);
+	evaluator.Register(upperLevel);
+	evaluator.Register(weltSize);
+	evaluator.Register(thickness);
+	evaluator.Register(supportHeelRadius);
+	evaluator.Register(supportHeelOffset);
+	evaluator.Register(supportToeRadius);
+	evaluator.Register(supportToeOffset);
 }
 
 bool Configuration::IsModified() const {
-	return measurementSource->IsModified() | lastFilename->IsModified()
-			| modelType->IsModified() | bigToeAngle->IsModified()
+	return measurementSource->IsModified() | filenameScan->IsModified()
+			| lastConstructionType->IsModified() | bigToeAngle->IsModified()
 			| littleToeAngle->IsModified() | ballMeasurementAngle->IsModified()
-			| heelDirectionAngle->IsModified() | upperLevel->IsModified()
+			| heelDirectionAngle->IsModified() | tipSharpness->IsModified()
 			| extraLength->IsModified() | footCompression->IsModified()
-			| generator->IsModified() | heelHeight->IsModified()
+			| filenameBoneModel->IsModified() | filenameLast->IsModified()
+			| lastModify->IsModified() | lastReorient->IsModified()
+			| heelConstructionType->IsModified() | filenameHeel->IsModified()
+			| heelReorient->IsModified() | heelHeight->IsModified()
 			| ballHeight->IsModified() | heelPitch->IsModified()
-			| toeSpring->IsModified() | tipSharpness->IsModified();
+			| toeSpring->IsModified() | upperLevel->IsModified()
+			| generator->IsModified() | weltSize->IsModified()
+			| thickness->IsModified() | supportHeelRadius->IsModified()
+			| supportHeelOffset->IsModified() | supportToeRadius->IsModified()
+			| supportToeOffset->IsModified() | heelCode->IsModified();
 }
 
 void Configuration::Modify(bool modified) {
 	measurementSource->Modify(modified);
-	lastFilename->Modify(modified);
-	modelType->Modify(modified);
+	filenameScan->Modify(modified);
+	lastConstructionType->Modify(modified);
 	bigToeAngle->Modify(modified);
 	littleToeAngle->Modify(modified);
 	ballMeasurementAngle->Modify(modified);
 	heelDirectionAngle->Modify(modified);
-	upperLevel->Modify(modified);
+	tipSharpness->Modify(modified);
 	extraLength->Modify(modified);
 	footCompression->Modify(modified);
-	generator->Modify(modified);
+	filenameBoneModel->Modify(modified);
+	filenameLast->Modify(modified);
+	lastModify->Modify(modified);
+	lastReorient->Modify(modified);
+	heelConstructionType->Modify(modified);
+	filenameHeel->Modify(modified);
+	heelReorient->Modify(modified);
 	heelHeight->Modify(modified);
 	ballHeight->Modify(modified);
 	heelPitch->Modify(modified);
 	toeSpring->Modify(modified);
-	tipSharpness->Modify(modified);
+	upperLevel->Modify(modified);
+	generator->Modify(modified);
+	weltSize->Modify(modified);
+	thickness->Modify(modified);
+	supportHeelRadius->Modify(modified);
+	supportHeelOffset->Modify(modified);
+	supportToeRadius->Modify(modified);
+	supportToeOffset->Modify(modified);
+	heelCode->Modify(modified);
 }
 
 bool Configuration::IsValidID(int id) {
 	switch (id) {
 	case ID_MEASUREMENTSOURCE:
-	case ID_LASTFILENAME:
-	case ID_MODELTYPE:
+		// No ID for filenameScan
+	case ID_LASTCONSTRUCTIONTYPE:
 	case ID_BIGTOEANGLE:
 	case ID_LITTLETOEANGLE:
 	case ID_BALLMEASUREMENTANGLE:
 	case ID_HEELDIRECTIONANGLE:
-	case ID_UPPERLEVEL:
+	case ID_TIPSHARPNESS:
 	case ID_EXTRALENGTH:
 	case ID_FOOTCOMPRESSION:
-	case ID_GENERATOR:
+		// No ID for filenameBoneModel
+		// No ID for filenameLast
+	case ID_LASTMODIFY:
+	case ID_LASTREORIENT:
+	case ID_HEELCONSTRUCTIONTYPE:
+		// No ID for filenameHeel
+	case ID_HEELREORIENT:
 	case ID_HEELHEIGHT:
 	case ID_BALLHEIGHT:
 	case ID_HEELPITCH:
 	case ID_TOESPRING:
-	case ID_TIPSHARPNESS:
+	case ID_UPPERLEVEL:
+	case ID_GENERATOR:
+	case ID_WELTSIZE:
+	case ID_THICKNESS:
+	case ID_SUPPORTHEELRADIUS:
+	case ID_SUPPORTHEELOFFSET:
+	case ID_SUPPORTTOERADIUS:
+	case ID_SUPPORTTOEOFFSET:
+		// No ID for heelCode
 		return true;
 	}
 	return false;
@@ -175,10 +266,8 @@ std::string Configuration::GetName(int id) {
 	switch (id) {
 	case ID_MEASUREMENTSOURCE:
 		return std::string("MeasurementSource");
-	case ID_LASTFILENAME:
-		return std::string("LastFilename");
-	case ID_MODELTYPE:
-		return std::string("ModelType");
+	case ID_LASTCONSTRUCTIONTYPE:
+		return std::string("LastConstructionType");
 	case ID_BIGTOEANGLE:
 		return std::string("BigToeAngle");
 	case ID_LITTLETOEANGLE:
@@ -187,14 +276,20 @@ std::string Configuration::GetName(int id) {
 		return std::string("BallMeasurementAngle");
 	case ID_HEELDIRECTIONANGLE:
 		return std::string("HeelDirectionAngle");
-	case ID_UPPERLEVEL:
-		return std::string("UpperLevel");
+	case ID_TIPSHARPNESS:
+		return std::string("TipSharpness");
 	case ID_EXTRALENGTH:
 		return std::string("ExtraLength");
 	case ID_FOOTCOMPRESSION:
 		return std::string("FootCompression");
-	case ID_GENERATOR:
-		return std::string("Generator");
+	case ID_LASTMODIFY:
+		return std::string("LastModify");
+	case ID_LASTREORIENT:
+		return std::string("LastReorient");
+	case ID_HEELCONSTRUCTIONTYPE:
+		return std::string("HeelConstructionType");
+	case ID_HEELREORIENT:
+		return std::string("HeelReorient");
 	case ID_HEELHEIGHT:
 		return std::string("HeelHeight");
 	case ID_BALLHEIGHT:
@@ -203,8 +298,22 @@ std::string Configuration::GetName(int id) {
 		return std::string("HeelPitch");
 	case ID_TOESPRING:
 		return std::string("ToeSpring");
-	case ID_TIPSHARPNESS:
-		return std::string("TipSharpness");
+	case ID_UPPERLEVEL:
+		return std::string("UpperLevel");
+	case ID_GENERATOR:
+		return std::string("Generator");
+	case ID_WELTSIZE:
+		return std::string("WeltSize");
+	case ID_THICKNESS:
+		return std::string("Thickness");
+	case ID_SUPPORTHEELRADIUS:
+		return std::string("SupportHeelRadius");
+	case ID_SUPPORTHEELOFFSET:
+		return std::string("SupportHeelOffset");
+	case ID_SUPPORTTOERADIUS:
+		return std::string("SupportToeRadius");
+	case ID_SUPPORTTOEOFFSET:
+		return std::string("SupportToeOffset");
 	default:
 		throw(std::invalid_argument(
 				std::string(__FILE__) + " : GetParameter : Passed invalid ID."));
@@ -217,14 +326,10 @@ std::shared_ptr<ParameterFormula> Configuration::GetParameter(int id) {
 		throw(std::invalid_argument(
 				std::string(__FILE__)
 						+ " : GetParameter : Only ParameterFormulas can be returned. 'measurementSource' is a ParameterEnum."));
-	case ID_LASTFILENAME:
+	case ID_LASTCONSTRUCTIONTYPE:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
-						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastFilename' is a ParameterString."));
-	case ID_MODELTYPE:
-		throw(std::invalid_argument(
-				std::string(__FILE__)
-						+ " : GetParameter : Only ParameterFormulas can be returned. 'modelType' is a ParameterEnum."));
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastConstructionType' is a ParameterEnum."));
 	case ID_BIGTOEANGLE:
 		return bigToeAngle;
 	case ID_LITTLETOEANGLE:
@@ -233,16 +338,28 @@ std::shared_ptr<ParameterFormula> Configuration::GetParameter(int id) {
 		return ballMeasurementAngle;
 	case ID_HEELDIRECTIONANGLE:
 		return heelDirectionAngle;
-	case ID_UPPERLEVEL:
-		return upperLevel;
+	case ID_TIPSHARPNESS:
+		return tipSharpness;
 	case ID_EXTRALENGTH:
 		return extraLength;
 	case ID_FOOTCOMPRESSION:
 		return footCompression;
-	case ID_GENERATOR:
+	case ID_LASTMODIFY:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
-						+ " : GetParameter : Only ParameterFormulas can be returned. 'generator' is a ParameterEnum."));
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastModify' is a ParameterEnum."));
+	case ID_LASTREORIENT:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastReorient' is a ParameterEnum."));
+	case ID_HEELCONSTRUCTIONTYPE:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelConstructionType' is a ParameterEnum."));
+	case ID_HEELREORIENT:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelReorient' is a ParameterEnum."));
 	case ID_HEELHEIGHT:
 		return heelHeight;
 	case ID_BALLHEIGHT:
@@ -251,8 +368,24 @@ std::shared_ptr<ParameterFormula> Configuration::GetParameter(int id) {
 		return heelPitch;
 	case ID_TOESPRING:
 		return toeSpring;
-	case ID_TIPSHARPNESS:
-		return tipSharpness;
+	case ID_UPPERLEVEL:
+		return upperLevel;
+	case ID_GENERATOR:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'generator' is a ParameterEnum."));
+	case ID_WELTSIZE:
+		return weltSize;
+	case ID_THICKNESS:
+		return thickness;
+	case ID_SUPPORTHEELRADIUS:
+		return supportHeelRadius;
+	case ID_SUPPORTHEELOFFSET:
+		return supportHeelOffset;
+	case ID_SUPPORTTOERADIUS:
+		return supportToeRadius;
+	case ID_SUPPORTTOEOFFSET:
+		return supportToeOffset;
 	default:
 		throw(std::invalid_argument(
 				std::string(__FILE__) + " : GetParameter : Passed invalid ID."));
@@ -266,14 +399,10 @@ const std::shared_ptr<const ParameterFormula> Configuration::GetParameter(
 		throw(std::invalid_argument(
 				std::string(__FILE__)
 						+ " : GetParameter : Only ParameterFormulas can be returned. 'measurementSource' is a ParameterEnum."));
-	case ID_LASTFILENAME:
+	case ID_LASTCONSTRUCTIONTYPE:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
-						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastFilename' is a ParameterString."));
-	case ID_MODELTYPE:
-		throw(std::invalid_argument(
-				std::string(__FILE__)
-						+ " : GetParameter : Only ParameterFormulas can be returned. 'modelType' is a ParameterEnum."));
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastConstructionType' is a ParameterEnum."));
 	case ID_BIGTOEANGLE:
 		return bigToeAngle;
 	case ID_LITTLETOEANGLE:
@@ -282,16 +411,28 @@ const std::shared_ptr<const ParameterFormula> Configuration::GetParameter(
 		return ballMeasurementAngle;
 	case ID_HEELDIRECTIONANGLE:
 		return heelDirectionAngle;
-	case ID_UPPERLEVEL:
-		return upperLevel;
+	case ID_TIPSHARPNESS:
+		return tipSharpness;
 	case ID_EXTRALENGTH:
 		return extraLength;
 	case ID_FOOTCOMPRESSION:
 		return footCompression;
-	case ID_GENERATOR:
+	case ID_LASTMODIFY:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
-						+ " : GetParameter : Only ParameterFormulas can be returned. 'generator' is a ParameterEnum."));
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastModify' is a ParameterEnum."));
+	case ID_LASTREORIENT:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'lastReorient' is a ParameterEnum."));
+	case ID_HEELCONSTRUCTIONTYPE:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelConstructionType' is a ParameterEnum."));
+	case ID_HEELREORIENT:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelReorient' is a ParameterEnum."));
 	case ID_HEELHEIGHT:
 		return heelHeight;
 	case ID_BALLHEIGHT:
@@ -300,8 +441,24 @@ const std::shared_ptr<const ParameterFormula> Configuration::GetParameter(
 		return heelPitch;
 	case ID_TOESPRING:
 		return toeSpring;
-	case ID_TIPSHARPNESS:
-		return tipSharpness;
+	case ID_UPPERLEVEL:
+		return upperLevel;
+	case ID_GENERATOR:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'generator' is a ParameterEnum."));
+	case ID_WELTSIZE:
+		return weltSize;
+	case ID_THICKNESS:
+		return thickness;
+	case ID_SUPPORTHEELRADIUS:
+		return supportHeelRadius;
+	case ID_SUPPORTHEELOFFSET:
+		return supportHeelOffset;
+	case ID_SUPPORTTOERADIUS:
+		return supportToeRadius;
+	case ID_SUPPORTTOEOFFSET:
+		return supportToeOffset;
 	default:
 		throw(std::invalid_argument(
 				std::string(__FILE__) + " : GetParameter : Passed invalid ID."));
@@ -316,56 +473,100 @@ void Configuration::FromJSON(const JSON &js) {
 		throw std::runtime_error(out.str());
 	}
 	if (js.HasKey("measurementSource"))
-		measurementSource->SetSelection(js["measurementSource"].GetString(""));
-	if (js.HasKey("lastFilename"))
-		lastFilename->SetString(js["lastFilename"].GetString(""));
-	if (js.HasKey("modelType"))
-		modelType->SetSelection(js["modelType"].GetString(""));
+		measurementSource->SetString(js["measurementSource"].GetString(""));
+	if (js.HasKey("filenameScan"))
+		filenameScan->SetString(js["filenameScan"].GetString(""));
+	if (js.HasKey("lastConstructionType"))
+		lastConstructionType->SetString(
+				js["lastConstructionType"].GetString(""));
 	if (js.HasKey("bigToeAngle"))
-		bigToeAngle->SetFormula(js["bigToeAngle"].GetString(""));
+		bigToeAngle->SetString(js["bigToeAngle"].GetString(""));
 	if (js.HasKey("littleToeAngle"))
-		littleToeAngle->SetFormula(js["littleToeAngle"].GetString(""));
+		littleToeAngle->SetString(js["littleToeAngle"].GetString(""));
 	if (js.HasKey("ballMeasurementAngle"))
-		ballMeasurementAngle->SetFormula(
+		ballMeasurementAngle->SetString(
 				js["ballMeasurementAngle"].GetString(""));
 	if (js.HasKey("heelDirectionAngle"))
-		heelDirectionAngle->SetFormula(js["heelDirectionAngle"].GetString(""));
-	if (js.HasKey("upperLevel"))
-		upperLevel->SetFormula(js["upperLevel"].GetString(""));
-	if (js.HasKey("extraLength"))
-		extraLength->SetFormula(js["extraLength"].GetString(""));
-	if (js.HasKey("footCompression"))
-		footCompression->SetFormula(js["footCompression"].GetString(""));
-	if (js.HasKey("generator"))
-		generator->SetSelection(js["generator"].GetString(""));
-	if (js.HasKey("heelHeight"))
-		heelHeight->SetFormula(js["heelHeight"].GetString(""));
-	if (js.HasKey("ballHeight"))
-		ballHeight->SetFormula(js["ballHeight"].GetString(""));
-	if (js.HasKey("heelPitch"))
-		heelPitch->SetFormula(js["heelPitch"].GetString(""));
-	if (js.HasKey("toeSpring"))
-		toeSpring->SetFormula(js["toeSpring"].GetString(""));
+		heelDirectionAngle->SetString(js["heelDirectionAngle"].GetString(""));
 	if (js.HasKey("tipSharpness"))
-		tipSharpness->SetFormula(js["tipSharpness"].GetString(""));
+		tipSharpness->SetString(js["tipSharpness"].GetString(""));
+	if (js.HasKey("extraLength"))
+		extraLength->SetString(js["extraLength"].GetString(""));
+	if (js.HasKey("footCompression"))
+		footCompression->SetString(js["footCompression"].GetString(""));
+	if (js.HasKey("filenameBoneModel"))
+		filenameBoneModel->SetString(js["filenameBoneModel"].GetString(""));
+	if (js.HasKey("filenameLast"))
+		filenameLast->SetString(js["filenameLast"].GetString(""));
+	if (js.HasKey("lastModify"))
+		lastModify->SetString(js["lastModify"].GetString(""));
+	if (js.HasKey("lastReorient"))
+		lastReorient->SetString(js["lastReorient"].GetString(""));
+	if (js.HasKey("heelConstructionType"))
+		heelConstructionType->SetString(
+				js["heelConstructionType"].GetString(""));
+	if (js.HasKey("filenameHeel"))
+		filenameHeel->SetString(js["filenameHeel"].GetString(""));
+	if (js.HasKey("heelReorient"))
+		heelReorient->SetString(js["heelReorient"].GetString(""));
+	if (js.HasKey("heelHeight"))
+		heelHeight->SetString(js["heelHeight"].GetString(""));
+	if (js.HasKey("ballHeight"))
+		ballHeight->SetString(js["ballHeight"].GetString(""));
+	if (js.HasKey("heelPitch"))
+		heelPitch->SetString(js["heelPitch"].GetString(""));
+	if (js.HasKey("toeSpring"))
+		toeSpring->SetString(js["toeSpring"].GetString(""));
+	if (js.HasKey("upperLevel"))
+		upperLevel->SetString(js["upperLevel"].GetString(""));
+	if (js.HasKey("generator"))
+		generator->SetString(js["generator"].GetString(""));
+	if (js.HasKey("weltSize"))
+		weltSize->SetString(js["weltSize"].GetString(""));
+	if (js.HasKey("thickness"))
+		thickness->SetString(js["thickness"].GetString(""));
+	if (js.HasKey("supportHeelRadius"))
+		supportHeelRadius->SetString(js["supportHeelRadius"].GetString(""));
+	if (js.HasKey("supportHeelOffset"))
+		supportHeelOffset->SetString(js["supportHeelOffset"].GetString(""));
+	if (js.HasKey("supportToeRadius"))
+		supportToeRadius->SetString(js["supportToeRadius"].GetString(""));
+	if (js.HasKey("supportToeOffset"))
+		supportToeOffset->SetString(js["supportToeOffset"].GetString(""));
+	if (js.HasKey("heelCode"))
+		heelCode->SetString(js["heelCode"].GetString(""));
 }
 
 void Configuration::ToJSON(JSON &js) const {
 	js.SetObject(true);
-	js["measurementSource"].SetString(measurementSource->GetSelection());
-	js["lastFilename"].SetString(lastFilename->GetString());
-	js["modelType"].SetString(modelType->GetSelection());
-	js["bigToeAngle"].SetString(bigToeAngle->GetFormula());
-	js["littleToeAngle"].SetString(littleToeAngle->GetFormula());
-	js["ballMeasurementAngle"].SetString(ballMeasurementAngle->GetFormula());
-	js["heelDirectionAngle"].SetString(heelDirectionAngle->GetFormula());
-	js["upperLevel"].SetString(upperLevel->GetFormula());
-	js["extraLength"].SetString(extraLength->GetFormula());
-	js["footCompression"].SetString(footCompression->GetFormula());
-	js["generator"].SetString(generator->GetSelection());
-	js["heelHeight"].SetString(heelHeight->GetFormula());
-	js["ballHeight"].SetString(ballHeight->GetFormula());
-	js["heelPitch"].SetString(heelPitch->GetFormula());
-	js["toeSpring"].SetString(toeSpring->GetFormula());
-	js["tipSharpness"].SetString(tipSharpness->GetFormula());
+	js["measurementSource"].SetString(measurementSource->GetString());
+	js["filenameScan"].SetString(filenameScan->GetString());
+	js["lastConstructionType"].SetString(lastConstructionType->GetString());
+	js["bigToeAngle"].SetString(bigToeAngle->GetString());
+	js["littleToeAngle"].SetString(littleToeAngle->GetString());
+	js["ballMeasurementAngle"].SetString(ballMeasurementAngle->GetString());
+	js["heelDirectionAngle"].SetString(heelDirectionAngle->GetString());
+	js["tipSharpness"].SetString(tipSharpness->GetString());
+	js["extraLength"].SetString(extraLength->GetString());
+	js["footCompression"].SetString(footCompression->GetString());
+	js["filenameBoneModel"].SetString(filenameBoneModel->GetString());
+	js["filenameLast"].SetString(filenameLast->GetString());
+	js["lastModify"].SetString(lastModify->GetString());
+	js["lastReorient"].SetString(lastReorient->GetString());
+	js["heelConstructionType"].SetString(heelConstructionType->GetString());
+	js["filenameHeel"].SetString(filenameHeel->GetString());
+	js["heelReorient"].SetString(heelReorient->GetString());
+	js["heelHeight"].SetString(heelHeight->GetString());
+	js["ballHeight"].SetString(ballHeight->GetString());
+	js["heelPitch"].SetString(heelPitch->GetString());
+	js["toeSpring"].SetString(toeSpring->GetString());
+	js["upperLevel"].SetString(upperLevel->GetString());
+	js["generator"].SetString(generator->GetString());
+	js["weltSize"].SetString(weltSize->GetString());
+	js["thickness"].SetString(thickness->GetString());
+	js["supportHeelRadius"].SetString(supportHeelRadius->GetString());
+	js["supportHeelOffset"].SetString(supportHeelOffset->GetString());
+	js["supportToeRadius"].SetString(supportToeRadius->GetString());
+	js["supportToeOffset"].SetString(supportToeOffset->GetString());
+	js["heelCode"].SetString(heelCode->GetString());
 }

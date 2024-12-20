@@ -28,20 +28,20 @@
 #define GUI_DIALOGSETUPPATHS_H
 
 /*!\class DialogSetupPaths
- * \brief ...
+ * \brief Setup dialog for the default directories
  *
- * ...
+ * Editor for the directories in CollectionFilepaths.
  */
 
 #include "CollectionFilepaths.h"
 #include "gui.h"
 
-class DialogSetupPaths:public GUISetupPaths {
+class DialogSetupPaths: public GUISetupPaths {
 public:
-	DialogSetupPaths(wxWindow * parent, const CollectionFilepaths * collection);
-	virtual ~DialogSetupPaths();
-	void OnClose(wxCommandEvent& event);
-	void UpdateCollection(CollectionFilepaths * collection) const;
+	DialogSetupPaths(wxWindow *parent, const CollectionFilepaths *collection);
+	virtual ~DialogSetupPaths() = default;
+	void OnClose(wxCommandEvent &event) override;
+	void UpdateCollection(CollectionFilepaths *collection) const;
 };
 
 #endif /* GUI_DIALOGSETUPPATHS_H */

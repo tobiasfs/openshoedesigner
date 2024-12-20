@@ -46,8 +46,8 @@ public:
 	CommandFootMeasurementSet(const wxString &name, Project *project,
 			ProjectView::Side active, int parameter, const std::string &value);
 
-	bool Do();
-	bool Undo();
+	bool Do() override;
+	bool Undo() override;
 
 protected:
 

@@ -36,101 +36,102 @@
 FootMeasurements::FootMeasurements() {
 
 	legLengthDifference = std::make_shared<ParameterFormula>(
-			"legLengthDifference", "Distance this leg is longer than the other."
-					" Set this on only one leg. Negative numbers mean,"
-					" that this leg is shorter.", "0.0 cm",
+			"legLengthDifference", "0.0 cm",
+			"Distance this leg is longer than the other."
+					" Set this on only one leg. Negative numbers mean "
+					" that this leg is shorter.",
 			ID_MEASUREMENT_LEGLENGTHDIFFERENCE);
 
 	footLength = std::make_shared<ParameterFormula>("footLength",
-			"Length of the foot (not length of the last)."
+			"(39/3*2-1.5) cm", "Length of the foot (not length of the last)."
 					" Measured from the longest toe to the heel.",
-			"(39/3*2-1.5) cm", ID_MEASUREMENT_FOOTLENGTH);
+			ID_MEASUREMENT_FOOTLENGTH);
 
 	ballWidth = std::make_shared<ParameterFormula>("ballWidth",
+			"footLength/2.5",
 			"Width of the foot from the ball of the little toe to"
 					" the ball of the big toe. Measured at the"
 					" widest part of the foot. The angle is"
 					" normally not 90 degrees from the heel to"
 					" toe line. (See also the Sole tab for this angle.)",
-			"footLength/2.5", ID_MEASUREMENT_BALLWIDTH);
+			ID_MEASUREMENT_BALLWIDTH);
 	bigToeGirth = std::make_shared<ParameterFormula>("bigToeGirth",
-			"Grith around the big toe ball of the foot."
+			"ballWidth*2.1", "Grith around the big toe ball of the foot."
 					" The measurement tape is only tensioned very lightly.",
-			"ballWidth*2.1", ID_MEASUREMENT_BIGTOEGIRTH);
+			ID_MEASUREMENT_BIGTOEGIRTH);
 	littleToeGirth = std::make_shared<ParameterFormula>("littleToeGirth",
-			"Measurement around the small toe ball."
-					" The measurement tape is tightened, because this part"
+			"ballWidth*2.1", "Measurement around the small toe ball."
+					" The measurement tape is tightened  because this part"
 					" has to support the foots position in the shoe.",
-			"ballWidth*2.1",
 			ID_MEASUREMENT_LITTLETOEGIRTH);
 	waistGirth = std::make_shared<ParameterFormula>("waistGirth",
-			"Measured around the middle of the foot over the"
+			"bigToeGirth*0.9", "Measured around the middle of the foot over the"
 					" metatarsalis bone. (That little dent You can feel"
 					" in the middle of the outside of Your foot.)",
-			"bigToeGirth*0.9", ID_MEASUREMENT_WAISTGIRTH);
-	heelGirth = std::make_shared<ParameterFormula>("heelGirth", "",
-			"waistGirth*1.3",
+			ID_MEASUREMENT_WAISTGIRTH);
+	heelGirth = std::make_shared<ParameterFormula>("heelGirth",
+			"waistGirth*1.3", "",
 			ID_MEASUREMENT_HEELGIRTH);
-	heelWidth = std::make_shared<ParameterFormula>("heelWidth",
+	heelWidth = std::make_shared<ParameterFormula>("heelWidth", "ballWidth*3/4",
 			"Width of the heel at 1/6 of the length of the foot.",
-			"ballWidth*3/4", ID_MEASUREMENT_HEELWIDTH);
+			ID_MEASUREMENT_HEELWIDTH);
 
-	angleMixing = std::make_shared<ParameterFormula>("angleMixing",
+	angleMixing = std::make_shared<ParameterFormula>("angleMixing", "0.1",
 			"Mixing determines how much of the needed bending of the foot"
 					" is done by the heel and how much is spread on the"
-					" forefoot. 0% is all heel, 100% is all forefoot."
+					" forefoot. 0% is all heel; 100% is all forefoot."
 					" 100% is impractical unless some serious"
-					" misalignment of the foot is to be compensated.", "0.1",
+					" misalignment of the foot is to be compensated.",
 			ID_MEASUREMENT_ANGLEMIXING);
 
 	belowCrutchGirth = std::make_shared<ParameterFormula>("belowCrutchGirth",
-			"Below crutch girth", "footLength*2.5",
+			"footLength*2.5", "Below crutch girth",
 			ID_MEASUREMENT_BELOWCRUTCHGIRTH);
 	belowCrutchLevel = std::make_shared<ParameterFormula>("belowCrutchLevel",
-			"Below crutch level", "footLength*3",
+			"footLength*3", "Below crutch level",
 			ID_MEASUREMENT_BELOWCRUTCHLEVEL);
 	middleOfCalfGirth = std::make_shared<ParameterFormula>("middleOfCalfGirth",
-			"Middle of calf girth", "(belowCrutchGirth+footLength)/2",
+			"(belowCrutchGirth+footLength)/2", "Middle of calf girth",
 			ID_MEASUREMENT_MIDDLEOFCALFGIRTH);
 	middleOfCalfLevel = std::make_shared<ParameterFormula>("middleOfCalfLevel",
-			"Middle of calf level", "belowCrutchLevel*0.825",
+			"belowCrutchLevel*0.825", "Middle of calf level",
 			ID_MEASUREMENT_MIDDLEOFCALFLEVEL);
 	aboveKneeGirth = std::make_shared<ParameterFormula>("aboveKneeGirth",
-			"Above knee girth", "footLength*1.4",
+			"footLength*1.4", "Above knee girth",
 			ID_MEASUREMENT_ABOVEKNEEGIRTH);
 	aboveKneeLevel = std::make_shared<ParameterFormula>("aboveKneeLevel",
-			"Above knee level", "middleOfCalfLevel*0.785",
+			"middleOfCalfLevel*0.785", "Above knee level",
 			ID_MEASUREMENT_ABOVEKNEELEVEL);
 	overKneeCapGirth = std::make_shared<ParameterFormula>("overKneeCapGirth",
-			"Over knee cap girth", "footLength*1.5",
+			"footLength*1.5", "Over knee cap girth",
 			ID_MEASUREMENT_OVERKNEECAPGIRTH);
 	overKneeCapLevel = std::make_shared<ParameterFormula>("overKneeCapLevel",
-			"Over knee cap level", "aboveKneeLevel-footLength/6",
+			"aboveKneeLevel-footLength/6", "Over knee cap level",
 			ID_MEASUREMENT_OVERKNEECAPLEVEL);
 	belowKneeGirth = std::make_shared<ParameterFormula>("belowKneeGirth",
-			"Below knee girth", "footLength*1.2",
+			"footLength*1.2", "Below knee girth",
 			ID_MEASUREMENT_BELOWKNEEGIRTH);
 	belowKneeLevel = std::make_shared<ParameterFormula>("belowKneeLevel",
-			"Below knee level", "overKneeCapLevel-footLength/6",
+			"overKneeCapLevel-footLength/6", "Below knee level",
 			ID_MEASUREMENT_BELOWKNEELEVEL);
 	middleOfShankGirth = std::make_shared<ParameterFormula>(
-			"middleOfShankGirth", "Middle of shank girth", "footLength*1.3",
+			"middleOfShankGirth", "footLength*1.3", "Middle of shank girth",
 			ID_MEASUREMENT_MIDDLEOFSHANKGIRTH);
 	middleOfShankLevel = std::make_shared<ParameterFormula>(
-			"middleOfShankLevel", "Middle of shank level",
-			"overKneeCapLevel*0.7",
+			"middleOfShankLevel", "overKneeCapLevel*0.7",
+			"Middle of shank level",
 			ID_MEASUREMENT_MIDDLEOFSHANKLEVEL);
 	aboveAnkleGirth = std::make_shared<ParameterFormula>("aboveAnkleGirth",
-			"Above ankle girth", "footLength*0.8",
+			"footLength*0.8", "Above ankle girth",
 			ID_MEASUREMENT_ABOVEANKLEGIRTH);
 	aboveAnkleLevel = std::make_shared<ParameterFormula>("aboveAnkleLevel",
-			"Above ankle level", "footLength/2",
+			"footLength/2", "Above ankle level",
 			ID_MEASUREMENT_ABOVEANKLELEVEL);
 	overAnkleBoneGirth = std::make_shared<ParameterFormula>(
-			"overAnkleBoneGirth", "Over ankle bone girth", "footLength",
+			"overAnkleBoneGirth", "footLength", "Over ankle bone girth",
 			ID_MEASUREMENT_OVERANKLEBONEGIRTH);
 	overAnkleBoneLevel = std::make_shared<ParameterFormula>(
-			"overAnkleBoneLevel", "Over ankle bone level", "footLength/3",
+			"overAnkleBoneLevel", "footLength/3", "Over ankle bone level",
 			ID_MEASUREMENT_OVERANKLEBONELEVEL);
 }
 
@@ -166,7 +167,7 @@ void FootMeasurements::LoadJSON(std::string filename) {
 		js = JSON::Load(filename);
 	} catch (std::exception &e) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		out << " Error opening file:" << filename << ' ';
 		out << e.what();
 		throw std::runtime_error(out.str());
@@ -184,7 +185,6 @@ void FootMeasurements::SaveJSON(std::string filename) const {
 // Autogenerated code below. Do not modify, modification will be overwritten.
 
 void FootMeasurements::Register(ParameterEvaluator &evaluator) {
-	evaluator.Register(legLengthDifference);
 	evaluator.Register(footLength);
 	evaluator.Register(ballWidth);
 	evaluator.Register(bigToeGirth);
@@ -193,6 +193,7 @@ void FootMeasurements::Register(ParameterEvaluator &evaluator) {
 	evaluator.Register(heelGirth);
 	evaluator.Register(heelWidth);
 	evaluator.Register(angleMixing);
+	evaluator.Register(legLengthDifference);
 	evaluator.Register(belowCrutchGirth);
 	evaluator.Register(belowCrutchLevel);
 	evaluator.Register(middleOfCalfGirth);
@@ -211,12 +212,71 @@ void FootMeasurements::Register(ParameterEvaluator &evaluator) {
 	evaluator.Register(overAnkleBoneLevel);
 }
 
+bool FootMeasurements::operator==(const FootMeasurements &other) const {
+	if (footLength->GetString() != other.footLength->GetString())
+		return false;
+	if (ballWidth->GetString() != other.ballWidth->GetString())
+		return false;
+	if (bigToeGirth->GetString() != other.bigToeGirth->GetString())
+		return false;
+	if (littleToeGirth->GetString() != other.littleToeGirth->GetString())
+		return false;
+	if (waistGirth->GetString() != other.waistGirth->GetString())
+		return false;
+	if (heelGirth->GetString() != other.heelGirth->GetString())
+		return false;
+	if (heelWidth->GetString() != other.heelWidth->GetString())
+		return false;
+	if (angleMixing->GetString() != other.angleMixing->GetString())
+		return false;
+	if (legLengthDifference->GetString()
+			!= other.legLengthDifference->GetString())
+		return false;
+	if (belowCrutchGirth->GetString() != other.belowCrutchGirth->GetString())
+		return false;
+	if (belowCrutchLevel->GetString() != other.belowCrutchLevel->GetString())
+		return false;
+	if (middleOfCalfGirth->GetString() != other.middleOfCalfGirth->GetString())
+		return false;
+	if (middleOfCalfLevel->GetString() != other.middleOfCalfLevel->GetString())
+		return false;
+	if (aboveKneeGirth->GetString() != other.aboveKneeGirth->GetString())
+		return false;
+	if (aboveKneeLevel->GetString() != other.aboveKneeLevel->GetString())
+		return false;
+	if (overKneeCapGirth->GetString() != other.overKneeCapGirth->GetString())
+		return false;
+	if (overKneeCapLevel->GetString() != other.overKneeCapLevel->GetString())
+		return false;
+	if (belowKneeGirth->GetString() != other.belowKneeGirth->GetString())
+		return false;
+	if (belowKneeLevel->GetString() != other.belowKneeLevel->GetString())
+		return false;
+	if (middleOfShankGirth->GetString()
+			!= other.middleOfShankGirth->GetString())
+		return false;
+	if (middleOfShankLevel->GetString()
+			!= other.middleOfShankLevel->GetString())
+		return false;
+	if (aboveAnkleGirth->GetString() != other.aboveAnkleGirth->GetString())
+		return false;
+	if (aboveAnkleLevel->GetString() != other.aboveAnkleLevel->GetString())
+		return false;
+	if (overAnkleBoneGirth->GetString()
+			!= other.overAnkleBoneGirth->GetString())
+		return false;
+	if (overAnkleBoneLevel->GetString()
+			!= other.overAnkleBoneLevel->GetString())
+		return false;
+	return true;
+}
+
 bool FootMeasurements::IsModified() const {
-	return legLengthDifference->IsModified() | footLength->IsModified()
-			| ballWidth->IsModified() | bigToeGirth->IsModified()
-			| littleToeGirth->IsModified() | waistGirth->IsModified()
-			| heelGirth->IsModified() | heelWidth->IsModified()
-			| angleMixing->IsModified() | belowCrutchGirth->IsModified()
+	return footLength->IsModified() | ballWidth->IsModified()
+			| bigToeGirth->IsModified() | littleToeGirth->IsModified()
+			| waistGirth->IsModified() | heelGirth->IsModified()
+			| heelWidth->IsModified() | angleMixing->IsModified()
+			| legLengthDifference->IsModified() | belowCrutchGirth->IsModified()
 			| belowCrutchLevel->IsModified() | middleOfCalfGirth->IsModified()
 			| middleOfCalfLevel->IsModified() | aboveKneeGirth->IsModified()
 			| aboveKneeLevel->IsModified() | overKneeCapGirth->IsModified()
@@ -228,7 +288,6 @@ bool FootMeasurements::IsModified() const {
 }
 
 void FootMeasurements::Modify(bool modified) {
-	legLengthDifference->Modify(modified);
 	footLength->Modify(modified);
 	ballWidth->Modify(modified);
 	bigToeGirth->Modify(modified);
@@ -237,6 +296,7 @@ void FootMeasurements::Modify(bool modified) {
 	heelGirth->Modify(modified);
 	heelWidth->Modify(modified);
 	angleMixing->Modify(modified);
+	legLengthDifference->Modify(modified);
 	belowCrutchGirth->Modify(modified);
 	belowCrutchLevel->Modify(modified);
 	middleOfCalfGirth->Modify(modified);
@@ -257,7 +317,6 @@ void FootMeasurements::Modify(bool modified) {
 
 bool FootMeasurements::IsValidID(int id) {
 	switch (id) {
-	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 	case ID_MEASUREMENT_FOOTLENGTH:
 	case ID_MEASUREMENT_BALLWIDTH:
 	case ID_MEASUREMENT_BIGTOEGIRTH:
@@ -266,6 +325,7 @@ bool FootMeasurements::IsValidID(int id) {
 	case ID_MEASUREMENT_HEELGIRTH:
 	case ID_MEASUREMENT_HEELWIDTH:
 	case ID_MEASUREMENT_ANGLEMIXING:
+	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
 	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
 	case ID_MEASUREMENT_MIDDLEOFCALFGIRTH:
@@ -289,8 +349,6 @@ bool FootMeasurements::IsValidID(int id) {
 
 std::string FootMeasurements::GetName(int id) {
 	switch (id) {
-	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
-		return std::string("LegLengthDifference");
 	case ID_MEASUREMENT_FOOTLENGTH:
 		return std::string("FootLength");
 	case ID_MEASUREMENT_BALLWIDTH:
@@ -307,6 +365,8 @@ std::string FootMeasurements::GetName(int id) {
 		return std::string("HeelWidth");
 	case ID_MEASUREMENT_ANGLEMIXING:
 		return std::string("AngleMixing");
+	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
+		return std::string("LegLengthDifference");
 	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
 		return std::string("BelowCrutchGirth");
 	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
@@ -347,8 +407,6 @@ std::string FootMeasurements::GetName(int id) {
 
 std::shared_ptr<ParameterFormula> FootMeasurements::GetParameter(int id) {
 	switch (id) {
-	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
-		return legLengthDifference;
 	case ID_MEASUREMENT_FOOTLENGTH:
 		return footLength;
 	case ID_MEASUREMENT_BALLWIDTH:
@@ -365,6 +423,8 @@ std::shared_ptr<ParameterFormula> FootMeasurements::GetParameter(int id) {
 		return heelWidth;
 	case ID_MEASUREMENT_ANGLEMIXING:
 		return angleMixing;
+	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
+		return legLengthDifference;
 	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
 		return belowCrutchGirth;
 	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
@@ -406,8 +466,6 @@ std::shared_ptr<ParameterFormula> FootMeasurements::GetParameter(int id) {
 const std::shared_ptr<const ParameterFormula> FootMeasurements::GetParameter(
 		int id) const {
 	switch (id) {
-	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
-		return legLengthDifference;
 	case ID_MEASUREMENT_FOOTLENGTH:
 		return footLength;
 	case ID_MEASUREMENT_BALLWIDTH:
@@ -424,6 +482,8 @@ const std::shared_ptr<const ParameterFormula> FootMeasurements::GetParameter(
 		return heelWidth;
 	case ID_MEASUREMENT_ANGLEMIXING:
 		return angleMixing;
+	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
+		return legLengthDifference;
 	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
 		return belowCrutchGirth;
 	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
@@ -469,84 +529,83 @@ void FootMeasurements::FromJSON(const JSON &js) {
 		out << " The json does not contain an object with measurements.";
 		throw std::runtime_error(out.str());
 	}
-	if (js.HasKey("legLengthDifference"))
-		legLengthDifference->SetFormula(
-				js["legLengthDifference"].GetString(""));
 	if (js.HasKey("footLength"))
-		footLength->SetFormula(js["footLength"].GetString(""));
+		footLength->SetString(js["footLength"].GetString(""));
 	if (js.HasKey("ballWidth"))
-		ballWidth->SetFormula(js["ballWidth"].GetString(""));
+		ballWidth->SetString(js["ballWidth"].GetString(""));
 	if (js.HasKey("bigToeGirth"))
-		bigToeGirth->SetFormula(js["bigToeGirth"].GetString(""));
+		bigToeGirth->SetString(js["bigToeGirth"].GetString(""));
 	if (js.HasKey("littleToeGirth"))
-		littleToeGirth->SetFormula(js["littleToeGirth"].GetString(""));
+		littleToeGirth->SetString(js["littleToeGirth"].GetString(""));
 	if (js.HasKey("waistGirth"))
-		waistGirth->SetFormula(js["waistGirth"].GetString(""));
+		waistGirth->SetString(js["waistGirth"].GetString(""));
 	if (js.HasKey("heelGirth"))
-		heelGirth->SetFormula(js["heelGirth"].GetString(""));
+		heelGirth->SetString(js["heelGirth"].GetString(""));
 	if (js.HasKey("heelWidth"))
-		heelWidth->SetFormula(js["heelWidth"].GetString(""));
+		heelWidth->SetString(js["heelWidth"].GetString(""));
 	if (js.HasKey("angleMixing"))
-		angleMixing->SetFormula(js["angleMixing"].GetString(""));
+		angleMixing->SetString(js["angleMixing"].GetString(""));
+	if (js.HasKey("legLengthDifference"))
+		legLengthDifference->SetString(js["legLengthDifference"].GetString(""));
 	if (js.HasKey("belowCrutchGirth"))
-		belowCrutchGirth->SetFormula(js["belowCrutchGirth"].GetString(""));
+		belowCrutchGirth->SetString(js["belowCrutchGirth"].GetString(""));
 	if (js.HasKey("belowCrutchLevel"))
-		belowCrutchLevel->SetFormula(js["belowCrutchLevel"].GetString(""));
+		belowCrutchLevel->SetString(js["belowCrutchLevel"].GetString(""));
 	if (js.HasKey("middleOfCalfGirth"))
-		middleOfCalfGirth->SetFormula(js["middleOfCalfGirth"].GetString(""));
+		middleOfCalfGirth->SetString(js["middleOfCalfGirth"].GetString(""));
 	if (js.HasKey("middleOfCalfLevel"))
-		middleOfCalfLevel->SetFormula(js["middleOfCalfLevel"].GetString(""));
+		middleOfCalfLevel->SetString(js["middleOfCalfLevel"].GetString(""));
 	if (js.HasKey("aboveKneeGirth"))
-		aboveKneeGirth->SetFormula(js["aboveKneeGirth"].GetString(""));
+		aboveKneeGirth->SetString(js["aboveKneeGirth"].GetString(""));
 	if (js.HasKey("aboveKneeLevel"))
-		aboveKneeLevel->SetFormula(js["aboveKneeLevel"].GetString(""));
+		aboveKneeLevel->SetString(js["aboveKneeLevel"].GetString(""));
 	if (js.HasKey("overKneeCapGirth"))
-		overKneeCapGirth->SetFormula(js["overKneeCapGirth"].GetString(""));
+		overKneeCapGirth->SetString(js["overKneeCapGirth"].GetString(""));
 	if (js.HasKey("overKneeCapLevel"))
-		overKneeCapLevel->SetFormula(js["overKneeCapLevel"].GetString(""));
+		overKneeCapLevel->SetString(js["overKneeCapLevel"].GetString(""));
 	if (js.HasKey("belowKneeGirth"))
-		belowKneeGirth->SetFormula(js["belowKneeGirth"].GetString(""));
+		belowKneeGirth->SetString(js["belowKneeGirth"].GetString(""));
 	if (js.HasKey("belowKneeLevel"))
-		belowKneeLevel->SetFormula(js["belowKneeLevel"].GetString(""));
+		belowKneeLevel->SetString(js["belowKneeLevel"].GetString(""));
 	if (js.HasKey("middleOfShankGirth"))
-		middleOfShankGirth->SetFormula(js["middleOfShankGirth"].GetString(""));
+		middleOfShankGirth->SetString(js["middleOfShankGirth"].GetString(""));
 	if (js.HasKey("middleOfShankLevel"))
-		middleOfShankLevel->SetFormula(js["middleOfShankLevel"].GetString(""));
+		middleOfShankLevel->SetString(js["middleOfShankLevel"].GetString(""));
 	if (js.HasKey("aboveAnkleGirth"))
-		aboveAnkleGirth->SetFormula(js["aboveAnkleGirth"].GetString(""));
+		aboveAnkleGirth->SetString(js["aboveAnkleGirth"].GetString(""));
 	if (js.HasKey("aboveAnkleLevel"))
-		aboveAnkleLevel->SetFormula(js["aboveAnkleLevel"].GetString(""));
+		aboveAnkleLevel->SetString(js["aboveAnkleLevel"].GetString(""));
 	if (js.HasKey("overAnkleBoneGirth"))
-		overAnkleBoneGirth->SetFormula(js["overAnkleBoneGirth"].GetString(""));
+		overAnkleBoneGirth->SetString(js["overAnkleBoneGirth"].GetString(""));
 	if (js.HasKey("overAnkleBoneLevel"))
-		overAnkleBoneLevel->SetFormula(js["overAnkleBoneLevel"].GetString(""));
+		overAnkleBoneLevel->SetString(js["overAnkleBoneLevel"].GetString(""));
 }
 
 void FootMeasurements::ToJSON(JSON &js) const {
 	js.SetObject(true);
-	js["legLengthDifference"].SetString(legLengthDifference->GetFormula());
-	js["footLength"].SetString(footLength->GetFormula());
-	js["ballWidth"].SetString(ballWidth->GetFormula());
-	js["bigToeGirth"].SetString(bigToeGirth->GetFormula());
-	js["littleToeGirth"].SetString(littleToeGirth->GetFormula());
-	js["waistGirth"].SetString(waistGirth->GetFormula());
-	js["heelGirth"].SetString(heelGirth->GetFormula());
-	js["heelWidth"].SetString(heelWidth->GetFormula());
-	js["angleMixing"].SetString(angleMixing->GetFormula());
-	js["belowCrutchGirth"].SetString(belowCrutchGirth->GetFormula());
-	js["belowCrutchLevel"].SetString(belowCrutchLevel->GetFormula());
-	js["middleOfCalfGirth"].SetString(middleOfCalfGirth->GetFormula());
-	js["middleOfCalfLevel"].SetString(middleOfCalfLevel->GetFormula());
-	js["aboveKneeGirth"].SetString(aboveKneeGirth->GetFormula());
-	js["aboveKneeLevel"].SetString(aboveKneeLevel->GetFormula());
-	js["overKneeCapGirth"].SetString(overKneeCapGirth->GetFormula());
-	js["overKneeCapLevel"].SetString(overKneeCapLevel->GetFormula());
-	js["belowKneeGirth"].SetString(belowKneeGirth->GetFormula());
-	js["belowKneeLevel"].SetString(belowKneeLevel->GetFormula());
-	js["middleOfShankGirth"].SetString(middleOfShankGirth->GetFormula());
-	js["middleOfShankLevel"].SetString(middleOfShankLevel->GetFormula());
-	js["aboveAnkleGirth"].SetString(aboveAnkleGirth->GetFormula());
-	js["aboveAnkleLevel"].SetString(aboveAnkleLevel->GetFormula());
-	js["overAnkleBoneGirth"].SetString(overAnkleBoneGirth->GetFormula());
-	js["overAnkleBoneLevel"].SetString(overAnkleBoneLevel->GetFormula());
+	js["footLength"].SetString(footLength->GetString());
+	js["ballWidth"].SetString(ballWidth->GetString());
+	js["bigToeGirth"].SetString(bigToeGirth->GetString());
+	js["littleToeGirth"].SetString(littleToeGirth->GetString());
+	js["waistGirth"].SetString(waistGirth->GetString());
+	js["heelGirth"].SetString(heelGirth->GetString());
+	js["heelWidth"].SetString(heelWidth->GetString());
+	js["angleMixing"].SetString(angleMixing->GetString());
+	js["legLengthDifference"].SetString(legLengthDifference->GetString());
+	js["belowCrutchGirth"].SetString(belowCrutchGirth->GetString());
+	js["belowCrutchLevel"].SetString(belowCrutchLevel->GetString());
+	js["middleOfCalfGirth"].SetString(middleOfCalfGirth->GetString());
+	js["middleOfCalfLevel"].SetString(middleOfCalfLevel->GetString());
+	js["aboveKneeGirth"].SetString(aboveKneeGirth->GetString());
+	js["aboveKneeLevel"].SetString(aboveKneeLevel->GetString());
+	js["overKneeCapGirth"].SetString(overKneeCapGirth->GetString());
+	js["overKneeCapLevel"].SetString(overKneeCapLevel->GetString());
+	js["belowKneeGirth"].SetString(belowKneeGirth->GetString());
+	js["belowKneeLevel"].SetString(belowKneeLevel->GetString());
+	js["middleOfShankGirth"].SetString(middleOfShankGirth->GetString());
+	js["middleOfShankLevel"].SetString(middleOfShankLevel->GetString());
+	js["aboveAnkleGirth"].SetString(aboveAnkleGirth->GetString());
+	js["aboveAnkleLevel"].SetString(aboveAnkleLevel->GetString());
+	js["overAnkleBoneGirth"].SetString(overAnkleBoneGirth->GetString());
+	js["overAnkleBoneLevel"].SetString(overAnkleBoneLevel->GetString());
 }

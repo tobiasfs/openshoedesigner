@@ -35,14 +35,16 @@
 
 #include "gui.h"
 
-class DialogFormulaEditor:public GUIDialogFormulaEditor {
+class DialogFormulaEditor: public GUIDialogFormulaEditor {
 public:
-	DialogFormulaEditor(wxWindow* parent);
-	virtual ~DialogFormulaEditor();
+	DialogFormulaEditor(wxWindow *parent);
+	virtual ~DialogFormulaEditor() = default;
 
-	void OnItemActivated(wxDataViewEvent& event);
-	void OnClearFormula(wxCommandEvent& event);
-	void OnCopyResultToFormula(wxCommandEvent& event);
+protected:
+	void OnItemActivated(wxDataViewEvent &event) override;
+	void OnButtonClear(wxCommandEvent &event) override;
+	void OnButtonCopy(wxCommandEvent &event) override;
+	void OnTextEnter(wxCommandEvent &event) override;
 };
 
 #endif /* GUI_DIALOGFORMULAEDITOR_H */

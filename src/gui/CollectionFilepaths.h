@@ -42,9 +42,11 @@ public:
 	CollectionFilepaths() = default;
 	virtual ~CollectionFilepaths() = default;
 
-	wxString lastFootDirectory;
-	wxString lastShoeDirectory;
-	wxString lastOutputDirectory;
+	wxString measurementDirectory;
+	wxString presetDirectory;
+	wxString lastDirectory;
+	wxString fabricDirectory;
+	wxString outputDirectory;
 
 	bool Load(wxConfig *config);
 	bool Save(wxConfig *config);

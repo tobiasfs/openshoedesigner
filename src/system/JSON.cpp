@@ -34,8 +34,37 @@
 
 static JSON nullobject;
 
-JSON::Type JSON::GetType() const {
-	return type;
+JSON JSON::Load(const std::string &filename) {
+	std::ifstream in;
+	in.open(filename.c_str(), std::ifstream::in | std::ios::binary);
+	if (!in.good()) {
+		throw(std::runtime_error("JSON::Load(...) - Could not read file."));
+	}
+	return JSON::Load(in);
+}
+
+JSON JSON::Load(std::istream &in) {
+	FileTokenizer ft(&in);
+	ft.NextToken();
+	return Parse(ft, 127);
+}
+
+void JSON::Save(const std::string &filename, bool usenewline, size_t indent) {
+	std::ofstream out;
+	out.open(filename.c_str(), std::ofstream::out | std::ios::binary);
+	JSON::Save(out, usenewline, indent);
+}
+
+void JSON::Save(std::ostream &out, bool usenewline, size_t indent) {
+	ToStream(out, usenewline, indent);
+}
+
+const JSON& JSON::Begin() const {
+	if (type == Type::Array)
+		return *(valueArray.begin());
+	if (type == Type::Object)
+		return valueObject.begin()->second;
+	throw(std::logic_error("Not an array or object."));
 }
 
 size_t JSON::Size() const {
@@ -44,6 +73,22 @@ size_t JSON::Size() const {
 	if (type == Type::Object)
 		return valueObject.size();
 	return 1;
+}
+
+bool JSON::HasKey(const std::string &key) const {
+	if (type != Type::Object)
+		return false;
+	return (valueObject.find(key) != valueObject.end());
+}
+
+std::string JSON::GetKey(size_t index) const {
+	if (type == Type::Object) {
+		auto it = valueObject.cbegin();
+		for (size_t n = 0; n < index; ++n)
+			++it;
+		return it->first;
+	}
+	throw(std::logic_error("Not an object."));
 }
 
 JSON& JSON::operator [](const std::string &key) {
@@ -85,76 +130,19 @@ const JSON& JSON::operator [](size_t index) const {
 	throw(std::logic_error("Not an array or object."));
 }
 
-bool JSON::HasKey(const std::string &key) const {
-	if (type != Type::Object)
-		return false;
-	return (valueObject.find(key) != valueObject.end());
-}
-
-std::string JSON::GetKey(size_t index) const {
-	if (type == Type::Object) {
-		auto it = valueObject.cbegin();
-		for (size_t n = 0; n < index; ++n)
-			++it;
-		return it->first;
-	}
-	throw(std::logic_error("Not an object."));
-}
-
-bool JSON::IsNull() const {
-	return (type == Type::Null);
-}
-
-double JSON::GetNumber(const double defaultvalue) const {
-	if (type == Type::Number)
-		return valueNumber;
-	if (type == Type::Boolean)
-		return (valueBoolean) ? 1 : 0;
-	if (type == Type::String)
-		return strtod(valueString.c_str(), nullptr);
-	if (type == Type::Null)
-		return defaultvalue;
-	throw(std::logic_error("Not a number."));
-}
-
-bool JSON::GetBool(const bool defaultvalue) const {
-	if (type == Type::Boolean)
-		return valueBoolean;
-	if (type == Type::Number)
-		return fabs(valueNumber) > 1e-6;
-	if (type == Type::Null)
-		return defaultvalue;
-	throw(std::logic_error("Not convertable to boolean."));
-}
-
-std::string JSON::GetString(const std::string &defaultvalue) const {
-	if (type == Type::String)
-		return valueString;
-	if (type == Type::Boolean)
-		return valueBoolean ? "true" : "false";
-	if (type == Type::Null)
-		return defaultvalue;
-	throw(std::logic_error("Not a string."));
-}
-
-bool JSON::IsArray() const {
-	return (type == Type::Array);
-}
-
-bool JSON::IsObject() const {
-	return type == Type::Object;
-}
-
-const JSON& JSON::Begin() const {
-	if (type == Type::Array)
-		return *(valueArray.begin());
-	if (type == Type::Object)
-		return valueObject.begin()->second;
-	throw(std::logic_error("Not an array or object."));
-}
-
 void JSON::SetNull() {
 	type = Type::Null;
+}
+
+void JSON::SetArray(size_t size) {
+	type = Type::Array;
+	valueArray.resize(size);
+}
+
+void JSON::SetObject(const bool clear) {
+	type = Type::Object;
+	if (clear)
+		valueObject.clear();
 }
 
 void JSON::SetBool(const bool value) {
@@ -172,40 +160,52 @@ void JSON::SetString(const std::string &value) {
 	valueString = value;
 }
 
-void JSON::SetArray(size_t size) {
-	type = Type::Array;
-	valueArray.resize(size);
+JSON::Type JSON::GetType() const {
+	return type;
 }
 
-void JSON::SetObject(const bool clear) {
-	type = Type::Object;
-	if (clear)
-		valueObject.clear();
+bool JSON::IsNull() const {
+	return (type == Type::Null);
 }
 
-JSON JSON::Load(const std::string &filename) {
-	std::ifstream in;
-	in.open(filename.c_str(), std::ifstream::in | std::ios::binary);
-	if (!in.good()) {
-		throw(std::runtime_error("JSON::Load(...) - Could not read file."));
-	}
-	return JSON::Load(in);
+bool JSON::IsArray() const {
+	return (type == Type::Array);
 }
 
-JSON JSON::Load(std::istream &in) {
-	FileTokenizer ft(&in);
-	ft.NextToken();
-	return Parse(ft, 127);
+bool JSON::IsObject() const {
+	return type == Type::Object;
 }
 
-void JSON::Save(const std::string &filename, bool usenewline, size_t indent) {
-	std::ofstream out;
-	out.open(filename.c_str(), std::ofstream::out | std::ios::binary);
-	JSON::Save(out, usenewline, indent);
+bool JSON::GetBool(const bool defaultvalue) const {
+	if (type == Type::Boolean)
+		return valueBoolean;
+	if (type == Type::Number)
+		return fabs(valueNumber) > 1e-6;
+	if (type == Type::Null)
+		return defaultvalue;
+	throw(std::logic_error("Not convertable to boolean."));
 }
 
-void JSON::Save(std::ostream &out, bool usenewline, size_t indent) {
-	ToStream(out, usenewline, indent);
+double JSON::GetNumber(const double defaultvalue) const {
+	if (type == Type::Number)
+		return valueNumber;
+	if (type == Type::Boolean)
+		return (valueBoolean) ? 1 : 0;
+	if (type == Type::String)
+		return strtod(valueString.c_str(), nullptr);
+	if (type == Type::Null)
+		return defaultvalue;
+	throw(std::logic_error("Not a number."));
+}
+
+std::string JSON::GetString(const std::string &defaultvalue) const {
+	if (type == Type::String)
+		return valueString;
+	if (type == Type::Boolean)
+		return valueBoolean ? "true" : "false";
+	if (type == Type::Null)
+		return defaultvalue;
+	throw(std::logic_error("Not a string."));
 }
 
 JSON JSON::Parse(FileTokenizer &ft, int maxRecursion) {

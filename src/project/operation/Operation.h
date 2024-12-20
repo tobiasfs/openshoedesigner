@@ -25,6 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef PROJECT_OPERATION_H
 #define PROJECT_OPERATION_H
+#include <string>
 
 /** \class Operation
  * 	\ingroup ObjectOperations
@@ -38,6 +39,12 @@ class Operation {
 public:
 	Operation() = default;
 	virtual ~Operation() = default;
+
+	/** \brief Return the name (and some info) for the operation
+	 *
+	 * \return string with name, no newline.
+	 */
+	virtual std::string GetName() const = 0;
 
 	/**\brief Checking (mostly) if all inputs and all outputs are connected.
 	 *
@@ -80,13 +87,16 @@ public:
 	/**\brief Run the operation
 	 *
 	 * Run the operation and set the output to valid afterwards. Thus the
-	 * operations doen the chain can be run.
+	 * operations down the chain can be run.
 	 */
 	virtual void Run() = 0;
 
 #ifdef DEBUG
 	virtual void Paint() const;
 #endif
+
+public:
+	std::string error;
 };
 
 #ifdef DEBUG

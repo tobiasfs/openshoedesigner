@@ -36,12 +36,13 @@
 #include "gui.h"
 #include "../math/MathParser.h"
 
-class FrameDebugParser:public GUIFrameDebugParser {
+class FrameDebugParser: public GUIFrameDebugParser {
 public:
-	FrameDebugParser(wxWindow* parent);
-	virtual ~FrameDebugParser();
-	virtual void OnCloseX(wxCloseEvent& event);
-	virtual void OnText(wxCommandEvent& event);
+	FrameDebugParser(wxWindow *parent);
+	virtual ~FrameDebugParser() = default;
+
+	virtual void OnCloseX(wxCloseEvent &event) override;
+	virtual void OnText(wxCommandEvent &event) override;
 
 	MathParser parser;
 };

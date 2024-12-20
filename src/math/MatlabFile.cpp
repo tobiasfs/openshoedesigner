@@ -44,7 +44,7 @@
 
 #define ERROR(errortxt) { \
 		std::ostringstream err; \
-		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -"; \
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -"; \
 		err << errortxt; \
 		throw std::runtime_error(err.str()); \
 	}

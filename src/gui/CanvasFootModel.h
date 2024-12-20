@@ -37,9 +37,9 @@
 
 class Project;
 
-class CanvasFootModel:public OpenGLCanvas {
+class CanvasFootModel: public OpenGLCanvas {
 public:
-	CanvasFootModel(wxWindow* parent);
+	CanvasFootModel(wxWindow *parent);
 	virtual ~CanvasFootModel() = default;
 
 	void Render();

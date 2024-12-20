@@ -35,9 +35,13 @@ InsoleConstruct::InsoleConstruct() {
 	insole = std::make_shared<Insole>();
 }
 
+std::string InsoleConstruct::GetName() const {
+	return "InsoleConstruct";
+}
+
 bool InsoleConstruct::CanRun() {
 	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	bool hasMissingConnection = false;
 	if (!footLength) {
 		hasMissingConnection = true;
@@ -79,8 +83,11 @@ bool InsoleConstruct::CanRun() {
 		hasMissingConnection = true;
 		err << " Output \"insole\" not set.";
 	}
-	if (hasMissingConnection)
-		throw std::runtime_error(err.str());
+	if (hasMissingConnection){
+		error = err.str();
+		throw std::logic_error(err.str());
+	}
+	error.clear();
 	return true;
 }
 

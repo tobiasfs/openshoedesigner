@@ -26,31 +26,28 @@
 
 #include "DialogSetupMidi.h"
 
-DialogSetupMidi::DialogSetupMidi(wxWindow* parent, MidiPort * midi,
-		wxWindowID id, const wxString& title, const wxPoint& pos,
-		const wxSize& size, long style)
-		: GUIDialogMidiSetup(parent, id, title, pos, size, style), midi(midi)
-{
+DialogSetupMidi::DialogSetupMidi(wxWindow *parent, MidiPort *midi,
+		wxWindowID id, const wxString &title, const wxPoint &pos,
+		const wxSize &size, long style) :
+		GUIDialogMidiSetup(parent, id, title, pos, size, style), midi(midi) {
 }
 
-void DialogSetupMidi::UpdateDevices()
-{
+void DialogSetupMidi::UpdateDevices() {
 	auto devicenames = midi->GetDeviceNames();
 	m_choice->Clear();
 	int n = 0;
-	for(auto & name : devicenames)
+	for (auto &name : devicenames)
 		m_choice->Insert(name, n++);
 }
 
-void DialogSetupMidi::OnClose(wxCommandEvent& event)
-{
+void DialogSetupMidi::OnClose(wxCommandEvent &event) {
 	this->Close();
 }
 
-void DialogSetupMidi::OnConnectDisconnect(wxCommandEvent& event)
-{
-	if(m_buttonConnectDisconnect->GetLabel() == _T("Connect")){
-		if(m_choice->GetSelection() < 0) return;
+void DialogSetupMidi::OnConnectDisconnect(wxCommandEvent &event) {
+	if (m_buttonConnectDisconnect->GetLabel() == _T("Connect")) {
+		if (m_choice->GetSelection() < 0)
+			return;
 		wxString device = m_choice->GetStringSelection();
 		auto d = midi->Open(device.ToStdString(),
 				MidiPort::Direction::Bidirectional);
@@ -62,10 +59,14 @@ void DialogSetupMidi::OnConnectDisconnect(wxCommandEvent& event)
 
 		m_buttonConnectDisconnect->SetLabel(_T("Disconnect"));
 		m_choice->Enable(false);
-	}else{
+	} else {
 		midi->CloseAll();
 		m_buttonConnectDisconnect->SetLabel(_T("Connect"));
 		m_choice->Enable(true);
 	}
 }
 
+void DialogSetupMidi::OnChoice(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
+}

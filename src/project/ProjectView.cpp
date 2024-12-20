@@ -71,8 +71,11 @@ ProjectView::~ProjectView() {
 bool ProjectView::OnCreate(wxDocument *doc, long flags) {
 	DEBUGOUT << "ProjectView::OnCreate(...) called...\n";
 
-	if (!wxView::OnCreate(doc, flags))
+	if (!wxView::OnCreate(doc, flags)){
+		DEBUGOUT << "ProjectView::OnCreate(...) failed.\n";
 		return false;
+	}
+
 	wxFrame *frame = wxGetApp().CreateChildFrame(this, FrameType::mainframe);
 	wxASSERT(frame == GetFrame());
 
@@ -84,6 +87,7 @@ bool ProjectView::OnCreate(wxDocument *doc, long flags) {
 //	foot = &(project->footL);
 
 	frame->Show();
+	DEBUGOUT << "ProjectView::OnCreate(...) successful.\n";
 	return true;
 }
 
@@ -189,7 +193,7 @@ void ProjectView::Paint(bool usePicking) const {
 		glLoadName(0); // Left
 //
 //		if (project->measurementsource
-//				== Project::MeasurementSource::fromFootScan && showFootScan) {
+//				== Project::MeasurementSource::scanBased && showFootScan) {
 //			glPushName(0);
 //			matScan.UseColor(0.5);
 //			glNormal3f(1, 0, 0);
@@ -198,7 +202,7 @@ void ProjectView::Paint(bool usePicking) const {
 //		}
 //
 //		if (project->measurementsource
-//				== Project::MeasurementSource::fromMeasurements && showBones) {
+//				== Project::MeasurementSource::measurementBased && showBones) {
 //			glPushName(1);
 //			matBones.UseMaterial();
 //			project->footL.PaintBones();
@@ -276,7 +280,7 @@ void ProjectView::Paint(bool usePicking) const {
 		glLoadName(1); // Right
 //
 //		if (project->measurementsource
-//				== Project::MeasurementSource::fromFootScan && showFootScan) {
+//				== Project::MeasurementSource::scanBased && showFootScan) {
 //			glPushName(0);
 //			matScan.UseColor(0.5);
 //			glNormal3f(1, 0, 0);
@@ -285,7 +289,7 @@ void ProjectView::Paint(bool usePicking) const {
 //		}
 //
 //		if (project->measurementsource
-//				== Project::MeasurementSource::fromMeasurements && showBones) {
+//				== Project::MeasurementSource::measurementBased && showBones) {
 //			glPushName(1);
 //			matBones.UseMaterial();
 //			project->footR.PaintBones();
@@ -433,14 +437,14 @@ const FootMeasurements* ProjectView::GetActiveFootMeasurements(void) const {
 
 void ProjectView::OnDraw(wxDC *dc) {
 	DEBUGOUT << "ProjectView::OnDraw(...) called...\n";
-
 }
 
 void ProjectView::OnUpdate(wxView *sender, wxObject *hint) {
+	wxView::OnUpdate(sender, hint);
+
 	FrameMain *temp = wxStaticCast(GetFrame(), FrameMain);
 	temp->TransferDataToWindow();
 	temp->Refresh();
-	wxView::OnUpdate(sender, hint);
 }
 
 void ProjectView::OnUpdate3D() {
@@ -451,8 +455,14 @@ void ProjectView::OnUpdate3D() {
 }
 
 bool ProjectView::OnClose(bool deleteWindow) {
+
 	DEBUGOUT << "ProjectView::OnClose( " << (deleteWindow ? "true" : "false")
 			<< " ) called...\n";
+
+	if (!wxView::OnClose(deleteWindow))
+		return false;
+
+	Activate(false);
 
 	wxDocument *doc = GetDocument();
 	wxDocManager *manager = doc->GetDocumentManager();
@@ -462,9 +472,6 @@ bool ProjectView::OnClose(bool deleteWindow) {
 	DEBUGOUT << "ProjectView:OnClose: " << tempDocs.GetCount() << " docs, "
 			<< tempViews.GetCount() << " views\n";
 
-	if (!wxView::OnClose(deleteWindow))
-		return false;
-	Activate(false);
 //	GetDocument()->DeleteContents();
 	wxWindow *frame = this->GetFrame();
 	if (tempDocs.GetCount() <= 1 && tempViews.GetCount() <= 1

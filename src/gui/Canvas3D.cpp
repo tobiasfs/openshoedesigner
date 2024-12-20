@@ -49,8 +49,7 @@ Canvas3D::Canvas3D(wxWindow *parent) :
 	projectview = nullptr;
 }
 
-Canvas3D::~Canvas3D() {
-}
+
 
 //void Canvas3D::ConnectMouseEvents()
 //{

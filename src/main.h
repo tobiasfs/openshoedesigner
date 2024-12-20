@@ -57,7 +57,9 @@ public:
 	virtual int OnExit();
 	wxFrame* CreateChildFrame(wxView *view, ProjectView::FrameType frametype);
 
-wxDECLARE_NO_COPY_CLASS(openshoedesigner);wxDECLARE_EVENT_TABLE();
+wxDECLARE_EVENT_TABLE();
+
+wxDECLARE_NO_COPY_CLASS(openshoedesigner);
 };
 DECLARE_APP(openshoedesigner)
 

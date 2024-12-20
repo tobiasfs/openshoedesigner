@@ -81,11 +81,11 @@ public:
 
 	const FootMeasurements* GetActiveFootMeasurements(void) const;
 
-	bool OnCreate(wxDocument *doc, long flags);
-	void OnDraw(wxDC *dc);
-	void OnUpdate(wxView *sender, wxObject *hint = nullptr);
-	void OnUpdate3D();
-	bool OnClose(bool deleteWindow = true);
+	virtual bool OnCreate(wxDocument *doc, long flags) override;
+	virtual void OnDraw(wxDC *dc) override;
+	virtual void OnUpdate(wxView *sender, wxObject *hint = nullptr) override;
+	virtual void OnUpdate3D();
+	virtual bool OnClose(bool deleteWindow = true) override;
 
 private:
 	void PaintLast() const;
@@ -95,7 +95,7 @@ private:
 	void PaintFloor() const;
 
 DECLARE_DYNAMIC_CLASS(ProjectView)
-
+	;
 };
 
 #endif /* PROJECTVIEW_H */

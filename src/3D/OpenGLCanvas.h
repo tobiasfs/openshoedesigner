@@ -105,6 +105,7 @@ public:
 	AffineTransformMatrix camera_position;
 	AffineTransformMatrix model;
 
+	float unitAtOrigin;
 protected:
 
 	int x; //!< Startpoint for mouse dragging
@@ -113,7 +114,6 @@ protected:
 	int h; //!< Height of viewport
 	float turntableX;
 	float turntableY;
-	float unitAtOrigin;
 	unsigned int m_gllist;
 
 //	OpenGLShader shadows;

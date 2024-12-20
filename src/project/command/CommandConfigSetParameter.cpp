@@ -72,7 +72,7 @@ bool CommandConfigSetParameter::Do() {
 				change.group);
 		if (!param) {
 			std::ostringstream err;
-			err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+			err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 			err << "The parameter with the ID = " << change.id;
 			if (change.group != (size_t) -1)
 				err << " in group = " << change.group;
@@ -80,8 +80,8 @@ bool CommandConfigSetParameter::Do() {
 			err << " and cannot be set to " << change.newFormula << ".";
 			throw std::logic_error(err.str());
 		}
-		change.oldFormula = param->GetFormula();
-		param->SetFormula(change.newFormula);
+		change.oldFormula = param->GetString();
+		param->SetString(change.newFormula);
 		modified |= param->IsModified();
 	}
 	project->Update();
@@ -100,15 +100,15 @@ bool CommandConfigSetParameter::Undo() {
 				change.group);
 		if (!param) {
 			std::ostringstream err;
-			err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+			err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 			err << "The parameter with the ID = " << change.id;
 			if (change.group != (size_t) -1)
 				err << " in group = " << change.group;
 			err << " does not exist";
-			err << " and cannot be set to " << change.newFormula << ".";
+			err << " and cannot be set to " << change.oldFormula << ".";
 			throw std::logic_error(err.str());
 		}
-		param->SetFormula(change.oldFormula);
+		param->SetString(change.oldFormula);
 	}
 	project->Update();
 	return true;

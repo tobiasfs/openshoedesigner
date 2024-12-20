@@ -35,11 +35,14 @@
 
 #include "gui.h"
 
-class DialogEditorAnisotropy:public GUIDialogAnisotropy {
+class DialogEditorAnisotropy: public GUIDialogAnisotropy {
 public:
-	DialogEditorAnisotropy(wxWindow* parent);
-	virtual ~DialogEditorAnisotropy();
+	DialogEditorAnisotropy(wxWindow *parent);
+	virtual ~DialogEditorAnisotropy() = default;
 
+protected:
+	void OnButtonAdd(wxCommandEvent &event) override;
+	void OnButtonRemove(wxCommandEvent &event) override;
 };
 
 #endif /* DIALOGANISOTROPY_H */

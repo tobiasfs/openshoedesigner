@@ -67,41 +67,13 @@ Project::Project() :
 	thread0 = nullptr;
 	thread1 = nullptr;
 
-//	wxFileInputStream input("data/FootModelDefault.json");
-//	wxTextInputStream text(input);
-//	footL.LoadJSON("data/FootModelDefault.json");
-//	footL.GetBone("Tibia")->matrixinit.SetOrigin(Vector3(0, 0, 0));
-//	footR = footL;
-//	footR.Mirror();
-//	footL.LoadModel(&text);
-//	footR.CopyModel(footL);
-//	footR.mirrored = true;
-
 //	footScan.InitExample();
-//config.
-//	lastModelR.LoadModel("data/Last_Default_Warped.stl");
-
-//	lastModelR.hull.SaveObj("/tmp/hull_export.obj");
-
-//	lastModelL = lastModelR;
-//	lastModelL.mirrored = true;
-
-//	try {
-//		measR.LoadJSON("test.json");
-//	} catch (std::exception & ex) {
-//		std::cerr << "Exception: " << ex.what() << "\n";
-//	}
-//	parameter.SetGroup((size_t) ProjectView::Side::Left);
-//	measL.Register(parameter);
-//	parameter.SetGroup((size_t) ProjectView::Side::Right);
-//	measR.Register(parameter);
-//	parameter.SetGroup();
-//	shoe.Register(parameter);
 
 	Update();
 
 	Bind(wxEVT_COMMAND_THREAD_COMPLETED, &Project::OnCalculationDone, this);
 	Bind(wxEVT_COMMAND_THREAD_UPDATE, &Project::OnRefreshViews, this);
+	DEBUGOUT << "Project: Constructor called.\n";
 }
 
 Project::~Project() {
@@ -117,38 +89,11 @@ Project::~Project() {
 		if (thread1 != nullptr)
 			thread1->Delete();
 	}
+	DEBUGOUT << "Project: Destructor called.\n";
 }
 
-//bool Project::UpdateLeft() {
-//	wxCriticalSectionLocker locker(CSLeft);
-//	if (insoleL.IsModified()) {
-//		insoleL.Modify(false);
-//		insoleL.Mirror(false);
-//		insoleL.Construct(shoe, measL);
-//		insoleL.Shape(shoe, fmax(legLengthDifference->ToDouble(), 0));
-//		insoleL.Mirror(true);
-//		lastModelL.Modify(true);
-//		footL.ModifyPosition(true);
-//		return true;
-//	}
-//	if (footL.IsModifiedForm()) {
-//		footL.ModifyForm(false);
-////		footL.UpdateForm(measL);
-//		footL.ModifyPosition(true);
-//		return true;
-//	}
 /*
- if (footL.IsModifiedPosition()) {
- footL.ModifyPosition(false);
- footL.UpdatePosition(shoe, fmax(legLengthDifference.ToDouble(), 0),
- measL.angleMixing.ToDouble());
- footL.ModifySkin(true);
- return true;
- }
 
- if (footL.IsModifiedSkin()) {
- footL.ModifySkin(false);
- footL.CalculateSkin();
 
  heightfield = footL.skin.SurfaceField();
  OrientedMatrix temp = heightfield.XRay(Volume::Method::MinValue);
@@ -233,6 +178,8 @@ void Project::Register() {
 }
 
 void Project::Update() {
+	if (config.IsModified() || footL.IsModified() || footR.IsModified())
+		Modify(true);
 	try {
 		evaluator.Update();
 		evaluator.Calculate();
@@ -317,23 +264,46 @@ DocumentIstream& Project::LoadObject(DocumentIstream &istream) {
 #else
 	wxTextInputStream stream(istream);
 #endif
+	wxDocument::LoadObject(istream);
+	try {
+		JSON json = JSON::Load(stream);
+		if (!json.IsObject())
+			return istream;
 
-	wxInt32 count = 0;
-	stream >> count;
-
-	if (false) {
-		wxLogWarning
-		("File could not be read.");
-#if wxUSE_STD_IOSTREAM
-		istream.clear(std::ios::badbit);
-#else
-		istream.Reset(wxSTREAM_READ_ERROR);
-#endif
-		return istream;
+		if (json.HasKey("configuration")) {
+			JSON &conf = json["configuration"];
+			config.FromJSON(conf);
+		}
+		if (json.HasKey("measurements")) {
+			JSON &meas = json["measurements"];
+			footL.FromJSON(meas);
+			footR.FromJSON(meas);
+		}
+		if (json.HasKey("measurementsLeft")) {
+			JSON &measL = json["measurementsLeft"];
+			footL.FromJSON(measL);
+		}
+		if (json.HasKey("measurementsRight")) {
+			JSON &measR = json["measurementsRight"];
+			footR.FromJSON(measR);
+		}
+		stream.clear();
+		Update();
+		Modify(false);
+	} catch (const std::exception &ex) {
+		std::cerr << "Error while loading project: " << ex.what() << "\n";
 	}
 
-// TODO: Add Project data
+//	DEBUGOUT << "stream.good() = " << stream.good() << "\n";
+//	DEBUGOUT << "stream.bad() = " << stream.bad() << "\n";
+//	DEBUGOUT << "stream.fail() = " << stream.fail() << "\n";
+//	DEBUGOUT << "stream.eof() = " << stream.eof() << "\n";
 
+	DEBUGOUT << __FUNCTION__;
+	if (!stream)
+		DEBUGOUT << ": failed.\n";
+	else
+		DEBUGOUT << ": successful.\n";
 	return istream;
 }
 
@@ -344,49 +314,30 @@ DocumentOstream& Project::SaveObject(DocumentOstream &ostream) {
 #else
 	wxTextOutputStream stream(ostream);
 #endif
+	wxDocument::SaveObject(ostream);
 
-// TODO: Add Project data
+	JSON json;
+	json.SetObject();
+	JSON &conf = json["configuration"];
+	config.ToJSON(conf);
 
+	if (footL == footR) {
+		JSON &meas = json["measurements"];
+		footL.ToJSON(meas);
+	} else {
+		JSON &measL = json["measurementsLeft"];
+		footL.ToJSON(measL);
+		JSON &measR = json["measurementsRight"];
+		footR.ToJSON(measR);
+	}
+	json.Save(stream);
 	return ostream;
-}
-
-void Project::LoadFootModel(wxString fileName) {
-	wxFileInputStream input(fileName);
-	wxTextInputStream text(input);
-
-//	bool flag = false;
-//	if(active == Left){
-//		flag = footL.LoadModel(&text);
-//		if(symmetry == Full) footR.CopyModel(footL);
-//	}
-//	if(active == Right){
-//		flag = footR.LoadModel(&text);
-//		if(symmetry == Full) footR.CopyModel(footL);
-//	}
 }
 
 void Project::SaveFootModel(wxString fileName) {
 	wxFileOutputStream output(fileName);
 	wxTextOutputStream text(output);
 //	return footL.SaveModel(&text);
-}
-
-void Project::LoadLastModel(wxString fileName) {
-	try {
-//		lastModelR.LoadModel(fileName.ToStdString());
-	} catch (std::exception &exeption) {
-		std::cerr << "Project::LoadLastModel : Exception caught while loading: "
-				<< exeption.what() << "\n";
-	}
-//	if (!lastModelR.AnalyseForm()) {
-//		std::cerr << "Failed to analyze the form of the loaded model.\n";
-//		return false;
-//	}
-//	lastModelL = lastModelR;
-//	lastModelL.Mirror();
-//	lastModelR.Modify(true);
-//	lastModelL.Modify(true);
-	Update();
 }
 
 void Project::SaveLast(wxString fileName, bool left, bool right) {
@@ -421,7 +372,7 @@ void Project::OnCalculationDone(wxThreadEvent &event) {
 	CS.Enter();
 
 	CS.Leave();
-	UpdateAllViews(); // This has been done by OnRefreshViews.
+	UpdateAllViews(); //TODO This has been done by OnRefreshViews.
 }
 
 void Project::StopAllThreads() {

@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : ParameterString.h
+// Name               : SemaphoreTryLocker.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 09.11.2024
+// Created            : 16.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,40 +23,31 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_PARAMETERSTRING_H_
-#define SRC_PROJECT_PARAMETERSTRING_H_
+#ifndef SEMAPHORETRYLOCKER_H_
+#define SEMAPHORETRYLOCKER_H_
 
-/** \class ParameterString
- * 	\code #include "ParameterString.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
+/** \class SemaphoreTryLocker
+ * 	\code #include "SemaphoreTryLocker.h"\endcode
+ *  \brief Non-blocking semaphore locker
  *
- * Text
+ * Modeled after the wxMutexLocker from the wxWidgets thread header.
  */
 
-#include "Parameter.h"
+#include <wx/thread.h>
 
-class ParameterString: public Parameter {
+class SemaphoreTryLocker {
 public:
-	ParameterString() = delete;
-	explicit ParameterString(const std::string &name,
-			const std::string &initial_value = std::string(""),
-			const std::string &description = std::string(""), const size_t id =
-					(size_t) -1, const size_t group = (size_t) -1);
-	virtual ~ParameterString() = default;
+	SemaphoreTryLocker() = delete;
+	SemaphoreTryLocker(wxSemaphore &semaphore_);
+	virtual ~SemaphoreTryLocker();
+	SemaphoreTryLocker(const SemaphoreTryLocker &other) = delete;
+	SemaphoreTryLocker& operator=(const SemaphoreTryLocker &other) = delete;
 
-	void SetString(const std::string &text) override;
-	std::string GetString() const override;
-
-	double operator()() const;
-	double ToDouble() const;
-	bool ToBool() const;
-
-	friend std::ostream& operator<<(std::ostream &out,
-			const ParameterString &param);
-
+	bool IsOK() const;
+	void UnLock();
 private:
-	std::string text;
+	wxSemaphore &semaphore;
+	bool isOK = false;
 };
 
-#endif /* SRC_PROJECT_PARAMETERSTRING_H_ */
+#endif /* SEMAPHORETRYLOCKER_H_ */

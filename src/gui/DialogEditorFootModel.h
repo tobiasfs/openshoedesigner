@@ -46,9 +46,9 @@ public:
 			long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 	virtual ~DialogEditorFootModel();
 
-	void OnLoad(wxCommandEvent &event);
-	void OnSave(wxCommandEvent &event);
-	void OnClose(wxCommandEvent &event);
+	void OnLoad(wxCommandEvent &event) override;
+	void OnSave(wxCommandEvent &event) override;
+	void OnClose(wxCommandEvent &event) override;
 
 	void SetMidi(MidiPort *midi);
 

@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Aug 20 2017)
+// C++ code generated with wxFormBuilder (version 3.10.1-0-g8feb16b)
 // http://www.wxformbuilder.org/
 //
-// PLEASE DO "NOT" EDIT THIS FILE!
+// PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
 #include "guiSetupStereo3D.h"
@@ -12,190 +12,190 @@
 GUISetupStereo3D::GUISetupStereo3D( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-	
-	wxBoxSizer* bSizer80;
-	bSizer80 = new wxBoxSizer( wxHORIZONTAL );
-	
+
+	wxBoxSizer* bSizerStereo3D;
+	bSizerStereo3D = new wxBoxSizer( wxHORIZONTAL );
+
 	wxFlexGridSizer* fgSizerMain;
 	fgSizerMain = new wxFlexGridSizer( 3, 3, 0, 0 );
 	fgSizerMain->AddGrowableCol( 1 );
 	fgSizerMain->AddGrowableRow( 0 );
 	fgSizerMain->SetFlexibleDirection( wxBOTH );
 	fgSizerMain->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-	
+
 	wxBoxSizer* bSizerLeftSilders;
 	bSizerLeftSilders = new wxBoxSizer( wxVERTICAL );
-	
-	m_staticText120 = new wxStaticText( this, wxID_ANY, _("Left Eye"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText120->Wrap( -1 );
-	bSizerLeftSilders->Add( m_staticText120, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
-	
-	wxBoxSizer* bSizer76;
-	bSizer76 = new wxBoxSizer( wxHORIZONTAL );
-	
+
+	m_staticTextLeftEye = new wxStaticText( this, wxID_ANY, _("Left Eye"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextLeftEye->Wrap( -1 );
+	bSizerLeftSilders->Add( m_staticTextLeftEye, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	wxBoxSizer* bSizerLeftEye;
+	bSizerLeftEye = new wxBoxSizer( wxHORIZONTAL );
+
 	m_sliderLR = new wxSlider( this, ID_COLORLR, 100, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_INVERSE|wxSL_VERTICAL );
-	bSizer76->Add( m_sliderLR, 0, wxALL|wxEXPAND, 5 );
-	
+	bSizerLeftEye->Add( m_sliderLR, 0, wxALL|wxEXPAND, 5 );
+
 	m_sliderLG = new wxSlider( this, ID_COLORLG, 100, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_INVERSE|wxSL_VERTICAL );
-	bSizer76->Add( m_sliderLG, 0, wxALL|wxEXPAND, 5 );
-	
+	bSizerLeftEye->Add( m_sliderLG, 0, wxALL|wxEXPAND, 5 );
+
 	m_sliderLB = new wxSlider( this, ID_COLORLB, 100, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_INVERSE|wxSL_VERTICAL );
-	bSizer76->Add( m_sliderLB, 0, wxALL|wxEXPAND, 5 );
-	
-	
-	bSizerLeftSilders->Add( bSizer76, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
-	
-	
+	bSizerLeftEye->Add( m_sliderLB, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizerLeftSilders->Add( bSizerLeftEye, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
 	fgSizerMain->Add( bSizerLeftSilders, 0, wxEXPAND, 5 );
-	
+
 	m_canvas = new CanvasStereoTest(this);
 	fgSizerMain->Add( m_canvas, 1, wxALL|wxEXPAND, 5 );
-	
+
 	wxBoxSizer* bSizerRightSliders;
 	bSizerRightSliders = new wxBoxSizer( wxVERTICAL );
-	
-	m_staticText1201 = new wxStaticText( this, wxID_ANY, _("Right Eye"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText1201->Wrap( -1 );
-	bSizerRightSliders->Add( m_staticText1201, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
-	
-	wxBoxSizer* bSizer761;
-	bSizer761 = new wxBoxSizer( wxHORIZONTAL );
-	
+
+	m_staticTextRightEye = new wxStaticText( this, wxID_ANY, _("Right Eye"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextRightEye->Wrap( -1 );
+	bSizerRightSliders->Add( m_staticTextRightEye, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	wxBoxSizer* bSizerRightEye;
+	bSizerRightEye = new wxBoxSizer( wxHORIZONTAL );
+
 	m_sliderRR = new wxSlider( this, ID_COLORRR, 100, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_INVERSE|wxSL_VERTICAL );
-	bSizer761->Add( m_sliderRR, 0, wxALL|wxEXPAND, 5 );
-	
+	bSizerRightEye->Add( m_sliderRR, 0, wxALL|wxEXPAND, 5 );
+
 	m_sliderRG = new wxSlider( this, ID_COLORRG, 100, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_INVERSE|wxSL_VERTICAL );
-	bSizer761->Add( m_sliderRG, 0, wxALL|wxEXPAND, 5 );
-	
+	bSizerRightEye->Add( m_sliderRG, 0, wxALL|wxEXPAND, 5 );
+
 	m_sliderRB = new wxSlider( this, ID_COLORRB, 100, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_INVERSE|wxSL_VERTICAL );
-	bSizer761->Add( m_sliderRB, 0, wxALL|wxEXPAND, 5 );
-	
-	
-	bSizerRightSliders->Add( bSizer761, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
-	
-	
+	bSizerRightEye->Add( m_sliderRB, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizerRightSliders->Add( bSizerRightEye, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
 	fgSizerMain->Add( bSizerRightSliders, 0, wxEXPAND, 5 );
-	
-	m_colourPickerLeft = new wxColourPickerCtrl( this, ID_COLORLEFT, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+
+	m_colourPickerLeft = new wxColourPickerCtrl( this, ID_COLORLEFT, wxColour( 237, 51, 59 ), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
 	fgSizerMain->Add( m_colourPickerLeft, 0, wxALL|wxEXPAND, 5 );
-	
+
 	m_buttonSwapColors = new wxButton( this, wxID_ANY, _("<-   Swap Colors   ->"), wxDefaultPosition, wxDefaultSize, 0 );
 	fgSizerMain->Add( m_buttonSwapColors, 0, wxALL|wxEXPAND, 5 );
-	
-	m_colourPickerRight = new wxColourPickerCtrl( this, ID_COLORRIGHT, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+
+	m_colourPickerRight = new wxColourPickerCtrl( this, ID_COLORRIGHT, wxColour( 87, 227, 137 ), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
 	fgSizerMain->Add( m_colourPickerRight, 0, wxALL|wxEXPAND, 5 );
-	
+
 	wxFlexGridSizer* fgSizerLeftText;
 	fgSizerLeftText = new wxFlexGridSizer( 3, 2, 0, 0 );
 	fgSizerLeftText->SetFlexibleDirection( wxBOTH );
 	fgSizerLeftText->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-	
-	m_staticText113 = new wxStaticText( this, wxID_ANY, _("R:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText113->Wrap( -1 );
-	fgSizerLeftText->Add( m_staticText113, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	m_staticTextLR = new wxStaticText( this, wxID_ANY, _("R:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextLR->Wrap( -1 );
+	fgSizerLeftText->Add( m_staticTextLR, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlLR = new wxTextCtrl( this, ID_TEXTLR, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
 	fgSizerLeftText->Add( m_textCtrlLR, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	m_staticText1131 = new wxStaticText( this, wxID_ANY, _("G:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText1131->Wrap( -1 );
-	fgSizerLeftText->Add( m_staticText1131, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	m_staticTextLG = new wxStaticText( this, wxID_ANY, _("G:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextLG->Wrap( -1 );
+	fgSizerLeftText->Add( m_staticTextLG, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlLG = new wxTextCtrl( this, ID_TEXTLG, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
 	fgSizerLeftText->Add( m_textCtrlLG, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	m_staticText11311 = new wxStaticText( this, wxID_ANY, _("B:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText11311->Wrap( -1 );
-	fgSizerLeftText->Add( m_staticText11311, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	m_staticTextLB = new wxStaticText( this, wxID_ANY, _("B:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextLB->Wrap( -1 );
+	fgSizerLeftText->Add( m_staticTextLB, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlLB = new wxTextCtrl( this, ID_TEXTLB, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
 	fgSizerLeftText->Add( m_textCtrlLB, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	
+
+
 	fgSizerMain->Add( fgSizerLeftText, 0, wxEXPAND, 5 );
-	
+
 	wxBoxSizer* bSizerMiddle;
 	bSizerMiddle = new wxBoxSizer( wxVERTICAL );
-	
+
 	m_sliderEyeDistance = new wxSlider( this, ID_EYEDISTANCE, 100, 0, 200, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
 	bSizerMiddle->Add( m_sliderEyeDistance, 0, wxALL|wxEXPAND, 5 );
-	
-	wxBoxSizer* bSizer82;
-	bSizer82 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_staticText125 = new wxStaticText( this, wxID_ANY, _("Eye Distance:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText125->Wrap( -1 );
-	bSizer82->Add( m_staticText125, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	wxBoxSizer* bSizerEyeDistance;
+	bSizerEyeDistance = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticTextEyeDistance = new wxStaticText( this, wxID_ANY, _("Eye Distance:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextEyeDistance->Wrap( -1 );
+	bSizerEyeDistance->Add( m_staticTextEyeDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlEyeDistance = new wxTextCtrl( this, ID_TEXTEYEDISTANCE, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
-	bSizer82->Add( m_textCtrlEyeDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+	bSizerEyeDistance->Add( m_textCtrlEyeDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_staticTextUnitEyeDistance = new wxStaticText( this, wxID_ANY, _("cm"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextUnitEyeDistance->Wrap( -1 );
-	bSizer82->Add( m_staticTextUnitEyeDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	
-	bSizerMiddle->Add( bSizer82, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
-	
+	bSizerEyeDistance->Add( m_staticTextUnitEyeDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	bSizerMiddle->Add( bSizerEyeDistance, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
+
 	m_sliderFocalDistance = new wxSlider( this, ID_FOCALDISTANCE, 100, 0, 200, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
 	bSizerMiddle->Add( m_sliderFocalDistance, 0, wxALL|wxEXPAND, 5 );
-	
-	wxBoxSizer* bSizer83;
-	bSizer83 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_staticText127 = new wxStaticText( this, wxID_ANY, _("Focal Distance:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText127->Wrap( -1 );
-	bSizer83->Add( m_staticText127, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	wxBoxSizer* bSizerFocalDistance;
+	bSizerFocalDistance = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticTextFocalDistance = new wxStaticText( this, wxID_ANY, _("Focal Distance:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextFocalDistance->Wrap( -1 );
+	bSizerFocalDistance->Add( m_staticTextFocalDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlFocalDistance = new wxTextCtrl( this, ID_TEXTFOCALDISTANCE, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
-	bSizer83->Add( m_textCtrlFocalDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+	bSizerFocalDistance->Add( m_textCtrlFocalDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_staticTextUnitFocalDistance = new wxStaticText( this, wxID_ANY, _("cm"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextUnitFocalDistance->Wrap( -1 );
-	bSizer83->Add( m_staticTextUnitFocalDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	
-	bSizerMiddle->Add( bSizer83, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
-	
-	
+	bSizerFocalDistance->Add( m_staticTextUnitFocalDistance, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	bSizerMiddle->Add( bSizerFocalDistance, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
 	fgSizerMain->Add( bSizerMiddle, 0, wxEXPAND, 5 );
-	
+
 	wxFlexGridSizer* fgSizerRightText;
 	fgSizerRightText = new wxFlexGridSizer( 3, 2, 0, 0 );
 	fgSizerRightText->SetFlexibleDirection( wxBOTH );
 	fgSizerRightText->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-	
-	m_staticText1132 = new wxStaticText( this, wxID_ANY, _("R:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText1132->Wrap( -1 );
-	fgSizerRightText->Add( m_staticText1132, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	m_staticTextRR = new wxStaticText( this, wxID_ANY, _("R:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextRR->Wrap( -1 );
+	fgSizerRightText->Add( m_staticTextRR, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlRR = new wxTextCtrl( this, ID_TEXTRR, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
 	fgSizerRightText->Add( m_textCtrlRR, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	m_staticText11312 = new wxStaticText( this, wxID_ANY, _("G:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText11312->Wrap( -1 );
-	fgSizerRightText->Add( m_staticText11312, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	m_staticTextRG = new wxStaticText( this, wxID_ANY, _("G:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextRG->Wrap( -1 );
+	fgSizerRightText->Add( m_staticTextRG, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlRG = new wxTextCtrl( this, ID_TEXTRG, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
 	fgSizerRightText->Add( m_textCtrlRG, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	m_staticText113111 = new wxStaticText( this, wxID_ANY, _("B:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText113111->Wrap( -1 );
-	fgSizerRightText->Add( m_staticText113111, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
+
+	m_staticTextRB = new wxStaticText( this, wxID_ANY, _("B:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextRB->Wrap( -1 );
+	fgSizerRightText->Add( m_staticTextRB, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 	m_textCtrlRB = new wxTextCtrl( this, ID_TEXTRB, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
 	fgSizerRightText->Add( m_textCtrlRB, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-	
-	
+
+
 	fgSizerMain->Add( fgSizerRightText, 0, wxEXPAND, 5 );
-	
-	
-	bSizer80->Add( fgSizerMain, 1, wxEXPAND, 5 );
-	
-	
-	this->SetSizer( bSizer80 );
+
+
+	bSizerStereo3D->Add( fgSizerMain, 1, wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizerStereo3D );
 	this->Layout();
-	
+
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUISetupStereo3D::OnXClose ) );
 	m_sliderLR->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( GUISetupStereo3D::OnScroll ), NULL, this );
@@ -370,5 +370,5 @@ GUISetupStereo3D::~GUISetupStereo3D()
 	m_textCtrlRR->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUISetupStereo3D::OnTextChange ), NULL, this );
 	m_textCtrlRG->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUISetupStereo3D::OnTextChange ), NULL, this );
 	m_textCtrlRB->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUISetupStereo3D::OnTextChange ), NULL, this );
-	
+
 }

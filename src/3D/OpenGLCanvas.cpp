@@ -171,13 +171,12 @@ OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 	auto success = gladLoadGLLoader((GLADloadproc) wglGetProcAddress);
 
 #else // Linux
-
-	auto success = gladLoadGLLoader((GLADloadproc) *glXGetProcAddressARB);
+//	auto success = gladLoadGLLoader((GLADloadproc) *glXGetProcAddressARB);
+	auto success = gladLoadGL();
 #endif
-
 	if (!success) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		out << "Failed to initialize GLAD.";
 		throw std::runtime_error(out.str());
 	}
@@ -185,7 +184,7 @@ OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 #endif
 
 	DEBUGOUT << "GL_VERSION: ";
-	// If this line fails, glad was probably not initialized at the beginning.
+	// If this line fails, glad was probably not initialized correctly.
 	DEBUGOUT << glGetString(GL_VERSION);
 	DEBUGOUT << '\n';
 }
@@ -279,7 +278,7 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 			movement = unitAtOrigin;
 		const float dx = (float) (event.m_x - x) / movement;
 		const float dy = (float) (event.m_y - y) / movement;
-		rotmat.TranslateGlobal(dx, -dy, 0);
+		transmat.TranslateGlobal(dx, -dy, 0);
 		x = event.m_x;
 		y = event.m_y;
 
@@ -287,8 +286,8 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 	} else {
 		const int x = event.GetWheelRotation();
 		if (x != 0) {
-			scale *= exp(-((float) x) / 1000.0);
-			// rotmat.TranslateGlobal(0, 0, (float) -x / 1000.0);
+//			scale *= exp(-((float) x) / 1000.0);
+			transmat.TranslateGlobal(0, 0, (float) -x / 1000.0);
 			this->Refresh();
 		}
 	}
@@ -309,6 +308,7 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 	if (context == nullptr)
 		context = new Context(this);
 	context->SetCurrent(*this); // Link OpenGL to this area
+
 	// set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
 	GetClientSize(&w, &h);
 	glViewport(0, 0, (GLint) w, (GLint) h);
@@ -355,7 +355,6 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 
-#ifndef USE_GLAD
 	{ // Render background
 		if (stereoMode == Stereo3D::Anaglyph) {
 			glColor3ub(backgroundGrayLevel, backgroundGrayLevel,
@@ -365,7 +364,7 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluOrtho2D(0, 1, 0, 1);
+		AffineTransformMatrix::Orthogonal(0, 1, 0, 1, -1, 1).GLMultMatrix();
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
@@ -396,20 +395,18 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 		// image is always painted in front of the background.
 		glClear( GL_DEPTH_BUFFER_BIT);
 	}
-#endif
 
-	GLdouble aspect = (GLdouble) w / (GLdouble) h; // Calculate perspective
+	const GLdouble aspect = (GLdouble) w / (GLdouble) h; // Calculate perspective
 
 	projection = AffineTransformMatrix::Perspective(M_PI_4, aspect, 0.1, 100.0);
-//	projection = AffineTransformMatrix::Orthogonal(-ar * 0.4142, ar * 0.4142,
-//			-0.4142, 0.4142, 0.4142, -0.4142);
+//	projection = AffineTransformMatrix::Orthogonal(-aspect * 0.4142,
+//			aspect * 0.4142, -0.4142, 0.4142, 0.4142, -0.4142);
 
 	glEnable(GL_LIGHTING);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	projection.GLMultMatrix();
-
 	glMatrixMode(GL_MODELVIEW);
 
 	glCullFace(GL_BACK);
@@ -438,28 +435,19 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 	glTranslatef(0.0, 0.0, -focalDistance);
 	glScalef(scale, scale, scale);
 
-#ifndef USE_GLAD
-	{ // Determin unit length at origin
-		GLint viewport[4];
-		GLdouble modelview[16];
-		GLdouble projection[16];
-		GLdouble winX1, winY1, winZ1;
-		GLdouble winX2, winY2, winZ2;
-		glGetDoublev( GL_MODELVIEW_MATRIX, modelview);
-		glGetDoublev( GL_PROJECTION_MATRIX, projection);
-		glGetIntegerv( GL_VIEWPORT, viewport);
-		gluProject(0, 0, 0, modelview, projection, viewport, &winX1, &winY1,
-				&winZ1);
-		gluProject(1, 0, 0, modelview, projection, viewport, &winX2, &winY2,
-				&winZ2);
-		unitAtOrigin = winX2 - winX1;
-	}
-#else
-	unitAtOrigin = 100;
-#endif
-
-	rotmat.GLMultMatrix();
 	transmat.GLMultMatrix();
+	rotmat.GLMultMatrix();
+
+	{ // Determine unit length at origin
+		GLint vp[4];
+		GLdouble mv[16];
+		GLdouble pr[16];
+		glGetDoublev( GL_MODELVIEW_MATRIX, mv);
+		glGetDoublev( GL_PROJECTION_MATRIX, pr);
+		glGetIntegerv( GL_VIEWPORT, vp);
+
+		unitAtOrigin = -vp[2] * (mv[3] * pr[12] + pr[0]) / (2.0 * mv[14]);
+	}
 
 	//	if(m_gllist == 0){
 	//		m_gllist = glGenLists(1); // Make one (1) empty display list.

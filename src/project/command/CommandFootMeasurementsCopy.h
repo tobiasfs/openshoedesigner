@@ -46,8 +46,8 @@ public:
 	CommandFootMeasurementsCopy(const wxString &name, Project *project,
 			ProjectView::Side toSide);
 
-	bool Do();
-	bool Undo();
+	bool Do() override;
+	bool Undo() override;
 
 protected:
 	Project *project;

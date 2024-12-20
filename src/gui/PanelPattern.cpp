@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 01.11.2017
 // Copyright          : (C) 2017 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -27,11 +27,10 @@
 
 #include <wx/dcclient.h>
 
-PanelPattern::PanelPattern(wxWindow* parent, wxWindowID id,
-		const wxPoint& pos, const wxSize& size, long style) :
-		wxPanel(parent, id, pos, size, style)
-{
-	
+PanelPattern::PanelPattern(wxWindow *parent, wxWindowID id, const wxPoint &pos,
+		const wxSize &size, long style) :
+		wxPanel(parent, id, pos, size, style) {
+
 	this->SetBackgroundColour(wxColour(200, 200, 200));
 
 	// Connect Events
@@ -42,24 +41,20 @@ PanelPattern::PanelPattern(wxWindow* parent, wxWindowID id,
 	this->Connect(wxEVT_SIZE, wxSizeEventHandler(PanelPattern::OnSize));
 }
 
-PanelPattern::~PanelPattern()
-{
+PanelPattern::~PanelPattern() {
 	// Disconnect Events
 	this->Disconnect(wxEVT_LEFT_DOWN,
 			wxMouseEventHandler(PanelPattern::OnLeftDown));
-	this->Disconnect(wxEVT_MOTION,
-			wxMouseEventHandler(PanelPattern::OnMotion));
+	this->Disconnect(wxEVT_MOTION, wxMouseEventHandler(PanelPattern::OnMotion));
 	this->Disconnect(wxEVT_PAINT, wxPaintEventHandler(PanelPattern::OnPaint));
 	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(PanelPattern::OnSize));
 }
 
-void PanelPattern::OnSize(wxSizeEvent& event)
-{
+void PanelPattern::OnSize(wxSizeEvent &event) {
 	this->Refresh();
 }
 
-void PanelPattern::OnPaint(wxPaintEvent& event)
-{
+void PanelPattern::OnPaint(wxPaintEvent &event) {
 
 	wxPoint temp;
 	wxPaintDC dc(this);
@@ -71,7 +66,7 @@ void PanelPattern::OnPaint(wxPaintEvent& event)
 	float scaleX = (float) sz.x / width;
 	float scaleY = (float) sz.y / (height);
 
-	float scaleFactor = (scaleX < scaleY)? scaleX : scaleY;
+	float scaleFactor = (scaleX < scaleY) ? scaleX : scaleY;
 	scaleFactor *= 0.9;
 
 	int mx = sz.x / 2;
@@ -83,13 +78,9 @@ void PanelPattern::OnPaint(wxPaintEvent& event)
 	dc.DrawText(text, 10, 10);
 }
 
-void PanelPattern::OnMotion(wxMouseEvent& event)
-{
-
+void PanelPattern::OnMotion(wxMouseEvent &event) {
 }
 
-void PanelPattern::OnLeftDown(wxMouseEvent& event)
-{
-
+void PanelPattern::OnLeftDown(wxMouseEvent &event) {
 }
 

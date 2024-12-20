@@ -39,7 +39,7 @@
 class Canvas3D: public OpenGLCanvas {
 public:
 	Canvas3D(wxWindow *parent);
-	virtual ~Canvas3D();
+	virtual ~Canvas3D() = default;
 	void SetProjectView(const ProjectView *projectview);
 //
 //	void ConnectMouseEvents();

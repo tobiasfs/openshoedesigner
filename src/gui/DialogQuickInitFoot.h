@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 01.11.2015
 // Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -36,13 +36,13 @@
 #include "gui.h"
 #include "../math/MathParser.h"
 
-class DialogQuickInitFoot:public GUIDialogQuickInitFoot {
+class DialogQuickInitFoot: public GUIDialogQuickInitFoot {
 public:
-	DialogQuickInitFoot(wxWindow* parent);
-	virtual ~DialogQuickInitFoot();
+	DialogQuickInitFoot(wxWindow *parent);
+	virtual ~DialogQuickInitFoot() = default;
 
-	virtual void OnTextEnter(wxCommandEvent& event);
-	virtual void OnClose(wxCommandEvent& event);
+	virtual void OnTextEnter(wxCommandEvent &event) override;
+	virtual void OnClose(wxCommandEvent &event) override;
 
 	double length;
 	double width;

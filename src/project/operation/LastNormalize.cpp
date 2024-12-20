@@ -45,16 +45,23 @@ LastNormalize::LastNormalize() {
 	out = std::make_shared<LastRaw>();
 }
 
+std::string LastNormalize::GetName() const {
+	return "LastNormalize";
+}
+
 bool LastNormalize::CanRun() {
-	if (in && out)
+	if (in && out) {
+		error.clear();
 		return true;
+	}
 	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	if (!in)
 		err << " Input \"in\" not connected.";
 	if (!out)
-		err << " Output \"out\" not set.";
-	throw std::runtime_error(err.str());
+		err << " Output \"out\" not connected.";
+	error = err.str();
+	throw std::logic_error(err.str());
 }
 
 bool LastNormalize::Propagate() {
@@ -217,7 +224,7 @@ void LastNormalize::ReorientSymmetry() {
 	auto results = symmetry.FindPeaks(0.01);
 	if (results.empty()) {
 		std::ostringstream err;
-		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		err << "The function did not find any features.";
 		throw std::runtime_error(err.str());
 	}
@@ -265,7 +272,7 @@ void LastNormalize::ReorientSole() {
 	auto results = kde.FindPeaks(0.1);
 	if (results.empty()) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		out << "The function did not find any features.";
 		throw std::runtime_error(out.str());
 	}

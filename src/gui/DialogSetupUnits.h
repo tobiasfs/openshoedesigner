@@ -36,13 +36,13 @@
 #include "CollectionUnits.h"
 #include "gui.h"
 
-class DialogSetupUnits:public GUIFrameSetupUnits {
+class DialogSetupUnits: public GUIFrameSetupUnits {
 public:
-	DialogSetupUnits(wxWindow* parent, CollectionUnits * units);
+	DialogSetupUnits(wxWindow *parent, CollectionUnits *units);
 	virtual ~DialogSetupUnits() = default;
 
 private:
-	CollectionUnits * units;
+	CollectionUnits *units;
 
 	// Methods
 private:
@@ -50,9 +50,9 @@ private:
 	bool TransferDataFromWindow();
 
 private:
-	void OnClose(wxCommandEvent& event);
-	void OnCloseX(wxCloseEvent& event);
-	void OnChangeUnit(wxCommandEvent& event);
+	void OnClose(wxCommandEvent &event) override;
+	void OnCloseX(wxCloseEvent &event) override;
+	void OnChangeUnit(wxCommandEvent &event) override;
 };
 
 #endif /* DIALOGSETUPUNITS_H */

@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 30.10.2015
 // Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -27,11 +27,10 @@
 
 #include <wx/dcclient.h>
 
-PanelWalkcycle::PanelWalkcycle(wxWindow* parent, wxWindowID id,
-		const wxPoint& pos, const wxSize& size, long style) :
-		wxPanel(parent, id, pos, size, style)
-{
-	
+PanelWalkcycle::PanelWalkcycle(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style) :
+		wxPanel(parent, id, pos, size, style) {
+
 	this->SetBackgroundColour(wxColour(200, 200, 200));
 
 	// Connect Events
@@ -42,8 +41,7 @@ PanelWalkcycle::PanelWalkcycle(wxWindow* parent, wxWindowID id,
 	this->Connect(wxEVT_SIZE, wxSizeEventHandler(PanelWalkcycle::OnSize));
 }
 
-PanelWalkcycle::~PanelWalkcycle()
-{
+PanelWalkcycle::~PanelWalkcycle() {
 	// Disconnect Events
 	this->Disconnect(wxEVT_LEFT_DOWN,
 			wxMouseEventHandler(PanelWalkcycle::OnLeftDown));
@@ -53,13 +51,11 @@ PanelWalkcycle::~PanelWalkcycle()
 	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(PanelWalkcycle::OnSize));
 }
 
-void PanelWalkcycle::OnSize(wxSizeEvent& event)
-{
+void PanelWalkcycle::OnSize(wxSizeEvent &event) {
 	this->Refresh();
 }
 
-void PanelWalkcycle::OnPaint(wxPaintEvent& event)
-{
+void PanelWalkcycle::OnPaint(wxPaintEvent &event) {
 
 	wxPoint temp;
 	wxPaintDC dc(this);
@@ -71,7 +67,7 @@ void PanelWalkcycle::OnPaint(wxPaintEvent& event)
 	float scaleX = (float) sz.x / width;
 	float scaleY = (float) sz.y / (height);
 
-	float scaleFactor = (scaleX < scaleY)? scaleX : scaleY;
+	float scaleFactor = (scaleX < scaleY) ? scaleX : scaleY;
 	scaleFactor *= 0.9;
 
 	int mx = sz.x / 2;
@@ -83,13 +79,11 @@ void PanelWalkcycle::OnPaint(wxPaintEvent& event)
 	dc.DrawText(text, 10, 10);
 }
 
-void PanelWalkcycle::OnMotion(wxMouseEvent& event)
-{
+void PanelWalkcycle::OnMotion(wxMouseEvent &event) {
 
 }
 
-void PanelWalkcycle::OnLeftDown(wxMouseEvent& event)
-{
+void PanelWalkcycle::OnLeftDown(wxMouseEvent &event) {
 
 }
 

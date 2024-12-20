@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 01.11.2015
 // Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -34,9 +34,6 @@ DialogQuickInitFoot::DialogQuickInitFoot(wxWindow *parent) :
 	width = 0;
 }
 
-DialogQuickInitFoot::~DialogQuickInitFoot() {
-}
-
 void DialogQuickInitFoot::OnTextEnter(wxCommandEvent &event) {
 	ParseText(event.GetString().ToStdString());
 
@@ -58,8 +55,8 @@ void DialogQuickInitFoot::ParseText(std::string text) {
 	}
 	std::string unit;
 	if ((idx + 1) < text.size()) {
-		unit = text.substr(idx+1, std::string::npos);
-		text = text.substr(0, idx+1);
+		unit = text.substr(idx + 1, std::string::npos);
+		text = text.substr(0, idx + 1);
 	}
 
 	MathParser parser;

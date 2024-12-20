@@ -48,9 +48,9 @@ void openshoedesigner::OnAbout(wxCommandEvent&) {
 	wxAboutDialogInfo aboutInfo;
 
 	aboutInfo.SetName(_T("OpenShoeDesigner"));
-	aboutInfo.SetVersion(_T("0.1"));
+	aboutInfo.SetVersion(_T("0.2"));
 	aboutInfo.SetDescription(_("Design software for Lasts and Shoes"));
-	aboutInfo.SetCopyright(_T("(C) 2018-2023"));
+	aboutInfo.SetCopyright(_T("(C) 2018-2024"));
 	aboutInfo.SetWebSite(
 			_T("https://sourceforge.net/projects/openshoedesigner/"));
 	aboutInfo.SetLicence(
@@ -91,9 +91,9 @@ openshoedesigner::openshoedesigner() {
 //	std::cout << D.XatY(0.1) << "\n";
 //	std::cout << D.XatY(29) << "\n";
 //	std::cout << D.XatY(31) << "\n";
-
-	Dependencies D;
-	D.SetSize(8, 3);
+//
+//	Dependencies D;
+//	D.SetSize(8, 3);
 //
 // [1,2,3,4]
 //	double h[] = {1, -1, 0, 0, 1, 0, 1, -1, 1, 0, 2, 0, 1, 0, 3, 0, -1, 1, 0, 0,
@@ -155,7 +155,7 @@ openshoedesigner::openshoedesigner() {
 }
 
 openshoedesigner::~openshoedesigner() {
-	DEBUGOUT << "wxApp: Destructor called\n";
+	DEBUGOUT << "wxApp: Destructor called.\n";
 	delete config; // config is written back on deletion of object
 }
 
@@ -209,8 +209,8 @@ bool openshoedesigner::OnInit() {
 			project = (Project*) docManager->CreateDocument(wxEmptyString,
 					wxDOC_NEW);
 		} else {
-			project = (Project*) docManager->CreateDocument(loadOnStartup,
-					wxDOC_SILENT);
+			project = (Project*) docManager->CreateDocument(loadOnStartup,0);
+//					wxDOC_SILENT);
 		}
 	} catch (std::exception &exception) {
 		std::cerr << "Exeption caught on first CreateDocument:\n"
@@ -242,7 +242,7 @@ int openshoedesigner::OnExit() {
 	wxDocManager *const docManager = wxDocManager::GetDocumentManager();
 	docManager->FileHistorySave(*config);
 	delete docManager;
-	DEBUGOUT << "wxApp: Exiting Application\n";
+	DEBUGOUT << "wxApp:" << __FUNCTION__ << "() : Exiting Application\n";
 	return wxApp::OnExit();
 }
 

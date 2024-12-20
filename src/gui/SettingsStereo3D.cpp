@@ -28,8 +28,7 @@
 
 #include "../3D/OpenGLCanvas.h"
 
-SettingsStereo3D::SettingsStereo3D()
-{
+SettingsStereo3D::SettingsStereo3D() {
 	eyeDistance = 0.1;
 	focalDistance = 1.0;
 	backgroundGrayLevel = 90;
@@ -41,14 +40,10 @@ SettingsStereo3D::SettingsStereo3D()
 	leftEyeB = 0;
 }
 
-SettingsStereo3D::~SettingsStereo3D()
-{
-}
-
-bool SettingsStereo3D::Load(wxConfig* config)
-{
-	wxASSERT(config!=nullptr);
-	if(config == nullptr) return false;
+bool SettingsStereo3D::Load(wxConfig *config) {
+	wxASSERT(config != nullptr);
+	if (config == nullptr)
+		return false;
 
 	long lval;
 	config->Read(_T("Stereo3DColorLeftEyeRed"), &lval, 140l);
@@ -76,10 +71,10 @@ bool SettingsStereo3D::Load(wxConfig* config)
 	return true;
 }
 
-bool SettingsStereo3D::Save(wxConfig* config)
-{
-	wxASSERT(config!=nullptr);
-	if(config == nullptr) return false;
+bool SettingsStereo3D::Save(wxConfig *config) {
+	wxASSERT(config != nullptr);
+	if (config == nullptr)
+		return false;
 
 	config->Write(_T("Stereo3DColorLeftEyeRed"), (long) leftEyeR);
 	config->Write(_T("Stereo3DColorLeftEyeGreen"), (long) leftEyeG);
@@ -93,8 +88,7 @@ bool SettingsStereo3D::Save(wxConfig* config)
 	return true;
 }
 
-void SettingsStereo3D::WriteToCanvas(OpenGLCanvas* canvas)
-{
+void SettingsStereo3D::WriteToCanvas(OpenGLCanvas *canvas) {
 	canvas->leftEyeR = this->leftEyeR;
 	canvas->leftEyeG = this->leftEyeG;
 	canvas->leftEyeB = this->leftEyeB;

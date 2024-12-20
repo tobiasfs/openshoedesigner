@@ -26,19 +26,13 @@
 
 #include "FrameBoneModel.h"
 
-FrameBoneModel::FrameBoneModel(wxWindow* parent, wxWindowID id,
-		const wxString& title, const wxPoint& pos, const wxSize& size,
-		long style)
-		: GUIFrameBoneModel(parent, id, title, pos, size, style)
-{
+FrameBoneModel::FrameBoneModel(wxWindow *parent, wxWindowID id,
+		const wxString &title, const wxPoint &pos, const wxSize &size,
+		long style) :
+		GUIFrameBoneModel(parent, id, title, pos, size, style) {
 }
 
-FrameBoneModel::~FrameBoneModel()
-{
-}
-
-bool FrameBoneModel::TransferDataToWindow()
-{
+bool FrameBoneModel::TransferDataToWindow() {
 //	const unsigned int N = foot->GetBoneCount();
 //	if(m_gridBoneLength->GetNumberRows() == 0) m_gridBoneLength->AppendRows(N);
 //	for(size_t n = 0; n < foot->bones.size(); n++){
@@ -88,8 +82,7 @@ bool FrameBoneModel::TransferDataToWindow()
 	return true;
 }
 
-bool FrameBoneModel::TransferDataFromWindow()
-{
+bool FrameBoneModel::TransferDataFromWindow() {
 //	for(size_t n = 0; n < foot->bones.size(); n++){
 //		wxString temp = m_gridBoneLength->GetCellValue(n, 0);
 //		temp = temp.Trim(false).Trim(true);
@@ -144,4 +137,29 @@ bool FrameBoneModel::TransferDataFromWindow()
 //		}
 //	}
 	return true;
+}
+
+void FrameBoneModel::OnCellChange(wxGridEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
+}
+
+void FrameBoneModel::OnReset(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
+}
+
+void FrameBoneModel::OnLoad(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
+}
+
+void FrameBoneModel::OnSaveAs(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
+}
+
+void FrameBoneModel::OnSave(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }

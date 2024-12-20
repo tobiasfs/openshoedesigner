@@ -71,7 +71,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 		zip_error_t ziperror;
 		zip_error_init_with_code(&ziperror, err);
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		out << " Error opening zipfile:";
 		out << ' ' << zip_error_strerror(&ziperror);
 		throw std::runtime_error(out.str());
@@ -89,7 +89,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 	}
 	if (idx_mtlx < 0) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		out << " The zip-file:" << filename_.string();
 		out << " does not contain a .mtlx file (MaterialX file).";
 		throw std::runtime_error(out.str());
@@ -100,7 +100,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 		zip_error_t ziperror;
 		zip_error_init_with_code(&ziperror, err);
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		out << " Error reading from the zipped file #" << idx_mtlx;
 		out << ' ' << zip_error_strerror(&ziperror);
 		throw std::runtime_error(out.str());
@@ -154,7 +154,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 			zip_error_t ziperror;
 			zip_error_init_with_code(&ziperror, err);
 			std::ostringstream out;
-			out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+			out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 			out << " Error reading from the zipped file \"" << imagefile;
 			out << "\" " << zip_error_strerror(&ziperror);
 			throw std::runtime_error(out.str());
@@ -236,19 +236,19 @@ void OpenGLMaterialX::ParseXMLNode(std::sregex_iterator &xml_it, Node &node) {
 			}
 		}
 		if (token != "</") {
-			std::cerr << __FILE__ << ":" << __func__ << ":";
+			std::cerr << __FILE__ << ":" << __FUNCTION__ << ":";
 			std::cerr << " Missing node closing for <" << node_name << " ...\n";
 			return;
 		}
 		NextToken();
 		if (token != node_name) {
-			std::cerr << __FILE__ << ":" << __func__ << ":";
+			std::cerr << __FILE__ << ":" << __FUNCTION__ << ":";
 			std::cerr << " Closing for \"" << token << "\" found.";
 			std::cerr << " Expected \"" << node_name << "\".\n";
 		}
 		NextToken();
 		if (token != ">") {
-			std::cerr << __FILE__ << ":" << __func__ << ":";
+			std::cerr << __FILE__ << ":" << __FUNCTION__ << ":";
 			std::cerr << " Missing closing '>'.\n";
 			return;
 		}
@@ -265,7 +265,7 @@ void OpenGLMaterialX::ParseNodeAttributes(std::sregex_iterator &xml_it,
 		NextToken();
 		string op = token;
 		if (op != "=") {
-			std::cerr << __FILE__ << ":" << __func__ << ":";
+			std::cerr << __FILE__ << ":" << __FUNCTION__ << ":";
 			std::cerr << " Unexpected operator '" << token << "'.";
 			std::cerr << " Expected '='.\n";
 			return;
@@ -294,7 +294,7 @@ void OpenGLMaterialX::ParsePortAttributes(std::sregex_iterator &xml_it,
 		NextToken();
 		string op = token;
 		if (op != "=") {
-			std::cerr << __FILE__ << ":" << __func__ << ":";
+			std::cerr << __FILE__ << ":" << __FUNCTION__ << ":";
 			std::cerr << " Unexpected operator '" << token << "'.";
 			std::cerr << " Expected '='.\n";
 			return;
@@ -988,7 +988,7 @@ void OpenGLMaterialX::Node::GenerateCode(std::ostream &out,
 
 	} else {
 		std::ostringstream err;
-		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		err << "The node \"" << type << "\"";
 		err << " has not code generation assigned (yet).";
 		throw std::runtime_error(err.str());
@@ -1026,7 +1026,7 @@ std::string OpenGLMaterialX::ToGlslType(const std::string &type) {
 		return "?";
 #else
 		std::ostringstream err;
-		err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		err << "The type \"" << type << "\" has not translation.";
 		throw std::runtime_error(err.str());
 #endif

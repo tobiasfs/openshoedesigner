@@ -81,6 +81,8 @@ public:
 
 	double GetSize(Type type) const;
 
+	bool operator==(const FootMeasurements &other) const;
+
 	void FromJSON(const JSON &js);
 	void ToJSON(JSON &js) const;
 
@@ -90,7 +92,6 @@ public:
 	 *
 	 * This value is stored in the Variable legLengthDifference.
 	 */
-	std::shared_ptr<ParameterFormula> legLengthDifference;
 
 	// Measurements for the foot
 	std::shared_ptr<ParameterFormula> footLength;
@@ -100,8 +101,8 @@ public:
 	std::shared_ptr<ParameterFormula> waistGirth;
 	std::shared_ptr<ParameterFormula> heelGirth;
 	std::shared_ptr<ParameterFormula> heelWidth;
-
 	std::shared_ptr<ParameterFormula> angleMixing;
+	std::shared_ptr<ParameterFormula> legLengthDifference;
 
 	// Measurements for the leg
 	std::shared_ptr<ParameterFormula> belowCrutchGirth;

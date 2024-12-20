@@ -50,8 +50,8 @@ class ParameterFormula: public Parameter {
 public:
 	ParameterFormula() = delete;
 	explicit ParameterFormula(const std::string &name,
-			const std::string &description = std::string(""),
-			const std::string &formula = std::string(""), const size_t id =
+			const std::string &formula = std::string(""),
+			const std::string &description = std::string(""), const size_t id =
 					(size_t) -1, const size_t group = (size_t) -1);
 	virtual ~ParameterFormula() = default;
 
@@ -78,13 +78,13 @@ public:
 	 * virtual machine is generated. This generation can (and will) throw a lot
 	 * as the formula is provided by the user.
 	 */
-	void SetFormula(const std::string &newFormula);
+	void SetString(const std::string &newFormula) override;
 
 	/**\brief Getter for the current formula.
 	 *
 	 * Retrieves the formula for display purposes.
 	 */
-	std::string GetFormula() const;
+	std::string GetString() const override;
 
 protected:
 

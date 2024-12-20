@@ -29,7 +29,7 @@
 #include <cmath>
 
 ParameterFormula::ParameterFormula(const std::string &name,
-		const std::string &description, const std::string &formula,
+		const std::string &formula, const std::string &description,
 		const size_t id, const size_t group) :
 		Parameter(name, description, id, group), formula(formula) {
 
@@ -41,7 +41,7 @@ ParameterFormula::ParameterFormula(const std::string &name,
 	Init();
 }
 
-void ParameterFormula::SetFormula(const std::string &newFormula) {
+void ParameterFormula::SetString(const std::string &newFormula) {
 	if (formula.compare(newFormula) == 0)
 		return;
 	modified = true;
@@ -49,7 +49,7 @@ void ParameterFormula::SetFormula(const std::string &newFormula) {
 	Init();
 }
 
-std::string ParameterFormula::GetFormula() const {
+std::string ParameterFormula::GetString() const {
 	return formula;
 }
 

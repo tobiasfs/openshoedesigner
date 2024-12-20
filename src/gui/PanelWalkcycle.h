@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 30.10.2015
 // Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -35,28 +35,21 @@
 
 #include <wx/panel.h>
 
-class PanelWalkcycle:public wxPanel {
+class PanelWalkcycle: public wxPanel {
 public:
-	PanelWalkcycle(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos =
-			wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =
+	PanelWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
+					wxDefaultSize, long style =
 			wxTAB_TRAVERSAL);
 	virtual ~PanelWalkcycle();
 
-	// Member Variables
-public:
+protected:
 
-private:
-
-	//Methods
-public:
-
-private:
-
-	void OnPaint(wxPaintEvent& event);
+	void OnPaint(wxPaintEvent &event);
 	void OnSize(wxSizeEvent &event);
 
-	void OnMotion(wxMouseEvent& event);
-	void OnLeftDown(wxMouseEvent& event);
+	void OnMotion(wxMouseEvent &event);
+	void OnLeftDown(wxMouseEvent &event);
 };
 
 #endif /* PANELWALKCYCLE_H */

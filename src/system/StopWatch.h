@@ -56,7 +56,7 @@
 class StopWatch {
 public:
 	StopWatch();
-	virtual ~StopWatch();
+	virtual ~StopWatch() = default;
 
 	void Start(); //!< Start the counter
 	void Restart(); //!< Synonymous to Reset().

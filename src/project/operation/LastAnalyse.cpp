@@ -42,16 +42,22 @@ LastAnalyse::LastAnalyse() {
 	out = std::make_shared<LastModel>();
 }
 
+std::string LastAnalyse::GetName() const {
+	return "LastAnalyse";
+}
+
 bool LastAnalyse::CanRun() {
-	if (in && out)
+	if (in && out) {
+		error.clear();
 		return true;
+	}
 	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	if (!in)
 		err << " Input \"in\" not connected.";
 	if (!out)
 		err << " Output \"out\" not set.";
-	throw std::runtime_error(err.str());
+	throw std::logic_error(err.str());
 }
 
 bool LastAnalyse::Propagate() {
@@ -78,7 +84,7 @@ bool LastAnalyse::HasToRun() {
 void LastAnalyse::Run() {
 	*out = *in;
 
-	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": ";
 	DEBUGOUT << "Normal Curvature = " << out->GetNormalCurvature() << " rad\n";
 
 	AnalyseForm();
@@ -115,7 +121,7 @@ void LastAnalyse::AnalyseForm() {
 
 	FindAndReorientCenterplane();
 
-	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __func__ << ": ";
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": ";
 	DEBUGOUT << "Normal Curvature = " << out->GetNormalCurvature() << " rad\n";
 
 	if (!FindMarker())

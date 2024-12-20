@@ -50,24 +50,24 @@ void FileGeometry::Read(Geometry &geometry) {
 	if (filename.empty()) {
 		if (inp == nullptr)
 			throw std::logic_error(
-					std::string(__func__)
+					std::string(__FUNCTION__)
 							+ " - Missing input stream. Check the construction of this object.");
 		if (!inp->good())
 			throw std::runtime_error(
-					std::string(__func__) + "Input stream is not good.");
+					std::string(__FUNCTION__) + "Input stream is not good.");
 		ReadStream(geometry);
 	} else {
 		std::ifstream tempstream(filename);
 		if (!tempstream.is_open()) {
 			throw std::runtime_error(
-					std::string(__func__) + " : Geometry File " + filename
+					std::string(__FUNCTION__) + " : Geometry File " + filename
 							+ ": File won't open: "
 							+ std::string(strerror(errno)));
 		}
 
 		if (!tempstream.good())
 			throw std::runtime_error(
-					std::string(__func__) + "Can't open " + filename
+					std::string(__FUNCTION__) + "Can't open " + filename
 							+ " for reading.");
 
 		inp = &tempstream;
@@ -81,22 +81,22 @@ void FileGeometry::Write(const Geometry &geometry) {
 	if (filename.empty()) {
 		if (outp == nullptr)
 			throw std::logic_error(
-					std::string(__func__)
+					std::string(__FUNCTION__)
 							+ " - Missing output stream. Check the construction of this object.");
 		if (!outp->good())
 			throw std::runtime_error(
-					std::string(__func__) + "Output stream is not good.");
+					std::string(__FUNCTION__) + "Output stream is not good.");
 		WriteStream(geometry);
 		outp->flush();
 	} else {
 		std::ofstream tempstream(filename);
 		if (!tempstream.is_open())
 			throw std::runtime_error(
-					std::string(__func__) + " : STL File " + filename
+					std::string(__FUNCTION__) + " : STL File " + filename
 							+ ": Could not open file for writing.");
 		if (!tempstream.good())
 			throw std::runtime_error(
-					std::string(__func__) + "Can't open " + filename
+					std::string(__FUNCTION__) + "Can't open " + filename
 							+ " for writing.");
 		outp = &tempstream;
 		WriteStream(geometry);
@@ -114,14 +114,14 @@ size_t FileGeometry::GeometriesInFile() const {
 void FileGeometry::ReadStream(Geometry &geometry) {
 	UNUSED(geometry);
 	throw std::logic_error(
-			std::string(__func__)
+			std::string(__FUNCTION__)
 					+ " - Not implemented for this type of file.");
 }
 
 void FileGeometry::WriteStream(const Geometry &geometry) {
 	UNUSED(geometry);
 	throw std::logic_error(
-			std::string(__func__)
+			std::string(__FUNCTION__)
 					+ " - Not implemented for this type of file.");
 }
 

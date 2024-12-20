@@ -143,7 +143,7 @@ void KernelDensityEstimator::Normalize() {
 void KernelDensityEstimator::NormalizeByCoverage() {
 	if (count == 0) {
 		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		out << "Function called, before kernel were inserted.";
 		throw std::logic_error(out.str());
 	}

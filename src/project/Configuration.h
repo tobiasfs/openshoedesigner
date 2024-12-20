@@ -71,36 +71,57 @@ public:
 
 public:
 
-	// Measurements
+	// Foot / Leg Measurements
 
 	std::shared_ptr<ParameterEnum> measurementSource;
-	std::shared_ptr<PointCloud> footScan;
+	std::shared_ptr<ParameterString> filenameScan;
 
 	// Last generator
 
-	std::shared_ptr<ParameterString> lastFilename;
-	std::shared_ptr<ParameterEnum> modelType;
-
-	// Insole construction
+	std::shared_ptr<ParameterEnum> lastConstructionType;
 
 	std::shared_ptr<ParameterFormula> bigToeAngle;
 	std::shared_ptr<ParameterFormula> littleToeAngle;
 	std::shared_ptr<ParameterFormula> ballMeasurementAngle;
 	std::shared_ptr<ParameterFormula> heelDirectionAngle;
-
-	std::shared_ptr<ParameterFormula> upperLevel;
+	std::shared_ptr<ParameterFormula> tipSharpness;
 	std::shared_ptr<ParameterFormula> extraLength;
 	std::shared_ptr<ParameterFormula> footCompression;
 
+	std::shared_ptr<ParameterString> filenameBoneModel;
+	std::shared_ptr<ParameterString> filenameLast;
+	std::shared_ptr<ParameterEnum> lastModify;
+	std::shared_ptr<ParameterEnum> lastReorient;
+
+	std::shared_ptr<ParameterEnum> heelConstructionType;
+
+	std::shared_ptr<ParameterString> filenameHeel;
+	std::shared_ptr<ParameterEnum> heelReorient;
+
 	// Shoe generator
-	std::shared_ptr<ParameterEnum> generator;
 
 	std::shared_ptr<ParameterFormula> heelHeight;
 	std::shared_ptr<ParameterFormula> ballHeight;
 	std::shared_ptr<ParameterFormula> heelPitch;
 	std::shared_ptr<ParameterFormula> toeSpring;
 
-	std::shared_ptr<ParameterFormula> tipSharpness;
+	std::shared_ptr<ParameterFormula> upperLevel;
+
+	std::shared_ptr<ParameterEnum> generator;
+
+	std::shared_ptr<ParameterFormula> weltSize;
+	std::shared_ptr<ParameterFormula> thickness;
+
+	// Heel
+
+	std::shared_ptr<ParameterFormula> supportHeelRadius;
+	std::shared_ptr<ParameterFormula> supportHeelOffset;
+	std::shared_ptr<ParameterFormula> supportToeRadius;
+	std::shared_ptr<ParameterFormula> supportToeOffset;
+
+	std::shared_ptr<ParameterString> heelCode;
+	std::vector<std::shared_ptr<ParameterString>> heelParameter;
+
 };
 
 #endif /* SRC_PROJECT_CONFIGURATION_H_ */

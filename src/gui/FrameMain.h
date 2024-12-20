@@ -76,65 +76,55 @@ protected:
 
 	wxTimer timer;
 
-public:
-	bool TransferDataFromWindow();
-	bool TransferDataToWindow();
+protected:
+	bool TransferDataFromWindow() override;
+	bool TransferDataToWindow() override;
+
+private:
 	void TransferParameterToTextCtrl(const std::shared_ptr<ParameterFormula>,
 			wxTextCtrl *ctrl, UnitType type);
 	wxTextCtrl* GetTextCtrlByID(int id);
+
+protected:
+	void OnClose(wxCloseEvent &event) override;
+	void OnMouseWheel(wxMouseEvent &event) override;
+	void OnSize(wxSizeEvent &event) override;
+	void OnTimer(wxTimerEvent &event);
 
 	void RefreshCanvas(wxCommandEvent &event);
 	void RefreshView(wxCommandEvent &event);
 	void UpdateProject(wxCommandEvent &event);
 
-	void OnClose(wxCloseEvent &event);
-	void OnSize(wxSizeEvent &event);
-	void OnTimer(wxTimerEvent &event);
-	void OnSetFocus(wxFocusEvent &event);
-	void OnKillFocus(wxFocusEvent &event);
-	void OnTextEnter(wxCommandEvent &event);
-	void OnMouseWheel(wxMouseEvent &event);
-	void OnScroll(wxScrollEvent &event);
-	void OnChoice(wxCommandEvent &event);
-	void OnToggleButton(wxCommandEvent &event);
-	void OnCheckBox(wxCommandEvent &event);
-	void OnListCtrlOnSelectionChanged(wxDataViewEvent &event);
-	void OnPageChange( wxNotebookEvent &event);
-	void OnViewChange(wxCommandEvent &event);
+	void OnCheckBox(wxCommandEvent &event) override;
+	void OnChoice(wxCommandEvent &event) override;
+	void OnFileChanged(wxFileDirPickerEvent &event) override;
+	void OnKillFocus(wxFocusEvent &event) override;
+	void OnListCtrlOnSelectionChanged(wxDataViewEvent &event) override;
+	void OnPageChanged( wxNotebookEvent &event) override;
+	void OnRadioButton(wxCommandEvent &event) override;
+	void OnSetFocus(wxFocusEvent &event) override;
+	void OnTextEnter(wxCommandEvent &event) override;
 
-	void On3DSelect(wxMouseEvent &event);
-	void OnToggleStereo3D(wxCommandEvent &event);
-	void OnChangeModel(wxCommandEvent &event);
-	void OnConstructionSelection(wxCommandEvent &event);
-	void OnChoiceDisplay(wxCommandEvent &event);
-	void OnFileChangedScanFile(wxFileDirPickerEvent &event);
-	void OnFileChangedLastFile(wxFileDirPickerEvent &event);
-	void OnSetSymmetry(wxCommandEvent &event);
-	void OnCopyMeasurements(wxCommandEvent &event);
+	void On3DSelect(wxMouseEvent &event) override;
+	void OnBackgroundImagesSetup(wxCommandEvent &event) override;
+	void OnConstructionChanged(wxCommandEvent &event) override;
+	void OnMeasurementsCopy(wxCommandEvent &event) override;
+	void OnMeasurementsQuickSetup(wxCommandEvent &event) override;
+	void OnModelChanged(wxCommandEvent &event) override;
+	void OnParserDebug(wxCommandEvent &event) override;
+	void OnPatternSelect(wxTreeListEvent &event) override;
+	void OnPatternSelectFabric(wxCommandEvent &event) override;
+	void OnToggleStereo3D(wxCommandEvent &event) override;
+	void OnViewChanged(wxCommandEvent &event) override;
 
-	void OnQuickSetupMeasurements(wxCommandEvent &event);
-	void OnSetupBackgroundImages(wxCommandEvent &event);
-	void OnDebugParser(wxCommandEvent &event);
+	void OnButtonAdd(wxCommandEvent &event) override;
+	void OnButtonCopy(wxCommandEvent &event) override;
+	void OnButtonDelete(wxCommandEvent &event) override;
+	void OnButtonTestStitch(wxCommandEvent &event) override;
 
-	void OnToggleAnkleLock(wxCommandEvent &event);
-	void OnAddBridge(wxCommandEvent &event);
-	void OnDeleteBridge(wxCommandEvent &event);
-	void OnEditBoneModel(wxCommandEvent &event);
-	void OnEditShape(wxCommandEvent &event);
-	void OnPatternSelect(wxTreeListEvent &event);
-	void OnPatternAdd(wxCommandEvent &event);
-	void OnPatternSelectFabric(wxCommandEvent &event);
-
-	void OnLoadFootSTL(wxCommandEvent &event);
-	void OnLoadPattern(wxCommandEvent &event);
-	void OnLoadBoneModel(wxCommandEvent &event);
-	void OnSaveBoneModel(wxCommandEvent &event);
-	void OnSavePattern(wxCommandEvent &event);
-	void OnSaveLast(wxCommandEvent &event);
-	void OnSaveInsole(wxCommandEvent &event);
-	void OnSaveSole(wxCommandEvent &event);
-	void OnSaveCutaway(wxCommandEvent &event);
-	void OnPackZip(wxCommandEvent &event);
+	void OnObjectEdit(wxCommandEvent &event) override;
+	void OnObjectLoad(wxCommandEvent &event) override;
+	void OnObjectSave(wxCommandEvent &event) override;
 
 };
 

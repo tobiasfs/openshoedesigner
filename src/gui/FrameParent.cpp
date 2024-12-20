@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameParent.cpp
-// Purpose            : 
+// Purpose            : Parent-frame for the application
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -114,8 +114,9 @@ FrameParent::FrameParent(wxDocManager *manager, wxConfig *config,
 #ifdef USE_PORTMIDI
 	dialogSetupMidi = new DialogSetupMidi(this, &midi);
 #endif
+
 	// Logging is disable here, because the SESSION_MANAGER variable is not defined since Ubuntu 16.04.
-	// The initialisation of the help controller will always lead to the message:
+	// The initialization of the help controller will always lead to the message:
 	//   Debug: Failed to connect to session manager: SESSION_MANAGER environment variable not defined
 	wxLog::EnableLogging(false);
 	m_helpController->Initialize(_T("doc/help/help.hhp"));
@@ -129,8 +130,8 @@ FrameParent::FrameParent(wxDocManager *manager, wxConfig *config,
 	dt = 500e-3; // s
 	timer.Start(round(dt * 1000.0)); // ms
 
-	this->Connect(wxEVT_TIMER, wxTimerEventHandler(FrameParent::OnTimer), nullptr,
-			this);
+	this->Connect(wxEVT_TIMER, wxTimerEventHandler(FrameParent::OnTimer),
+			nullptr, this);
 }
 
 FrameParent::~FrameParent() {
@@ -144,7 +145,7 @@ FrameParent::~FrameParent() {
 	settingsStereo3D.Save(config);
 
 	this->Disconnect(wxEVT_TIMER, wxTimerEventHandler(FrameParent::OnTimer),
-	nullptr, this);
+			nullptr, this);
 
 	delete m_helpController;
 }

@@ -4,7 +4,7 @@
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
-// Author             : toby
+// Author             : Tobias Schaefer
 // Created            : 30.10.2015
 // Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
@@ -35,10 +35,10 @@
 
 #include <wx/panel.h>
 
-class PanelPlotSimple:public wxPanel {
+class PanelPlotSimple: public wxPanel {
 public:
-	PanelPlotSimple(wxWindow* parent, wxWindowID id = wxID_ANY,
-			const wxPoint& pos = wxDefaultPosition, const wxSize& size =
+	PanelPlotSimple(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style =
 			wxTAB_TRAVERSAL);
 	virtual ~PanelPlotSimple();
@@ -53,11 +53,11 @@ public:
 
 private:
 
-	void OnPaint(wxPaintEvent& event);
+	void OnPaint(wxPaintEvent &event);
 	void OnSize(wxSizeEvent &event);
 
-	void OnMotion(wxMouseEvent& event);
-	void OnLeftDown(wxMouseEvent& event);
+	void OnMotion(wxMouseEvent &event);
+	void OnLeftDown(wxMouseEvent &event);
 };
 
 #endif /* PANELPLOTSIMPLE_H */

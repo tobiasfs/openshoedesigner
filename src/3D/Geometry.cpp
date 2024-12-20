@@ -1808,7 +1808,7 @@ const Geometry::Vertex& Geometry::GetEdgeVertex(const size_t indexEdge,
 	const size_t vidx = ed.VertexIndex(indexVertex);
 	if (vidx >= v.size())
 		throw std::range_error(
-				std::string(__func__) + " - Index not found in vertex array.");
+				std::string(__FUNCTION__) + " - Index not found in vertex array.");
 	return v[vidx];
 }
 
@@ -1834,7 +1834,7 @@ const Geometry::Vertex& Geometry::GetTriangleVertex(const size_t indexTriangle,
 	const size_t vidx = tri.VertexIndex(indexVertex);
 	if (vidx >= v.size())
 		throw std::range_error(
-				std::string(__func__) + " - Index not found in vertex array.");
+				std::string(__FUNCTION__) + " - Index not found in vertex array.");
 	return v[vidx];
 }
 
@@ -2131,7 +2131,7 @@ Polygon3 Geometry::IntersectPlane(const Vector3 &n_, double d) const {
 		edge_wrong += (c <= 0.0) ? 1 : 0;
 	}
 	if (edge_wrong > 0) {
-		std::cout << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+		std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
 		std::cout << "correct edges: " << edge_correct << ", ";
 		std::cout << "wrong edges: " << edge_wrong << "\n";
 	}
@@ -2180,7 +2180,7 @@ Polygon3 Geometry::IntersectPlane(const Vector3 &n_, double d) const {
  // order of the vertices.
  if (di <= 0 || di > 2) {
  std::ostringstream out;
- out << __FILE__ << ":" << __LINE__ << ":" << __func__ << " - ";
+ out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
  out << "Algorithmic error in edge distance calculation.";
  throw std::runtime_error(out.str());
  }

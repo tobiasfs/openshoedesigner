@@ -26,38 +26,44 @@
 
 #include "FrameSetupBackgroundImages.h"
 
-FrameSetupBackgroundImages::FrameSetupBackgroundImages(wxWindow* parent,
-		wxWindowID id, const wxString& title, const wxPoint& pos,
-		const wxSize& size, long style)
-		: GUIFrameSetupBackgroundImages(parent, id, title, pos, size, style)
-{
+FrameSetupBackgroundImages::FrameSetupBackgroundImages(wxWindow *parent,
+		wxWindowID id, const wxString &title, const wxPoint &pos,
+		const wxSize &size, long style) :
+		GUIFrameSetupBackgroundImages(parent, id, title, pos, size, style) {
 
 }
 
-FrameSetupBackgroundImages::~FrameSetupBackgroundImages()
-{
+void FrameSetupBackgroundImages::OnButtonAdd(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }
 
-void FrameSetupBackgroundImages::OnAddUpdate(wxCommandEvent& event)
-{
+void FrameSetupBackgroundImages::OnButtonRemove(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }
 
-void FrameSetupBackgroundImages::OnRemove(wxCommandEvent& event)
-{
+void FrameSetupBackgroundImages::OnTextEnter(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }
 
-void FrameSetupBackgroundImages::OnTextEnter(wxCommandEvent& event)
-{
+void FrameSetupBackgroundImages::OnSpin(wxSpinEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }
 
-void FrameSetupBackgroundImages::OnSpin(wxSpinEvent& event)
-{
+void FrameSetupBackgroundImages::OnRightDown(wxMouseEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }
 
-void FrameSetupBackgroundImages::OnRightDown(wxMouseEvent& event)
-{
+void FrameSetupBackgroundImages::OnScroll(wxScrollEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }
 
-void FrameSetupBackgroundImages::OnScroll(wxScrollEvent& event)
-{
+void FrameSetupBackgroundImages::OnCheckBox(wxCommandEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
+			<< " )\n";
 }

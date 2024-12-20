@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : ParameterString.h
+// Name               : SemaphoreTryLocker.cpp
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 09.11.2024
+// Created            : 16.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,40 +23,23 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_PARAMETERSTRING_H_
-#define SRC_PROJECT_PARAMETERSTRING_H_
+#include "SemaphoreTryLocker.h"
 
-/** \class ParameterString
- * 	\code #include "ParameterString.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
- *
- * Text
- */
+SemaphoreTryLocker::SemaphoreTryLocker(wxSemaphore &semaphore_) :
+		semaphore(semaphore_), isOK(false) {
+	isOK = (semaphore_.TryWait() == wxSEMA_NO_ERROR);
+}
 
-#include "Parameter.h"
+SemaphoreTryLocker::~SemaphoreTryLocker() {
+	if (isOK)
+		semaphore.Post();
+}
 
-class ParameterString: public Parameter {
-public:
-	ParameterString() = delete;
-	explicit ParameterString(const std::string &name,
-			const std::string &initial_value = std::string(""),
-			const std::string &description = std::string(""), const size_t id =
-					(size_t) -1, const size_t group = (size_t) -1);
-	virtual ~ParameterString() = default;
+bool SemaphoreTryLocker::IsOK() const {
+	return isOK;
+}
 
-	void SetString(const std::string &text) override;
-	std::string GetString() const override;
-
-	double operator()() const;
-	double ToDouble() const;
-	bool ToBool() const;
-
-	friend std::ostream& operator<<(std::ostream &out,
-			const ParameterString &param);
-
-private:
-	std::string text;
-};
-
-#endif /* SRC_PROJECT_PARAMETERSTRING_H_ */
+void SemaphoreTryLocker::UnLock() {
+	semaphore.Post();
+	isOK = false;
+}

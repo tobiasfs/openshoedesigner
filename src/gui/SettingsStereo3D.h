@@ -40,7 +40,7 @@ class OpenGLCanvas;
 class SettingsStereo3D {
 public:
 	SettingsStereo3D();
-	virtual ~SettingsStereo3D();
+	virtual ~SettingsStereo3D() = default;
 
 	float eyeDistance;
 	float focalDistance;
@@ -52,10 +52,10 @@ public:
 	unsigned char leftEyeG;
 	unsigned char leftEyeB;
 
-	bool Load(wxConfig * config);
-	bool Save(wxConfig * config);
+	bool Load(wxConfig *config);
+	bool Save(wxConfig *config);
 
-	void WriteToCanvas(OpenGLCanvas * canvas);
+	void WriteToCanvas(OpenGLCanvas *canvas);
 
 };
 

@@ -26,28 +26,31 @@
 
 #include "CollectionFilepaths.h"
 
-
-bool CollectionFilepaths::Load(wxConfig* config)
-{
-	wxASSERT(config!=nullptr);
-	if(config == nullptr) return false;
+bool CollectionFilepaths::Load(wxConfig *config) {
+	wxASSERT(config != nullptr);
+	if (config == nullptr)
+		return false;
 
 	wxString cwd = wxFileName::GetCwd();
-	config->Read(_T("LastFootDirectory"), &lastFootDirectory, cwd);
-	config->Read(_T("LastShoeDirectory"), &lastShoeDirectory, cwd);
-	config->Read(_T("LastOutputDirectory"), &lastOutputDirectory, cwd);
+	config->Read(_T("measurementDirectory"), &measurementDirectory, cwd);
+	config->Read(_T("presetDirectory"), &presetDirectory, cwd);
+	config->Read(_T("lastDirectory"), &lastDirectory, cwd);
+	config->Read(_T("fabricDirectory"), &fabricDirectory, cwd);
+	config->Read(_T("outputDirectory"), &outputDirectory, cwd);
 
 	return true;
 }
 
-bool CollectionFilepaths::Save(wxConfig* config)
-{
-	wxASSERT(config!=nullptr);
-	if(config == nullptr) return false;
+bool CollectionFilepaths::Save(wxConfig *config) {
+	wxASSERT(config != nullptr);
+	if (config == nullptr)
+		return false;
 
-	config->Write(_T("LastFootDirectory"), lastFootDirectory);
-	config->Write(_T("LastShoeDirectory"), lastShoeDirectory);
-	config->Write(_T("LastOutputDirectory"), lastOutputDirectory);
+	config->Write(_T("measurementDirectory"), measurementDirectory);
+	config->Write(_T("presetDirectory"), presetDirectory);
+	config->Write(_T("lastDirectory"), lastDirectory);
+	config->Write(_T("fabricDirectory"), fabricDirectory);
+	config->Write(_T("outputDirectory"), outputDirectory);
 
 	return true;
 }

@@ -56,6 +56,8 @@ public:
 
 	void Paint() const;
 
+public:
+	std::string error;
 private:
 	void Setup(Project &project);
 

@@ -35,23 +35,25 @@
 
 #include "gui.h"
 
-class FrameSetupBackgroundImages:public GUIFrameSetupBackgroundImages {
+class FrameSetupBackgroundImages: public GUIFrameSetupBackgroundImages {
 public:
-	FrameSetupBackgroundImages(wxWindow* parent, wxWindowID id = wxID_ANY,
-			const wxString& title = _("Setup background images"),
-			const wxPoint& pos = wxDefaultPosition,
-			const wxSize& size = wxSize(582, 561),
+	FrameSetupBackgroundImages(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxString &title = _("Setup background images"),
+			const wxPoint &pos = wxDefaultPosition,
+			const wxSize &size = wxSize(582, 561),
 			long style = wxDEFAULT_FRAME_STYLE | wxRESIZE_BORDER | wxSTAY_ON_TOP
 					| wxTAB_TRAVERSAL);
-	virtual ~FrameSetupBackgroundImages();
+	virtual ~FrameSetupBackgroundImages() = default;
 
-	void OnAddUpdate(wxCommandEvent& event);
-	void OnRemove(wxCommandEvent& event);
-	void OnTextEnter(wxCommandEvent& event);
-	void OnSpin(wxSpinEvent& event);
-	void OnRightDown(wxMouseEvent& event);
-	void OnScroll(wxScrollEvent& event);
+	void OnButtonAdd(wxCommandEvent &event) override;
+	void OnButtonRemove(wxCommandEvent &event) override;
+	void OnTextEnter(wxCommandEvent &event) override;
+	void OnSpin(wxSpinEvent &event) override;
+	void OnRightDown(wxMouseEvent &event) override;
+	void OnScroll(wxScrollEvent &event) override;
 
+protected:
+	virtual void OnCheckBox(wxCommandEvent &event);
 };
 
 #endif /* GUI_FRAMESETUPBACKGROUNDIMAGES_H */

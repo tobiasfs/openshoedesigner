@@ -27,28 +27,26 @@
 #include "DialogSetupPaths.h"
 
 #include <cstdio>
-DialogSetupPaths::DialogSetupPaths(wxWindow * parent,
-		const CollectionFilepaths * collection)
-		: GUISetupPaths(parent)
-{
-	m_dirPickerMeasurementsDirectory->SetPath(collection->lastFootDirectory);
-	m_dirPickerLastDirectory->SetPath(collection->lastShoeDirectory);
-	m_dirPickerShoeDesignDirectory->SetPath(collection->lastShoeDirectory);
-	m_dirPickerOutputDirectory->SetPath(collection->lastOutputDirectory);
+DialogSetupPaths::DialogSetupPaths(wxWindow *parent,
+		const CollectionFilepaths *collection) :
+		GUISetupPaths(parent) {
+	m_dirPickerMeasurementsDirectory->SetPath(collection->measurementDirectory);
+	m_dirPickerPresetDirectory->SetPath(collection->presetDirectory);
+	m_dirPickerLastDirectory->SetPath(collection->lastDirectory);
+	m_dirPickerFabricDirectory->SetPath(collection->fabricDirectory);
+	m_dirPickerOutputDirectory->SetPath(collection->outputDirectory);
 }
 
-DialogSetupPaths::~DialogSetupPaths()
-{
-}
-
-void DialogSetupPaths::OnClose(wxCommandEvent& event)
-{
+void DialogSetupPaths::OnClose(wxCommandEvent &event) {
 	EndModal(wxID_OK);
 }
-void DialogSetupPaths::UpdateCollection(CollectionFilepaths* collection) const
-{
-	collection->lastFootDirectory = m_dirPickerMeasurementsDirectory->GetPath();
-	collection->lastShoeDirectory = m_dirPickerShoeDesignDirectory->GetPath();
-	collection->lastOutputDirectory = m_dirPickerOutputDirectory->GetPath();
+
+void DialogSetupPaths::UpdateCollection(CollectionFilepaths *collection) const {
+	collection->measurementDirectory =
+			m_dirPickerMeasurementsDirectory->GetPath();
+	collection->presetDirectory = m_dirPickerPresetDirectory->GetPath();
+	collection->lastDirectory = m_dirPickerLastDirectory->GetPath();
+	collection->fabricDirectory = m_dirPickerFabricDirectory->GetPath();
+	collection->outputDirectory = m_dirPickerOutputDirectory->GetPath();
 }
 

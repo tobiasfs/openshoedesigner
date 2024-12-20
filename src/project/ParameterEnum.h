@@ -63,10 +63,11 @@ public:
 
 	bool IsValid() const;
 	bool IsSelection(const std::string &selection_) const;
-	void SetSelection(const std::string &selection_);
 	void SetSelection(const size_t selection_);
 	size_t GetSelectionIdx() const;
-	std::string GetSelection() const;
+
+	void SetString(const std::string &selection_) override;
+	std::string GetString() const override;
 
 	size_t Size() const;
 	std::string GetName(size_t idx) const;

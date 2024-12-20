@@ -88,7 +88,7 @@ std::string CommandFootMeasurementSet::Replace(FootMeasurements &meas, int ID,
 		std::string newFormula) {
 	std::string lastValue;
 	std::shared_ptr<ParameterFormula> param = meas.GetParameter(ID);
-	lastValue = param->GetFormula();
-	param->SetFormula(newFormula);
+	lastValue = param->GetString();
+	param->SetString(newFormula);
 	return lastValue;
 }

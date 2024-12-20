@@ -44,8 +44,8 @@ public:
 	CommandConfigSetEnum(const wxString &name, Project *project, int parameter,
 			size_t value);
 
-	bool Do();
-	bool Undo();
+	bool Do() override;
+	bool Undo() override;
 
 protected:
 	Project *project;

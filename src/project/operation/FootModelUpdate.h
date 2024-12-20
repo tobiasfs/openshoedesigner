@@ -46,6 +46,7 @@ public:
 	FootModelUpdate();
 	virtual ~FootModelUpdate() = default;
 
+	virtual std::string GetName() const override;
 	virtual bool CanRun() override;
 	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
@@ -64,6 +65,7 @@ public:
 
 	std::shared_ptr<FootModel> in;
 	std::shared_ptr<FootModel> out;
+
 
 protected:
 	NelderMeadOptimizer optiPos;

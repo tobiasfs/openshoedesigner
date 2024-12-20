@@ -63,8 +63,8 @@ public:
 	void NoUnit();
 
 	void UpdateUnitText() const;
-	void UpdateUnitText(const Unit& unit) const;
-	void UpdateUnitText(const Unit& unit);
+	void UpdateUnitText(const Unit &unit) const;
+	void UpdateUnitText(const Unit &unit);
 
 	void ToTextCtrl(T &variable, const Unit &unit);
 	void ToTextCtrl(T &variable);
@@ -87,8 +87,8 @@ private:
 };
 
 template<class T>
-inline void FacadeTextField<T>::Set(wxTextCtrl* textctrl,
-		wxStaticText* statictextunit) {
+inline void FacadeTextField<T>::Set(wxTextCtrl *textctrl,
+		wxStaticText *statictextunit) {
 	this->textctrl = textctrl;
 	this->oldhovertext = textctrl->GetToolTipText();
 	this->statictextunit = statictextunit;
@@ -134,7 +134,7 @@ inline void FacadeTextField<T>::UpdateUnitText(const Unit &unit) const {
 }
 
 template<class T>
-inline void FacadeTextField<T>::UpdateUnitText(const Unit& unit) {
+inline void FacadeTextField<T>::UpdateUnitText(const Unit &unit) {
 	this->unit = unit;
 	isUnitSet = true;
 	if (statictextunit == nullptr) {
@@ -151,7 +151,7 @@ inline void FacadeTextField<T>::UpdateUnitText(const Unit& unit) {
 }
 
 template<class T>
-inline void FacadeTextField<T>::ToTextCtrl(T& variable, const Unit& unit) {
+inline void FacadeTextField<T>::ToTextCtrl(T &variable, const Unit &unit) {
 	if (statictextunit == nullptr && !unit.NoUnit()) {
 		std::stringstream err;
 		err
@@ -168,7 +168,7 @@ inline void FacadeTextField<T>::ToTextCtrl(T& variable, const Unit& unit) {
 }
 
 template<class T>
-inline void FacadeTextField<T>::ToTextCtrl(T& variable) {
+inline void FacadeTextField<T>::ToTextCtrl(T &variable) {
 	if (!isUnitSet)
 		throw std::logic_error(
 				"The unit was not set before calling ToTextCtrl(T& variable) in "
@@ -185,8 +185,8 @@ inline void FacadeTextField<T>::ToTextCtrl(T& variable) {
 }
 
 template<class T>
-inline void FacadeTextField<T>::ToTextCtrl(const T& variable,
-		const Unit& unit) const {
+inline void FacadeTextField<T>::ToTextCtrl(const T &variable,
+		const Unit &unit) const {
 
 	UpdateUnitText(unit);
 
@@ -194,7 +194,7 @@ inline void FacadeTextField<T>::ToTextCtrl(const T& variable,
 }
 
 template<class T>
-inline void FacadeTextField<T>::ToTextCtrl(const T& variable) const {
+inline void FacadeTextField<T>::ToTextCtrl(const T &variable) const {
 	if (!isUnitSet)
 		throw std::logic_error(
 				"The unit was not set before calling ToTextCtrl(const T& variable) const in "
@@ -223,7 +223,7 @@ inline T FacadeTextField<T>::ToVariable(const Unit &unit) {
 }
 
 template<class T>
-inline T FacadeTextField<T>::ToVariable(const wxString& str) {
+inline T FacadeTextField<T>::ToVariable(const wxString &str) {
 	if (!isUnitSet && !std::is_same<T, size_t>::value)
 		throw std::logic_error(
 				"The unit was not set before calling ToVariable(str) in "

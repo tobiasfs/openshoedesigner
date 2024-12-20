@@ -38,18 +38,27 @@ LastLoad::LastLoad() {
 	out = std::make_shared<LastRaw>();
 }
 
+std::string LastLoad::GetName() const {
+	return "LastLoad";
+}
+
 bool LastLoad::CanRun() {
-	if (filename && !filename->GetString().empty() && out)
+	if (filename && !filename->GetString().empty() && out) {
+		error.clear();
 		return true;
+	}
 	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	if (!filename)
 		err << " Input \"filename\" not connected.";
 	if (filename->GetString().empty())
 		err << " Input \"filename\" is empty.";
 	if (!out)
 		err << " Output \"out\" not set.";
-	throw std::runtime_error(err.str());
+	error = err.str();
+	if (!out)
+		throw std::logic_error(err.str());
+	return false;
 }
 
 bool LastLoad::Propagate() {
@@ -99,3 +108,4 @@ void LastLoad::Run() {
 	out->MarkValid(true);
 	out->MarkNeeded(false);
 }
+

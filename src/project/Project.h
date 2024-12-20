@@ -97,9 +97,7 @@ public:
 	DocumentOstream& SaveObject(DocumentOstream &ostream);
 	DocumentIstream& LoadObject(DocumentIstream &istream);
 
-	void LoadFootModel(wxString fileName);
 	void SaveFootModel(wxString fileName);
-	void LoadLastModel(wxString fileName);
 	void SaveLast(wxString fileName, bool left, bool right);
 	void SaveSkin(wxString fileName, bool left, bool right);
 
@@ -162,6 +160,7 @@ private:
 	wxCriticalSection CSRight;
 
 DECLARE_DYNAMIC_CLASS(Project)
+	;
 
 };
 

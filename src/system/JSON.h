@@ -61,31 +61,33 @@ public:
 	void Save(std::ostream &out, bool usenewline = true, size_t indent = 0);
 
 	const JSON& Begin() const;
+	// A Null has the size 1, because it is not empty.
+	size_t Size() const;
+	bool HasKey(const std::string &key) const;
+	std::string GetKey(size_t index) const;
 
 	JSON& operator[](const std::string &key);
 	const JSON& operator[](const std::string &key) const;
 	JSON& operator[](size_t index);
 	const JSON& operator[](size_t index) const;
 
-	bool IsNull() const;
+	void SetNull();
+	void SetArray(size_t size);
+	void SetObject(const bool clear = true);
+	void SetBool(const bool value);
+	void SetNumber(const double value);
+	void SetString(const std::string &value);
+
 	Type GetType() const;
+
+	bool IsNull() const;
+	bool IsArray() const;
+	bool IsObject() const;
+
 	bool GetBool(const bool defaultvalue = false) const;
 	double GetNumber(const double defaultvalue = 0.0) const;
 	std::string GetString(
 			const std::string &defaultvalue = std::string("")) const;
-	bool IsArray() const;
-	bool IsObject() const;
-	// A Null has the size 1, because it is not empty.
-	size_t Size() const;
-	bool HasKey(const std::string &key) const;
-	std::string GetKey(size_t index) const;
-
-	void SetNull();
-	void SetBool(const bool value);
-	void SetNumber(const double value);
-	void SetString(const std::string &value);
-	void SetArray(size_t size);
-	void SetObject(const bool clear = true);
 
 private:
 	Type type = Type::Null;

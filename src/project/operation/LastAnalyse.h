@@ -53,6 +53,7 @@ public:
 	LastAnalyse();
 	virtual ~LastAnalyse() = default;
 
+	virtual std::string GetName() const override;
 	virtual bool CanRun() override;
 	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
@@ -81,6 +82,7 @@ private:
 public:
 	std::shared_ptr<LastRaw> in;
 	std::shared_ptr<LastModel> out;
+
 
 private:
 	Polygon3 debug;

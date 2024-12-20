@@ -41,12 +41,12 @@ class SettingsStereo3D;
 class CollectionUnits;
 class DialogSetupStereo3D: public GUISetupStereo3D {
 public:
-	DialogSetupStereo3D(wxWindow* parent, SettingsStereo3D * settings,
-			CollectionUnits * units);
+	DialogSetupStereo3D(wxWindow *parent, SettingsStereo3D *settings,
+			CollectionUnits *units);
 
 private:
-	SettingsStereo3D * settings;
-	CollectionUnits * units;
+	SettingsStereo3D *settings;
+	CollectionUnits *units;
 
 	// Methods
 public:
@@ -54,11 +54,11 @@ public:
 	bool TransferDataFromWindow();
 
 private:
-	void OnXClose(wxCloseEvent& event);
-	void OnScroll(wxScrollEvent& event);
-	void OnColorChanged(wxColourPickerEvent& event);
-	void OnSwap(wxCommandEvent& event);
-	void OnTextChange(wxCommandEvent& event);
+	void OnXClose(wxCloseEvent &event) override;
+	void OnScroll(wxScrollEvent &event) override;
+	void OnColorChanged(wxColourPickerEvent &event) override;
+	void OnSwap(wxCommandEvent &event) override;
+	void OnTextChange(wxCommandEvent &event) override;
 
 	FacadeTextField<float> eyedistance;
 	FacadeTextField<float> focaldistance;

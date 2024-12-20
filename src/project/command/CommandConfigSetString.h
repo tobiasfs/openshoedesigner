@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : ParameterString.h
+// Name               : CommandConfigSetString.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 09.11.2024
+// Created            : 16.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,40 +23,37 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_PARAMETERSTRING_H_
-#define SRC_PROJECT_PARAMETERSTRING_H_
+#ifndef SRC_PROJECT_COMMAND_COMMANDCONFIGSETSTRING_H_
+#define SRC_PROJECT_COMMAND_COMMANDCONFIGSETSTRING_H_
 
-/** \class ParameterString
- * 	\code #include "ParameterString.h"\endcode
+/** \class CommandConfigSetString
+ * 	\code #include "CommandConfigSetString.h"\endcode
  * 	\ingroup GroupName
  *  \brief Description
  *
  * Text
  */
 
-#include "Parameter.h"
+#include "../Project.h"
+#include <wx/cmdproc.h>
 
-class ParameterString: public Parameter {
+#include <string>
+class CommandConfigSetString: public wxCommand {
 public:
-	ParameterString() = delete;
-	explicit ParameterString(const std::string &name,
-			const std::string &initial_value = std::string(""),
-			const std::string &description = std::string(""), const size_t id =
-					(size_t) -1, const size_t group = (size_t) -1);
-	virtual ~ParameterString() = default;
+	CommandConfigSetString(const wxString &name, Project *project,
+			const size_t id, const std::string &newString);
 
-	void SetString(const std::string &text) override;
-	std::string GetString() const override;
+	bool Do() override;
+	bool Undo() override;
 
-	double operator()() const;
-	double ToDouble() const;
-	bool ToBool() const;
-
-	friend std::ostream& operator<<(std::ostream &out,
-			const ParameterString &param);
+protected:
+	Project *project;
+	int id;
+	std::string newValue;
+	std::string oldValue;
 
 private:
-	std::string text;
+	void GetParam(std::shared_ptr<ParameterString> &param);
 };
 
-#endif /* SRC_PROJECT_PARAMETERSTRING_H_ */
+#endif /* SRC_PROJECT_COMMAND_COMMANDCONFIGSETSTRING_H_ */

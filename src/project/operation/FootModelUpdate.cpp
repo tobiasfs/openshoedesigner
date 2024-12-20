@@ -36,7 +36,7 @@ FootModelUpdate::FootModelUpdate() {
 
 bool FootModelUpdate::CanRun() {
 	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __func__ << " -";
+	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	bool hasMissingConnection = false;
 
 	if (!config) {
@@ -72,8 +72,11 @@ bool FootModelUpdate::CanRun() {
 		hasMissingConnection = true;
 		err << " Output \"out\" not set.";
 	}
-	if (hasMissingConnection)
-		throw std::runtime_error(err.str());
+	if (hasMissingConnection){
+		error = err.str();
+		throw std::logic_error(err.str());
+	}
+	error.clear();
 	return true;
 }
 
@@ -181,3 +184,6 @@ void FootModelUpdate::UpdatePosition(const Shoe &shoe, double offset,
 	out->ModifyPosition(true);
 }
 
+std::string FootModelUpdate::GetName() const {
+	return "FootModelUpdate";
+}
