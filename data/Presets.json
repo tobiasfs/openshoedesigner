@@ -79,4 +79,34 @@
 },{
 	"Name": "Boot (caps)",
 	"UpperLevel": "3.2"
-}]}
+}],
+"Heel":[
+{
+	"Name": "Separate Heel",
+	"Code": "return 0;",
+	"Variant":[
+		{"Name": "Cuban", 	"Mid_Size": 0.7, "Mid_Height": 0.5, "Bot_Size": 1.0, "Mid_Offset": 0.0},
+		{"Name": "Luigi XV", 	"Mid_Size": 0.7, "Mid_Height": 0.5, "Bot_Size": 0.8, "Mid_Offset":-0.2},
+		{"Name": "Stiletto", 	"Mid_Size": 0.3, "Mid_Height": 0.8, "Bot_Size": 0.2, "Mid_Offset": 0.2},
+		{"Name": "Spool", 	"Mid_Size": 0.6, "Mid_Height": 0.5, "Bot_Size": 0.7, "Mid_Offset": 0.1},
+		{"Name": "Flared", 	"Mid_Size": 0.7, "Mid_Height": 0.6, "Bot_Size": 1.0, "Mid_Offset":-0.3},
+		{"Name": "Cone", 	"Mid_Size": 0.6, "Mid_Height": 0.5, "Bot_Size": 0.2, "Mid_Offset": 0.0},
+		{"Name": "Curved", 	"Mid_Size": 0.6, "Mid_Height": 0.5, "Bot_Size": 0.2, "Mid_Offset":-0.3},
+		{"Name": "Italian", 	"Mid_Size": 0.2, "Mid_Height": 0.9, "Bot_Size": 0.2, "Mid_Offset": 0.0},
+		{"Name": "Pin", 	"Mid_Size": 0.1, "Mid_Height": 0.8, "Bot_Size": 0.1, "Mid_Offset": 0.1}
+	]
+},
+{
+	"Name": "Platform",
+	"Code": "return 0;",
+	"Variant":[
+		{"Name": "Wedge", 	"Front_Size": 1.0, "Mid_Size": 1.0, "Back_Size": 1.0, "Mid_Raise": 0.4},
+		{"Name": "Tower", 	"Front_Size": 1.0, "Mid_Size": 1.0, "Back_Size": 1.0, "Mid_Raise": 0.0},
+		{"Name": "Tower Boots", "Front_Size": 1.2, "Mid_Size": 1.2, "Back_Size": 1.2, "Mid_Raise": 0.0}
+	]
+},
+{
+	"Name": "Beam",
+	"Code": "return 0;",
+}
+]}

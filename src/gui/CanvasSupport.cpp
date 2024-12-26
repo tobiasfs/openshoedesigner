@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : PanelSupport.cpp
+// Name               : CanvasSupport.cpp
 // Purpose            : Panel for setting the walkcycle supports
 // Thread Safe        : Yes
 // Platform dependent : No
@@ -24,47 +24,47 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "PanelSupport.h"
+#include "CanvasSupport.h"
 
 #include <wx/dcclient.h>
 #include <wx/log.h>
 
-PanelSupport::PanelSupport(wxWindow* parent, wxWindowID id, const wxPoint& pos,
-		const wxSize& size, long style) :
-		wxPanel(parent, id, pos, size, style)
-{
+CanvasSupport::CanvasSupport(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style) :
+		wxPanel(parent, id, pos, size, style) {
 
 	this->SetBackgroundColour(wxColour(200, 200, 200));
 
 	// Connect Events
 	this->Connect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(PanelSupport::OnLeftDown));
-	this->Connect(wxEVT_MOTION, wxMouseEventHandler(PanelSupport::OnMotion));
-	this->Connect(wxEVT_PAINT, wxPaintEventHandler(PanelSupport::OnPaint));
-	this->Connect(wxEVT_SIZE, wxSizeEventHandler(PanelSupport::OnSize));
+			wxMouseEventHandler(CanvasSupport::OnLeftDown));
+	this->Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasSupport::OnMotion));
+	this->Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasSupport::OnPaint));
+	this->Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasSupport::OnSize));
 }
 
-PanelSupport::~PanelSupport()
-{
+CanvasSupport::~CanvasSupport() {
 	// Disconnect Events
 	this->Disconnect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(PanelSupport::OnLeftDown));
-	this->Disconnect(wxEVT_MOTION, wxMouseEventHandler(PanelSupport::OnMotion));
-	this->Disconnect(wxEVT_PAINT, wxPaintEventHandler(PanelSupport::OnPaint));
-	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(PanelSupport::OnSize));
+			wxMouseEventHandler(CanvasSupport::OnLeftDown));
+	this->Disconnect(wxEVT_MOTION,
+			wxMouseEventHandler(CanvasSupport::OnMotion));
+	this->Disconnect(wxEVT_PAINT, wxPaintEventHandler(CanvasSupport::OnPaint));
+	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(CanvasSupport::OnSize));
 }
 
-void PanelSupport::OnSize(wxSizeEvent& event)
-{
+void CanvasSupport::OnSize(wxSizeEvent &event) {
 	this->Refresh();
 }
 
-void PanelSupport::OnPaint(wxPaintEvent& event)
-{
+void CanvasSupport::OnPaint(wxPaintEvent &event) {
 
 	wxPoint temp;
 	wxPaintDC dc(this);
 	wxSize sz = GetClientSize();
+
+	wxString text = wxString::Format(_T("CanvasSupport"));
+	dc.DrawText(text, 10, 10);
 
 	float height = 1.0; //TODO: <-Replace this
 	float width = 1.0; //TODO: <-Replace this
@@ -72,7 +72,7 @@ void PanelSupport::OnPaint(wxPaintEvent& event)
 	float scaleX = (float) sz.x / width;
 	float scaleY = (float) sz.y / (height);
 
-	float scaleFactor = (scaleX < scaleY)? scaleX : scaleY;
+	float scaleFactor = (scaleX < scaleY) ? scaleX : scaleY;
 	scaleFactor *= 0.9;
 
 	int mx = sz.x / 2;
@@ -80,16 +80,12 @@ void PanelSupport::OnPaint(wxPaintEvent& event)
 
 	dc.CrossHair(mx, my);
 
-	wxString text = wxString::Format(_T("Supports"));
-	dc.DrawText(text, 10, 10);
 }
 
-void PanelSupport::OnMotion(wxMouseEvent& event)
-{
+void CanvasSupport::OnMotion(wxMouseEvent &event) {
 
 }
 
-void PanelSupport::OnLeftDown(wxMouseEvent& event)
-{
+void CanvasSupport::OnLeftDown(wxMouseEvent &event) {
 
 }

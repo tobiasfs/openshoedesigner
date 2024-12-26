@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : PanelWalkcycle.cpp
+// Name               : CanvasPattern.cpp
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 30.10.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 01.11.2017
+// Copyright          : (C) 2017 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,43 +23,43 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "PanelWalkcycle.h"
+#include "CanvasPattern.h"
 
 #include <wx/dcclient.h>
 
-PanelWalkcycle::PanelWalkcycle(wxWindow *parent, wxWindowID id,
+CanvasPattern::CanvasPattern(wxWindow *parent, wxWindowID id,
 		const wxPoint &pos, const wxSize &size, long style) :
-		wxPanel(parent, id, pos, size, style) {
+		CanvasMeasurementGrid(parent, id, pos, size, style) {
 
-	this->SetBackgroundColour(wxColour(200, 200, 200));
+	SetBackgroundColour(wxColour(200, 200, 200));
 
 	// Connect Events
-	this->Connect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(PanelWalkcycle::OnLeftDown));
-	this->Connect(wxEVT_MOTION, wxMouseEventHandler(PanelWalkcycle::OnMotion));
-	this->Connect(wxEVT_PAINT, wxPaintEventHandler(PanelWalkcycle::OnPaint));
-	this->Connect(wxEVT_SIZE, wxSizeEventHandler(PanelWalkcycle::OnSize));
+	Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
+	Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
+	Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasPattern::OnPaint));
+	Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
 }
 
-PanelWalkcycle::~PanelWalkcycle() {
+CanvasPattern::~CanvasPattern() {
 	// Disconnect Events
-	this->Disconnect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(PanelWalkcycle::OnLeftDown));
-	this->Disconnect(wxEVT_MOTION,
-			wxMouseEventHandler(PanelWalkcycle::OnMotion));
-	this->Disconnect(wxEVT_PAINT, wxPaintEventHandler(PanelWalkcycle::OnPaint));
-	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(PanelWalkcycle::OnSize));
+	Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
+	Disconnect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
+	Disconnect(wxEVT_PAINT, wxPaintEventHandler(CanvasPattern::OnPaint));
+	Disconnect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
 }
 
-void PanelWalkcycle::OnSize(wxSizeEvent &event) {
-	this->Refresh();
+void CanvasPattern::OnSize(wxSizeEvent &event) {
+	Refresh();
 }
 
-void PanelWalkcycle::OnPaint(wxPaintEvent &event) {
+void CanvasPattern::OnPaint(wxPaintEvent &event) {
 
 	wxPoint temp;
 	wxPaintDC dc(this);
 	wxSize sz = GetClientSize();
+
+	wxString text = wxString::Format(_T("CanvasPattern"));
+	dc.DrawText(text, 10, 10);
 
 	float height = 1.0; //TODO: <-Replace this
 	float width = 1.0; //TODO: <-Replace this
@@ -75,15 +75,11 @@ void PanelWalkcycle::OnPaint(wxPaintEvent &event) {
 
 	dc.CrossHair(mx, my);
 
-	wxString text = wxString::Format(_T("Walkcycle"));
-	dc.DrawText(text, 10, 10);
 }
 
-void PanelWalkcycle::OnMotion(wxMouseEvent &event) {
-
+void CanvasPattern::OnMotion(wxMouseEvent &event) {
 }
 
-void PanelWalkcycle::OnLeftDown(wxMouseEvent &event) {
-
+void CanvasPattern::OnLeftDown(wxMouseEvent &event) {
 }
 

@@ -102,8 +102,8 @@ public:
 	};
 
 	Unit() = default;
-	explicit Unit(int s, int m = 0, int kg = 0, int A = 0, int K = 0, int mol = 0,
-			int cd = 0);
+	explicit Unit(int s, int m = 0, int kg = 0, int A = 0, int K = 0, int mol =
+			0, int cd = 0);
 	explicit Unit(const std::string &otherName);
 	Unit(const std::string &otherName, const double factor,
 			const std::string &SIName);
@@ -142,7 +142,9 @@ public:
 		SIName = ToString();
 	}
 
-	int Get(Base idx) const;
+	static uint_fast8_t Size(); ///< Return the number of SI base units.
+	static std::string GetName(Base idx);
+	int operator[](Base idx) const;
 
 	std::string GetOtherName() const;
 	std::string GetSIName() const;

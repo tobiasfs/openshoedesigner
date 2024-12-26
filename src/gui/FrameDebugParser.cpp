@@ -26,6 +26,8 @@
 
 #include "FrameDebugParser.h"
 
+#include <sstream>
+
 FrameDebugParser::FrameDebugParser(wxWindow *parent) :
 		GUIFrameDebugParser(parent) {
 //	parser.autoEvaluate = true;
@@ -53,9 +55,20 @@ void FrameDebugParser::OnText(wxCommandEvent &event) {
 	}
 	m_textCtrlError->SetValue(error);
 	if (error.empty() && parser.StackSize() >= 1) {
+		const auto &value = parser.GetStack(0);
+		const auto &unit = value.GetUnit();
+
 		m_textCtrlNumber->SetValue(
-				wxString::Format(_T("%g"), parser.GetStack(0).ToDouble()));
-		m_textCtrlUnit->SetValue(parser.GetStack(0).GetUnit().ToString());
+				wxString::Format(_T("%g"), value.ToDouble()));
+		m_textCtrlUnit->SetValue(unit.ToString());
+
+		std::ostringstream sib;
+		for (uint8_t n = 0; n < Unit::Size(); ++n) {
+			Unit::Base b = (Unit::Base) n;
+			if (unit[b] != 0)
+				sib << unit.GetName(b) << "^" << unit[b] << " ";
+		}
+		m_textCtrlSIBase->SetValue(wxString(sib.str()));
 	} else {
 		m_textCtrlNumber->SetValue(_T(""));
 		m_textCtrlUnit->SetValue(_T(""));

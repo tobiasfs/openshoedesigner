@@ -63,68 +63,65 @@ class Bone {
 	friend class Skeleton;
 public:
 	Bone() = default;
-	explicit Bone(const std::string & name)
-			: name(name)
-	{
-	}
+	explicit Bone(const std::string &name);
 
+	void Update();
+	void UpdateHierarchy();
+
+	double GetXMax() const;
+	double GetXMin() const;
+	double GetZMin() const;
+
+	void PushRotation();
+	void PopRotation();
+
+	void Paint() const;
+
+private:
+	double CalculateAnchorPoint(const Vector3 &p) const;
+
+public:
 	std::string name;
-	std::weak_ptr <Bone> parentTo;
-	size_t hierarchyLevel = 0;
+	AffineTransformMatrix matrixinit; //!< Describing the basic coordinate system of the bone.
+	double roty = 0.0; //!< Rotation around (up x normal) axis
+	double rotz = 0.0; //!< Rotation around up axis
 
-	// Formulas:
+	double r1 = 0.0; //!< Radius of 1st sphere
+	double r2 = 0.0; //!< Radius of 2nd sphere. If the bone has an parent, this is calculated automatically
+	double s1 = 0.01; //!< Skin thickness on 1st sphere
+	double s2 = 0.01; //!< Skin thickness on 2nd sphere
+
+	Vector3 p1; //!< Second point
+	Vector3 p2; //!< Second point
+
 	std::string formulaLength;
 	std::string formulaR1;
 	std::string formulaR2;
 	std::string formulaS1;
 	std::string formulaS2;
 
+private:
+	std::weak_ptr<Bone> parentTo;
+	size_t hierarchyLevel = 0;
+
 	bool initialized = false;
 
-	AffineTransformMatrix matrixinit; //!< Describing the basic coordinate system of the bone.
 	AffineTransformMatrix matrix; //!< Rotated coordinate-system
 	double lengthinit = 0.0; //!< Length from p1 to p2
 	double length = 0.0;
 
 	double r1init = 0.0; //!< Radius of 1st sphere
 	double r2init = 0.0; //!< Radius of 2nd sphere. If the bone has an parent, this is calculated automatically
-	double r1 = 0.0; //!< Radius of 1st sphere
-	double r2 = 0.0; //!< Radius of 2nd sphere. If the bone has an parent, this is calculated automatically
 
 	double rparentinit = 0.0;
-
-	double s1 = 0.01; //!< Skin thickness on 1st sphere
-	double s2 = 0.01; //!< Skin thickness on 2nd sphere
-
-	// Calculated values
-	Vector3 p1; //!< Second point
-	Vector3 p2; //!< Second point
 
 	double anchorDinit = 1.0; ///< Relative position of link in parent bone along the vector p1 .. p2. Value range from 0..1
 	double mixing = 0.5;
 	AffineTransformMatrix link;
 	double linkLengthInit = 0.0;
 
-	// Changeable values
-	double roty = 0.0; //!< Rotation around (up x normal) axis
-	double rotz = 0.0; //!< Rotation around up axis
-
-	double GetXMax() const;
-	double GetXMin() const;
-	double GetZMin() const;
-
-	void Update();
-
 	double rotyBackup = 0.0; //!< Rotation along the x axis
 	double rotzBackup = 0.0; //!< Rotation along the y axis
-	void PushRotation();
-	void PopRotation();
-
-	void Paint() const;
-
-	void UpdateHierarchy();
-private:
-	double CalculateAnchorPoint(const Vector3 & p) const;
 };
 
 #endif /* BONE_H */

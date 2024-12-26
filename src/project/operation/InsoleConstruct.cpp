@@ -43,10 +43,7 @@ bool InsoleConstruct::CanRun() {
 	std::ostringstream err;
 	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	bool hasMissingConnection = false;
-	if (!footLength) {
-		hasMissingConnection = true;
-		err << " Input \"footLength\" not connected.";
-	}
+
 	if (!footLength) {
 		hasMissingConnection = true;
 		err << " Input \"footLength\" not connected.";
@@ -83,7 +80,7 @@ bool InsoleConstruct::CanRun() {
 		hasMissingConnection = true;
 		err << " Output \"insole\" not set.";
 	}
-	if (hasMissingConnection){
+	if (hasMissingConnection) {
 		error = err.str();
 		throw std::logic_error(err.str());
 	}
@@ -93,20 +90,22 @@ bool InsoleConstruct::CanRun() {
 
 bool InsoleConstruct::Propagate() {
 	bool modify = false;
-	if (!CanRun())
-		return modify;
+	if (!insole || !footLength || !ballMeasurementAngle || !heelDirectionAngle
+			|| !littleToeAngle || !bigToeAngle || !ballWidth || !heelWidth
+			|| !extraLength)
+		return false;
 
-	bool modified = false;
-	modified |= footLength->IsModified();
-	modified |= ballMeasurementAngle->IsModified();
-	modified |= heelDirectionAngle->IsModified();
-	modified |= littleToeAngle->IsModified();
-	modified |= bigToeAngle->IsModified();
-	modified |= ballWidth->IsModified();
-	modified |= heelWidth->IsModified();
-	modified |= extraLength->IsModified();
+	bool parameterModified = false;
+	parameterModified |= footLength->IsModified();
+	parameterModified |= ballMeasurementAngle->IsModified();
+	parameterModified |= heelDirectionAngle->IsModified();
+	parameterModified |= littleToeAngle->IsModified();
+	parameterModified |= bigToeAngle->IsModified();
+	parameterModified |= ballWidth->IsModified();
+	parameterModified |= heelWidth->IsModified();
+	parameterModified |= extraLength->IsModified();
 
-	if (modified) {
+	if (parameterModified) {
 		modify |= insole->IsValid();
 		insole->MarkValid(false);
 	}
@@ -114,9 +113,7 @@ bool InsoleConstruct::Propagate() {
 }
 
 bool InsoleConstruct::HasToRun() {
-	if (!CanRun())
-		return false;
-	return !insole->IsValid() && insole->IsNeeded();
+	return insole && !insole->IsValid() && insole->IsNeeded();
 }
 
 void InsoleConstruct::Run() {

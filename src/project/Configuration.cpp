@@ -146,7 +146,7 @@ Configuration::Configuration() {
 					"Distance how far the 90-deg-point is set back from the ball of the foot. Recommended is 0 cm.",
 					ID_SUPPORTTOEOFFSET);
 
-	heelCode = std::make_shared<ParameterString>("heelCode", "",
+	heelCode = std::make_shared<ParameterString>("heelCode", "return 0;",
 			"Code for generating the heel of the shoe.", ID_HEELCODE);
 
 }
@@ -228,7 +228,7 @@ void Configuration::Modify(bool modified) {
 bool Configuration::IsValidID(int id) {
 	switch (id) {
 	case ID_MEASUREMENTSOURCE:
-		// No ID for filenameScan
+	case ID_SCAN:
 	case ID_LASTCONSTRUCTIONTYPE:
 	case ID_BIGTOEANGLE:
 	case ID_LITTLETOEANGLE:
@@ -237,12 +237,12 @@ bool Configuration::IsValidID(int id) {
 	case ID_TIPSHARPNESS:
 	case ID_EXTRALENGTH:
 	case ID_FOOTCOMPRESSION:
-		// No ID for filenameBoneModel
-		// No ID for filenameLast
+	case ID_BONES:
+	case ID_LAST:
 	case ID_LASTMODIFY:
 	case ID_LASTREORIENT:
 	case ID_HEELCONSTRUCTIONTYPE:
-		// No ID for filenameHeel
+	case ID_HEEL:
 	case ID_HEELREORIENT:
 	case ID_HEELHEIGHT:
 	case ID_BALLHEIGHT:
@@ -256,7 +256,7 @@ bool Configuration::IsValidID(int id) {
 	case ID_SUPPORTHEELOFFSET:
 	case ID_SUPPORTTOERADIUS:
 	case ID_SUPPORTTOEOFFSET:
-		// No ID for heelCode
+	case ID_HEELCODE:
 		return true;
 	}
 	return false;
@@ -266,6 +266,8 @@ std::string Configuration::GetName(int id) {
 	switch (id) {
 	case ID_MEASUREMENTSOURCE:
 		return std::string("MeasurementSource");
+	case ID_SCAN:
+		return std::string("FilenameScan");
 	case ID_LASTCONSTRUCTIONTYPE:
 		return std::string("LastConstructionType");
 	case ID_BIGTOEANGLE:
@@ -282,12 +284,18 @@ std::string Configuration::GetName(int id) {
 		return std::string("ExtraLength");
 	case ID_FOOTCOMPRESSION:
 		return std::string("FootCompression");
+	case ID_BONES:
+		return std::string("FilenameBoneModel");
+	case ID_LAST:
+		return std::string("FilenameLast");
 	case ID_LASTMODIFY:
 		return std::string("LastModify");
 	case ID_LASTREORIENT:
 		return std::string("LastReorient");
 	case ID_HEELCONSTRUCTIONTYPE:
 		return std::string("HeelConstructionType");
+	case ID_HEEL:
+		return std::string("FilenameHeel");
 	case ID_HEELREORIENT:
 		return std::string("HeelReorient");
 	case ID_HEELHEIGHT:
@@ -314,6 +322,8 @@ std::string Configuration::GetName(int id) {
 		return std::string("SupportToeRadius");
 	case ID_SUPPORTTOEOFFSET:
 		return std::string("SupportToeOffset");
+	case ID_HEELCODE:
+		return std::string("HeelCode");
 	default:
 		throw(std::invalid_argument(
 				std::string(__FILE__) + " : GetParameter : Passed invalid ID."));
@@ -326,6 +336,10 @@ std::shared_ptr<ParameterFormula> Configuration::GetParameter(int id) {
 		throw(std::invalid_argument(
 				std::string(__FILE__)
 						+ " : GetParameter : Only ParameterFormulas can be returned. 'measurementSource' is a ParameterEnum."));
+	case ID_SCAN:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameScan' is a ParameterString."));
 	case ID_LASTCONSTRUCTIONTYPE:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
@@ -344,6 +358,14 @@ std::shared_ptr<ParameterFormula> Configuration::GetParameter(int id) {
 		return extraLength;
 	case ID_FOOTCOMPRESSION:
 		return footCompression;
+	case ID_BONES:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameBoneModel' is a ParameterString."));
+	case ID_LAST:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameLast' is a ParameterString."));
 	case ID_LASTMODIFY:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
@@ -356,6 +378,10 @@ std::shared_ptr<ParameterFormula> Configuration::GetParameter(int id) {
 		throw(std::invalid_argument(
 				std::string(__FILE__)
 						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelConstructionType' is a ParameterEnum."));
+	case ID_HEEL:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameHeel' is a ParameterString."));
 	case ID_HEELREORIENT:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
@@ -386,6 +412,10 @@ std::shared_ptr<ParameterFormula> Configuration::GetParameter(int id) {
 		return supportToeRadius;
 	case ID_SUPPORTTOEOFFSET:
 		return supportToeOffset;
+	case ID_HEELCODE:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelCode' is a ParameterString."));
 	default:
 		throw(std::invalid_argument(
 				std::string(__FILE__) + " : GetParameter : Passed invalid ID."));
@@ -399,6 +429,10 @@ const std::shared_ptr<const ParameterFormula> Configuration::GetParameter(
 		throw(std::invalid_argument(
 				std::string(__FILE__)
 						+ " : GetParameter : Only ParameterFormulas can be returned. 'measurementSource' is a ParameterEnum."));
+	case ID_SCAN:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameScan' is a ParameterString."));
 	case ID_LASTCONSTRUCTIONTYPE:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
@@ -417,6 +451,14 @@ const std::shared_ptr<const ParameterFormula> Configuration::GetParameter(
 		return extraLength;
 	case ID_FOOTCOMPRESSION:
 		return footCompression;
+	case ID_BONES:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameBoneModel' is a ParameterString."));
+	case ID_LAST:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameLast' is a ParameterString."));
 	case ID_LASTMODIFY:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
@@ -429,6 +471,10 @@ const std::shared_ptr<const ParameterFormula> Configuration::GetParameter(
 		throw(std::invalid_argument(
 				std::string(__FILE__)
 						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelConstructionType' is a ParameterEnum."));
+	case ID_HEEL:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'filenameHeel' is a ParameterString."));
 	case ID_HEELREORIENT:
 		throw(std::invalid_argument(
 				std::string(__FILE__)
@@ -459,6 +505,10 @@ const std::shared_ptr<const ParameterFormula> Configuration::GetParameter(
 		return supportToeRadius;
 	case ID_SUPPORTTOEOFFSET:
 		return supportToeOffset;
+	case ID_HEELCODE:
+		throw(std::invalid_argument(
+				std::string(__FILE__)
+						+ " : GetParameter : Only ParameterFormulas can be returned. 'heelCode' is a ParameterString."));
 	default:
 		throw(std::invalid_argument(
 				std::string(__FILE__) + " : GetParameter : Passed invalid ID."));

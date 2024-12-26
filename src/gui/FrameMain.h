@@ -95,11 +95,14 @@ protected:
 	void RefreshView(wxCommandEvent &event);
 	void UpdateProject(wxCommandEvent &event);
 
+	void OnChar(wxKeyEvent &event) override;
 	void OnCheckBox(wxCommandEvent &event) override;
 	void OnChoice(wxCommandEvent &event) override;
+	void OnDataViewListCtrlItemEditingDone(wxDataViewEvent &event) override;
 	void OnFileChanged(wxFileDirPickerEvent &event) override;
 	void OnKillFocus(wxFocusEvent &event) override;
 	void OnListCtrlOnSelectionChanged(wxDataViewEvent &event) override;
+	void OnNotebookPageChanged( wxNotebookEvent &event) override;
 	void OnPageChanged( wxNotebookEvent &event) override;
 	void OnRadioButton(wxCommandEvent &event) override;
 	void OnSetFocus(wxFocusEvent &event) override;

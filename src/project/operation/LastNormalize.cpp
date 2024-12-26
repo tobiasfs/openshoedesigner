@@ -42,7 +42,7 @@
 #include <stdexcept>
 
 LastNormalize::LastNormalize() {
-	out = std::make_shared<LastRaw>();
+	out = std::make_shared<ObjectGeometry>();
 }
 
 std::string LastNormalize::GetName() const {
@@ -66,12 +66,16 @@ bool LastNormalize::CanRun() {
 
 bool LastNormalize::Propagate() {
 	bool modify = false;
-	if (!CanRun())
-		return modify;
+	if (!in || !out)
+		return false;
+
+	bool parameterModified = false;
+
 	if (!in->IsValid()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
+
 	if (out->IsNeeded()) {
 		modify |= !in->IsNeeded();
 		in->MarkNeeded(true);
@@ -80,15 +84,13 @@ bool LastNormalize::Propagate() {
 }
 
 bool LastNormalize::HasToRun() {
-	if (!CanRun())
-		return false;
-	return in->IsValid() && !out->IsValid() && out->IsNeeded();
+	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
 }
 
 void LastNormalize::Run() {
 	*out = *in;
 //	out->Transform(AffineTransformMatrix::Scaling(0.1));
-	out->UpdateRawBoundingBox();
+	out->UpdateBoundingBox();
 
 //	out->paintNormals = true;
 
@@ -104,7 +106,7 @@ void LastNormalize::Run() {
 //	debug0 = *out;
 //	debug1 = *out;
 
-	out->UpdateRawBoundingBox();
+	out->UpdateBoundingBox();
 	out->CalculateNormals();
 
 	DEBUGOUT << "After LastNormalize::Run: Volume: " << out->GetVolume()
@@ -162,7 +164,7 @@ void LastNormalize::ReorientPCA() {
 	temp.Invert();
 
 	out->Transform(temp);
-	out->UpdateRawBoundingBox();
+	out->UpdateBoundingBox();
 }
 
 void LastNormalize::ReorientSymmetry() {
@@ -177,7 +179,7 @@ void LastNormalize::ReorientSymmetry() {
 
 //	Exporter ex("/tmp/debug.mat", "X");
 
-	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
+	AffineTransformMatrix bbc = out->BB.GetCoordinateSystem();
 //		debug.Clear();
 	Symmetry symmetry;
 	symmetry.Init(180);
@@ -236,7 +238,7 @@ void LastNormalize::ReorientSymmetry() {
 			<< " degrees.\n";
 
 	out->Transform(comp);
-	out->UpdateRawBoundingBox();
+	out->UpdateBoundingBox();
 }
 
 void LastNormalize::ReorientSole() {
@@ -246,7 +248,7 @@ void LastNormalize::ReorientSole() {
 	kde.XLinspace(0, 2 * M_PI, 360);
 	kde.XSetCyclic(2 * M_PI);
 
-	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
+	AffineTransformMatrix bbc = out->BB.GetCoordinateSystem();
 	for (double cut = 0.2; cut < 0.81; cut += 0.2) {
 		Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0),
 				bbc.GlobalX(cut));
@@ -271,23 +273,23 @@ void LastNormalize::ReorientSole() {
 
 	auto results = kde.FindPeaks(0.1);
 	if (results.empty()) {
-		std::ostringstream out;
-		out << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
-		out << "The function did not find any features.";
-		throw std::runtime_error(out.str());
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
+		err << "The function did not find any features.";
+		throw std::runtime_error(err.str());
 	}
 	AffineTransformMatrix comp;
 	comp *= AffineTransformMatrix::RotationAroundVector(Vector3(1, 0, 0),
 			3 * M_PI_2 - results[0].x);
 	out->Transform(comp);
-	out->UpdateRawBoundingBox();
+	out->UpdateBoundingBox();
 }
 
 void LastNormalize::ReorientFrontBack() {
 
 //		loop.Clear();
 	std::vector<double> ratio;
-	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
+	AffineTransformMatrix bbc = out->BB.GetCoordinateSystem();
 	for (double cut = 0.1; cut < 0.91; cut += 0.1) {
 		Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0),
 				bbc.GlobalX(cut));
@@ -313,7 +315,7 @@ void LastNormalize::ReorientFrontBack() {
 		out->Transform(
 				AffineTransformMatrix::RotationAroundVector(Vector3(0, 0, 1),
 				M_PI));
-		out->UpdateRawBoundingBox();
+		out->UpdateBoundingBox();
 	}
 
 //		double maxr;
@@ -355,7 +357,7 @@ void LastNormalize::ReorientLeftRight() {
 
 //		kde.XLinspace(0, 1, 100);
 //		kde.XSetLinear();
-	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
+	AffineTransformMatrix bbc = out->BB.GetCoordinateSystem();
 	for (double cut = 0.1; cut < 0.91; cut += 0.1) {
 		Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0),
 				bbc.GlobalX(cut));
@@ -381,8 +383,8 @@ void LastNormalize::ReorientLeftRight() {
 //		for(double r = 0; r <= 1; r += 0.01)
 //			test += Vector3(bb.xmin + bb.GetSizeX() * r, py.Evaluate(r), 0.0);
 
-	py.ScaleX(1.0 / out->rawBB.GetSizeX()); // Normale with lastlength
-	py.ScaleY(1.0 / out->rawBB.GetSizeY()); // Normalize with lastwidth
+	py.ScaleX(1.0 / out->BB.GetSizeX()); // Normale with lastlength
+	py.ScaleY(1.0 / out->BB.GetSizeY()); // Normalize with lastwidth
 
 			//		DEBUGOUT << "py = " << py << ";\n";
 
@@ -413,9 +415,9 @@ void LastNormalize::ReorientLeftRight() {
 	}
 	const double Lmax = loop.GetLength();
 	for (size_t n = 0; n < loop.Size(); ++n) {
-		const Vector3 temp = (loop[(n + 1) % loop.Size()] - loop[n]);
-		double a = atan2(temp.y, -temp.z);
-		kde.Insert(a, Kernel::Sigmoid, temp.Abs() / Lmax, 0.3);
+		const Vector3 dirvect = (loop[(n + 1) % loop.Size()] - loop[n]);
+		double a = atan2(dirvect.y, -dirvect.z);
+		kde.Insert(a, Kernel::Sigmoid, dirvect.Abs() / Lmax, 0.3);
 	}
 
 	kde.Normalize();
@@ -439,12 +441,12 @@ void LastNormalize::ReorientLeftRight() {
 	chir += 4.0 * (minLeft - minRight) / (minLeft + minRight);
 
 	if (chir > 0.5) {
-		AffineTransformMatrix temp;
-		temp.ScaleGlobal(1.0, -1.0, 1.0);
-		out->Transform(temp);
+		AffineTransformMatrix flipY;
+		flipY.ScaleGlobal(1.0, -1.0, 1.0);
+		out->Transform(flipY);
 		DEBUGOUT << "Flip sides left to right.\n";
 
-		out->UpdateRawBoundingBox();
+		out->UpdateBoundingBox();
 	}
 
 //		DEBUGOUT << chir << " ";

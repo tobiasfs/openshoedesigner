@@ -37,6 +37,7 @@ CommandFootMeasurementsCopy::CommandFootMeasurementsCopy(const wxString &name,
 }
 
 bool CommandFootMeasurementsCopy::Do() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 	if (toSide == ProjectView::Side::Left) {
@@ -53,6 +54,7 @@ bool CommandFootMeasurementsCopy::Do() {
 }
 
 bool CommandFootMeasurementsCopy::Undo() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 

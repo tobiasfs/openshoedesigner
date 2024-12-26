@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : PanelSupport.h
-// Purpose            : Panel for setting the walkcycle supports
-// Thread Safe        : Yes
+// Name               : FootModelLoad.h
+// Purpose            : 
+// Thread Safe        : No
 // Platform dependent : No
-// Compiler Options   :
+// Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 27.10.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 23.12.2024
+// Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,42 +23,42 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#ifndef SRC_PROJECT_OPERATION_FOOTMODELLOAD_H_
+#define SRC_PROJECT_OPERATION_FOOTMODELLOAD_H_
 
-
-#ifndef PANELSUPPORT_H
-#define PANELSUPPORT_H
-
-/*!\class PanelSupport
- * \brief ...
+/** \class FootModelLoad
+ * 	\code #include "FootModelLoad.h"\endcode
+ * 	\ingroup GroupName
+ *  \brief Description
  *
- * ...
+ * Text
  */
 
-#include <wx/panel.h>
+#include "Operation.h"
 
-class PanelSupport:public wxPanel {
-	// Costructor/ Destructor
-public:
-	PanelSupport(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos =
-			wxDefaultPosition, const wxSize& size = wxDefaultSize, long style =
-			wxTAB_TRAVERSAL);
-	virtual ~PanelSupport();
+#include "../foot/FootModel.h"
+#include "../ParameterString.h"
 
-	// Member Variables
+#include <filesystem>
+#include <memory>
+
+class FootModelLoad: public Operation {
 public:
+	FootModelLoad();
+
+	bool CanRun() override;
+	bool HasToRun() override;
+	std::string GetName() const override;
+	void Run() override;
+	bool Propagate() override;
+
+public:
+	std::shared_ptr<ParameterString> filename;
+	std::shared_ptr<FootModel> out;
 
 private:
+	std::filesystem::file_time_type lastModified;
 
-	//Methods
-public:
-
-private:
-
-	void OnPaint(wxPaintEvent& event);
-	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent& event);
-	void OnLeftDown(wxMouseEvent& event);
 };
 
-#endif /* PANELSUPPORT_H */
+#endif /* SRC_PROJECT_OPERATION_FOOTMODELLOAD_H_ */

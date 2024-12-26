@@ -35,6 +35,7 @@ CommandFootMeasurementSet::CommandFootMeasurementSet(const wxString &name,
 }
 
 bool CommandFootMeasurementSet::Do() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 
@@ -59,6 +60,7 @@ bool CommandFootMeasurementSet::Do() {
 }
 
 bool CommandFootMeasurementSet::Undo() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 

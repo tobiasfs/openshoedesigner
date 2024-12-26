@@ -43,6 +43,7 @@ CommandFootModelSetParameter::CommandFootModelSetParameter(const wxString &name,
 }
 
 bool CommandFootModelSetParameter::Do() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << " not implemented.\n";
 	if (project == NULL)
 		return false;
 	return false;
@@ -118,6 +119,7 @@ bool CommandFootModelSetParameter::Do() {
 }
 
 bool CommandFootModelSetParameter::Undo() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << " not implemented.\n";
 	if (project == NULL)
 		return false;
 	return false;

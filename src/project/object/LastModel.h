@@ -40,6 +40,8 @@
  * step has already been done on the foot-model.
  */
 
+#include "ObjectGeometry.h"
+
 #include <cmath>
 #include <functional>
 #include <stddef.h>
@@ -54,14 +56,13 @@
 #include "../../math/FormFinder.h"
 #include "../../math/Polynomial.h"
 #include "../../math/Symmetry.h"
-#include "LastRaw.h"
 
 class Insole;
 class OpenGLText;
 class FootMeasurements;
 class Shoe;
 
-class LastModel: public LastRaw {
+class LastModel: public ObjectGeometry {
 	friend class LastAnalyse;
 
 public:

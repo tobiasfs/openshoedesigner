@@ -106,8 +106,8 @@ public:
 	AffineTransformMatrix model;
 
 	float unitAtOrigin;
-protected:
 
+protected:
 	int x; //!< Startpoint for mouse dragging
 	int y; //!< Startpoint for mouse dragging
 	int w; //!< Width of viewport
@@ -124,14 +124,14 @@ private:
 	Context *context = nullptr;
 
 #ifdef USE_6DOFCONTROLLER
-	Control3D* control; //!< Link to 6DOF-controller
+	Control3D *control; //!< Link to 6DOF-controller
 	wxTimer timer; //!< Timer for polling the controller
 #endif
 
 	// Methods
 public:
 #ifdef USE_6DOFCONTROLLER
-	void SetController(Control3D& control);
+	void SetController(Control3D &control);
 #endif
 #ifdef USE_3DPICKING
 	void OnPick(OpenGLPick &result, int x, int y);
@@ -149,7 +149,7 @@ protected:
 
 private:
 #ifdef USE_6DOFCONTROLLER
-	void OnTimer(wxTimerEvent& event);
+	void OnTimer(wxTimerEvent &event);
 #endif
 
 wxDECLARE_NO_COPY_CLASS(OpenGLCanvas);

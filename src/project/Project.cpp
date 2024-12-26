@@ -64,12 +64,21 @@ Project::Project() :
 //		vol[n] = 0.0;
 //	vol.CalcSurface();
 
+//	footScan.InitExample();
+
 	thread0 = nullptr;
 	thread1 = nullptr;
 
-//	footScan.InitExample();
+	insoleL = std::make_shared<Insole>();
+	insoleR = std::make_shared<Insole>();
 
-	Update();
+	lastL = std::make_shared<LastModel>();
+	lastR = std::make_shared<LastModel>();
+
+	heelL = std::make_shared<ObjectGeometry>();
+	heelR = std::make_shared<ObjectGeometry>();
+
+	builder.Setup(*this);
 
 	Bind(wxEVT_COMMAND_THREAD_COMPLETED, &Project::OnCalculationDone, this);
 	Bind(wxEVT_COMMAND_THREAD_UPDATE, &Project::OnRefreshViews, this);
@@ -177,9 +186,40 @@ void Project::Register() {
 	footR.Register(evaluator);
 }
 
+void Project::CheckNeeded() {
+	const auto &v = GetViews();
+	for (auto &ob : v) {
+		const ProjectView *projectview = wxStaticCast(ob, ProjectView);
+
+		if (projectview->display == ProjectView::Display::Shoe) {
+			if (projectview->active == ProjectView::Side::Left
+					|| projectview->active == ProjectView::Side::Both) {
+				lastL->MarkNeeded(true);
+				heelL->MarkNeeded(true);
+			}
+			if (projectview->active == ProjectView::Side::Right
+					|| projectview->active == ProjectView::Side::Both) {
+				lastR->MarkNeeded(true);
+				heelR->MarkNeeded(true);
+			}
+		}
+		if (projectview->display == ProjectView::Display::Insole) {
+			if (projectview->active == ProjectView::Side::Left
+					|| projectview->active == ProjectView::Side::Both) {
+				insoleL->MarkNeeded(true);
+			}
+			if (projectview->active == ProjectView::Side::Right
+					|| projectview->active == ProjectView::Side::Both) {
+				insoleR->MarkNeeded(true);
+			}
+		}
+	}
+}
+
 void Project::Update() {
 	if (config.IsModified() || footL.IsModified() || footR.IsModified())
 		Modify(true);
+
 	try {
 		evaluator.Update();
 		evaluator.Calculate();
@@ -188,12 +228,14 @@ void Project::Update() {
 //		return;
 	}
 
-#ifdef DEBUG
-	builder.Update(*this);
-	lastNormalized->MarkNeeded(true);
-#endif
+	builder.Setup(*this);
+
+	CheckNeeded();
 
 	builder.Update(*this);
+
+	if (!builder.error.empty())
+		std::cerr << builder.error << "\n";
 
 	config.Modify(false);
 	footL.Modify(false);
@@ -289,6 +331,7 @@ DocumentIstream& Project::LoadObject(DocumentIstream &istream) {
 		}
 		stream.clear();
 		Update();
+		UpdateAllViews();
 		Modify(false);
 	} catch (const std::exception &ex) {
 		std::cerr << "Error while loading project: " << ex.what() << "\n";

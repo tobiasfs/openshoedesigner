@@ -62,12 +62,14 @@ bool LastAnalyse::CanRun() {
 
 bool LastAnalyse::Propagate() {
 	bool modify = false;
-	if (!CanRun())
-		return modify;
+	if (!in || !out)
+		return false;
+
 	if (!in->IsValid()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
+
 	if (out->IsNeeded()) {
 		modify |= !in->IsNeeded();
 		in->MarkNeeded(true);
@@ -76,9 +78,7 @@ bool LastAnalyse::Propagate() {
 }
 
 bool LastAnalyse::HasToRun() {
-	if (!CanRun())
-		return false;
-	return in->IsValid() && !out->IsValid() && out->IsNeeded();
+	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
 }
 
 void LastAnalyse::Run() {
@@ -117,7 +117,7 @@ void LastAnalyse::Paint() const {
 void LastAnalyse::AnalyseForm() {
 	DEBUGOUT << "*** Analyzing last ***\n";
 
-	out->UpdateRawBoundingBox();
+	out->UpdateBoundingBox();
 
 	FindAndReorientCenterplane();
 
@@ -168,14 +168,14 @@ void LastAnalyse::AnalyseForm() {
 //		}
 //	}
 
-//	coordsys = rawBB.GetCoordinateSystem();
+//	coordsys = BB.GetCoordinateSystem();
 
 //	cde.Add(CoreDensityEstimator::Epanechnikov, 1, 1, 1);
 //	cde.Add(CoreDensityEstimator::Epanechnikov, 0.5, 2.5, 1);
 	{
 //		coordsys.SetOrigin(
-//				Vector3(rawBB.xmin, (rawBB.ymax + rawBB.ymin) / 2, rawBB.zmin));
-//		coordsys.SetEx(Vector3(rawBB.xmax - rawBB.xmin, 0, 0));
+//				Vector3(BB.xmin, (BB.ymax + BB.ymin) / 2, BB.zmin));
+//		coordsys.SetEx(Vector3(BB.xmax - BB.xmin, 0, 0));
 //		coordsys.SetEy(Vector3(0, 0, 1));
 //		coordsys.CalculateEz();
 
@@ -379,7 +379,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 
 	const double param_soleangle = 25.0 * M_PI / 180.0;
 
-	AffineTransformMatrix bbc = out->rawBB.GetCoordinateSystem();
+	AffineTransformMatrix bbc = out->BB.GetCoordinateSystem();
 	Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0), bbc.GlobalX(0.2));
 	{
 		Vector3 r = section.GetRotationalAxis();
@@ -463,7 +463,6 @@ void LastAnalyse::FindAndReorientCenterplane() {
 	}
 
 	{
-		KernelDensityEstimator kde;
 		kde.Clear();
 		kde.XLinspace(0, 2 * M_PI, 360);
 		kde.XSetCyclic(2 * M_PI);
@@ -486,8 +485,8 @@ void LastAnalyse::FindAndReorientCenterplane() {
 				topangle - M_PI_2, 0);
 		out->Transform(temp);
 		out->planeXZ.Transform(temp);
-		out->UpdateRawBoundingBox();
-		bbc = out->rawBB.GetCoordinateSystem();
+		out->UpdateBoundingBox();
+		bbc = out->BB.GetCoordinateSystem();
 		// out->planeXZ.RotateOrigin(bbc.Transform(Vector3(0, 0.5, 3)));
 	}
 
@@ -614,7 +613,8 @@ bool LastAnalyse::FindMarker() {
 // Find the ball measurement angle
 	{
 		const Vector3 p = out->planeXZ[out->idxLittleToeBottom];
-		Vector3 a, b;
+		Vector3 a;
+		Vector3 b;
 		double da = DBL_MAX;
 		double db = DBL_MAX;
 		for (size_t n = 0; n < out->bottomleft.Size(); ++n) {
@@ -893,7 +893,7 @@ void LastAnalyse::FindOutline() {
 	out->bottomleft.Clear();
 	out->bottomright.Clear();
 
-//	AffineTransformMatrix bbc = rawBB.GetCoordinateSystem();
+//	AffineTransformMatrix bbc = BB.GetCoordinateSystem();
 
 	for (size_t n = 0; n < Ncut; ++n) {
 		const double a = rotation(n);

@@ -55,7 +55,8 @@ protected:
 private:
 	const ProjectView *projectview;
 
-	Vector3 a, b;
+	Vector3 a;
+	Vector3 b;
 
 };
 

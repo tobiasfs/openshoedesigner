@@ -501,7 +501,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelPageFoot->SetSizer( bSizerFoot );
 	m_panelPageFoot->Layout();
 	bSizerFoot->Fit( m_panelPageFoot );
-	m_notebook->AddPage( m_panelPageFoot, _("Foot"), true );
+	m_notebook->AddPage( m_panelPageFoot, _("Foot"), false );
 	m_panelPageLeg = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerLeg;
 	bSizerLeg = new wxBoxSizer( wxVERTICAL );
@@ -765,7 +765,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelPageLast->SetSizer( bSizerLast );
 	m_panelPageLast->Layout();
 	bSizerLast->Fit( m_panelPageLast );
-	m_notebook->AddPage( m_panelPageLast, _("Last"), false );
+	m_notebook->AddPage( m_panelPageLast, _("Last"), true );
 	m_panelPageShoe = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerShoe;
 	bSizerShoe = new wxBoxSizer( wxVERTICAL );
@@ -1064,9 +1064,11 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_editorCode->SetSelForeground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHTTEXT ) );
 	fgSizerHeelCode->Add( m_editorCode, 1, wxEXPAND | wxALL, 5 );
 
-	m_dataViewListCtrlVariant = new wxDataViewListCtrl( m_panelPageHeel, ID_HEELVARIANT, wxDefaultPosition, wxDefaultSize, 0 );
+	m_dataViewListCtrlVariant = new wxDataViewListCtrl( m_panelPageHeel, ID_HEELVARIANT, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES|wxDV_SINGLE|wxDV_VERT_RULES );
 	m_dataViewListColumnVariantName = m_dataViewListCtrlVariant->AppendTextColumn( _("Name"), wxDATAVIEW_CELL_INERT, -1, static_cast<wxAlignment>(wxALIGN_LEFT), wxDATAVIEW_COL_RESIZABLE );
-	m_dataViewListColumnVariantValue = m_dataViewListCtrlVariant->AppendTextColumn( _("Value"), wxDATAVIEW_CELL_INERT, -1, static_cast<wxAlignment>(wxALIGN_LEFT), wxDATAVIEW_COL_RESIZABLE );
+	m_dataViewListColumnVariantName->GetRenderer()->EnableEllipsize( wxELLIPSIZE_END );
+	m_dataViewListColumnVariantValue = m_dataViewListCtrlVariant->AppendTextColumn( _("Value"), wxDATAVIEW_CELL_EDITABLE, -1, static_cast<wxAlignment>(wxALIGN_LEFT), wxDATAVIEW_COL_RESIZABLE );
+	m_dataViewListColumnVariantValue->GetRenderer()->EnableEllipsize( wxELLIPSIZE_NONE );
 	fgSizerHeelCode->Add( m_dataViewListCtrlVariant, 0, wxALL|wxEXPAND, 5 );
 
 
@@ -1205,40 +1207,55 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	wxBoxSizer* bSizerCanvas;
 	bSizerCanvas = new wxBoxSizer( wxVERTICAL );
 
-	m_canvas3D = new Canvas3D(m_panelCanvas);
-	bSizerCanvas->Add( m_canvas3D, 1, wxALL|wxEXPAND, 5 );
+	m_notebookCanvas = new wxNotebook( m_panelCanvas, ID_MAINVIEW, wxDefaultPosition, wxDefaultSize, 0 );
+	m_panelCanvas3D = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerCanvas3D;
+	bSizerCanvas3D = new wxBoxSizer( wxVERTICAL );
 
-	m_panelPattern = new PanelPattern(m_panelCanvas);
-	m_panelPattern->Hide();
+	m_canvas3D = new Canvas3D(m_panelCanvas3D);
+	bSizerCanvas3D->Add( m_canvas3D, 1, wxALL|wxEXPAND, 5 );
 
-	bSizerCanvas->Add( m_panelPattern, 1, wxALL|wxEXPAND, 5 );
 
-	m_panelCheck = new wxPanel( m_panelCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_panelCheck->Hide();
+	m_panelCanvas3D->SetSizer( bSizerCanvas3D );
+	m_panelCanvas3D->Layout();
+	bSizerCanvas3D->Fit( m_panelCanvas3D );
+	m_notebookCanvas->AddPage( m_panelCanvas3D, _("3D"), true );
+	m_panelInsole = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerInsole;
+	bSizerInsole = new wxBoxSizer( wxVERTICAL );
 
-	wxBoxSizer* bSizerCheckRounding;
-	bSizerCheckRounding = new wxBoxSizer( wxHORIZONTAL );
+	m_canvasInsole = new CanvasInsole(m_panelInsole);
+	bSizerInsole->Add( m_canvasInsole, 1, wxALL|wxEXPAND, 5 );
 
-	m_panelSupport = new PanelSupport(m_panelCheck);
-	bSizerCheckRounding->Add( m_panelSupport, 1, wxALL|wxEXPAND, 5 );
 
-	wxBoxSizer* bSizerSupport;
-	bSizerSupport = new wxBoxSizer( wxVERTICAL );
+	m_panelInsole->SetSizer( bSizerInsole );
+	m_panelInsole->Layout();
+	bSizerInsole->Fit( m_panelInsole );
+	m_notebookCanvas->AddPage( m_panelInsole, _("Insole"), false );
+	m_panelCanvasAnalysis = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerCanvasAnalysis;
+	bSizerCanvasAnalysis = new wxBoxSizer( wxHORIZONTAL );
+
+	m_canvasSupport = new CanvasSupport(m_panelCanvasAnalysis);
+	bSizerCanvasAnalysis->Add( m_canvasSupport, 1, wxALL|wxEXPAND, 5 );
+
+	wxBoxSizer* bSizerAnalysisSupport;
+	bSizerAnalysisSupport = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticBoxSizer* sbSizerCycle;
-	sbSizerCycle = new wxStaticBoxSizer( new wxStaticBox( m_panelCheck, wxID_ANY, _("Walkcycle") ), wxVERTICAL );
+	sbSizerCycle = new wxStaticBoxSizer( new wxStaticBox( m_panelCanvasAnalysis, wxID_ANY, _("Walkcycle") ), wxVERTICAL );
 
-	m_panelCycle = new PanelWalkcycle(m_panelCheck);
-	sbSizerCycle->Add( m_panelCycle, 1, wxALL|wxEXPAND, 5 );
+	m_canvasCycle = new CanvasWalkcycle(sbSizerCycle->GetStaticBox());
+	sbSizerCycle->Add( m_canvasCycle, 1, wxALL|wxEXPAND, 5 );
 
 	m_checkBoxLockAnkle = new wxCheckBox( sbSizerCycle->GetStaticBox(), ID_ANKLELOCK, _("Lock Ankle"), wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizerCycle->Add( m_checkBoxLockAnkle, 0, wxALL|wxEXPAND, 5 );
 
 
-	bSizerSupport->Add( sbSizerCycle, 1, wxEXPAND, 5 );
+	bSizerAnalysisSupport->Add( sbSizerCycle, 1, wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizerPlot;
-	sbSizerPlot = new wxStaticBoxSizer( new wxStaticBox( m_panelCheck, wxID_ANY, _("Forces, Moments") ), wxVERTICAL );
+	sbSizerPlot = new wxStaticBoxSizer( new wxStaticBox( m_panelCanvasAnalysis, wxID_ANY, _("Forces, Moments") ), wxVERTICAL );
 
 	wxString m_choiceDisplayChoices[] = { _("Kneeline"), _("Force"), _("Moment"), _("Crossforce") };
 	int m_choiceDisplayNChoices = sizeof( m_choiceDisplayChoices ) / sizeof( wxString );
@@ -1246,20 +1263,34 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_choiceDisplay->SetSelection( 0 );
 	sbSizerPlot->Add( m_choiceDisplay, 0, wxALL|wxEXPAND, 5 );
 
-	m_panelPlot = new PanelPlotSimple(m_panelCheck);
-	sbSizerPlot->Add( m_panelPlot, 1, wxALL|wxEXPAND, 5 );
+	m_canvasGraph = new CanvasGraph(sbSizerPlot->GetStaticBox());
+	sbSizerPlot->Add( m_canvasGraph, 1, wxALL|wxEXPAND, 5 );
 
 
-	bSizerSupport->Add( sbSizerPlot, 1, wxEXPAND, 5 );
+	bSizerAnalysisSupport->Add( sbSizerPlot, 1, wxEXPAND, 5 );
 
 
-	bSizerCheckRounding->Add( bSizerSupport, 1, wxEXPAND, 5 );
+	bSizerCanvasAnalysis->Add( bSizerAnalysisSupport, 1, wxEXPAND, 5 );
 
 
-	m_panelCheck->SetSizer( bSizerCheckRounding );
-	m_panelCheck->Layout();
-	bSizerCheckRounding->Fit( m_panelCheck );
-	bSizerCanvas->Add( m_panelCheck, 1, wxEXPAND | wxALL, 5 );
+	m_panelCanvasAnalysis->SetSizer( bSizerCanvasAnalysis );
+	m_panelCanvasAnalysis->Layout();
+	bSizerCanvasAnalysis->Fit( m_panelCanvasAnalysis );
+	m_notebookCanvas->AddPage( m_panelCanvasAnalysis, _("Analysis"), false );
+	m_panelCanvasPattern = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerCanvasPattern;
+	bSizerCanvasPattern = new wxBoxSizer( wxVERTICAL );
+
+	m_canvasPattern = new CanvasPattern(m_panelCanvasPattern);
+	bSizerCanvasPattern->Add( m_canvasPattern, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_panelCanvasPattern->SetSizer( bSizerCanvasPattern );
+	m_panelCanvasPattern->Layout();
+	bSizerCanvasPattern->Fit( m_panelCanvasPattern );
+	m_notebookCanvas->AddPage( m_panelCanvasPattern, _("Pattern"), false );
+
+	bSizerCanvas->Add( m_notebookCanvas, 1, wxEXPAND | wxALL, 5 );
 
 
 	m_panelCanvas->SetSizer( bSizerCanvas );
@@ -1516,6 +1547,11 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_textCtrlSupportToeOffset->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlSupportToeOffset->Connect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
 	m_textCtrlSupportToeOffset->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
+	m_choicePresetHeel->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
+	m_choicePresetHeelCode->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
+	m_choicePresetHeelVariant->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
+	m_editorCode->Connect( wxEVT_CHAR, wxKeyEventHandler( GUIFrameMain::OnChar ), NULL, this );
+	m_dataViewListCtrlVariant->Connect( wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_DONE, wxDataViewEventHandler( GUIFrameMain::OnDataViewListCtrlItemEditingDone ), NULL, this );
 	m_treeListCtrlPattern->Connect( wxEVT_TREELIST_SELECTION_CHANGED, wxTreeListEventHandler( GUIFrameMain::OnPatternSelect ), NULL, this );
 	m_buttonElementCopy->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonCopy ), NULL, this );
 	m_buttonElementDelete->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonDelete ), NULL, this );
@@ -1529,6 +1565,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_listBoxFabric->Connect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( GUIFrameMain::OnPatternSelectFabric ), NULL, this );
 	m_buttonExportFlattening->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), NULL, this );
 	m_buttonTestStitch->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonTestStitch ), NULL, this );
+	m_notebookCanvas->Connect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameMain::OnNotebookPageChanged ), NULL, this );
 	m_canvas3D->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( GUIFrameMain::On3DSelect ), NULL, this );
 	m_checkBoxLockAnkle->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameMain::OnCheckBox ), NULL, this );
 	m_choiceDisplay->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
@@ -1736,6 +1773,11 @@ GUIFrameMain::~GUIFrameMain()
 	m_textCtrlSupportToeOffset->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlSupportToeOffset->Disconnect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
 	m_textCtrlSupportToeOffset->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
+	m_choicePresetHeel->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
+	m_choicePresetHeelCode->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
+	m_choicePresetHeelVariant->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
+	m_editorCode->Disconnect( wxEVT_CHAR, wxKeyEventHandler( GUIFrameMain::OnChar ), NULL, this );
+	m_dataViewListCtrlVariant->Disconnect( wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_DONE, wxDataViewEventHandler( GUIFrameMain::OnDataViewListCtrlItemEditingDone ), NULL, this );
 	m_treeListCtrlPattern->Disconnect( wxEVT_TREELIST_SELECTION_CHANGED, wxTreeListEventHandler( GUIFrameMain::OnPatternSelect ), NULL, this );
 	m_buttonElementCopy->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonCopy ), NULL, this );
 	m_buttonElementDelete->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonDelete ), NULL, this );
@@ -1749,6 +1791,7 @@ GUIFrameMain::~GUIFrameMain()
 	m_listBoxFabric->Disconnect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( GUIFrameMain::OnPatternSelectFabric ), NULL, this );
 	m_buttonExportFlattening->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), NULL, this );
 	m_buttonTestStitch->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonTestStitch ), NULL, this );
+	m_notebookCanvas->Disconnect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameMain::OnNotebookPageChanged ), NULL, this );
 	m_canvas3D->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( GUIFrameMain::On3DSelect ), NULL, this );
 	m_checkBoxLockAnkle->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameMain::OnCheckBox ), NULL, this );
 	m_choiceDisplay->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
@@ -2624,10 +2667,10 @@ GUIDialogAnisotropy::GUIDialogAnisotropy( wxWindow* parent, wxWindowID id, const
 
 	bSizerAnisotropy->Add( bSizerPoints, 0, wxEXPAND, 5 );
 
-	m_panelAnisotropy = new PanelAnisotropy(this);
-	m_panelAnisotropy->Hide();
+	m_canvasAnisotropy = new CanvasAnisotropy(this);
+	m_canvasAnisotropy->Hide();
 
-	bSizerAnisotropy->Add( m_panelAnisotropy, 0, wxALL, 5 );
+	bSizerAnisotropy->Add( m_canvasAnisotropy, 0, wxALL, 5 );
 
 
 	this->SetSizer( bSizerAnisotropy );

@@ -33,6 +33,7 @@
 
 #include "../icons/FootMeasurements_small.xpm"
 #include "../icons/FootMeasurements.xpm"
+#include "../icons/Logo.xpm"
 
 #include "../project/command/CommandConfigSetEnum.h"
 #include "../project/command/CommandConfigSetParameter.h"
@@ -62,8 +63,11 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 
 	DEBUGOUT << "FrameMain: Constructor called.\n";
 
-	this->config = config;
+	wxIconBundle logo;
+	logo.AddIcon(wxIcon(Logo_xpm));
+	SetIcons(logo);
 
+	this->config = config;
 
 	presets = JSON::Load("data/Presets.json");
 
@@ -115,7 +119,7 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 
 	m_canvas3D->SetProjectView(wxStaticCast(view, ProjectView));
 	settings->WriteToCanvas(m_canvas3D);
-
+	m_canvas3D->Refresh();
 	filepaths.Load(config);
 
 	m_editorCode->SetLexer(wxSTC_LEX_CPP);
@@ -137,8 +141,8 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 			this);
 	timer.Start(500);
 
-	Project *project = wxStaticCast(doc, Project);
-	project->Update();
+//	Project *project = wxStaticCast(doc, Project);
+//	project->Update();
 }
 
 FrameMain::~FrameMain() {
@@ -447,6 +451,60 @@ bool FrameMain::TransferDataToWindow() {
 	TransferParameterToTextCtrl(config.supportToeOffset,
 			m_textCtrlSupportToeOffset, UnitType::Distance);
 
+	{	// Populate the wxChoiceCtrl for the shoe-type
+		wxArrayString preset;
+		wxArrayString code;
+		wxArrayString variant;
+		preset.Add(_("Custom"));
+		code.Add(_("Custom"));
+		variant.Add(_("Custom"));
+
+		if (presets.IsObject() && presets.HasKey("Heel")) {
+			const JSON &js = presets["Heel"];
+			if (js.IsArray()) {
+				for (size_t n = 0; n < js.Size(); ++n) {
+					const JSON &jsa = js[n];
+					wxString codeName;
+					if (jsa.HasKey("Name"))
+						codeName = jsa["Name"].GetString();
+					else
+						codeName = wxString::Format("#%u", n);
+					code.Add(codeName);
+
+					if (jsa.HasKey("Variant")) {
+						const JSON &jsva = jsa["Variant"];
+						if (jsva.IsArray()) {
+							for (size_t m = 0; m < jsva.Size(); ++m) {
+								const JSON &jsv = jsva[m];
+								wxString varname;
+								if (jsv.HasKey("Name"))
+									varname = jsv["Name"].GetString();
+								else
+									varname = wxString::Format("#%u", m);
+								variant.Add(varname);
+								preset.Add(codeName + " - " + varname);
+							}
+						}
+					} else {
+						preset.Add(codeName);
+					}
+				}
+			}
+		}
+		if (preset != m_choicePresetHeel->GetStrings()) {
+			m_choicePresetHeel->Set(preset);
+			m_choicePresetHeel->SetSelection(0);
+		}
+		if (code != m_choicePresetHeelCode->GetStrings()) {
+			m_choicePresetHeelCode->Set(code);
+			m_choicePresetHeelCode->SetSelection(0);
+		}
+		if (variant != m_choicePresetHeelVariant->GetStrings()) {
+			m_choicePresetHeelVariant->Set(variant);
+			m_choicePresetHeelVariant->SetSelection(0);
+		}
+	}
+
 // On page "Pattern"
 
 // On page "Flattening"
@@ -669,6 +727,11 @@ void FrameMain::UpdateProject(wxCommandEvent &event) {
 	RefreshView(event);
 }
 
+void FrameMain::OnChar(wxKeyEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
+}
+
 void FrameMain::OnCheckBox(wxCommandEvent &event) {
 	Project *project = wxStaticCast(GetDocument(), Project);
 
@@ -711,12 +774,39 @@ void FrameMain::OnChoice(wxCommandEvent &event) {
 	case ID_PRESETSHOEHEIGHT:
 		key = "Height";
 		break;
+	case ID_PRESETHEEL:
+		key = "Heel";
+		break;
+	case ID_PRESETHEELCODE:
+		key = "HeelCode";
+		break;
+	case ID_PRESETHEELVARIANT:
+		key = "HeelVariant";
+		break;
 	default:
 		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		event.Skip();
 		return;
 	}
+
+	if (!presets.IsObject())
+		return;
+	std::string extra = "";
+	if (key == "Heel") {
+		if (!presets.HasKey(key))
+			return;
+		JSON &jsst = presets[key];
+		if (!jsst.IsArray())
+			return;
+		JSON &jsp = jsst[n];
+		if (!jsp.IsObject())
+			return;
+
+		key = "HeelCode";
+	}
+	if (!presets.HasKey(key))
+		return;
 	JSON &jsst = presets[key];
 	if (!jsst.IsArray())
 		return;
@@ -743,6 +833,11 @@ void FrameMain::OnChoice(wxCommandEvent &event) {
 		cmd->AddValue(ID_FOOTCOMPRESSION, jsp["FootCompression"].GetString());
 	project->GetCommandProcessor()->Submit(cmd);
 	TransferDataToWindow();
+}
+
+void FrameMain::OnDataViewListCtrlItemEditingDone(wxDataViewEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) not implemented.\n";
 }
 
 void FrameMain::OnFileChanged(wxFileDirPickerEvent &event) {
@@ -1253,6 +1348,21 @@ void FrameMain::OnObjectLoad(wxCommandEvent &event) {
 	TransferDataToWindow();
 }
 
+void FrameMain::OnNotebookPageChanged(wxNotebookEvent &event) {
+	Project *project = wxStaticCast(GetDocument(), Project);
+	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+
+	if (event.GetId() != ID_MAINVIEW)
+		return;
+
+	int newPage = event.GetSelection();
+	if (newPage >= 0 && newPage <= 3) {
+		projectview->display = (ProjectView::Display) newPage;
+		project->Update();
+		Refresh();
+	}
+}
+
 void FrameMain::OnObjectSave(wxCommandEvent &event) {
 
 	FrameParent *parent = wxStaticCast(GetParent(), FrameParent);
@@ -1282,7 +1392,7 @@ void FrameMain::OnObjectSave(wxCommandEvent &event) {
 				std::cerr << "Could not save bone-model: " << ex.what() << '\n';
 			}
 			DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
-							<< event.GetId() << " ) not implemented.\n";
+					<< event.GetId() << " ) not implemented.\n";
 		}
 	}
 		break;
@@ -1308,7 +1418,7 @@ void FrameMain::OnObjectSave(wxCommandEvent &event) {
 			//					projectview->active == ProjectView::Side::Right);
 			//		}
 			DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
-							<< event.GetId() << " ) not implemented.\n";
+					<< event.GetId() << " ) not implemented.\n";
 		}
 	}
 		break;
@@ -1318,3 +1428,4 @@ void FrameMain::OnObjectSave(wxCommandEvent &event) {
 		break;
 	}
 }
+

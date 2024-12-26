@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : PanelAnisotropy.h
+// Name               : CanvasWalkcycle.h
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
@@ -24,26 +24,27 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PANELANISOTROPY_H
-#define PANELANISOTROPY_H
+#ifndef CANVASWALKCYCLE_H
+#define CANVASWALKCYCLE_H
 
-/*!\class PanelAnisotropy
- * \brief Simple graph
+/*!\class CanvasWalkcycle
+ * \brief ...
  *
- * Plot a simple graph with double data.
+ * ...
  */
 
 #include <wx/panel.h>
 
-class PanelAnisotropy: public wxPanel {
+class CanvasWalkcycle: public wxPanel {
 public:
-	PanelAnisotropy(wxWindow *parent, wxWindowID id = wxID_ANY,
+	CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style =
 			wxTAB_TRAVERSAL);
-	virtual ~PanelAnisotropy();
+	virtual ~CanvasWalkcycle();
 
 protected:
+
 	void OnPaint(wxPaintEvent &event);
 	void OnSize(wxSizeEvent &event);
 
@@ -51,4 +52,4 @@ protected:
 	void OnLeftDown(wxMouseEvent &event);
 };
 
-#endif /* PANELANISOTROPY_H */
+#endif /* CANVASWALKCYCLE_H */

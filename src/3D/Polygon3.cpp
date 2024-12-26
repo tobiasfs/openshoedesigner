@@ -616,7 +616,7 @@ void Polygon3::Triangulate() {
 	// generates edges, that need to be ignored here.
 	const size_t Ne = e.size();
 
-	bool runagain = true;		// For each area in the polygon
+	bool runagain = true; // For each area in the polygon
 	while (runagain) {
 		runagain = false;
 

@@ -26,7 +26,6 @@
 
 #include "Skeleton.h"
 
-#include "Bone.h"
 #include "../../3D/AffineTransformMatrix.h"
 #include "../../3D/Vector3.h"
 #include "../../math/MathParser.h"
@@ -36,17 +35,6 @@
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
-
-Skeleton::~Skeleton() {
-	if (m_gllist != 0)
-		glDeleteLists(m_gllist, 1);
-}
-
-// Support function to enable std::find with std::shared_ptr
-inline bool operator==(const std::shared_ptr<Bone> &bone,
-		const std::string &name) {
-	return name.compare(bone->name) == 0;
-}
 
 Skeleton::Skeleton(const Skeleton &other) {
 	if (&other == this)
@@ -66,7 +54,17 @@ Skeleton::Skeleton(const Skeleton &other) {
 	}
 }
 
+Skeleton::~Skeleton() {
+	if (m_gllist != 0)
+		glDeleteLists(m_gllist, 1);
+}
+
+bool operator==(const std::shared_ptr<Bone> &bone, const std::string &name) {
+	return name.compare(bone->name) == 0;
+}
+
 Skeleton& Skeleton::operator =(const Skeleton &other) {
+	// Support function to enable std::find with std::shared_ptr
 	if (&other == this)
 		return *this;
 	const size_t N = other.bones.size();
@@ -85,14 +83,15 @@ Skeleton& Skeleton::operator =(const Skeleton &other) {
 	return *this;
 }
 
+void Skeleton::Clear() {
+	bones.clear();
+	update = true;
+}
+
 void Skeleton::AddBone(const std::string &name) {
 	if (std::find(bones.begin(), bones.end(), name) != bones.end())
 		return;
 	bones.push_back(std::make_shared<Bone>(name));
-}
-
-size_t Skeleton::GetBoneCount() const {
-	return bones.size();
 }
 
 std::shared_ptr<Bone> Skeleton::GetBone(const std::string &name) {
@@ -101,6 +100,10 @@ std::shared_ptr<Bone> Skeleton::GetBone(const std::string &name) {
 		throw std::runtime_error(
 				"std::shared_ptr <Bone> Skeleton::GetBone - Bone not found.");
 	return (*it);
+}
+
+size_t Skeleton::GetBoneCount() const {
+	return bones.size();
 }
 
 bool Skeleton::Connect(const std::string &parent, const std::string &child) {
@@ -112,6 +115,33 @@ bool Skeleton::Connect(const std::string &parent, const std::string &child) {
 		return false;
 	(*b2)->parentTo = (*b1);
 	return true;
+}
+
+void Skeleton::Update() {
+	for (auto &bone : bones)
+		bone->Update();
+	update = true;
+}
+
+void Skeleton::UpdateBonesFromFormula(MathParser &parser) {
+	for (auto &bone : bones) {
+		bone->length = parser.SIFromString(bone->formulaLength);
+		bone->r1 = parser.SIFromString(bone->formulaR1);
+		bone->r2 = parser.SIFromString(bone->formulaR2);
+		bone->s1 = parser.SIFromString(bone->formulaS1);
+		bone->s2 = parser.SIFromString(bone->formulaS2);
+	}
+	update = true;
+}
+
+void Skeleton::ResetRotation() {
+	for (auto &bone : bones)
+		bone->PushRotation();
+}
+
+void Skeleton::RestoreRotation() {
+	for (auto &bone : bones)
+		bone->PopRotation();
 }
 
 void Skeleton::LoadJSON(std::string filename) {
@@ -244,23 +274,6 @@ bool Skeleton::SaveJSON(std::string filename) {
 	return true;
 }
 
-void Skeleton::UpdateBonesFromFormula(MathParser &parser) {
-	for (auto &bone : bones) {
-		bone->length = parser.SIFromString(bone->formulaLength);
-		bone->r1 = parser.SIFromString(bone->formulaR1);
-		bone->r2 = parser.SIFromString(bone->formulaR2);
-		bone->s1 = parser.SIFromString(bone->formulaS1);
-		bone->s2 = parser.SIFromString(bone->formulaS2);
-	}
-	update = true;
-}
-
-void Skeleton::Update() {
-	for (auto &bone : bones)
-		bone->Update();
-	update = true;
-}
-
 void Skeleton::Render() const {
 	if (m_gllist == 0) {
 		m_gllist = glGenLists(1);
@@ -280,15 +293,5 @@ void Skeleton::Render() const {
 	} else {
 		glCallList(m_gllist);
 	}
-}
-
-void Skeleton::ResetRotation() {
-	for (auto &bone : bones)
-		bone->PushRotation();
-}
-
-void Skeleton::RestoreRotation() {
-	for (auto &bone : bones)
-		bone->PopRotation();
 }
 

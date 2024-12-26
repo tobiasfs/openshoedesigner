@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : PanelPattern.h
+// Name               : CanvasPattern.h
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
@@ -24,24 +24,26 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PANELPATTERN_H
-#define PANELPATTERN_H
+#ifndef CANVASPATTERN_H
+#define CANVASPATTERN_H
 
-/*!\class PanelPattern
- * \brief ...
+/*!\class CanvasPattern
+ * \brief Panel displaying the elements of the flattened pattern
  *
  * ...
  */
 
+#include "CanvasMeasurementGrid.h"
+
 #include <wx/panel.h>
 
-class PanelPattern: public wxPanel {
+class CanvasPattern: public CanvasMeasurementGrid {
 public:
-	PanelPattern(wxWindow *parent, wxWindowID id = wxID_ANY,
+	CanvasPattern(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style =
 			wxTAB_TRAVERSAL);
-	virtual ~PanelPattern();
+	virtual ~CanvasPattern();
 
 protected:
 	void OnPaint(wxPaintEvent &event);
@@ -51,4 +53,4 @@ protected:
 	void OnLeftDown(wxMouseEvent &event);
 };
 
-#endif /* PANELPATTERN_H */
+#endif /* CANVASPATTERN_H */

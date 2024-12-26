@@ -31,6 +31,10 @@
 #include <sstream>
 #include <stdexcept>
 
+InsoleTransform::InsoleTransform() {
+	out = std::make_shared<Insole>();
+}
+
 std::string InsoleTransform::GetName() const {
 	return "InsoleTransform";
 }
@@ -40,10 +44,10 @@ bool InsoleTransform::CanRun() {
 	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	bool hasMissingConnection = false;
 
-	if (!config) {
-		hasMissingConnection = true;
-		err << " Input \"config\" not connected.";
-	}
+//	if (!config) {
+//		hasMissingConnection = true;
+//		err << " Input \"config\" not connected.";
+//	}
 	if (!heelPitch) {
 		hasMissingConnection = true;
 		err << " Input \"heelPitch\" not connected.";
@@ -73,7 +77,7 @@ bool InsoleTransform::CanRun() {
 		hasMissingConnection = true;
 		err << " Output \"out\" not set.";
 	}
-	if (hasMissingConnection){
+	if (hasMissingConnection) {
 		error = err.str();
 		throw std::logic_error(err.str());
 	}
@@ -83,22 +87,22 @@ bool InsoleTransform::CanRun() {
 
 bool InsoleTransform::Propagate() {
 	bool modify = false;
-	if (!CanRun())
-		return modify;
+	if (!in || !out || !heelPitch || !toeSpring || !heelHeight || !ballHeight
+			|| !legLengthDifference)
+		return false;
 
-	bool modified = false;
+	bool parameterModified = false;
+	parameterModified |= heelPitch->IsModified();
+	parameterModified |= toeSpring->IsModified();
+	parameterModified |= heelHeight->IsModified();
+	parameterModified |= ballHeight->IsModified();
+	parameterModified |= legLengthDifference->IsModified();
 
-	modified |= config->IsModified();
-	modified |= heelPitch->IsModified();
-	modified |= toeSpring->IsModified();
-	modified |= heelHeight->IsModified();
-	modified |= ballHeight->IsModified();
-	modified |= legLengthDifference->IsModified();
-
-	if (!in->IsValid() || modified) {
+	if (!in->IsValid() || parameterModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
+
 	if (out->IsNeeded()) {
 		modify |= !in->IsNeeded();
 		in->MarkNeeded(true);
@@ -107,9 +111,7 @@ bool InsoleTransform::Propagate() {
 }
 
 bool InsoleTransform::HasToRun() {
-	if (!CanRun())
-		return false;
-	return in->IsValid() && !out->IsValid() && out->IsNeeded();
+	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
 }
 
 void InsoleTransform::Run() {

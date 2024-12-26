@@ -43,10 +43,11 @@
 #include <wx/listbox.h>
 #include <wx/notebook.h>
 #include "Canvas3D.h"
-#include "PanelPattern.h"
-#include "PanelSupport.h"
-#include "PanelWalkcycle.h"
-#include "PanelPlotSimple.h"
+#include "CanvasInsole.h"
+#include "CanvasSupport.h"
+#include "CanvasWalkcycle.h"
+#include "CanvasGraph.h"
+#include "CanvasPattern.h"
 #include <wx/splitter.h>
 #include <wx/statusbr.h>
 #include <wx/frame.h>
@@ -56,7 +57,7 @@
 #include <wx/listctrl.h>
 #include <wx/spinbutt.h>
 #include <wx/slider.h>
-#include "PanelAnisotropy.h"
+#include "CanvasAnisotropy.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -164,23 +165,24 @@
 #define ID_LACES 1101
 #define ID_ACCESSORY 1102
 #define ID_TESTSTITCH 1103
-#define ID_ANKLELOCK 1104
-#define ID_DISPLAY 1105
-#define ID_GRIDDIAMETER 1106
-#define ID_GRIDLENGTH 1107
-#define ID_GRIDSKIN 1108
-#define ID_FORMULA 1109
-#define ID_SELECTION 1110
-#define ID_IMAGE 1111
-#define ID_FRONT 1112
-#define ID_BACK 1113
-#define ID_TOP 1114
-#define ID_BOTTOM 1115
-#define ID_SCALE 1116
-#define ID_OFFSETHORIZONTAL 1117
-#define ID_OFFSETVERTICAL 1118
-#define ID_ROTATION 1119
-#define ID_POINT 1120
+#define ID_MAINVIEW 1104
+#define ID_ANKLELOCK 1105
+#define ID_DISPLAY 1106
+#define ID_GRIDDIAMETER 1107
+#define ID_GRIDLENGTH 1108
+#define ID_GRIDSKIN 1109
+#define ID_FORMULA 1110
+#define ID_SELECTION 1111
+#define ID_IMAGE 1112
+#define ID_FRONT 1113
+#define ID_BACK 1114
+#define ID_TOP 1115
+#define ID_BOTTOM 1116
+#define ID_SCALE 1117
+#define ID_OFFSETHORIZONTAL 1118
+#define ID_OFFSETVERTICAL 1119
+#define ID_ROTATION 1120
+#define ID_POINT 1121
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrameMain
@@ -377,14 +379,19 @@ class GUIFrameMain : public wxDocChildFrame
 		wxButton* m_buttonExportFlattening;
 		wxButton* m_buttonTestStitch;
 		wxPanel* m_panelCanvas;
+		wxNotebook* m_notebookCanvas;
+		wxPanel* m_panelCanvas3D;
 		Canvas3D * m_canvas3D;
-		PanelPattern* m_panelPattern;
-		wxPanel* m_panelCheck;
-		PanelSupport* m_panelSupport;
-		PanelWalkcycle* m_panelCycle;
+		wxPanel* m_panelInsole;
+		CanvasInsole *m_canvasInsole;
+		wxPanel* m_panelCanvasAnalysis;
+		CanvasSupport *m_canvasSupport;
+		CanvasWalkcycle* m_canvasCycle;
 		wxCheckBox* m_checkBoxLockAnkle;
 		wxChoice* m_choiceDisplay;
-		PanelPlotSimple* m_panelPlot;
+		CanvasGraph *m_canvasGraph;
+		wxPanel* m_panelCanvasPattern;
+		CanvasPattern* m_canvasPattern;
 		wxStatusBar* m_statusBar;
 
 		// Virtual event handlers, override them in your derived class
@@ -413,10 +420,13 @@ class GUIFrameMain : public wxDocChildFrame
 		virtual void OnButtonAdd( wxCommandEvent& event ) = 0;
 		virtual void OnButtonDelete( wxCommandEvent& event ) = 0;
 		virtual void OnListCtrlOnSelectionChanged( wxDataViewEvent& event ) = 0;
+		virtual void OnChar( wxKeyEvent& event ) = 0;
+		virtual void OnDataViewListCtrlItemEditingDone( wxDataViewEvent& event ) = 0;
 		virtual void OnPatternSelect( wxTreeListEvent& event ) = 0;
 		virtual void OnButtonCopy( wxCommandEvent& event ) = 0;
 		virtual void OnPatternSelectFabric( wxCommandEvent& event ) = 0;
 		virtual void OnButtonTestStitch( wxCommandEvent& event ) = 0;
+		virtual void OnNotebookPageChanged( wxNotebookEvent& event ) = 0;
 		virtual void On3DSelect( wxMouseEvent& event ) = 0;
 
 
@@ -748,7 +758,7 @@ class GUIDialogAnisotropy : public wxDialog
 	protected:
 		wxButton* m_buttonAdd;
 		wxButton* m_buttonRemove;
-		PanelAnisotropy* m_panelAnisotropy;
+		CanvasAnisotropy* m_canvasAnisotropy;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnButtonAdd( wxCommandEvent& event ) { event.Skip(); }

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : PanelAnisotropy.cpp
+// Name               : CanvasWalkcycle.cpp
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
@@ -23,44 +23,47 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "PanelAnisotropy.h"
+#include "CanvasWalkcycle.h"
 
 #include <wx/dcclient.h>
 
-PanelAnisotropy::PanelAnisotropy(wxWindow *parent, wxWindowID id,
+CanvasWalkcycle::CanvasWalkcycle(wxWindow *parent, wxWindowID id,
 		const wxPoint &pos, const wxSize &size, long style) :
 		wxPanel(parent, id, pos, size, style) {
-	this->SetBackgroundColour(wxColour(200, 200, 200));
 
-	// Connect Events
+//	this->SetBackgroundColour(wxColour(200, 200, 200));
+
+// Connect Events
 	this->Connect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(PanelAnisotropy::OnLeftDown));
-	this->Connect(wxEVT_MOTION, wxMouseEventHandler(PanelAnisotropy::OnMotion));
-	this->Connect(wxEVT_PAINT, wxPaintEventHandler(PanelAnisotropy::OnPaint));
-	this->Connect(wxEVT_SIZE, wxSizeEventHandler(PanelAnisotropy::OnSize));
-
+			wxMouseEventHandler(CanvasWalkcycle::OnLeftDown));
+	this->Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasWalkcycle::OnMotion));
+	this->Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasWalkcycle::OnPaint));
+	this->Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasWalkcycle::OnSize));
 }
 
-PanelAnisotropy::~PanelAnisotropy() {
+CanvasWalkcycle::~CanvasWalkcycle() {
 	// Disconnect Events
 	this->Disconnect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(PanelAnisotropy::OnLeftDown));
+			wxMouseEventHandler(CanvasWalkcycle::OnLeftDown));
 	this->Disconnect(wxEVT_MOTION,
-			wxMouseEventHandler(PanelAnisotropy::OnMotion));
+			wxMouseEventHandler(CanvasWalkcycle::OnMotion));
 	this->Disconnect(wxEVT_PAINT,
-			wxPaintEventHandler(PanelAnisotropy::OnPaint));
-	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(PanelAnisotropy::OnSize));
+			wxPaintEventHandler(CanvasWalkcycle::OnPaint));
+	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(CanvasWalkcycle::OnSize));
 }
 
-void PanelAnisotropy::OnSize(wxSizeEvent &event) {
+void CanvasWalkcycle::OnSize(wxSizeEvent &event) {
 	this->Refresh();
 }
 
-void PanelAnisotropy::OnPaint(wxPaintEvent &event) {
+void CanvasWalkcycle::OnPaint(wxPaintEvent &event) {
 
 	wxPoint temp;
 	wxPaintDC dc(this);
 	wxSize sz = GetClientSize();
+
+	wxString text = wxString::Format(_T("CanvasWalkcycle"));
+	dc.DrawText(text, 10, 10);
 
 	float height = 1.0; //TODO: <-Replace this
 	float width = 1.0; //TODO: <-Replace this
@@ -76,15 +79,13 @@ void PanelAnisotropy::OnPaint(wxPaintEvent &event) {
 
 	dc.CrossHair(mx, my);
 
-	wxString text = wxString::Format(_T("Plot"));
-	dc.DrawText(text, 10, 10);
 }
 
-void PanelAnisotropy::OnMotion(wxMouseEvent &event) {
+void CanvasWalkcycle::OnMotion(wxMouseEvent &event) {
 
 }
 
-void PanelAnisotropy::OnLeftDown(wxMouseEvent &event) {
+void CanvasWalkcycle::OnLeftDown(wxMouseEvent &event) {
 
 }
 

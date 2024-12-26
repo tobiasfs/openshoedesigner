@@ -39,10 +39,10 @@ bool FootModelUpdate::CanRun() {
 	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
 	bool hasMissingConnection = false;
 
-	if (!config) {
-		hasMissingConnection = true;
-		err << " Input \"config\" not connected.";
-	}
+//	if (!config) {
+//		hasMissingConnection = true;
+//		err << " Input \"config\" not connected.";
+//	}
 	if (!heelPitch) {
 		hasMissingConnection = true;
 		err << " Input \"heelPitch\" not connected.";
@@ -72,7 +72,7 @@ bool FootModelUpdate::CanRun() {
 		hasMissingConnection = true;
 		err << " Output \"out\" not set.";
 	}
-	if (hasMissingConnection){
+	if (hasMissingConnection) {
 		error = err.str();
 		throw std::logic_error(err.str());
 	}
@@ -82,21 +82,22 @@ bool FootModelUpdate::CanRun() {
 
 bool FootModelUpdate::Propagate() {
 	bool modify = false;
-	if (!CanRun())
-		return modify;
+	if (!in || !out || !heelPitch || !toeSpring || !heelHeight || !ballHeight
+			|| !legLengthDifference)
+		return false;
 
-	bool modified = false;
-	modified |= config->IsModified();
-	modified |= heelPitch->IsModified();
-	modified |= toeSpring->IsModified();
-	modified |= heelHeight->IsModified();
-	modified |= ballHeight->IsModified();
-	modified |= legLengthDifference->IsModified();
+	bool parameterModified = false;
+	parameterModified |= heelPitch->IsModified();
+	parameterModified |= toeSpring->IsModified();
+	parameterModified |= heelHeight->IsModified();
+	parameterModified |= ballHeight->IsModified();
+	parameterModified |= legLengthDifference->IsModified();
 
-	if (!in->IsValid() || modified) {
+	if (!in->IsValid() || parameterModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
+
 	if (out->IsNeeded()) {
 		modify |= !in->IsNeeded();
 		in->MarkNeeded(true);
@@ -105,9 +106,7 @@ bool FootModelUpdate::Propagate() {
 }
 
 bool FootModelUpdate::HasToRun() {
-	if (!CanRun())
-		return false;
-	return in->IsValid() && !out->IsValid() && out->IsNeeded();
+	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
 }
 
 void FootModelUpdate::Run() {

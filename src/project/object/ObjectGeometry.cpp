@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : LastLoad.h
+// Name               : ObjectGeometry.cpp
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
@@ -23,40 +23,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OPERATION_LASTLOAD_H_
-#define SRC_PROJECT_OPERATION_LASTLOAD_H_
 
-/** \class LastLoad
- * 	\code #include "LastLoad.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Description
- *
- * Text
- */
+#include "ObjectGeometry.h"
 
-#include "Operation.h"
+ObjectGeometry::ObjectGeometry(const Geometry &other) :
+		Geometry(other) {
+}
 
-#include "../../3D/Geometry.h"
-#include "../object/LastRaw.h"
-#include "../ParameterString.h"
+ObjectGeometry::ObjectGeometry(const Geometry &&other) :
+		Geometry(std::move(other)) {
+}
 
-#include <memory>
-
-class LastLoad: public Operation {
-public:
-	LastLoad();
-	virtual ~LastLoad() = default;
-
-	virtual std::string GetName() const override;
-	virtual bool CanRun() override;
-	virtual bool Propagate() override;
-	virtual bool HasToRun() override;
-	virtual void Run() override;
-
-	std::shared_ptr<ParameterString> filename;
-
-	std::shared_ptr<LastRaw> out;
-
-};
-
-#endif /* SRC_PROJECT_OPERATION_LASTLOAD_H_ */
+void ObjectGeometry::UpdateBoundingBox() {
+	BB.Empty();
+	for (size_t i = 0; i < VertexCount(); ++i)
+		BB.Insert(v[i]);
+}

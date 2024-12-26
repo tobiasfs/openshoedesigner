@@ -29,12 +29,13 @@
 /** \class LastNormalize
  * 	\code #include "LastNormalize.h"\endcode
  * 	\ingroup ObjectOperations
- *  \brief Description
+ *  \brief Reorients a given last
  *
- * Text
+ * the last is reoriented to X forward, Y outside and Z up. The last is flipped
+ * is needed to result in a left side last.
  */
 
-#include "../object/LastRaw.h"
+#include "../object/ObjectGeometry.h"
 #include "Operation.h"
 
 #include "../../3D/Polygon3.h"
@@ -64,11 +65,11 @@ protected:
 	void ReorientLeftRight();
 
 public:
-	std::shared_ptr<LastRaw> in;
-	std::shared_ptr<LastRaw> out;
+	std::shared_ptr<ObjectGeometry> in;
+	std::shared_ptr<ObjectGeometry> out;
 
-	LastRaw debug0;
-	LastRaw debug1;
+	ObjectGeometry debug0;
+	ObjectGeometry debug1;
 
 };
 

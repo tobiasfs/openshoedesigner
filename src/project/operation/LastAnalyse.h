@@ -39,7 +39,6 @@
 #include "../../3D/Polygon3.h"
 #include "../../math/MEstimator.h"
 #include "../object/LastModel.h"
-#include "../object/LastRaw.h"
 
 #include <memory>
 
@@ -80,7 +79,7 @@ private:
 	static bool Vector3XLess(const Vector3 a, const Vector3 b);
 
 public:
-	std::shared_ptr<LastRaw> in;
+	std::shared_ptr<ObjectGeometry> in;
 	std::shared_ptr<LastModel> out;
 
 

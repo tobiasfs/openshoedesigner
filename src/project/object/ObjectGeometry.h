@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : InsoleTransform.h
+// Name               : ObjectGeometry.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 12.11.2024
+// Created            : 10.11.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,49 +23,33 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_
-#define SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_
+#ifndef SRC_PROJECT_OBJECTGEOMETRY_H
+#define SRC_PROJECT_OBJECTGEOMETRY_H
 
-/** \class InsoleTransform
- * 	\code #include "InsoleTransform.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Description
+/** \class ObjectGeometry
+ * 	\code #include "ObjectGeometry.h"\endcode
+ * 	\ingroup project
+ *  \brief Stored a geometry together with modification flags
  *
- * Text
+ * Overloaded Geometry with additional modification flag.
  */
 
-#include "Operation.h"
+#include "../../3D/BoundingBox.h"
+#include "../../3D/Geometry.h"
+#include "Object.h"
 
-#include "../Configuration.h"
-#include "../object/Insole.h"
-
-#include <memory>
-class InsoleTransform: public Operation {
+class ObjectGeometry: public Geometry, public Object {
 public:
-	InsoleTransform();
-	virtual ~InsoleTransform() = default;
-
-	virtual std::string GetName() const override;
-	virtual bool CanRun() override;
-	virtual bool Propagate() override;
-	virtual bool HasToRun() override;
-	virtual void Run() override;
-
-private:
-	void Shape();
+	ObjectGeometry() = default;
+	ObjectGeometry(const Geometry &other);
+	ObjectGeometry(const Geometry &&other);
+	virtual ~ObjectGeometry() = default;
 
 public:
+	void UpdateBoundingBox();
 
-	std::shared_ptr<Configuration> config;
-	std::shared_ptr<ParameterFormula> heelPitch;
-	std::shared_ptr<ParameterFormula> toeSpring;
-	std::shared_ptr<ParameterFormula> heelHeight;
-	std::shared_ptr<ParameterFormula> ballHeight;
-	std::shared_ptr<ParameterFormula> legLengthDifference;
-
-	std::shared_ptr<Insole> in;
-	std::shared_ptr<Insole> out;
-
+public:
+	BoundingBox BB;
 };
 
-#endif /* SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_ */
+#endif /* SRC_PROJECT_OBJECTGEOMETRY_H */

@@ -102,6 +102,7 @@ public:
 	void SaveSkin(wxString fileName, bool left, bool right);
 
 	void Register();
+	void CheckNeeded();
 	void Update();
 
 	void StopAllThreads(); //!< Call from OnClose; the event loop has to be running.
@@ -121,8 +122,14 @@ public:
 
 	Builder builder;
 
-	std::shared_ptr<LastRaw> lastRaw;
-	std::shared_ptr<LastModel> lastNormalized;
+	std::shared_ptr<LastModel> lastL;
+	std::shared_ptr<LastModel> lastR;
+
+	std::shared_ptr<ObjectGeometry> heelL;
+	std::shared_ptr<ObjectGeometry> heelR;
+
+	std::shared_ptr<Insole> insoleL;
+	std::shared_ptr<Insole> insoleR;
 
 //	FootModel footL;
 //	FootModel footR;

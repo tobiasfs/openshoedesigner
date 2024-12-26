@@ -59,6 +59,7 @@ void CommandConfigSetParameter::AddValue(const size_t key, const size_t group,
 }
 
 bool CommandConfigSetParameter::Do() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 
@@ -89,6 +90,7 @@ bool CommandConfigSetParameter::Do() {
 }
 
 bool CommandConfigSetParameter::Undo() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 

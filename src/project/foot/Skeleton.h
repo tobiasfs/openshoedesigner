@@ -39,8 +39,8 @@
 #include <string>
 #include <vector>
 
+#include "Bone.h"
 #include "../../3D/OpenGL.h"
-#include "../foot/Bone.h"
 
 class MathParser;
 class Skeleton {
@@ -50,25 +50,25 @@ public:
 	Skeleton(const Skeleton &other);
 	Skeleton& operator=(const Skeleton &other);
 
-	void LoadJSON(std::string filename);
-	bool SaveJSON(std::string filename);
-
+	void Clear();
 	void AddBone(const std::string &name);
-	bool Connect(const std::string &parent, const std::string &child);
-
-	void Update();
-	void Render() const;
-
 	std::shared_ptr<Bone> GetBone(const std::string &name);
-
 	size_t GetBoneCount() const;
 
+	bool Connect(const std::string &parent, const std::string &child);
+	void Update();
 	void UpdateBonesFromFormula(MathParser &parser);
-
 	void ResetRotation();
 	void RestoreRotation();
 
+	void LoadJSON(std::string filename);
+	bool SaveJSON(std::string filename);
+
+	void Render() const;
+
+protected:
 	std::vector<std::shared_ptr<Bone>> bones;
+
 private:
 	mutable GLuint m_gllist = 0;
 	mutable bool update = true;

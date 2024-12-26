@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : main.h
-// Purpose            : Main entry point
+// Name               : CanvasSupport.h
+// Purpose            : Panel for setting the walkcycle supports
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
 // Author             : Tobias Schaefer
-// Created            : 11.08.2015
+// Created            : 27.10.2015
 // Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -24,43 +24,33 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef CANVASSUPPORT_H
+#define CANVASSUPPORT_H
 
-#include "StdInclude.h"
-#include "gui/FrameMain.h"
+/*!\class CanvasSupport
+ * \brief ...
+ *
+ * ...
+ */
 
-#include <wx/app.h>
-#include <wx/intl.h>
-#include <wx/config.h>
+#include <wx/panel.h>
 
-class openshoedesigner: public wxApp {
+class CanvasSupport: public wxPanel {
 public:
-	openshoedesigner();
-	virtual ~openshoedesigner();
+	CanvasSupport(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
+					wxDefaultSize, long style =
+			wxTAB_TRAVERSAL);
+	virtual ~CanvasSupport();
 
-public:
-//	FrameMain* frame;
+	void OnPaint(wxPaintEvent &event);
+	void OnSize(wxSizeEvent &event);
 
-protected:
-	wxString loadOnStartup;
-	wxLocale locale;
-	wxConfig *config;
+	void OnMotion(wxMouseEvent &event);
+	void OnLeftDown(wxMouseEvent &event);
 
-public:
-	void OnAbout(wxCommandEvent&);
-	virtual void OnInitCmdLine(wxCmdLineParser &parser);
-	virtual bool OnCmdLineParsed(wxCmdLineParser &parser);
-	virtual bool OnInit();
-	virtual bool OnExceptionInMainLoop();
-	virtual void OnUnhandledException();
-	virtual int OnExit();
-	wxFrame* CreateChildFrame(wxView *view);
+private:
 
-wxDECLARE_EVENT_TABLE();
-
-wxDECLARE_NO_COPY_CLASS(openshoedesigner);
 };
-DECLARE_APP(openshoedesigner)
 
-#endif /* MAIN_H */
+#endif /* CANVASSUPPORT_H */

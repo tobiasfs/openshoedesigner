@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : LastRaw.cpp
-// Purpose            : 
+// Name               : CanvasGraph.h
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 10.11.2024
-// Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 30.10.2015
+// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,18 +23,33 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "LastRaw.h"
 
-LastRaw::LastRaw(const Geometry &other) :
-		Geometry(other) {
-}
+#ifndef PANELGRAPH_H
+#define PANELGRAPH_H
 
-LastRaw::LastRaw(const Geometry &&other) :
-		Geometry(std::move(other)) {
-}
+/*!\class CanvasGraph
+ * \brief Simple 2D-graph for DependentVector%s
+ *
+ * Plots the content of a DependentVetor in a 2D graph.
+ */
 
-void LastRaw::UpdateRawBoundingBox() {
-	rawBB.Empty();
-	for (size_t i = 0; i < VertexCount(); ++i)
-		rawBB.Insert(v[i]);
-}
+#include <wx/panel.h>
+
+class CanvasGraph: public wxPanel {
+public:
+	CanvasGraph(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
+			wxDefaultPosition, const wxSize &size = wxDefaultSize, long style =
+	wxTAB_TRAVERSAL);
+	virtual ~CanvasGraph();
+
+protected:
+	void OnPaint(wxPaintEvent &event);
+//	void OnSize(wxSizeEvent &event);
+//
+//	void OnMotion(wxMouseEvent &event);
+//	void OnLeftDown(wxMouseEvent &event);
+
+public:
+};
+
+#endif /* PANELGRAPH_H */

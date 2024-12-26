@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : RawGeometry.h
+// Name               : ObjectLoad.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 16.11.2024
+// Created            : 10.11.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,30 +23,51 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_RAWGEOMETRY_H_
-#define SRC_PROJECT_RAWGEOMETRY_H_
+#ifndef OPERATION_OBJECTLOAD_H
+#define OPERATION_OBJECTLOAD_H
 
-/** \class RawGeometry
- * 	\code #include "RawGeometry.h"\endcode
+/** \class ObjectLoad
+ * 	\code #include "ObjectLoad.h"\endcode
  * 	\ingroup ObjectOperations
- *  \brief Stored a geometry together with modification flags
+ *  \brief Load the geometry from a file
  *
- * Overloaded Geometry with additional modification flag.
+ * Used the importer derived from FileGeometry to import a geometry from disk.
+ *
+ * If the filename is changed or the modification time of the file is changed
+ * the file is reloaded.
+ *
+ * Several file formats are supported: DXF, GTS, OBJ, PLY, SRL and some obscure
+ * file format for sliced last scans. The files are identified by the file
+ * extension.
  */
 
+#include "Operation.h"
+
 #include "../../3D/Geometry.h"
-#include "Object.h"
+#include "../object/ObjectGeometry.h"
+#include "../ParameterString.h"
 
-class RawGeometry: public Geometry, public Object {
+#include <filesystem>
+#include <memory>
+
+class ObjectLoad: public Operation {
 public:
-	RawGeometry() = default;
-	virtual ~RawGeometry() = default;
-	RawGeometry(const Geometry &other);
-	RawGeometry(Geometry &&other);
-//	RawGeometry& operator=(const Geometry &other);
-//	RawGeometry& operator=(Geometry &&other);
+	ObjectLoad();
+	virtual ~ObjectLoad() = default;
 
+	virtual std::string GetName() const override;
+	virtual bool CanRun() override;
+	virtual bool Propagate() override;
+	virtual bool HasToRun() override;
+	virtual void Run() override;
+
+	std::shared_ptr<ParameterString> filename;
+
+	std::shared_ptr<ObjectGeometry> out;
+
+private:
+	std::filesystem::file_time_type lastModified;
 
 };
 
-#endif /* SRC_PROJECT_RAWGEOMETRY_H_ */
+#endif /* OPERATION_OBJECTLOAD_H */

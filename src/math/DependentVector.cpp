@@ -582,7 +582,7 @@ std::vector<DependentVector::Point> DependentVector::FindPeaks(
 		const double dx2 = x2 - x0;
 		const double den1 = 2 * (dx1 * y2 - dx2 * y1 + (dx2 - dx1) * y0);
 		const double den2 = -2 * den1 * dx1 * dx2 * (dx2 - dx1);
-		if (fabs(den1) <= DBL_EPSILON || fabs(den2) <=DBL_EPSILON)
+		if (fabs(den1) <= DBL_EPSILON || fabs(den2) <= DBL_EPSILON)
 			continue;
 		const double pos = (dx1 * (2 * x0 + dx1) * y2
 				- dx2 * (dx2 + 2 * x0) * y1
@@ -649,7 +649,7 @@ std::vector<DependentVector::Point> DependentVector::FindValleys(
 		const double dx2 = x2 - x0;
 		const double den1 = 2 * (dx1 * y2 - dx2 * y1 + (dx2 - dx1) * y0);
 		const double den2 = -2 * den1 * dx1 * dx2 * (dx2 - dx1);
-		if (fabs(den1) <= DBL_EPSILON || fabs(den2) <=DBL_EPSILON)
+		if (fabs(den1) <= DBL_EPSILON || fabs(den2) <= DBL_EPSILON)
 			continue;
 		const double pos = (dx1 * (2 * x0 + dx1) * y2
 				- dx2 * (dx2 + 2 * x0) * y1

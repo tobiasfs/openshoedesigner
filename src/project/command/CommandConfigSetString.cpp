@@ -36,6 +36,7 @@ CommandConfigSetString::CommandConfigSetString(const wxString &name,
 }
 
 bool CommandConfigSetString::Do() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 	bool modified = false;
@@ -52,6 +53,7 @@ bool CommandConfigSetString::Do() {
 }
 
 bool CommandConfigSetString::Undo() {
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 	if (project == NULL)
 		return false;
 
@@ -66,11 +68,17 @@ bool CommandConfigSetString::Undo() {
 
 void CommandConfigSetString::GetParam(std::shared_ptr<ParameterString> &param) {
 	switch (id) {
+	case ID_SCAN:
+		param = project->config.filenameScan;
+		break;
 	case ID_LAST:
 		param = project->config.filenameLast;
 		break;
-	case ID_SCAN:
-		param = project->config.filenameScan;
+	case ID_HEEL:
+		param = project->config.filenameHeel;
+		break;
+	case ID_BONES:
+		param = project->config.filenameBoneModel;
 		break;
 	default:
 		std::ostringstream err;

@@ -107,7 +107,7 @@ public:
 
 	void UseMaterial() const; ///< Start using this material. Turns off glColor command.
 	void UseColor() const; ///< Activates glColor and sets the diffuse color of this material.
-	void UseColor(float emit_) const; ///< Activates glColor and sets the diffuse color of this material.
+	void UseColor(float emit) const; ///< Activates glColor and sets the diffuse color of this material.
 	static void EnableColors(); ///< Switch back to using glColor.
 
 	static bool ColorsAllowed(); ///< Test, if colors are allowed to use.
@@ -119,7 +119,7 @@ public:
 	Vector3 specular;
 	Vector3 emission;
 	float shininess;
-	float opacity = 1.0;
+	float opacity;
 };
 
 #endif /* L3D_OPENGLMATERIAL_H */

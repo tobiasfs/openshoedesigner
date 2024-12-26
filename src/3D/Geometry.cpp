@@ -34,11 +34,11 @@
 #include <iostream>
 #include <iterator>
 #include <numeric>
+#include <regex>
 #include <utility>
 
 #include "OpenGL.h"
 
-#include <regex>
 #ifdef NDEBUG
 #define RANGE_CHECK(ary,idx)
 #else

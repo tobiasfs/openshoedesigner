@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : PanelPlotSimple.h
-// Purpose            :
+// Name               : PanelMeasurementGrid.h
+// Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 30.10.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 25.12.2024
+// Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,41 +23,41 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#ifndef SRC_GUI_CANVASMEASUREMENTGRID_H_
+#define SRC_GUI_CANVASMEASUREMENTGRID_H_
 
-#ifndef PANELPLOTSIMPLE_H
-#define PANELPLOTSIMPLE_H
-
-/*!\class PanelPlotSimple
- * \brief Simple graph
+/** \class PanelMeasurementGrid
+ * 	\code #include "PanelMeasurementGrid.h"\endcode
+ * 	\ingroup GUI
+ *  \brief Panel displaying a 2D grid for measurements.
  *
- * Plot a simple graph with double data.
+ * 2D Panel for displaying 2D layouts. Additional functions for inserting
+ * measurements between points.
  */
 
+#include "../math/Unit.h"
 #include <wx/panel.h>
 
-class PanelPlotSimple: public wxPanel {
+class CanvasMeasurementGrid: public wxPanel {
 public:
-	PanelPlotSimple(wxWindow *parent, wxWindowID id = wxID_ANY,
+	CanvasMeasurementGrid(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style =
 			wxTAB_TRAVERSAL);
-	virtual ~PanelPlotSimple();
+	virtual ~CanvasMeasurementGrid();
 
-	// Member Variables
-public:
+	double minX = -0.1;
+	double maxX = 0.1;
+	double minY = -0.2;
+	double maxY = 0.2;
 
-private:
+	int multiplier = 5;
+	Unit unit;
 
-	//Methods
-public:
-
-private:
-
+protected:
 	void OnPaint(wxPaintEvent &event);
 	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent &event);
-	void OnLeftDown(wxMouseEvent &event);
+	void PaintGrid(wxDC &dc);
 };
 
-#endif /* PANELPLOTSIMPLE_H */
+#endif /* SRC_GUI_CANVASMEASUREMENTGRID_H_ */

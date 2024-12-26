@@ -26,19 +26,19 @@
 
 #include "FrameParent.h"
 
-#include "../StdInclude.h"
-#include "IDs.h"
 #include "../languages.h"
 #include "../project/ProjectView.h"
+#include "../StdInclude.h"
 #include "DialogSetupPaths.h"
+#include "IDs.h"
 #ifdef USE_6DOFCONTROLLER
 #include "../controller/DialogSetup6DOFController.h"
 #endif
 
+#include <cstdio>
+#include <wx/aboutdlg.h>
 #include <wx/generic/choicdgg.h>
 #include <wx/stockitem.h>
-#include <wx/aboutdlg.h>
-#include <cstdio>
 
 wxBEGIN_EVENT_TABLE(FrameParent, wxDocParentFrame)
 

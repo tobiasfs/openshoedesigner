@@ -36,6 +36,7 @@ OpenGLMaterial::OpenGLMaterial() {
 	specular.Set(0.7, 0.7, 0.7);
 	emission.Set(0.0, 0.0, 0.0);
 	shininess = 32;
+	opacity = 1.0;
 }
 
 OpenGLMaterial::OpenGLMaterial(Preset preset, float emit, float opacity_) {

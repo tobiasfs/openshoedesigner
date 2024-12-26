@@ -36,6 +36,7 @@
 
 #include "Operation.h"
 
+#include "../../math/NelderMeadOptimizer.h"
 #include "../Configuration.h"
 #include "../foot/FootModel.h"
 
@@ -65,7 +66,6 @@ public:
 
 	std::shared_ptr<FootModel> in;
 	std::shared_ptr<FootModel> out;
-
 
 protected:
 	NelderMeadOptimizer optiPos;

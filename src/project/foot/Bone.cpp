@@ -30,15 +30,8 @@
 
 #include "../../3D/OpenGL.h"
 
-void Bone::UpdateHierarchy() {
-	if (parentTo.expired()) {
-		hierarchyLevel = 0;
-	} else {
-		std::shared_ptr<Bone> parent = parentTo.lock();
-		if (parent->hierarchyLevel == 0)
-			parent->UpdateHierarchy();
-		hierarchyLevel = parent->hierarchyLevel + 1;
-	}
+Bone::Bone(const std::string &name_) :
+		name(name_) {
 }
 
 double Bone::CalculateAnchorPoint(const Vector3 &p) const {
@@ -125,6 +118,17 @@ void Bone::Update() {
 					rotz * mixing);
 	p1 = matrix.GetOrigin();
 	p2 = matrix.Transform(length, 0, 0);
+}
+
+void Bone::UpdateHierarchy() {
+	if (parentTo.expired()) {
+		hierarchyLevel = 0;
+	} else {
+		std::shared_ptr<Bone> parent = parentTo.lock();
+		if (parent->hierarchyLevel == 0)
+			parent->UpdateHierarchy();
+		hierarchyLevel = parent->hierarchyLevel + 1;
+	}
 }
 
 double Bone::GetXMax() const {
@@ -311,3 +315,4 @@ void Bone::Paint() const {
 		v += dv;
 	}
 }
+

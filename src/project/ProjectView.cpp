@@ -71,12 +71,12 @@ ProjectView::~ProjectView() {
 bool ProjectView::OnCreate(wxDocument *doc, long flags) {
 	DEBUGOUT << "ProjectView::OnCreate(...) called...\n";
 
-	if (!wxView::OnCreate(doc, flags)){
+	if (!wxView::OnCreate(doc, flags)) {
 		DEBUGOUT << "ProjectView::OnCreate(...) failed.\n";
 		return false;
 	}
 
-	wxFrame *frame = wxGetApp().CreateChildFrame(this, FrameType::mainframe);
+	wxFrame *frame = wxGetApp().CreateChildFrame(this);
 	wxASSERT(frame == GetFrame());
 
 	BackgroundImage temp;
@@ -117,7 +117,7 @@ void ProjectView::Paint(bool usePicking) const {
 		OpenGLMaterial::EnableColors();
 		matLines.UseColor(0.0);
 
-		project->builder.Paint();
+//		project->builder.Paint();
 
 //	NagataPatch p0;
 //
@@ -186,9 +186,9 @@ void ProjectView::Paint(bool usePicking) const {
 	if (showLeft) {
 
 		glPushMatrix();
-//		if (shiftapart)
-//			glTranslatef(0, project->measL.littleToeGirth->ToDouble() / M_PI,
-//					0);
+		if (shiftapart)
+			glTranslatef(0, project->footL.littleToeGirth->ToDouble() / M_PI,
+					0);
 
 		glLoadName(0); // Left
 //
@@ -229,27 +229,28 @@ void ProjectView::Paint(bool usePicking) const {
 			glPopName();
 		}
 
-////		if(showLast){
-////			glPushName(3);
-////			matLast.UseMaterial();
-////			project->lastL.Paint();
-////			glPopName();
-////		}
-//
-//		if (showInsole) {
-//			glPushName(4);
-////			matLines.UseMaterial();
-////			project->bow.Paint();
-//			matInsole.UseMaterial();
-//			project->insoleL.Paint();
-//			glPopName();
-//		}
-//
-//		if (showSole) {
-//			glPushName(12);
-//			PaintSole();
-//			glPopName();
-//		}
+		if (showLast) {
+			glPushName(3);
+			matLast.UseMaterial();
+			project->lastL->Paint();
+			glPopName();
+		}
+
+		if (showInsole) {
+			glPushName(4);
+//			matLines.UseMaterial();
+//			project->bow.Paint();
+			matInsole.UseMaterial();
+			project->insoleL->Paint();
+			glPopName();
+		}
+
+		if (showSole) {
+			glPushName(12);
+			matInsole.UseMaterial();
+			project->heelL->Paint();
+			glPopName();
+		}
 //		if (showUpper) {
 //			glPushName(13);
 //			PaintUpper();
@@ -273,9 +274,9 @@ void ProjectView::Paint(bool usePicking) const {
 	}
 	if (showRight) {
 		glPushMatrix();
-//		if (shiftapart)
-//			glTranslatef(0, -project->meas.littleToeGirth->ToDouble() / M_PI,
-//					0);
+		if (shiftapart)
+			glTranslatef(0, -project->footR.littleToeGirth->ToDouble() / M_PI,
+					0);
 
 		glLoadName(1); // Right
 //
@@ -311,25 +312,26 @@ void ProjectView::Paint(bool usePicking) const {
 //			glPopName();
 //		}
 //
-//		if(showLast){
-//			glPushName(3);
-//			matLast.UseMaterial();
-//			project->lastR.Paint();
-//			glPopName();
-//		}
-//
-//		if (showInsole) {
-//			glPushName(4);
-//			matInsole.UseMaterial();
-//			project->insoleR.Paint();
-//			glPopName();
-//		}
-//
-//		if (showSole) {
-//			glPushName(12);
-//			PaintSole();
-//			glPopName();
-//		}
+		if (showLast) {
+			glPushName(3);
+			matLast.UseMaterial();
+			project->lastR->Paint();
+			glPopName();
+		}
+
+		if (showInsole) {
+			glPushName(4);
+			matInsole.UseMaterial();
+			project->insoleR->Paint();
+			glPopName();
+		}
+
+		if (showSole) {
+			glPushName(12);
+			matInsole.UseMaterial();
+			project->heelR->Paint();
+			glPopName();
+		}
 //		if (showUpper) {
 //			glPushName(13);
 //			PaintUpper();
@@ -367,14 +369,14 @@ void ProjectView::Paint(bool usePicking) const {
 
 void ProjectView::PaintLast() const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
-
-//	project->lastvol.Paint();
+//
+//	project->lastL.Paint();
 //	project->lastvol.PaintSurface();
 }
 
 void ProjectView::PaintSole() const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
-
+//
 //	project->sole.Paint();
 }
 
@@ -424,6 +426,7 @@ void ProjectView::PaintBackground(bool showBehind) const {
 }
 
 const FootMeasurements* ProjectView::GetActiveFootMeasurements(void) const {
+	//FIXME This function returns a raw pointer.
 	const Project *project = wxStaticCast(this->GetDocument(), Project);
 	switch (active) {
 	case Side::Both:

@@ -209,7 +209,7 @@ bool openshoedesigner::OnInit() {
 			project = (Project*) docManager->CreateDocument(wxEmptyString,
 					wxDOC_NEW);
 		} else {
-			project = (Project*) docManager->CreateDocument(loadOnStartup,0);
+			project = (Project*) docManager->CreateDocument(loadOnStartup, 0);
 //					wxDOC_SILENT);
 		}
 	} catch (std::exception &exception) {
@@ -246,19 +246,10 @@ int openshoedesigner::OnExit() {
 	return wxApp::OnExit();
 }
 
-wxFrame* openshoedesigner::CreateChildFrame(wxView *view,
-		ProjectView::FrameType frametype) {
+wxFrame* openshoedesigner::CreateChildFrame(wxView *view) {
 	wxFrame *subframe;
 	wxDocument *doc = view->GetDocument();
-
-	switch (frametype) {
-	case ProjectView::FrameType::mainframe:
-		subframe = new FrameMain(doc, view, config,
-				wxStaticCast(GetTopWindow(), wxDocParentFrame));
-		break;
-
-	default:
-		throw(std::logic_error("CreateChildFrame - Unsupported windowtype."));
-	}
+	subframe = new FrameMain(doc, view, config,
+			wxStaticCast(GetTopWindow(), wxDocParentFrame));
 	return subframe;
 }

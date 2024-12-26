@@ -41,6 +41,7 @@
 #include "../../3D/OpenGL.h"
 
 //const unsigned int FootModel::NBones = 29;
+
 //FootModel::FootModel()
 //{
 //	bones.reserve(NBones); //TODO Move away from using pointers.
@@ -403,48 +404,73 @@ void FootModel::PaintSkin() const {
 //	PhalanxIII4->s2 = 0.01;
 //}
 
-//bool FootModel::LoadModel(wxTextInputStream* stream)
-//{
-//
-//
-//
-//	if(!Tibia->Set(stream->ReadLine())) return false;
-//	if(!Fibula->Set(stream->ReadLine())) return false;
-//	if(!Talus->Set(stream->ReadLine())) return false;
-//	if(!Talus2->Set(stream->ReadLine())) return false;
-//	if(!Calcaneus->Set(stream->ReadLine())) return false;
-//	if(!Cuboideum->Set(stream->ReadLine())) return false;
-//	if(!Naviculare->Set(stream->ReadLine())) return false;
-//	if(!Cuneiforme1->Set(stream->ReadLine())) return false;
-//	if(!Cuneiforme2->Set(stream->ReadLine())) return false;
-//	if(!Cuneiforme3->Set(stream->ReadLine())) return false;
-//	if(!Metatarsalis1->Set(stream->ReadLine())) return false;
-//	if(!Metatarsalis2->Set(stream->ReadLine())) return false;
-//	if(!Metatarsalis3->Set(stream->ReadLine())) return false;
-//	if(!Metatarsalis4->Set(stream->ReadLine())) return false;
-//	if(!Metatarsalis5->Set(stream->ReadLine())) return false;
-//	if(!PhalanxI1->Set(stream->ReadLine())) return false;
-//	if(!PhalanxI2->Set(stream->ReadLine())) return false;
-//	if(!PhalanxI3->Set(stream->ReadLine())) return false;
-//	if(!PhalanxI4->Set(stream->ReadLine())) return false;
-//	if(!PhalanxI5->Set(stream->ReadLine())) return false;
-//	if(!PhalanxII1->Set(stream->ReadLine())) return false;
-//	if(!PhalanxII2->Set(stream->ReadLine())) return false;
-//	if(!PhalanxII3->Set(stream->ReadLine())) return false;
-//	if(!PhalanxII4->Set(stream->ReadLine())) return false;
-//	if(!PhalanxII5->Set(stream->ReadLine())) return false;
-//	if(!PhalanxIII1->Set(stream->ReadLine())) return false;
-//	if(!PhalanxIII2->Set(stream->ReadLine())) return false;
-//	if(!PhalanxIII3->Set(stream->ReadLine())) return false;
-//	if(!PhalanxIII4->Set(stream->ReadLine())) return false;
-//
-//	CalculateBones();
-//
-//	return true;
-//}
+bool FootModel::LoadModel(std::istream &stream) {
 
-//bool FootModel::SaveModel(wxTextOutputStream* stream)
-//{
+//	if (!Tibia->Set(stream->ReadLine()))
+//		return false;
+//	if (!Fibula->Set(stream->ReadLine()))
+//		return false;
+//	if (!Talus->Set(stream->ReadLine()))
+//		return false;
+//	if (!Talus2->Set(stream->ReadLine()))
+//		return false;
+//	if (!Calcaneus->Set(stream->ReadLine()))
+//		return false;
+//	if (!Cuboideum->Set(stream->ReadLine()))
+//		return false;
+//	if (!Naviculare->Set(stream->ReadLine()))
+//		return false;
+//	if (!Cuneiforme1->Set(stream->ReadLine()))
+//		return false;
+//	if (!Cuneiforme2->Set(stream->ReadLine()))
+//		return false;
+//	if (!Cuneiforme3->Set(stream->ReadLine()))
+//		return false;
+//	if (!Metatarsalis1->Set(stream->ReadLine()))
+//		return false;
+//	if (!Metatarsalis2->Set(stream->ReadLine()))
+//		return false;
+//	if (!Metatarsalis3->Set(stream->ReadLine()))
+//		return false;
+//	if (!Metatarsalis4->Set(stream->ReadLine()))
+//		return false;
+//	if (!Metatarsalis5->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxI1->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxI2->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxI3->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxI4->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxI5->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxII1->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxII2->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxII3->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxII4->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxII5->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxIII1->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxIII2->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxIII3->Set(stream->ReadLine()))
+//		return false;
+//	if (!PhalanxIII4->Set(stream->ReadLine()))
+//		return false;
+
+	CalculateBones();
+
+	return true;
+}
+
+bool FootModel::SaveModel(std::ostream &stream) {
 //	stream->WriteString(Tibia->Get());
 //	stream->WriteString(Fibula->Get());
 //	stream->WriteString(Talus->Get());
@@ -474,8 +500,8 @@ void FootModel::PaintSkin() const {
 //	stream->WriteString(PhalanxIII2->Get());
 //	stream->WriteString(PhalanxIII3->Get());
 //	stream->WriteString(PhalanxIII4->Get());
-//	return true;
-//}
+	return true;
+}
 
 void FootModel::Mirror() {
 	for (auto &bone : bones) {

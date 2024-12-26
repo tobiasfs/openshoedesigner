@@ -99,6 +99,7 @@
 //#include "../FootMeasurements.h"
 
 #include <string>
+#include <iostream>
 
 class FootMeasurements;
 class Shoe;
@@ -122,8 +123,8 @@ public:
 	void PaintBones() const;
 	void PaintSkin() const;
 
-//	bool LoadModel(wxTextInputStream* stream);
-//	bool SaveModel(wxTextOutputStream* stream);
+	bool LoadModel(std::istream &stream);
+	bool SaveModel(std::ostream &stream);
 
 	void UpdateForm(const FootMeasurements &measurements);
 

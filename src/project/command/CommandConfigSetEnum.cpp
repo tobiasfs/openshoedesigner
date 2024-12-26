@@ -37,7 +37,7 @@ CommandConfigSetEnum::CommandConfigSetEnum(const wxString &name,
 }
 
 bool CommandConfigSetEnum::Do() {
-	DEBUGOUT << __FUNCTION__ << ".\n";
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 
 	switch (parameter) {
 	case ID_MEASUREMENTSOURCE:
@@ -79,7 +79,7 @@ bool CommandConfigSetEnum::Do() {
 }
 
 bool CommandConfigSetEnum::Undo() {
-	DEBUGOUT << __FUNCTION__ << ".\n";
+	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << "\n";
 
 	switch (parameter) {
 

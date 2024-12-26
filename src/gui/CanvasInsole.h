@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : InsoleTransform.h
+// Name               : CanvasInsole.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 12.11.2024
+// Created            : 25.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,49 +23,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_
-#define SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_
+#ifndef SRC_GUI_CANVASINSOLE_H_
+#define SRC_GUI_CANVASINSOLE_H_
 
-/** \class InsoleTransform
- * 	\code #include "InsoleTransform.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Description
+/** \class CanvasInsole
+ * 	\code #include "PanelInsole.h"\endcode
+ * 	\ingroup GUI
+ *  \brief Panel displaying the insole
  *
- * Text
+ * 2D Panel displaying the insole with measurements.
  */
 
-#include "Operation.h"
+#include "CanvasMeasurementGrid.h"
 
-#include "../Configuration.h"
-#include "../object/Insole.h"
-
-#include <memory>
-class InsoleTransform: public Operation {
+class CanvasInsole: public CanvasMeasurementGrid {
 public:
-	InsoleTransform();
-	virtual ~InsoleTransform() = default;
-
-	virtual std::string GetName() const override;
-	virtual bool CanRun() override;
-	virtual bool Propagate() override;
-	virtual bool HasToRun() override;
-	virtual void Run() override;
-
-private:
-	void Shape();
-
-public:
-
-	std::shared_ptr<Configuration> config;
-	std::shared_ptr<ParameterFormula> heelPitch;
-	std::shared_ptr<ParameterFormula> toeSpring;
-	std::shared_ptr<ParameterFormula> heelHeight;
-	std::shared_ptr<ParameterFormula> ballHeight;
-	std::shared_ptr<ParameterFormula> legLengthDifference;
-
-	std::shared_ptr<Insole> in;
-	std::shared_ptr<Insole> out;
+	CanvasInsole(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
+					wxDefaultSize, long style =
+			wxTAB_TRAVERSAL);
+	virtual ~CanvasInsole();
 
 };
 
-#endif /* SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_ */
+#endif /* SRC_GUI_CANVASINSOLE_H_ */

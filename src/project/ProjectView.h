@@ -48,8 +48,11 @@ public:
 	enum class Side : size_t {
 		Both = 0, Left = 10, Right = 20
 	};
-	enum class FrameType {
-		mainframe, patternframe, walkcycleframe
+	enum class Display : int {
+		Shoe = 0, ///< The 3D view of the shoe is shown on the left
+		Insole = 1,
+		Analytics = 2,
+		Pattern = 3
 	};
 	ProjectView();
 	virtual ~ProjectView();
@@ -59,6 +62,7 @@ public:
 
 	std::vector<BackgroundImage> background;
 
+	Display display = Display::Shoe;
 	Side active;
 
 	bool showLeft;

@@ -40,8 +40,16 @@
  *
  */
 
+#include "operation/FootModelLoad.h"
+#include "operation/FootScanLoad.h"
+#include "operation/InsoleConstruct.h"
+#include "operation/InsoleTransform.h"
+#include "operation/LastAnalyse.h"
+#include "operation/LastNormalize.h"
+#include "operation/ObjectLoad.h"
 #include "operation/Operation.h"
 
+#include "operation/FootModelUpdate.h"
 #include <memory>
 #include <vector>
 
@@ -52,16 +60,31 @@ public:
 	Builder() = default;
 	virtual ~Builder() = default;
 
+	bool IsSetup() const;
+	void Setup(Project &project);
 	void Update(Project &project);
 
 	void Paint() const;
 
+private:
+	void Connect(Project &project);
+
 public:
 	std::string error;
-private:
-	void Setup(Project &project);
 
+private:
 	std::vector<std::shared_ptr<Operation>> operations;
+
+	std::shared_ptr<FootModelLoad> opFootModelLoad;
+	std::shared_ptr<FootModelUpdate> opFootModelUpdate;
+	std::shared_ptr<FootScanLoad> opFootScanLoad;
+	std::shared_ptr<InsoleConstruct> opInsoleConstruct;
+	std::shared_ptr<InsoleTransform> opInsoleTransform;
+	std::shared_ptr<LastAnalyse> opAnalyse;
+	std::shared_ptr<LastNormalize> opNormalize;
+	std::shared_ptr<ObjectLoad> opHeelLoad;
+	std::shared_ptr<ObjectLoad> opLastLoad;
+
 };
 
 #endif /* SRC_PROJECT_BUILDER_H_ */

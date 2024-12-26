@@ -264,7 +264,7 @@ void LastModel::Paint() const {
 
 	OpenGLMaterial::EnableColors();
 	OpenGLMaterial(OpenGLMaterial::Preset::cGray).UseColor();
-	LastRaw::Paint();
+	ObjectGeometry::Paint();
 
 }
 
@@ -900,7 +900,7 @@ void LastModel::UpdateForm(const Insole &insole,
 
 
 LastModel::LastModel(const Geometry &geo) :
-		LastRaw(geo) {
+		ObjectGeometry(geo) {
 }
 
 void LastModel::Transform(std::function<Vector3(Vector3)> func) {

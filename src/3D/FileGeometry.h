@@ -33,6 +33,23 @@
  *
  * This file is the abstract basis for the other 3D read and write classes.
  * It provides the storage for the data.
+ *
+ * 3D formats to look into:
+ *
+ *  - DAE
+ *  - DXF - implemented, need some bugfixing
+ *  - FBX
+ *  - FLT
+ *  - GLTF - very small files <- this is next to implement
+ *  - GTS - implemented, but not used anywhere
+ *  - OBJ - implemented
+ *  - PLY - implemented
+ *  - STL - implemented
+ *  - USD
+ *
+ *
+ *
+ *
  */
 
 #include "Geometry.h"

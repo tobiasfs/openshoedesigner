@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : RawGeometry.cpp
+// Name               : FootScanLoad.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 16.11.2024
+// Created            : 24.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,12 +23,39 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "RawGeometry.h"
+#ifndef SRC_PROJECT_OPERATION_FOOTSCANLOAD_H_
+#define SRC_PROJECT_OPERATION_FOOTSCANLOAD_H_
 
-RawGeometry::RawGeometry(const Geometry &other) :
-		Geometry(other) {
-}
+/** \class FootScanLoad
+ * 	\code #include "FootScanLoad.h"\endcode
+ * 	\ingroup GroupName
+ *  \brief Description
+ *
+ * Text
+ */
 
-RawGeometry::RawGeometry(Geometry &&other) :
-		Geometry(std::move(other)) {
-}
+#include "Operation.h"
+
+#include "../ParameterString.h"
+
+#include <memory>
+#include <filesystem>
+
+class FootScanLoad: public Operation {
+public:
+	FootScanLoad();
+	bool CanRun() override;
+	bool HasToRun() override;
+	std::string GetName() const override;
+	void Run() override;
+	bool Propagate() override;
+
+public:
+	std::shared_ptr<ParameterString> filename;
+//		std::shared_ptr<FootModel> out;
+
+private:
+	std::filesystem::file_time_type lastModified;
+};
+
+#endif /* SRC_PROJECT_OPERATION_FOOTSCANLOAD_H_ */

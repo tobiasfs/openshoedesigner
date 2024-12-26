@@ -398,7 +398,7 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 
 	const GLdouble aspect = (GLdouble) w / (GLdouble) h; // Calculate perspective
 
-	projection = AffineTransformMatrix::Perspective(M_PI_4, aspect, 0.1, 100.0);
+	projection = AffineTransformMatrix::Perspective(M_PI_4, aspect, 0.01, 10.0);
 //	projection = AffineTransformMatrix::Orthogonal(-aspect * 0.4142,
 //			aspect * 0.4142, -0.4142, 0.4142, 0.4142, -0.4142);
 
@@ -583,8 +583,6 @@ void OpenGLCanvas::RenderPick() {
 }
 
 void OpenGLCanvas::Render() {
-	return;
-
 	glPushMatrix();
 
 	GLfloat x = 1.0;
