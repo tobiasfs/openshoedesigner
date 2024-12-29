@@ -512,7 +512,8 @@ void FootModel::Mirror() {
 	}
 }
 
-void FootModel::UpdateForm(const FootMeasurements &measurements) {
+//TODO: Remove if not used: FootModel::UpdateForm
+void FootModel::UpdateFormx(const FootMeasurements &measurements) {
 	std::shared_ptr<Bone> PhalanxIII4 = GetBone("PhalanxIII4");
 	std::shared_ptr<Bone> Calcaneus = GetBone("Calcaneus");
 	ResetRotation();

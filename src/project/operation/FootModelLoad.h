@@ -34,10 +34,9 @@
  * Text
  */
 
-#include "Operation.h"
-
 #include "../foot/FootModel.h"
 #include "../ParameterString.h"
+#include "Operation.h"
 
 #include <filesystem>
 #include <memory>

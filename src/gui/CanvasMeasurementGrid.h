@@ -33,8 +33,12 @@
  *
  * 2D Panel for displaying 2D layouts. Additional functions for inserting
  * measurements between points.
+ *
+ *
+ *
  */
 
+#include "../3D/AffineTransformMatrix.h"
 #include "../math/Unit.h"
 #include <wx/panel.h>
 
@@ -46,18 +50,32 @@ public:
 			wxTAB_TRAVERSAL);
 	virtual ~CanvasMeasurementGrid();
 
-	double minX = -0.1;
-	double maxX = 0.1;
-	double minY = -0.2;
-	double maxY = 0.2;
-
-	int multiplier = 5;
-	Unit unit;
+protected:
+	void OnSize(wxSizeEvent &event);
+	void OnMouseEvent(wxMouseEvent &event);
+	void OnPaint(wxPaintEvent &event);
+	void PaintGrid(wxDC &dc);
 
 protected:
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-	void PaintGrid(wxDC &dc);
+
+public:
+
+	Unit unit; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
+	int multiplier = 5; ///< Plot a darker line ever x units.
+
+protected:
+	AffineTransformMatrix projection;
+	AffineTransformMatrix view;
+
+	AffineTransformMatrix s; ///< Mapping from SI-units to screen pixels.
+
+private:
+	AffineTransformMatrix g; ///< For displaying the grid
+	AffineTransformMatrix gRev; ///< Reverse for displaying the grid
+
+	int m_x = 0;
+	int m_y = 0;
+
 };
 
 #endif /* SRC_GUI_CANVASMEASUREMENTGRID_H_ */

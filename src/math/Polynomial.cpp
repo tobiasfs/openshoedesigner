@@ -29,6 +29,7 @@
 #include <cfloat>
 #include <cmath>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 
 // Most formulas are calculated with the FRICAS computer algebra system.
@@ -222,6 +223,25 @@ Polynomial Polynomial::ByBezier(double v0, double v1, double v2, double v3) {
 	temp.c[2] = 3 * v1 - 3 * v0;
 	temp.c[3] = v0;
 	return temp;
+}
+
+Polynomial Polynomial::ByBezier(const std::vector<double> &v) {
+	switch (v.size()) {
+	case 1:
+		return Polynomial::ByBezier(v[0]);
+	case 2:
+		return Polynomial::ByBezier(v[0], v[1]);
+	case 3:
+		return Polynomial::ByBezier(v[0], v[1], v[2]);
+	case 4:
+		return Polynomial::ByBezier(v[0], v[1], v[2], v[3]);
+	default: {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
+		err << "Only 1..4 double value are supported.";
+		throw std::runtime_error(err.str());
+	}
+	}
 }
 
 Polynomial Polynomial::ByIntegrals(const std::vector<double> &integrals,

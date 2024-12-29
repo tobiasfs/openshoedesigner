@@ -31,8 +31,6 @@ CanvasPattern::CanvasPattern(wxWindow *parent, wxWindowID id,
 		const wxPoint &pos, const wxSize &size, long style) :
 		CanvasMeasurementGrid(parent, id, pos, size, style) {
 
-	SetBackgroundColour(wxColour(200, 200, 200));
-
 	// Connect Events
 	Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
 	Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
@@ -53,13 +51,12 @@ void CanvasPattern::OnSize(wxSizeEvent &event) {
 }
 
 void CanvasPattern::OnPaint(wxPaintEvent &event) {
-
-	wxPoint temp;
+	CanvasMeasurementGrid::OnPaint(event);
 	wxPaintDC dc(this);
 	wxSize sz = GetClientSize();
 
 	wxString text = wxString::Format(_T("CanvasPattern"));
-	dc.DrawText(text, 10, 10);
+	dc.DrawText(text, 10, 30);
 
 	float height = 1.0; //TODO: <-Replace this
 	float width = 1.0; //TODO: <-Replace this

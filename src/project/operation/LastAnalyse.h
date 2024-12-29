@@ -34,11 +34,11 @@
  * Text
  */
 
-#include "Operation.h"
-
 #include "../../3D/Polygon3.h"
 #include "../../math/MEstimator.h"
 #include "../object/LastModel.h"
+#include "../ParameterEnum.h"
+#include "Operation.h"
 
 #include <memory>
 
@@ -79,9 +79,9 @@ private:
 	static bool Vector3XLess(const Vector3 a, const Vector3 b);
 
 public:
+	std::shared_ptr<ParameterEnum> lastReorient;
 	std::shared_ptr<ObjectGeometry> in;
 	std::shared_ptr<LastModel> out;
-
 
 private:
 	Polygon3 debug;

@@ -33,7 +33,7 @@
  * Uses the result of the FourierTransform class to find symmetries in polygons.
  * Allows for adding multiple testing Polygon3%s and combining the result.
  *
- * The symmetry axes are found by calculating a core desity estimation on the
+ * The symmetry axes are found by calculating a core density estimation on the
  * symmetry axes provided at each frequency.
  */
 

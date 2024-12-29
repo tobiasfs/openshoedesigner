@@ -35,9 +35,18 @@
  * Using sorted stores simplifies the process of manipulating 3D data even if
  * it originates from a triangle soup.
  *
- * If possible a closed sorted surface is generated.
+ * If possible a closed sorted surface is generated. After adding geometry,
+ * call the Sort() or the Join() function to clean up the geometry.
  *
+ * # Selection
  *
+ * Selection is done with respect to vertices. If all vertices of an edge are
+ * selected, the edge is selected. If all vertices of a triangle are selected,
+ * the triangle is selected.
+ *
+ * The functions PaintTriangle() and PaintEdge() offer passing in
+ * a std::set<size_t> of group-ids. Only the elements of the selected groups
+ * are painted. If no set is passed, all elements are drawn.
  */
 
 #include "AffineTransformMatrix.h"

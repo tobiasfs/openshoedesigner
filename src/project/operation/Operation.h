@@ -44,7 +44,7 @@ public:
 	 *
 	 * \return string with name, no newline.
 	 */
-	virtual std::string GetName() const = 0;
+	virtual std::string GetName() const;
 
 	/**\brief Checking (mostly) if all inputs and all outputs are connected.
 	 *

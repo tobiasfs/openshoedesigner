@@ -169,10 +169,10 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menuGeometry->Append( m_menuItemSaveInsole );
 	m_menuItemSaveInsole->Enable( false );
 
-	wxMenuItem* m_menuItemSaveSole;
-	m_menuItemSaveSole = new wxMenuItem( m_menuGeometry, ID_SOLE, wxString( _("Save &Sole Prototype") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menuGeometry->Append( m_menuItemSaveSole );
-	m_menuItemSaveSole->Enable( false );
+	wxMenuItem* m_menuItemSaveHeel;
+	m_menuItemSaveHeel = new wxMenuItem( m_menuGeometry, ID_HEEL, wxString( _("Save &Heel") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menuGeometry->Append( m_menuItemSaveHeel );
+	m_menuItemSaveHeel->Enable( false );
 
 	wxMenuItem* m_menuItemCutaway;
 	m_menuItemCutaway = new wxMenuItem( m_menuGeometry, ID_CUTAWAY, wxString( _("Save &Cutaway Object") ) , wxEmptyString, wxITEM_NORMAL );
@@ -226,9 +226,9 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menuItemShowInsole = new wxMenuItem( m_menuView, ID_INSOLE, wxString( _("Show &Insole") ) , wxEmptyString, wxITEM_CHECK );
 	m_menuView->Append( m_menuItemShowInsole );
 
-	wxMenuItem* m_menuIItemShowSole;
-	m_menuIItemShowSole = new wxMenuItem( m_menuView, ID_SOLE, wxString( _("Show S&ole") ) , wxEmptyString, wxITEM_CHECK );
-	m_menuView->Append( m_menuIItemShowSole );
+	wxMenuItem* m_menuIItemShowHeel;
+	m_menuIItemShowHeel = new wxMenuItem( m_menuView, ID_HEEL, wxString( _("Show Heel") ) , wxEmptyString, wxITEM_CHECK );
+	m_menuView->Append( m_menuIItemShowHeel );
 
 	wxMenuItem* m_menuItemShowUpper;
 	m_menuItemShowUpper = new wxMenuItem( m_menuView, ID_UPPER, wxString( _("Show &Upper") ) , wxEmptyString, wxITEM_CHECK );
@@ -1219,7 +1219,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelCanvas3D->SetSizer( bSizerCanvas3D );
 	m_panelCanvas3D->Layout();
 	bSizerCanvas3D->Fit( m_panelCanvas3D );
-	m_notebookCanvas->AddPage( m_panelCanvas3D, _("3D"), true );
+	m_notebookCanvas->AddPage( m_panelCanvas3D, _("3D"), false );
 	m_panelInsole = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerInsole;
 	bSizerInsole = new wxBoxSizer( wxVERTICAL );
@@ -1231,7 +1231,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelInsole->SetSizer( bSizerInsole );
 	m_panelInsole->Layout();
 	bSizerInsole->Fit( m_panelInsole );
-	m_notebookCanvas->AddPage( m_panelInsole, _("Insole"), false );
+	m_notebookCanvas->AddPage( m_panelInsole, _("Insole"), true );
 	m_panelCanvasAnalysis = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasAnalysis;
 	bSizerCanvasAnalysis = new wxBoxSizer( wxHORIZONTAL );
@@ -1330,7 +1330,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menuFabric->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnObjectLoad ), this, m_menuItemLoadFabricsLibrary->GetId());
 	m_menuGeometry->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), this, m_menuItemSaveLast->GetId());
 	m_menuGeometry->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), this, m_menuItemSaveInsole->GetId());
-	m_menuGeometry->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), this, m_menuItemSaveSole->GetId());
+	m_menuGeometry->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), this, m_menuItemSaveHeel->GetId());
 	m_menuGeometry->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), this, m_menuItemCutaway->GetId());
 	m_menuGeometry->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), this, m_menuItemPackZip->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnToggleStereo3D ), this, m_menuItemStereo3D->GetId());
@@ -1341,7 +1341,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowLeg->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowLast->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowInsole->GetId());
-	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuIItemShowSole->GetId());
+	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuIItemShowHeel->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowUpper->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowCutaway->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowFloor->GetId());

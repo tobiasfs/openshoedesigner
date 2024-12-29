@@ -114,48 +114,34 @@ private:
 public:
 
 	Configuration config;
-
 	FootMeasurements footL;
 	FootMeasurements footR;
 
 	ParameterEvaluator evaluator;
-
 	Builder builder;
 
+	// Last to generate
 	std::shared_ptr<LastModel> lastL;
 	std::shared_ptr<LastModel> lastR;
 
+	// Shoe
 	std::shared_ptr<ObjectGeometry> heelL;
 	std::shared_ptr<ObjectGeometry> heelR;
 
+	std::shared_ptr<Insole> insoleFlatL;
+	std::shared_ptr<Insole> insoleFlatR;
 	std::shared_ptr<Insole> insoleL;
 	std::shared_ptr<Insole> insoleR;
 
+	// Pattern for the upper of the shoe
+	std::shared_ptr<CoordinateSystem> csL;
+	std::shared_ptr<CoordinateSystem> csR;
+
 //	FootModel footL;
 //	FootModel footR;
-//
+
 //	LastModel lastModelL;
 //	LastModel lastModelR;
-//
-//	// +++ Shoe +++
-//	Shoe shoe;
-//	Insole insoleL;
-//	Insole insoleR;
-//
-//	// Last to generate
-//	Last lastL;
-//	Last lastR;
-//
-//	// Pattern for the upper of the shoe
-//	CoordinateSystem csL;
-//	CoordinateSystem csR;
-//
-//	// Generated products / debugging structures
-//
-//	//	Volume vol;
-//	OrientedMatrix xray;
-//	OrientedMatrix heightfield;
-//	Polygon3 bow;
 
 private:
 	bool useMultiThreading = false;

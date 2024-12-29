@@ -126,7 +126,7 @@ public:
 	bool LoadModel(std::istream &stream);
 	bool SaveModel(std::ostream &stream);
 
-	void UpdateForm(const FootMeasurements &measurements);
+	void UpdateFormx(const FootMeasurements &measurements);
 
 	void CalculateBones();
 	void CalculateSkin();

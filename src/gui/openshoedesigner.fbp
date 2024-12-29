@@ -58,7 +58,7 @@
             <property name="window_style">wxTAB_TRAVERSAL</property>
             <property name="xrc_skip_sizer">1</property>
             <event name="OnClose">OnClose</event>
-            <object class="wxMenuBar" expanded="0">
+            <object class="wxMenuBar" expanded="1">
                 <property name="bg"></property>
                 <property name="context_help"></property>
                 <property name="context_menu">1</property>
@@ -299,7 +299,7 @@
                         </object>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">&amp;Shoe/Heel</property>
                     <property name="name">m_menuShoe</property>
                     <property name="permission">protected</property>
@@ -460,7 +460,7 @@
                         <event name="OnMenuSelection">OnObjectLoad</event>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">&amp;Geometry</property>
                     <property name="name">m_menuGeometry</property>
                     <property name="permission">protected</property>
@@ -497,10 +497,10 @@
                         <property name="checked">0</property>
                         <property name="enabled">0</property>
                         <property name="help"></property>
-                        <property name="id">ID_SOLE</property>
+                        <property name="id">ID_HEEL</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Save &amp;Sole Prototype</property>
-                        <property name="name">m_menuItemSaveSole</property>
+                        <property name="label">Save &amp;Heel</property>
+                        <property name="name">m_menuItemSaveHeel</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -539,7 +539,7 @@
                         <event name="OnMenuSelection">OnObjectSave</event>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">&amp;View</property>
                     <property name="name">m_menuView</property>
                     <property name="permission">protected</property>
@@ -668,10 +668,10 @@
                         <property name="checked">0</property>
                         <property name="enabled">1</property>
                         <property name="help"></property>
-                        <property name="id">ID_SOLE</property>
+                        <property name="id">ID_HEEL</property>
                         <property name="kind">wxITEM_CHECK</property>
-                        <property name="label">Show S&amp;ole</property>
-                        <property name="name">m_menuIItemShowSole</property>
+                        <property name="label">Show Heel</property>
+                        <property name="name">m_menuIItemShowHeel</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
@@ -5262,7 +5262,7 @@
                                             <object class="notebookpage" expanded="0">
                                                 <property name="bitmap"></property>
                                                 <property name="label">Last</property>
-                                                <property name="select">1</property>
+                                                <property name="select">0</property>
                                                 <object class="wxPanel" expanded="0">
                                                     <property name="BottomDockable">1</property>
                                                     <property name="LeftDockable">1</property>
@@ -7388,7 +7388,7 @@
                                             <object class="notebookpage" expanded="0">
                                                 <property name="bitmap"></property>
                                                 <property name="label">Shoe</property>
-                                                <property name="select">0</property>
+                                                <property name="select">1</property>
                                                 <object class="wxPanel" expanded="0">
                                                     <property name="BottomDockable">1</property>
                                                     <property name="LeftDockable">1</property>

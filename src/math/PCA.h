@@ -60,7 +60,7 @@ public:
 
 	Vector3 center; //!< Center of dataset used for adding points and for painting the found coordinates. Not used in the Calculate function.
 
-	double weight; //!< Number of recorded values
+	double weight; //!< Combined weight of recorded values
 	double xx; //!< Sum of X*X values
 	double xy; //!< Sum of X*Y values
 	double xz; //!< Sum of X*Z values

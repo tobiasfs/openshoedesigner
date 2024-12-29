@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : CanvasInsole.h
+// Name               : LastUpdate.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 25.12.2024
+// Created            : 27.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,44 +23,51 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_GUI_CANVASINSOLE_H_
-#define SRC_GUI_CANVASINSOLE_H_
+#ifndef SRC_PROJECT_OPERATION_LASTUPDATE_H_
+#define SRC_PROJECT_OPERATION_LASTUPDATE_H_
 
-/** \class CanvasInsole
- * 	\code #include "PanelInsole.h"\endcode
- * 	\ingroup GUI
- *  \brief Panel displaying the insole
+/** \class LastUpdate
+ * 	\code #include "LastUpdate.h"\endcode
+ * 	\ingroup GroupName
+ *  \brief Description
  *
- * 2D Panel displaying the insole with measurements.
+ * Text
  */
 
-#include "../project/object/Insole.h"
-#include "CanvasMeasurementGrid.h"
+#include "../../math/NelderMeadOptimizer.h"
+#include "../object/LastModel.h"
+#include "../ParameterEnum.h"
+#include "../ParameterFormula.h"
+#include "Operation.h"
 
 #include <memory>
-#include <wx/dcclient.h>
 
-class CanvasInsole: public CanvasMeasurementGrid {
+class LastUpdate: public Operation {
 public:
-	CanvasInsole(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style =
-			wxTAB_TRAVERSAL);
-	virtual ~CanvasInsole();
+	LastUpdate();
+	virtual ~LastUpdate() = default;
+
+	virtual std::string GetName() const override;
+	virtual bool CanRun() override;
+	virtual bool Propagate() override;
+	virtual bool HasToRun() override;
+	virtual void Run() override;
+
+public:
+	std::shared_ptr<ParameterEnum> lastModify;
+
+	std::shared_ptr<ParameterFormula> heelPitch;
+	std::shared_ptr<ParameterFormula> toeSpring;
+	std::shared_ptr<ParameterFormula> heelHeight;
+	std::shared_ptr<ParameterFormula> ballHeight;
+	std::shared_ptr<ParameterFormula> legLengthDifference;
+
+	std::shared_ptr<LastModel> in;
+	std::shared_ptr<LastModel> out;
 
 protected:
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
+	NelderMeadOptimizer optiPos;
 
-public:
-	std::shared_ptr<Insole> insoleL;
-	double dL = 0.1;
-	std::shared_ptr<Insole> insoleR;
-	double dR = 0.1;
-
-private:
-	void PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
-			const std::shared_ptr<Insole> &insole);
 };
 
-#endif /* SRC_GUI_CANVASINSOLE_H_ */
+#endif /* SRC_PROJECT_OPERATION_LASTUPDATE_H_ */

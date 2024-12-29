@@ -34,70 +34,78 @@ FootModelUpdate::FootModelUpdate() {
 	out = std::make_shared<FootModel>();
 }
 
+std::string FootModelUpdate::GetName() const {
+	return "FootModelUpdate";
+}
+
 bool FootModelUpdate::CanRun() {
-	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
-	bool hasMissingConnection = false;
+	std::string missing;
 
-//	if (!config) {
-//		hasMissingConnection = true;
-//		err << " Input \"config\" not connected.";
-//	}
-	if (!heelPitch) {
-		hasMissingConnection = true;
-		err << " Input \"heelPitch\" not connected.";
-	}
-	if (!toeSpring) {
-		hasMissingConnection = true;
-		err << " Input \"toeSpring\" not connected.";
-	}
-	if (!heelHeight) {
-		hasMissingConnection = true;
-		err << " Input \"heelHeight\" not connected.";
-	}
-	if (!ballHeight) {
-		hasMissingConnection = true;
-		err << " Input \"ballHeight\" not connected.";
-	}
-	if (!legLengthDifference) {
-		hasMissingConnection = true;
-		err << " Input \"legLengthDifference\" not connected.";
-	}
+	if (!heelPitch)
+		missing += missing.empty() ? "\"heelPitch\"" : ", \"heelPitch\"";
+	if (!toeSpring)
+		missing += missing.empty() ? "\"toeSpring\"" : ", \"toeSpring\"";
+	if (!heelHeight)
+		missing += missing.empty() ? "\"heelHeight\"" : ", \"heelHeight\"";
+	if (!ballHeight)
+		missing += missing.empty() ? "\"ballHeight\"" : ", \"ballHeight\"";
+	if (!legLengthDifference)
+		missing +=
+				missing.empty() ?
+						"\"legLengthDifference\"" : ", \"legLengthDifference\"";
+	if (!in)
+		missing += missing.empty() ? "\"in\"" : ", \"in\"";
+	if (!out)
+		missing += missing.empty() ? "\"out\"" : ", \"out\"";
 
-	if (!in) {
-		hasMissingConnection = true;
-		err << " Input \"in\" not connected.";
-	}
-	if (!out) {
-		hasMissingConnection = true;
-		err << " Output \"out\" not set.";
-	}
-	if (hasMissingConnection) {
+	if (!missing.empty()) {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
+				<< __FUNCTION__ << " -";
+		err << "The variables " << missing << " are not connected.";
 		error = err.str();
 		throw std::logic_error(err.str());
 	}
+
 	error.clear();
-	return true;
+
+	if (heelPitch->GetString().empty()) {
+		error += " Input \"heelPitch\" for FootModelUpdate is empty.";
+	}
+	if (toeSpring->GetString().empty()) {
+		error += " Input \"toeSpring\" for FootModelUpdate is empty.";
+	}
+	if (heelHeight->GetString().empty()) {
+		error += " Input \"heelHeight\" for FootModelUpdate is empty.";
+	}
+	if (ballHeight->GetString().empty()) {
+		error += " Input \"ballHeight\" for FootModelUpdate is empty.";
+	}
+	if (legLengthDifference->GetString().empty()) {
+		error += " Input \"legLengthDifference\" for FootModelUpdate is empty.";
+	}
+
+	return error.empty();
 }
 
 bool FootModelUpdate::Propagate() {
-	bool modify = false;
-	if (!in || !out || !heelPitch || !toeSpring || !heelHeight || !ballHeight
-			|| !legLengthDifference)
+	if (!heelPitch || !toeSpring || !heelHeight || !ballHeight
+			|| !legLengthDifference || !in || !out)
 		return false;
 
+	bool modify = false;
 	bool parameterModified = false;
+	parameterModified |= !in->IsValid();
 	parameterModified |= heelPitch->IsModified();
 	parameterModified |= toeSpring->IsModified();
 	parameterModified |= heelHeight->IsModified();
 	parameterModified |= ballHeight->IsModified();
 	parameterModified |= legLengthDifference->IsModified();
 
-	if (!in->IsValid() || parameterModified) {
+	if (parameterModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
-
 	if (out->IsNeeded()) {
 		modify |= !in->IsNeeded();
 		in->MarkNeeded(true);
@@ -183,6 +191,3 @@ void FootModelUpdate::UpdatePosition(const Shoe &shoe, double offset,
 	out->ModifyPosition(true);
 }
 
-std::string FootModelUpdate::GetName() const {
-	return "FootModelUpdate";
-}

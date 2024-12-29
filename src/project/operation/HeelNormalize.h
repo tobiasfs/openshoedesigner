@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : CanvasInsole.h
+// Name               : HeelNormalize.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 25.12.2024
+// Created            : 26.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,44 +23,39 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_GUI_CANVASINSOLE_H_
-#define SRC_GUI_CANVASINSOLE_H_
+#ifndef SRC_PROJECT_OPERATION_HEELNORMALIZE_H_
+#define SRC_PROJECT_OPERATION_HEELNORMALIZE_H_
 
-/** \class CanvasInsole
- * 	\code #include "PanelInsole.h"\endcode
- * 	\ingroup GUI
- *  \brief Panel displaying the insole
+/** \class HeelNormalize
+ * 	\code #include "HeelNormalize.h"\endcode
+ * 	\ingroup GroupName
+ *  \brief Description
  *
- * 2D Panel displaying the insole with measurements.
+ * Text
  */
 
-#include "../project/object/Insole.h"
-#include "CanvasMeasurementGrid.h"
+#include "../object/ObjectGeometry.h"
+#include "../ParameterEnum.h"
+#include "Operation.h"
 
 #include <memory>
-#include <wx/dcclient.h>
 
-class CanvasInsole: public CanvasMeasurementGrid {
+class HeelNormalize: public Operation {
 public:
-	CanvasInsole(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style =
-			wxTAB_TRAVERSAL);
-	virtual ~CanvasInsole();
+	HeelNormalize();
+	virtual ~HeelNormalize() = default;
 
-protected:
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
+	virtual std::string GetName() const override;
+	virtual bool CanRun() override;
+	virtual bool Propagate() override;
+	virtual bool HasToRun() override;
+	virtual void Run() override;
 
 public:
-	std::shared_ptr<Insole> insoleL;
-	double dL = 0.1;
-	std::shared_ptr<Insole> insoleR;
-	double dR = 0.1;
+	std::shared_ptr<ParameterEnum> heelReorient;
 
-private:
-	void PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
-			const std::shared_ptr<Insole> &insole);
+	std::shared_ptr<ObjectGeometry> in;
+	std::shared_ptr<ObjectGeometry> out;
 };
 
-#endif /* SRC_GUI_CANVASINSOLE_H_ */
+#endif /* SRC_PROJECT_OPERATION_HEELNORMALIZE_H_ */

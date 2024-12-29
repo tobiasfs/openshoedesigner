@@ -26,9 +26,9 @@
 
 #include "CanvasStereoTest.h"
 
-CanvasStereoTest::CanvasStereoTest(wxWindow* parent, wxWindowID id,
-		const wxPoint& pos, const wxSize& size, long style,
-		const wxString& name) :
+CanvasStereoTest::CanvasStereoTest(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
 		OpenGLCanvas(parent, id, pos, size, style, name) {
 	scale = 0.1;
 }
@@ -37,7 +37,10 @@ void CanvasStereoTest::Render() {
 	::glPushMatrix();
 	::glColor3f(0.8, 0.8, 0.8);
 
-	Vector3 v0, v1, v2, v3;
+	Vector3 v0;
+	Vector3 v1;
+	Vector3 v2;
+	Vector3 v3;
 	const float dt = (double) 2 / 40;
 	glBegin(GL_QUADS);
 	for (size_t i = 0; i < 40; ++i) {

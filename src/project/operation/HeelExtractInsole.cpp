@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : FootScanLoad.cpp
+// Name               : HeelExtractInsole.cpp
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 24.12.2024
+// Created            : 27.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,24 +23,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "FootScanLoad.h"
+#include "HeelExtractInsole.h"
 
+#include <stdexcept>
 #include <sstream>
-#include <iostream>
 
-FootScanLoad::FootScanLoad() {
-	out = std::make_shared<FootModel>();
+HeelExtractInsole::HeelExtractInsole() {
+	out = std::make_shared<Insole>();
 }
 
-std::string FootScanLoad::GetName() const {
-	return "FootScanLoad";
+std::string HeelExtractInsole::GetName() const {
+	return "HeelExtractInsole";
 }
 
-bool FootScanLoad::CanRun() {
+bool HeelExtractInsole::CanRun() {
 	std::string missing;
 
-	if (!filename)
-		missing += missing.empty() ? "\"filename\"" : ", \"filename\"";
+	if (!in)
+		missing += missing.empty() ? "\"in\"" : ", \"in\"";
 	if (!out)
 		missing += missing.empty() ? "\"out\"" : ", \"out\"";
 
@@ -55,59 +55,47 @@ bool FootScanLoad::CanRun() {
 
 	error.clear();
 
-	if (filename->GetString().empty()) {
-		error += " Input \"filename\" for FootScanLoad is empty.";
-	} else {
-		std::filesystem::path fn(filename->GetString());
-		if (!std::filesystem::exists(fn)) {
-			error += " The file \"" + filename->GetString()
-					+ "\" does not exist.";
-		}
-	}
-
 	return error.empty();
 }
 
-bool FootScanLoad::Propagate() {
-	if (!filename || !out)
+bool HeelExtractInsole::Propagate() {
+	if (!in || !out)
 		return false;
 
 	bool modify = false;
 
-	if (filename->IsModified() || filename->GetString().empty()) {
+	if (!in->IsValid()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
-
-	if (modify)
-		return modify;
-
-	std::filesystem::path fn(filename->GetString());
-	if (!std::filesystem::exists(fn)) {
-		modify |= out->IsValid();
-		out->MarkValid(false);
-		return modify;
-	}
-	// Check, if the file on drive is modified.
-	auto timeModified = std::filesystem::last_write_time(fn);
-	if (timeModified != lastModified) {
-		modify |= out->IsValid();
-		out->MarkValid(false);
+	if (out->IsNeeded()) {
+		modify |= !in->IsNeeded();
+		in->MarkNeeded(true);
 	}
 	return modify;
 }
 
-bool FootScanLoad::HasToRun() {
-	return out && !out->IsValid() && out->IsNeeded();
+bool HeelExtractInsole::HasToRun() {
+	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
 }
 
-void FootScanLoad::Run() {
-	std::filesystem::path filepath(filename->GetString());
-	std::string extension = filepath.extension().string();
-	for (auto &ch : extension)
-		ch = std::tolower(ch);
+void HeelExtractInsole::Run() {
 
-	lastModified = std::filesystem::last_write_time(filepath);
-//	out->MarkValid(true);
-//	out->MarkNeeded(false);
+	in->CalcGroups(45.0 / 180.0 * M_PI);
+	std::map<size_t, double> groupdir;
+	for (size_t n = 0; n < in->TriangleCount(); ++n) {
+		const Geometry::Triangle &tri = in->GetTriangle(n);
+		auto xi = groupdir.find(tri.group);
+		if (xi == groupdir.end()) {
+			groupdir[tri.group] = tri.n.z;
+		} else {
+			xi->second += tri.n.z;
+		}
+	}
+
+	in->SelectByGroup(1);
+	out->Clear();
+	out->AddSelectedFrom(*in);
+	out->MarkValid(true);
+	out->MarkNeeded(false);
 }

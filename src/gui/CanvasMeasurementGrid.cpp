@@ -25,6 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "CanvasMeasurementGrid.h"
 
+#include "../3D/Vector3.h"
 #include <wx/dcclient.h>
 
 CanvasMeasurementGrid::CanvasMeasurementGrid(wxWindow *parent, wxWindowID id,
@@ -33,10 +34,28 @@ CanvasMeasurementGrid::CanvasMeasurementGrid(wxWindow *parent, wxWindowID id,
 
 	unit = Unit("cm");
 
+	view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 }, M_PI_2);
+	view.TranslateGlobal(0.1, 0, 0);
+
 	this->Connect(wxEVT_PAINT,
 			wxPaintEventHandler(CanvasMeasurementGrid::OnPaint));
 	this->Connect(wxEVT_SIZE,
 			wxSizeEventHandler(CanvasMeasurementGrid::OnSize));
+	this->Connect(wxEVT_MOTION,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent), nullptr,
+			this);
+	this->Connect(wxEVT_MOUSEWHEEL,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent), nullptr,
+			this);
+	this->Connect(wxEVT_RIGHT_DOWN,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent), nullptr,
+			this);
+	this->Connect(wxEVT_MIDDLE_DOWN,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent), nullptr,
+			this);
+	this->Connect(wxEVT_RIGHT_DCLICK,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent), nullptr,
+			this);
 
 }
 
@@ -45,41 +64,143 @@ CanvasMeasurementGrid::~CanvasMeasurementGrid() {
 			wxPaintEventHandler(CanvasMeasurementGrid::OnPaint));
 	this->Disconnect(wxEVT_SIZE,
 			wxSizeEventHandler(CanvasMeasurementGrid::OnSize));
+	this->Disconnect(wxEVT_MOTION,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent));
+	this->Disconnect(wxEVT_MOUSEWHEEL,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent));
+	this->Disconnect(wxEVT_RIGHT_DOWN,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent));
+	this->Disconnect(wxEVT_MIDDLE_DOWN,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent));
+	this->Disconnect(wxEVT_RIGHT_DCLICK,
+			wxMouseEventHandler(CanvasMeasurementGrid::OnMouseEvent));
 }
 
 void CanvasMeasurementGrid::OnSize(wxSizeEvent &event) {
+
 	this->Refresh();
+}
+
+void CanvasMeasurementGrid::OnMouseEvent(wxMouseEvent &event) {
+	if (event.ButtonDown(wxMOUSE_BTN_RIGHT)
+			|| event.ButtonDown(wxMOUSE_BTN_MIDDLE)) {
+		m_x = event.m_x;
+		m_y = event.m_y;
+	}
+	if (event.ButtonDClick(wxMOUSE_BTN_RIGHT)) {
+		view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 },
+		M_PI_2);
+		m_x = event.m_x;
+		m_y = event.m_y;
+		this->Refresh();
+	}
+
+	if (event.Dragging() && event.MiddleIsDown()) {
+		float movement = 107.0 / 0.0254;
+		const float dx = (float) (event.m_x - m_x) / movement;
+		const float dy = (float) (event.m_y - m_y) / movement;
+		view.TranslateGlobal(dx, -dy, 0);
+		m_x = event.m_x;
+		m_y = event.m_y;
+		this->Refresh();
+	} else {
+		const int x = event.GetWheelRotation();
+		if (x != 0) {
+			float sc = exp(-((float) x) / 1000.0);
+			view.ScaleGlobal(sc, sc, sc);
+			this->Refresh();
+		}
+	}
+	if (event.Moving() || event.Dragging())
+		event.Skip();
 }
 
 void CanvasMeasurementGrid::OnPaint(wxPaintEvent &event) {
 	wxPoint temp;
 	wxPaintDC dc(this);
 	dc.DrawText(_T("CanvasMeasurementGrid"), 10, 10);
-	dc.SetMapMode(wxMM_METRIC);
-	wxSize sz = dc.GetSize();
-	dc.SetDeviceOrigin(sz.x / 2, sz.y / 2);
-	dc.SetUserScale(0.65,0.65);
+
+	// Deactivate all shifts and scalings from wxDC.
+	dc.SetMapMode(wxMM_TEXT); // Logical unit: pixel
+	dc.SetUserScale(1.0, 1.0);
+	dc.SetDeviceOrigin(0, 0);
+
+	wxSize sd = dc.GetSize();
+
+	const double dpi_x = 109.2;
+	const double dpi_y = 109.2;
+
+	projection.SetIdentity();
+	projection[0] = dpi_x / 0.0254;
+	projection[5] = -dpi_y / 0.0254;
+	projection[12] = (double) sd.x / 2.0;
+	projection[13] = (double) sd.y / 2.0;
+
+	s = projection * view;
+
+	g = s;
+	g[0] = -g[1];
+	g[1] = 0.0;
+	g[5] = g[4];
+	g[4] = 0.0;
+	gRev = g.Inverse();
+
 	PaintGrid(dc);
 }
 
 void CanvasMeasurementGrid::PaintGrid(wxDC &dc) {
+	wxSize sd = dc.GetSize();
 
-	dc.SetPen(*wxGREY_PEN);
+	wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(200, 200, 200), 1);
+	wxPen *c1 = wxThePenList->FindOrCreatePen(wxColour(150, 150, 150), 1);
+	wxPen *c2 = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1);
+
+	Vector3 topleft = gRev( { 0, 0, 0 });
+	Vector3 bottomright = gRev(Vector3(sd.x, sd.y, 0));
+
+	double minX = topleft.x;
+	double maxX = bottomright.x;
+	double minY = bottomright.y;
+	double maxY = topleft.y;
 
 	int x0 = (int) ceil(unit.FromSI(minX));
 	int x1 = (int) floor(unit.FromSI(maxX));
 	int y0 = (int) ceil(unit.FromSI(minY));
 	int y1 = (int) floor(unit.FromSI(maxY));
+
+	dc.SetPen(*c0);
 	for (int x = x0; x <= x1; ++x) {
 		double xx = unit.ToSI((double) x);
-		dc.DrawLine(xx * 1000, minY * 1000, xx * 1000, maxY * 1000);
+		if (x % multiplier == 0) {
+			if (x == 0)
+				dc.SetPen(*c2);
+			else
+				dc.SetPen(*c1);
+		}
+
+		Vector3 p0 = g.Transform(xx, minY);
+		Vector3 p1 = g.Transform(xx, maxY);
+
+		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
+		if (x % multiplier == 0)
+			dc.SetPen(*c0);
+
 	}
+	dc.SetPen(*c0);
 	for (int y = y0; y <= y1; ++y) {
 		double yy = unit.ToSI((double) y);
-		dc.DrawLine(minX * 1000, yy * 1000, maxX * 1000, yy * 1000);
+		if (y % multiplier == 0) {
+			if (y == 0)
+				dc.SetPen(*c2);
+			else
+				dc.SetPen(*c1);
+		}
+		Vector3 p0 = g.Transform(minX, yy);
+		Vector3 p1 = g.Transform(maxX, yy);
+		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
+		if (y % multiplier == 0)
+			dc.SetPen(*c0);
 	}
 	dc.SetPen(*wxBLACK_PEN);
-	dc.DrawLine(0 * 1000, minY * 1000, 0 * 1000, maxY * 1000);
-	dc.DrawLine(minX * 1000, 0 * 1000, maxX * 1000, 0 * 1000);
 }
 

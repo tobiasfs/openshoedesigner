@@ -55,7 +55,7 @@ ProjectView::ProjectView() :
 	showLastScan = false;
 	showLast = true;
 	showInsole = true;
-	showSole = false;
+	showHeel = false;
 	showUpper = false;
 	showCutaway = false;
 	showFloor = false;
@@ -245,7 +245,7 @@ void ProjectView::Paint(bool usePicking) const {
 			glPopName();
 		}
 
-		if (showSole) {
+		if (showHeel) {
 			glPushName(12);
 			matInsole.UseMaterial();
 			project->heelL->Paint();
@@ -326,7 +326,7 @@ void ProjectView::Paint(bool usePicking) const {
 			glPopName();
 		}
 
-		if (showSole) {
+		if (showHeel) {
 			glPushName(12);
 			matInsole.UseMaterial();
 			project->heelR->Paint();

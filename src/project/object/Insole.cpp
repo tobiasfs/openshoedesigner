@@ -69,7 +69,8 @@ bool Insole::Line::IsInside(const double r) const {
 
 void Insole::Line::Paint() const {
 	glBegin(GL_LINE_STRIP);
-	for (double r = -0.0; r < 1.0001; r += 0.01) {
+	for (uint8_t n = 0; n <= 100; ++n) {
+		const double r = (double) n * 0.01;
 		glVertex3d(x(r), y(r), z(r));
 	}
 	glEnd();
@@ -93,26 +94,26 @@ void Insole::Transform(std::function<Vector3(Vector3)> func) {
 	L.Transform(func);
 	N.Transform(func);
 	Z.Transform(func);
-	for (auto &p : outline) {
-		p.p = func(p.p);
-	}
+	Polygon3::Transform(func);
+	this->CalculateNormals();
+	for (auto &line : lines)
+		line.Transform(func);
 }
 
 void Insole::Paint() const {
 //	for(auto & line : lines)
 //		line.Paint();
 
-	size_t N = inside.Size();
-	if (outside.Size() < N)
-		N = outside.Size();
+	size_t count = std::min(inside.Size(), outside.Size());
 
 	glBegin(GL_QUAD_STRIP);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < count; ++n) {
 //		if (leftside) {
-			glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
-			glVertex3f(inside[n].x, inside[n].y, inside[n].z);
-			glNormal3f(outside.Normal(n).x, outside.Normal(n).y, outside.Normal(n).z);
-			glVertex3f(outside[n].x, outside[n].y, outside[n].z);
+		glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
+		glVertex3f(inside[n].x, inside[n].y, inside[n].z);
+		glNormal3f(outside.Normal(n).x, outside.Normal(n).y,
+				outside.Normal(n).z);
+		glVertex3f(outside[n].x, outside[n].y, outside[n].z);
 //		} else {
 //			glNormal3f(outside.Normal(n).x, outside.Normal(n).y, outside.Normal(n).z);
 //			glVertex3f(outside[n].x, outside[n].y, outside[n].z);

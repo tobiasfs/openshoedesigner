@@ -34,63 +34,63 @@ std::string FootModelLoad::GetName() const {
 }
 
 bool FootModelLoad::CanRun() {
-	if (!filename || !out) {
+	std::string missing;
+
+	if (!filename)
+		missing += missing.empty() ? "\"filename\"" : ", \"filename\"";
+	if (!out)
+		missing += missing.empty() ? "\"out\"" : ", \"out\"";
+
+	if (!missing.empty()) {
 		std::ostringstream err;
-		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
-		if (!filename)
-			err << " Input \"filename\" not connected.";
-		if (!out)
-			err << " Output \"out\" not set.";
+		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
+				<< __FUNCTION__ << " -";
+		err << "The variables " << missing << " are not connected.";
 		error = err.str();
 		throw std::logic_error(err.str());
 	}
 
-	if (filename->GetString().empty()) {
-		error = "Input \"filename\" is empty.";
-		return false;
-	}
-
-	std::filesystem::path fn(filename->GetString());
-	if (!std::filesystem::exists(fn)) {
-		error = "The file " + filename->GetString() + " does not exist.";
-		return false;
-	}
-
 	error.clear();
-	return true;
+
+	if (filename->GetString().empty()) {
+		error += " Input \"filename\" for FootModelLoad is empty.";
+	} else {
+		std::filesystem::path fn(filename->GetString());
+		if (!std::filesystem::exists(fn)) {
+			error += " The file \"" + filename->GetString()
+					+ "\" does not exist.";
+		}
+	}
+
+	return error.empty();
 }
 
 bool FootModelLoad::Propagate() {
-	bool modify = false;
-	if (!out || !filename)
+	if (!filename || !out)
 		return false;
 
-	if (filename->IsModified()) {
+	bool modify = false;
+
+	if (filename->IsModified() || filename->GetString().empty()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
 
-	if (filename->GetString().empty()) {
-		modify |= out->IsValid();
-		out->MarkValid(false);
+	if (modify)
 		return modify;
-	}
 
 	std::filesystem::path fn(filename->GetString());
-
 	if (!std::filesystem::exists(fn)) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 		return modify;
 	}
-
 	// Check, if the file on drive is modified.
 	auto timeModified = std::filesystem::last_write_time(fn);
 	if (timeModified != lastModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
-
 	return modify;
 }
 

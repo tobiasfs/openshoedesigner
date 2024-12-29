@@ -1367,7 +1367,6 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 
 	// Check selected
 
-	//TODO Keep track of the selection concept.
 	for (const auto idx : selected) {
 		if (idx >= v.size()) {
 			std::cerr << "In selected the vertex index " << idx
@@ -1808,7 +1807,8 @@ const Geometry::Vertex& Geometry::GetEdgeVertex(const size_t indexEdge,
 	const size_t vidx = ed.VertexIndex(indexVertex);
 	if (vidx >= v.size())
 		throw std::range_error(
-				std::string(__FUNCTION__) + " - Index not found in vertex array.");
+				std::string(__FUNCTION__)
+						+ " - Index not found in vertex array.");
 	return v[vidx];
 }
 
@@ -1834,7 +1834,8 @@ const Geometry::Vertex& Geometry::GetTriangleVertex(const size_t indexTriangle,
 	const size_t vidx = tri.VertexIndex(indexVertex);
 	if (vidx >= v.size())
 		throw std::range_error(
-				std::string(__FUNCTION__) + " - Index not found in vertex array.");
+				std::string(__FUNCTION__)
+						+ " - Index not found in vertex array.");
 	return v[vidx];
 }
 
@@ -1864,11 +1865,11 @@ void Geometry::Transform(const AffineTransformMatrix &matrix) {
 }
 
 void Geometry::Transform(std::function<Vector3(Vector3)> func) {
-	//FIXME Check if the temp vector is still needed
 	//TODO Modify the normals as well.
 	for (Vertex &vertex : v) {
-		Vector3 temp(vertex.x, vertex.y, vertex.z);
-		temp = func(temp);
+		//FIXME Check if the temp vector is still needed
+//		Vector3 temp(vertex.x, vertex.y, vertex.z);
+		Vector3 temp = func(vertex);
 		vertex.x = temp.x;
 		vertex.y = temp.y;
 		vertex.z = temp.z;
@@ -2131,7 +2132,8 @@ Polygon3 Geometry::IntersectPlane(const Vector3 &n_, double d) const {
 		edge_wrong += (c <= 0.0) ? 1 : 0;
 	}
 	if (edge_wrong > 0) {
-		std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
+		std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__
+				<< " - ";
 		std::cout << "correct edges: " << edge_correct << ", ";
 		std::cout << "wrong edges: " << edge_wrong << "\n";
 	}
@@ -2379,10 +2381,10 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 	glPushName(group);
 	glBegin(GL_TRIANGLES);
 	if (smooth) {
-		for (size_t i = 0; i < t.size(); ++i) {
+		for (const Triangle &tri : t) {
 
-			if (t[i].group != group) {
-				group = (GLuint) (t[i].group % (nothing));
+			if (tri.group != group) {
+				group = (GLuint) (tri.group % (nothing));
 				skip = ((!invert && sel.find(group) == sel.end())
 						|| (invert && sel.find(group) != sel.end()));
 				if (skip)
@@ -2395,13 +2397,13 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 			if (skip)
 				continue;
 
-			const size_t idx_a = t[i].va;
-			const size_t idx_b = (t[i].flip) ? t[i].vc : t[i].vb;
-			const size_t idx_c = (t[i].flip) ? t[i].vb : t[i].vc;
+			const size_t idx_a = tri.va;
+			const size_t idx_b = (tri.flip) ? tri.vc : tri.vb;
+			const size_t idx_c = (tri.flip) ? tri.vb : tri.vc;
 
-			const size_t idx_ea = (t[i].flip) ? t[i].ec : t[i].ea;
-			const size_t idx_eb = t[i].eb;
-			const size_t idx_ec = (t[i].flip) ? t[i].ea : t[i].ec;
+			const size_t idx_ea = (tri.flip) ? tri.ec : tri.ea;
+			const size_t idx_eb = tri.eb;
+			const size_t idx_ec = (tri.flip) ? tri.ea : tri.ec;
 
 			auto va = v[idx_a];
 			auto vb = v[idx_b];
@@ -2423,15 +2425,15 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 				if (e[idx_ea].sharp) {
 					if (e[idx_eb].sharp) {
 						if (e[idx_ec].sharp) {
-							na = nb = nc = t[i].n;
+							na = nb = nc = tri.n;
 						} else {
 							na = nc = e[idx_ec].n;
-							nb = t[i].n;
+							nb = tri.n;
 						}
 					} else {
 						if (e[idx_ec].sharp) {
 							nb = nc = e[idx_eb].n;
-							na = t[i].n;
+							na = tri.n;
 						} else {
 							na = e[idx_ec].n;
 							nb = e[idx_eb].n;
@@ -2442,7 +2444,7 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 					if (e[idx_eb].sharp) {
 						if (e[idx_ec].sharp) {
 							na = nb = e[idx_ea].n;
-							nc = t[i].n;
+							nc = tri.n;
 						} else {
 							nb = e[idx_ea].n;
 							nc = e[idx_ec].n;
@@ -2473,41 +2475,41 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 			}
 
 			if (useNormals)
-				glNormal3f(na.x, na.y, na.z);
+				GLNormal(na);
 			if (verticesHaveColor)
 				glColor4f(ca.r, ca.g, ca.b, ca.a);
-			glVertex3f(va.x, va.y, va.z);
+			GLVertex(va);
 			if (useNormals)
-				glNormal3f(nb.x, nb.y, nb.z);
+				GLNormal(nb);
 			if (verticesHaveColor)
 				glColor4f(cb.r, cb.g, cb.b, cb.a);
-			glVertex3f(vb.x, vb.y, vb.z);
+			GLVertex(vb);
 			if (useNormals)
-				glNormal3f(nc.x, nc.y, nc.z);
+				GLNormal(nc);
 			if (verticesHaveColor)
 				glColor4f(cc.r, cc.g, cc.b, cc.a);
-			glVertex3f(vc.x, vc.y, vc.z);
+			GLVertex(vc);
 
-//			glNormal3d(v[t[i].va].n.x, v[t[i].va].n.y, v[t[i].va].n.z);
-//			glVertex3d(v[t[i].va].x, v[t[i].va].y, v[t[i].va].z);
-//			glNormal3d(v[t[i].vb].n.x, v[t[i].vb].n.y, v[t[i].vb].n.z);
-//			glVertex3d(v[t[i].vb].x, v[t[i].vb].y, v[t[i].vb].z);
-//			glNormal3d(v[t[i].vc].n.x, v[t[i].vc].n.y, v[t[i].vc].n.z);
-//			glVertex3d(v[t[i].vc].x, v[t[i].vc].y, v[t[i].vc].z);
+//			glNormal3d(v[tri.va].n.x, v[tri.va].n.y, v[tri.va].n.z);
+//			glVertex3d(v[tri.va].x, v[tri.va].y, v[tri.va].z);
+//			glNormal3d(v[tri.vb].n.x, v[tri.vb].n.y, v[tri.vb].n.z);
+//			glVertex3d(v[tri.vb].x, v[tri.vb].y, v[tri.vb].z);
+//			glNormal3d(v[tri.vc].n.x, v[tri.vc].n.y, v[tri.vc].n.z);
+//			glVertex3d(v[tri.vc].x, v[tri.vc].y, v[tri.vc].z);
 		}
 
 	} else {
-		for (size_t i = 0; i < t.size(); ++i) {
+		for (const Triangle &tri : t) {
 //			const double a = 2.0 * M_PI * i / t.size();
 //			const double r = (1.0 + cos(a)) / 2.0;
 //			const double g = (1.0 + cos(a + M_PI / 1.5)) / 2.0;
 //			const double b = (1.0 + cos(a + 2.0 * M_PI / 1.5)) / 2.0;
 //			glColor3d(r, g, b);
 
-			if (t[i].group != group) {
-				group = (GLuint) (t[i].group % (nothing));
-				skip = ((!invert && sel.find(t[i].group) == sel.end())
-						|| (invert && sel.find(t[i].group) != sel.end()));
+			if (tri.group != group) {
+				group = (GLuint) (tri.group % (nothing));
+				skip = ((!invert && sel.find(tri.group) == sel.end())
+						|| (invert && sel.find(tri.group) != sel.end()));
 				if (skip)
 					continue;
 				glEnd();
@@ -2517,21 +2519,21 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 			if (skip)
 				continue;
 
-			//			glColor3f(0.5 + cos(2 * M_PI / 20.0 * t[i].group) * 0.5,
+			//			glColor3f(0.5 + cos(2 * M_PI / 20.0 * tri.group) * 0.5,
 			//					0.5
 			//							+ cos(
-			//									2 * M_PI / 20.0 * t[i].group
+			//									2 * M_PI / 20.0 * tri.group
 			//											+ M_PI * 2.0 / 3.0) * 0.5,
 			//					0.5
 			//							+ cos(
-			//									2 * M_PI / 20.0 * t[i].group
+			//									2 * M_PI / 20.0 * tri.group
 			//											+ M_PI * 4.0 / 3.0) * 0.5);
 
-			const size_t idx_a = t[i].va;
-			const size_t idx_b = (t[i].flip) ? t[i].vc : t[i].vb;
-			const size_t idx_c = (t[i].flip) ? t[i].vb : t[i].vc;
+			const size_t idx_a = tri.va;
+			const size_t idx_b = (tri.flip) ? tri.vc : tri.vb;
+			const size_t idx_c = (tri.flip) ? tri.vb : tri.vc;
 
-			const auto n = t[i].n;
+			const auto n = tri.n;
 			const auto va = v[idx_a];
 			const auto vb = v[idx_b];
 			const auto vc = v[idx_c];
@@ -2540,16 +2542,16 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 			const auto cc = v[idx_c].c;
 
 			if (trianglesHaveNormal)
-				glNormal3d(n.x, n.y, n.z);
+				GLNormal(n);
 			if (verticesHaveColor)
 				glColor4f(ca.r, ca.g, ca.b, ca.a);
-			glVertex3d(va.x, va.y, va.z);
+			GLVertex(va);
 			if (verticesHaveColor)
 				glColor4f(cb.r, cb.g, cb.b, cb.a);
-			glVertex3d(vb.x, vb.y, vb.z);
+			GLVertex(vb);
 			if (verticesHaveColor)
 				glColor4f(cc.r, cc.g, cc.b, cc.a);
-			glVertex3d(vc.x, vc.y, vc.z);
+			GLVertex(vc);
 		}
 	}
 	glEnd();
@@ -2557,13 +2559,13 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 
 	if (paintNormals && !smooth && trianglesHaveNormal) {
 		glBegin(GL_LINES);
-		for (size_t i = 0; i < t.size(); ++i) {
-			glNormal3f(t[i].n.x, t[i].n.y, t[i].n.z);
-			const Vector3 center = (v[t[i].va] + v[t[i].vb] + v[t[i].vc]) / 3.0;
+		for (const Triangle &tri : t) {
+			glNormal3f(tri.n.x, tri.n.y, tri.n.z);
+			const Vector3 center = (v[tri.va] + v[tri.vb] + v[tri.vc]) / 3.0;
 			glColor3f(1.0, 0.0, 0.0);
-			GLVertex(center - t[i].n * normalscale);
+			GLVertex(center - tri.n * normalscale);
 			glColor3f(0.0, 1.0, 0.0);
-			GLVertex(center + t[i].n * normalscale);
+			GLVertex(center + tri.n * normalscale);
 
 		}
 		glEnd();
@@ -2580,9 +2582,9 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 	glPushName(group);
 	glBegin(GL_LINES);
 	if (smooth) {
-		for (size_t i = 0; i < e.size(); ++i) {
-			if (e[i].group != group) {
-				group = (GLuint) (e[i].group % (nothing));
+		for (const Edge &ed : e) {
+			if (ed.group != group) {
+				group = (GLuint) (ed.group % (nothing));
 				skip = ((!invert && sel.find(group) == sel.end())
 						|| (invert && sel.find(group) != sel.end()));
 				if (skip)
@@ -2593,17 +2595,22 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 			}
 			if (skip)
 				continue;
-			if (!e[i].sharp)
+			if (!ed.sharp)
 				continue;
-			glNormal3f(v[e[i].va].n.x, v[e[i].va].n.y, v[e[i].va].n.z);
-			glVertex3f(v[e[i].va].x, v[e[i].va].y, v[e[i].va].z);
-			glNormal3f(v[e[i].vb].n.x, v[e[i].vb].n.y, v[e[i].vb].n.z);
-			glVertex3f(v[e[i].vb].x, v[e[i].vb].y, v[e[i].vb].z);
+
+			GLNormal(v[ed.va].n);
+			GLVertex(v[ed.va]);
+			GLNormal(v[ed.vb].n);
+			GLVertex(v[ed.vb]);
+			//			glNormal3f(v[ed.va].n.x, v[ed.va].n.y, v[ed.va].n.z);
+//			glVertex3f(v[ed.va].x, v[ed.va].y, v[ed.va].z);
+//			glNormal3f(v[ed.vb].n.x, v[ed.vb].n.y, v[ed.vb].n.z);
+//			glVertex3f(v[ed.vb].x, v[ed.vb].y, v[ed.vb].z);
 		}
 	} else {
-		for (size_t i = 0; i < e.size(); ++i) {
-			if (e[i].group != group) {
-				group = (GLuint) (e[i].group % (nothing));
+		for (const Edge &ed : e) {
+			if (ed.group != group) {
+				group = (GLuint) (ed.group % (nothing));
 				skip = ((!invert && sel.find(group) == sel.end())
 						|| (invert && sel.find(group) != sel.end()));
 				if (skip)
@@ -2614,18 +2621,17 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 			}
 			if (skip)
 				continue;
-//			if (!e[i].sharp)
+//			if (!ed.sharp)
 //				continue;
 
 //			const double a = 2.0 * M_PI / 20.0 * (double) i;
 //			glColor3f(0.5 + cos(a) * 0.5, 0.5 + cos(a + M_PI * 2.0 / 3.0) * 0.5,
 //					0.5 + cos(a + M_PI * 4.0 / 3.0) * 0.5);
-
 //			glColor3f(0.8, 0.8, 0.8);
 
-			glNormal3d(e[i].n.x, e[i].n.y, e[i].n.z);
-			glVertex3d(v[e[i].va].x, v[e[i].va].y, v[e[i].va].z);
-			glVertex3d(v[e[i].vb].x, v[e[i].vb].y, v[e[i].vb].z);
+			GLNormal(ed.n);
+			GLVertex(v[ed.va]);
+			GLVertex(v[ed.vb]);
 		}
 	}
 	glEnd();
@@ -2663,9 +2669,7 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 			GLNormal(ed.n);
 			const Vector3 center = (v[ed.va] + v[ed.vb]) / 2.0;
 			GLVertex(center);
-			glVertex3d(center.x + ed.n.x * normalscale,
-					center.y + ed.n.y * normalscale,
-					center.z + ed.n.z * normalscale);
+			GLVertex(center + ed.n * normalscale);
 		}
 		glEnd();
 	}

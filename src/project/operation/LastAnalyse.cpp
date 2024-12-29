@@ -47,29 +47,39 @@ std::string LastAnalyse::GetName() const {
 }
 
 bool LastAnalyse::CanRun() {
-	if (in && out) {
-		error.clear();
-		return true;
-	}
-	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
+	std::string missing;
+
+	if (!lastReorient)
+		missing += missing.empty() ? "\"lastReorient\"" : ", \"lastReorient\"";
 	if (!in)
-		err << " Input \"in\" not connected.";
+		missing += missing.empty() ? "\"in\"" : ", \"in\"";
 	if (!out)
-		err << " Output \"out\" not set.";
-	throw std::logic_error(err.str());
+		missing += missing.empty() ? "\"out\"" : ", \"out\"";
+
+	if (!missing.empty()) {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
+				<< __FUNCTION__ << " -";
+		err << "The variables " << missing << " are not connected.";
+		error = err.str();
+		throw std::logic_error(err.str());
+	}
+
+	error.clear();
+
+	return error.empty();
 }
 
 bool LastAnalyse::Propagate() {
-	bool modify = false;
-	if (!in || !out)
+	if (!lastReorient || !in || !out)
 		return false;
 
-	if (!in->IsValid()) {
+	bool modify = false;
+
+	if (!in->IsValid() || lastReorient->IsModified()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
-
 	if (out->IsNeeded()) {
 		modify |= !in->IsNeeded();
 		in->MarkNeeded(true);

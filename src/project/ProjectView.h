@@ -62,7 +62,7 @@ public:
 
 	std::vector<BackgroundImage> background;
 
-	Display display = Display::Shoe;
+	Display display = Display::Insole;
 	Side active;
 
 	bool showLeft;
@@ -76,7 +76,7 @@ public:
 	bool showLastScan;
 	bool showLast;
 	bool showInsole;
-	bool showSole;
+	bool showHeel;
 	bool showUpper;
 	bool showCutaway;
 	bool showFloor;

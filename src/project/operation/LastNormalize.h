@@ -35,11 +35,12 @@
  * is needed to result in a left side last.
  */
 
-#include "../object/ObjectGeometry.h"
-#include "Operation.h"
-
 #include "../../3D/Polygon3.h"
 #include "../../math/Symmetry.h"
+#include "../object/ObjectGeometry.h"
+#include "../ParameterEnum.h"
+#include "Operation.h"
+
 #include <memory>
 
 class LastNormalize: public Operation {
@@ -65,6 +66,8 @@ protected:
 	void ReorientLeftRight();
 
 public:
+	std::shared_ptr<ParameterEnum> lastReorient;
+
 	std::shared_ptr<ObjectGeometry> in;
 	std::shared_ptr<ObjectGeometry> out;
 

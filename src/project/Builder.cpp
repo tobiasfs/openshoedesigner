@@ -43,6 +43,11 @@ void Builder::Setup(Project &project) {
 		auto &footL = project.footL;
 		auto &footR = project.footR;
 
+		if (!opCoordinateSystemConstruct) {
+			opCoordinateSystemConstruct = std::make_shared<
+					CoordinateSystemConstruct>();
+			operations.push_back(opCoordinateSystemConstruct);
+		}
 		if (!opFootModelLoad) {
 			opFootModelLoad = std::make_shared<FootModelLoad>();
 			opFootModelLoad->filename = config.filenameBoneModel;
@@ -60,8 +65,21 @@ void Builder::Setup(Project &project) {
 		if (!opFootScanLoad) {
 			opFootScanLoad = std::make_shared<FootScanLoad>();
 			opFootScanLoad->filename = config.filenameScan;
-
 			operations.push_back(opFootScanLoad);
+		}
+		if (!opHeelExtractInsole) {
+			opHeelExtractInsole = std::make_shared<HeelExtractInsole>();
+			operations.push_back(opHeelExtractInsole);
+		}
+		if (!opHeelLoad) {
+			opHeelLoad = std::make_shared<ObjectLoad>();
+			opHeelLoad->filename = config.filenameHeel;
+			operations.push_back(opHeelLoad);
+		}
+		if (!opHeelNormalize) {
+			opHeelNormalize = std::make_shared<HeelNormalize>();
+			opHeelNormalize->heelReorient = config.heelReorient;
+			operations.push_back(opHeelNormalize);
 		}
 		if (!opInsoleConstruct) {
 			opInsoleConstruct = std::make_shared<InsoleConstruct>();
@@ -76,6 +94,10 @@ void Builder::Setup(Project &project) {
 			opInsoleConstruct->extraLength = config.extraLength;
 			operations.push_back(opInsoleConstruct);
 		}
+		if (!opInsoleFlatten) {
+			opInsoleFlatten = std::make_shared<InsoleFlatten>();
+			operations.push_back(opInsoleFlatten);
+		}
 		if (!opInsoleTransform) {
 			opInsoleTransform = std::make_shared<InsoleTransform>();
 			opInsoleTransform->heelPitch = config.heelPitch;
@@ -85,24 +107,30 @@ void Builder::Setup(Project &project) {
 			opInsoleTransform->legLengthDifference = footL.legLengthDifference;
 			operations.push_back(opInsoleTransform);
 		}
-
+		if (!opLastAnalyse) {
+			opLastAnalyse = std::make_shared<LastAnalyse>();
+			opLastAnalyse->lastReorient = config.lastReorient;
+			operations.push_back(opLastAnalyse);
+		}
 		if (!opLastLoad) {
 			opLastLoad = std::make_shared<ObjectLoad>();
 			opLastLoad->filename = config.filenameLast;
 			operations.push_back(opLastLoad);
 		}
-		if (!opNormalize) {
-			opNormalize = std::make_shared<LastNormalize>();
-			operations.push_back(opNormalize);
+		if (!opLastNormalize) {
+			opLastNormalize = std::make_shared<LastNormalize>();
+			opLastNormalize->lastReorient = config.lastReorient;
+			operations.push_back(opLastNormalize);
 		}
-		if (!opAnalyse) {
-			opAnalyse = std::make_shared<LastAnalyse>();
-			operations.push_back(opAnalyse);
-		}
-		if (!opHeelLoad) {
-			opHeelLoad = std::make_shared<ObjectLoad>();
-			opHeelLoad->filename = config.filenameHeel;
-			operations.push_back(opHeelLoad);
+		if (!opLastUpdate) {
+			opLastUpdate = std::make_shared<LastUpdate>();
+			opLastUpdate->lastModify = config.lastModify;
+			opLastUpdate->heelPitch = config.heelPitch;
+			opLastUpdate->toeSpring = config.toeSpring;
+			opLastUpdate->heelHeight = config.heelHeight;
+			opLastUpdate->ballHeight = config.ballHeight;
+			opLastUpdate->legLengthDifference = footL.legLengthDifference;
+			operations.push_back(opLastUpdate);
 		}
 	}
 	Connect(project);
@@ -113,31 +141,45 @@ void Builder::Connect(Project &project) {
 
 	const bool symmetric = (project.footL == project.footR);
 
-	if (config.lastConstructionType->IsSelection("construct")) {
-		opInsoleTransform->in = opInsoleConstruct->insole;
+	if (config.heelConstructionType->IsSelection("construct")) {
+		opInsoleTransform->in = opInsoleConstruct->out;
+		project.insoleFlatL = opInsoleConstruct->out;
 		project.insoleL = opInsoleTransform->out;
-		project.insoleR = opInsoleTransform->out;
+		project.insoleFlatR = project.insoleFlatL;
+		project.insoleR = project.insoleL;
+	}
+
+	if (config.heelConstructionType->IsSelection("loadFromFile")) {
+		opHeelNormalize->in = opHeelLoad->out;
+		project.heelL = opHeelNormalize->out;
+		opHeelExtractInsole->in = opHeelNormalize->out;
+		project.insoleL = opHeelExtractInsole->out;
+		opInsoleFlatten->in = project.insoleL;
+		project.insoleFlatL = opInsoleFlatten->out;
+
+		project.heelR = project.heelL;
+		project.insoleFlatR = project.insoleFlatL;
+		project.insoleR = project.insoleL;
+	}
+
+	if (config.lastConstructionType->IsSelection("construct")) {
 
 	}
+
 	if (config.lastConstructionType->IsSelection("boneBased")) {
 		opFootModelUpdate->in = opFootModelLoad->out;
 
 	}
 	if (config.lastConstructionType->IsSelection("loadFromFile")) {
-		opNormalize->in = opLastLoad->out;
-		opAnalyse->in = opNormalize->out;
-		project.lastR = opAnalyse->out;
-		project.lastL = opAnalyse->out;
+		opLastNormalize->in = opLastLoad->out;
+		opLastAnalyse->in = opLastNormalize->out;
+		project.lastR = opLastAnalyse->out;
+		project.lastL = opLastAnalyse->out;
 	}
 
-	if (config.heelConstructionType->IsSelection("construct")) {
-
-	}
-
-	if (config.heelConstructionType->IsSelection("loadFromFile")) {
-		project.heelR = opHeelLoad->out;
-		project.heelL = opHeelLoad->out;
-	}
+	opCoordinateSystemConstruct->in = project.insoleL;
+	project.csL = opCoordinateSystemConstruct->out;
+	project.csR = project.csL;
 }
 
 void Builder::Update(Project &project) {
@@ -168,16 +210,18 @@ void Builder::Update(Project &project) {
 	}
 
 	// Single threaded execution for debugging
-
+	DEBUGOUT << "----- Updating -----\n";
 	bool operations_complete = false;
 	while (!operations_complete) {
 		operations_complete = true;
 		for (auto &op : operations)
 			if (op->HasToRun() && op->CanRun()) {
+				DEBUGOUT << "-> running: " << op->GetName() << "\n";
 				op->Run();
 				operations_complete = false;
 			}
 	}
+	DEBUGOUT << "----- done -----\n";
 }
 
 void Builder::Paint() const {

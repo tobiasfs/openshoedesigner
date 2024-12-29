@@ -25,6 +25,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Operation.h"
 
+std::string Operation::GetName() const {
+	return "Operation (base class)";
+}
+
 #ifdef DEBUG
 void Operation::Paint() const {
 	// Nothing

@@ -68,12 +68,12 @@ class Vector3;
 class AffineTransformMatrix {
 public:
 	enum class Orientation {
-		RHS, //!< Right-handed system
-		LHS //!< Left-handed system
-	};
+		RHS, ///< Right-handed system
+		LHS ///< Left-handed system
+	}; ///< Hande3dness of the coordinate system.
 	enum class Style {
 		Lines, BasePlane, Planes, Cylinder, Box, BoxWithoutColors
-	};
+	}; ///< Drawing style for displaying the coordinate-system defined by the matrix.
 
 	AffineTransformMatrix();
 	explicit AffineTransformMatrix(Orientation orientation_);
@@ -82,18 +82,18 @@ public:
 	explicit AffineTransformMatrix(const std::string &numbers);
 
 private:
-	std::array<double, 16> a; //!< Transformation matrix
-	Orientation orientation = Orientation::RHS; //!< Handedness of the coordinate system
+	std::array<double, 16> a; ///< Transformation matrix
+	Orientation orientation = Orientation::RHS; ///< Handedness of the coordinate system
 
 public:
-	void SetOrientation(Orientation orientation_); //!< Preset the behavior for future Set and Calculate operations
-	Orientation GetOrientation() const; //!< Return the orientation flag
-	Orientation CheckOrientation() const; //!< Calculate the orientations of the coordinate system by analyzing the matrix
-	void UpdateOrientation(); //!< Set the orientation flag according the the matrix values
+	void SetOrientation(Orientation orientation_); ///< Preset the behavior for future Set and Calculate operations
+	Orientation GetOrientation() const; ///< Return the orientation flag
+	Orientation CheckOrientation() const; ///< Calculate the orientations of the coordinate system by analyzing the matrix
+	void UpdateOrientation(); ///< Set the orientation flag according the the matrix values
 
-	void SetIdentity(); //!< Resets the matrix to the identity matrix.
-	void SetZero(); //!< Set the matrix to all zeros.
-	void ResetRotationAndScale(); //!< Resets the rotation and scale, but keeps the translation
+	void SetIdentity(); ///< Resets the matrix to the identity matrix.
+	void SetZero(); ///< Set the matrix to all zeros.
+	void ResetRotationAndScale(); ///< Resets the rotation and scale, but keeps the translation
 
 	void SetOrigin(const Vector3 &center);
 
@@ -104,12 +104,10 @@ public:
 	void CalculateEy();
 	void CalculateEz();
 
-	Vector3 GetOrigin() const; //!< Returns the center point of the matrix.
+	Vector3 GetOrigin() const; ///< Returns the center point of the matrix.
 	Vector3 GetEx() const;
 	Vector3 GetEy() const;
 	Vector3 GetEz() const;
-
-
 
 	/**\brief Axis of rotation
 	 * Not normalized vector of the axis of rotation.
@@ -143,7 +141,7 @@ public:
 	 * \return Normalized matrix
 	 */
 	AffineTransformMatrix Normal() const;
-	void Normalize(); //!< Normalizes the matrix.
+	void Normalize(); ///< Normalizes the matrix.
 
 	/**\brief Normalizes and then orthogonalizes the matrix.
 	 *
@@ -152,17 +150,17 @@ public:
 	 */
 	void Orthogonalize();
 
-	AffineTransformMatrix& operator*=(const AffineTransformMatrix &b); //!< Overloaded operator to allow correct multiplication of two matrices.
-	AffineTransformMatrix operator*(const AffineTransformMatrix &b) const; //!< Overloaded operator to allow correct multiplication of two matrices.
+	AffineTransformMatrix& operator*=(const AffineTransformMatrix &b); ///< Overloaded operator to allow correct multiplication of two matrices.
+	AffineTransformMatrix operator*(const AffineTransformMatrix &b) const; ///< Overloaded operator to allow correct multiplication of two matrices.
 
 	/*!\brief  Overloaded operator to allow correct division of two matrices.
 	 *
 	 * The division is done by inverting the second matrix and the multiplying both.
 	 */
-	AffineTransformMatrix& operator/=(const AffineTransformMatrix &b);
-	AffineTransformMatrix operator/(const AffineTransformMatrix &b) const; //!< Overloaded operator to allow correct division of two matrices.
+	AffineTransformMatrix& operator/=(const AffineTransformMatrix &b); ///< Overloaded operator to allow correct division of two matrices.
+	AffineTransformMatrix operator/(const AffineTransformMatrix &b) const; ///< Overloaded operator to allow correct division of two matrices.
 
-	void Invert(); //!< Inverts the matrix itself
+	void Invert(); ///< Inverts the matrix itself
 
 	/*! \brief Returns the inverted matrix
 	 *
@@ -173,8 +171,8 @@ public:
 	 */
 	AffineTransformMatrix Inverse() const;
 
-	static AffineTransformMatrix Identity(); //!< Function returning an identity matrix.
-	static AffineTransformMatrix Zero(); //!< Function returning an all-zero matrix.
+	static AffineTransformMatrix Identity(); ///< Function returning an identity matrix.
+	static AffineTransformMatrix Zero(); ///< Function returning an all-zero matrix.
 
 	static AffineTransformMatrix Translation(double x, double y, double z);
 	static AffineTransformMatrix Translation(Vector3 translation);
@@ -201,7 +199,7 @@ public:
 	 * Every rotation (around x, around y and around z) is done
 	 * in infinitesimal small steps. On step around x, one step around y, ...
 	 *
-	 * This results in a rotation as expected from a 6 DOF controller.
+	 * This results in a rotation as expected from a 6-DOF controller.
 	 */
 
 	static AffineTransformMatrix RotationInterwoven(double x, double y,
@@ -253,22 +251,22 @@ public:
 	static AffineTransformMatrix Orthogonal(double left, double right,
 			double bottom, double top, double znear, double zfar);
 
-	void TranslateGlobal(double x, double y, double z); //!< Translate matrix in the global coordinate system.
-	void TranslateLocal(double x, double y, double z); //!< Translate matrix in the local, rotated coordinate system.
+	void TranslateGlobal(double x, double y, double z); ///< Translate matrix in the global coordinate system.
+	void TranslateLocal(double x, double y, double z); ///< Translate matrix in the local, rotated coordinate system.
 
-	void ScaleGlobal(double x, double y, double z); //!< Scale matrix in the global coordinate system.
-	void ScaleLocal(double x, double y, double z); //!< Scale matrix in the local coordinate system.
+	void ScaleGlobal(double x, double y, double z); ///< Scale matrix in the global coordinate system.
+	void ScaleLocal(double x, double y, double z); ///< Scale matrix in the local coordinate system.
 
-	void ShiftTransformPosition(const Vector3 &p); //!< Previous rotations and scalings will be transform around the given point p.
+	void ShiftTransformPosition(const Vector3 &p); ///< Previous rotations and scalings will be transform around the given point p.
 
-	Vector3 Transform(const Vector3 &v) const; //!< Apply the transformation matrix on a given vector.
+	Vector3 Transform(const Vector3 &v) const; ///< Apply the transformation matrix on a given vector.
 	Vector3 Transform(const double x, const double y = 0.0,
 			const double z = 0.0) const;
-	Vector3 TransformWithoutShift(const Vector3 &v) const; //!< Apply the transformation matrix on a given vector without shifting the vector.
+	Vector3 TransformWithoutShift(const Vector3 &v) const; ///< Apply the transformation matrix on a given vector without shifting the vector.
 	Vector3 TransformWithoutShift(const double x, const double y = 0.0,
 			const double z = 0.0) const;
 	Vector3 operator*(const Vector3 &v) const;
-	Vector3 operator()(const Vector3 &v) const; //!< Operator reference for Vector3 transformations.
+	Vector3 operator()(const Vector3 &v) const; ///< Operator reference for Vector3 transformations.
 	Vector3 operator()(const double x, const double y = 0.0, const double z =
 			0.0) const;
 
@@ -284,18 +282,25 @@ public:
 
 	double Distance(const AffineTransformMatrix &other) const;
 
-	std::string ToString(); //!< Output the 16 values of the matrix as a vector: "[a0, a1, a2, ..., a15]"
+	std::string ToString(); ///< Output the 16 values of the matrix as a vector: "[a0, a1, a2, ..., a15]"
 
-	void GLMultMatrix() const; //!< Multiply the matrix onto the active OpenGL matrix (right multiply)
-	void GLSetUniformMatrix4(int location) const; //!< Set the mat4 as an uniform in a shader.
-	void GLSetUniformMatrix3(int location) const; //!< Set the mat3 as an uniform in a shader.
+	void GLMultMatrix() const; ///< Multiply the matrix onto the active OpenGL matrix (right multiply)
+	void GLSetUniformMatrix4(int location) const; ///< Set the mat4 as an uniform in a shader.
+	void GLSetUniformMatrix3(int location) const; ///< Set the mat3 as an uniform in a shader.
 	void Paint(const Style style, const double param0 = 1.0,
-			const double param1 = 1.0, const double param2 = 1.0) const; //!< Display the coordinate system in OpenGL
+			const double param1 = 1.0, const double param2 = 1.0) const; ///< Display the coordinate system in OpenGL
 private:
+	/**\brief Set a stock color for displaying the coordinate system in OpenGL.
+	 *
+	 * \param useColors Activate the use of colors. Needed when using Stereo-3D.
+	 * \param color Enumeration of colors: 0 = black, 1 = red, 2 = green, 3 = blue, 4 = white
+	 * \param alpha Opacity
+	 * \param bright Bright variant of the color
+	 */
 	static void SetColor(const bool useColors, const unsigned char color,
-			const double alpha = 1.0, bool bright = false); ///< 0 = red, 1 = green, 2 = blue
-	static void GLVertex(const Vector3 &v);
-	static void GLNormal(const Vector3 &n);
+			const double alpha = 1.0, bool bright = false);
+	static void GLVertex(const Vector3 &v); ///< Helper to send Vector3 to OpenGL as vertex.
+	static void GLNormal(const Vector3 &n); ///< Helper to send Vector3 to OpenGL as normal.
 };
 
 #endif /* L3D_AFFINETRANSFORMMATRIX_H */

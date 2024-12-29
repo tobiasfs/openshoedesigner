@@ -41,11 +41,10 @@
  * extension.
  */
 
-#include "Operation.h"
-
 #include "../../3D/Geometry.h"
 #include "../object/ObjectGeometry.h"
 #include "../ParameterString.h"
+#include "Operation.h"
 
 #include <filesystem>
 #include <memory>
@@ -62,7 +61,6 @@ public:
 	virtual void Run() override;
 
 	std::shared_ptr<ParameterString> filename;
-
 	std::shared_ptr<ObjectGeometry> out;
 
 private:

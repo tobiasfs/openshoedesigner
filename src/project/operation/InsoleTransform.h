@@ -34,12 +34,12 @@
  * Text
  */
 
+#include "../object/Insole.h"
+#include "../ParameterFormula.h"
 #include "Operation.h"
 
-#include "../Configuration.h"
-#include "../object/Insole.h"
-
 #include <memory>
+
 class InsoleTransform: public Operation {
 public:
 	InsoleTransform();
@@ -55,8 +55,6 @@ private:
 	void Shape();
 
 public:
-
-	std::shared_ptr<Configuration> config;
 	std::shared_ptr<ParameterFormula> heelPitch;
 	std::shared_ptr<ParameterFormula> toeSpring;
 	std::shared_ptr<ParameterFormula> heelHeight;

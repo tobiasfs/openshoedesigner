@@ -34,11 +34,10 @@
  * Text
  */
 
-#include "Operation.h"
-
 #include "../../math/NelderMeadOptimizer.h"
-#include "../Configuration.h"
 #include "../foot/FootModel.h"
+#include "../ParameterFormula.h"
+#include "Operation.h"
 
 #include <memory>
 
@@ -57,7 +56,6 @@ protected:
 	void UpdatePosition(const Shoe &shoe, double offset = 0.0, double mixing =
 			0.05);
 public:
-	std::shared_ptr<Configuration> config;
 	std::shared_ptr<ParameterFormula> heelPitch;
 	std::shared_ptr<ParameterFormula> toeSpring;
 	std::shared_ptr<ParameterFormula> heelHeight;

@@ -114,7 +114,6 @@ public:
 	std::vector<Point> x;
 	std::vector<P2> y;
 
-	double looplength = 0.0;
 };
 
 #endif /* MATH_FOURIERTRANSFORM_H */

@@ -168,7 +168,7 @@ bool FrameMain::TransferDataFromWindow() {
 	projectview->showLast = m_menuView->IsChecked(ID_LAST);
 	projectview->showInsole = m_menuView->IsChecked(ID_INSOLE);
 	projectview->showUpper = m_menuView->IsChecked(ID_UPPER);
-	projectview->showSole = m_menuView->IsChecked(ID_SOLE);
+	projectview->showHeel = m_menuView->IsChecked(ID_HEEL);
 	projectview->showCutaway = m_menuView->IsChecked(ID_CUTAWAY);
 	projectview->showFloor = m_menuView->IsChecked(ID_FLOOR);
 	projectview->showCoordinateSystem = m_menuView->IsChecked(
@@ -187,6 +187,13 @@ bool FrameMain::TransferDataToWindow() {
 	const Project *project = wxStaticCast(GetDocument(), Project);
 	const FootMeasurements *meas = projectview->GetActiveFootMeasurements();
 	const auto &config = project->config;
+
+	m_canvasInsole->insoleL =
+			(projectview->showLeft) ? project->insoleFlatL : nullptr;
+	m_canvasInsole->insoleR =
+			(projectview->showRight) ? project->insoleFlatR : nullptr;
+	m_canvasInsole->dL = project->footL.ballWidth->ToDouble() * 0.75;
+	m_canvasInsole->dR = project->footR.ballWidth->ToDouble() * 0.75;
 
 	// Set checkboxes and selections in main menu
 
@@ -225,7 +232,7 @@ bool FrameMain::TransferDataToWindow() {
 	m_menuView->Check(ID_LEG, projectview->showLeg);
 	m_menuView->Check(ID_LAST, projectview->showLast);
 	m_menuView->Check(ID_INSOLE, projectview->showInsole);
-	m_menuView->Check(ID_SOLE, projectview->showSole);
+	m_menuView->Check(ID_HEEL, projectview->showHeel);
 	m_menuView->Check(ID_UPPER, projectview->showUpper);
 	m_menuView->Check(ID_CUTAWAY, projectview->showCutaway);
 	m_menuView->Check(ID_FLOOR, projectview->showFloor);

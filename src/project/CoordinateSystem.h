@@ -35,12 +35,13 @@
 #include "../3D/Polygon3.h"
 #include "../3D/Polynomial3.h"
 #include "../3D/Surface.h"
+#include "object/Object.h"
 
 class FootMeasurements;
 class Insole;
 class LastModel;
 
-class CoordinateSystem: public Surface {
+class CoordinateSystem: public Surface, public Object {
 public:
 //	CoordinateSystem() = default;
 

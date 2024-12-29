@@ -43,8 +43,8 @@ void PCA::Reset() {
 	xx = xy = xz = yy = yz = zz = 0.0;
 }
 
-void PCA::SetCenter(const Vector3 &center) {
-	this->center = center;
+void PCA::SetCenter(const Vector3 &center_) {
+	this->center = center_;
 }
 
 void PCA::Add(const Vector3 &point, double weight_) {
@@ -64,7 +64,7 @@ void PCA::Calculate() {
 	if (weight < FLT_EPSILON)
 		return;
 
-	// Row-wise defined matrix A to analyse:
+	// Row-wise defined matrix A to analyze:
 	Vector3 A1(xx / weight, xy / weight, xz / weight);
 	Vector3 A2(xy / weight, yy / weight, yz / weight);
 	Vector3 A3(xz / weight, yz / weight, zz / weight);
@@ -75,9 +75,11 @@ void PCA::Calculate() {
 	Vector3 Q3(0, 0, 1);
 
 	// Matrix to store R
-	Vector3 R1, R2, R3;
+	Vector3 R1;
+	Vector3 R2;
+	Vector3 R3;
 
-	// QR iteration:
+	// QR-iteration:
 	size_t iter = 0;
 	while (iter < maxIterations) {
 		// W = A*Q

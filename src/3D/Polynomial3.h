@@ -38,12 +38,13 @@
  * used for painting the polynomial in OpenGL.
  */
 
+#include <functional>
 #include <stddef.h>
 
 #include "../math/Polynomial.h"
+#include "Vector3.h"
 
 class Polygon3;
-struct Vector3;
 
 class Polynomial3 {
 public:
@@ -72,6 +73,8 @@ public:
 			size_t idxStart, size_t idxEnd);
 
 	double Length(const size_t N = 20) const; ///< Returns the length of the polynomial for r = r0..r1
+
+	void Transform(std::function<Vector3(Vector3)> func);
 
 	Vector3 operator()(double r) const; ///< Evaluation of polygon
 

@@ -36,14 +36,14 @@
 #include <zip.h>
 #endif
 #ifdef USE_LIBPNG
-#include "png.h"
+#include <png.h>
 #endif
 #ifdef USE_LIBJPEG
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
-#include "jpeglib.h"
-#include "jerror.h"
+#include <jpeglib.h>
+#include <jerror.h>
 #endif
 
 using std::vector;

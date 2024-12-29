@@ -36,6 +36,7 @@
 
 #include "Operation.h"
 
+#include "../foot/FootModel.h"
 #include "../ParameterString.h"
 
 #include <memory>
@@ -52,7 +53,7 @@ public:
 
 public:
 	std::shared_ptr<ParameterString> filename;
-//		std::shared_ptr<FootModel> out;
+	std::shared_ptr<FootModel> out;
 
 private:
 	std::filesystem::file_time_type lastModified;

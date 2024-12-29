@@ -82,6 +82,7 @@ public:
 	static Polynomial ByBezier(double v0, double v1); ///< Bezier interpolation with start- and endvalue
 	static Polynomial ByBezier(double v0, double v1, double v2); ///< Bezier interpolation with start-, support- and end-value
 	static Polynomial ByBezier(double v0, double v1, double v2, double v3); ///< Bezier interpolation with two support values
+	static Polynomial ByBezier(const std::vector<double> &v); ///< Bezier interpolation with one to four support values
 
 	static Polynomial ByIntegrals(const std::vector<double> &integrals,
 			double a, double b);

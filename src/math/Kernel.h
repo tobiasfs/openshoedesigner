@@ -80,7 +80,7 @@
  *
  * \note Unbounded kernel have an 2nd integral -> infinity. There seems to be no
  * sensible integration constant to use. Maybe the function -> f(x) = x for
- * x > 0 or something.
+ * x > 0 or something similar.
  *
  * [Wikipedia: Kernel (statistics)](https://en.wikipedia.org/wiki/Kernel_(statistics))
  *
@@ -251,7 +251,7 @@ struct Kernel {
 	/**\brief Subtraction and Division on x.
 	 *
 	 * Transforms the x-value linearly before it is passed to the function.
-	 * The transformation is written with a substraction, so that a becomes
+	 * The transformation is written with a subtraction, so that a becomes
 	 * the new center of the kernel and b is the width of the kernel. The height
 	 * stays unchanged. The variable b defaults to 1.0, so the width stays
 	 * unchanged for this case.
@@ -576,7 +576,6 @@ inline Kernel::Function Kernel::SubDiv(Kernel::Function func, double a,
 		return func((v - a) / b);
 	};
 }
-
 
 #endif /* MATH_KERNEL_H */
 

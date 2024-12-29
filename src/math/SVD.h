@@ -107,7 +107,7 @@ public:
 	 */
 	bool sortW = false;
 
-	Matrix U; ///< 2-D column-orthonormal matrix. (Can be interpreted as the normalized axes of a coordinate system.)
+	Matrix U; ///< 2-D column-orthonormal matrix. (Can be interpreted as the normalized axes of a coordinate system. Each column is one axis.)
 	Matrix W; ///< 1-D vector of eigenvalues. (This matrix is sometimes named S.)
 	Matrix V; ///< 2-D orthogonal matrix. (Controls the deviation from a symmetric matrix. If __A__ was symmetric, this would be equal to transpose(__U__).)
 

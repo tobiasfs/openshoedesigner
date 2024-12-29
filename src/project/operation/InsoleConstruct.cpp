@@ -32,7 +32,7 @@
 #include <stdexcept>
 
 InsoleConstruct::InsoleConstruct() {
-	insole = std::make_shared<Insole>();
+	out = std::make_shared<Insole>();
 }
 
 std::string InsoleConstruct::GetName() const {
@@ -40,61 +40,80 @@ std::string InsoleConstruct::GetName() const {
 }
 
 bool InsoleConstruct::CanRun() {
-	std::ostringstream err;
-	err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
-	bool hasMissingConnection = false;
+	std::string missing;
 
-	if (!footLength) {
-		hasMissingConnection = true;
-		err << " Input \"footLength\" not connected.";
-	}
-	if (!ballMeasurementAngle) {
-		hasMissingConnection = true;
-		err << " Input \"ballMeasurementAngle\" not connected.";
-	}
-	if (!heelDirectionAngle) {
-		hasMissingConnection = true;
-		err << " Input \"heelDirectionAngle\" not connected.";
-	}
-	if (!littleToeAngle) {
-		hasMissingConnection = true;
-		err << " Input \"littleToeAngle\" not connected.";
-	}
-	if (!bigToeAngle) {
-		hasMissingConnection = true;
-		err << " Input \"bigToeAngle\" not connected.";
-	}
-	if (!ballWidth) {
-		hasMissingConnection = true;
-		err << " Input \"ballWidth\" not connected.";
-	}
-	if (!heelWidth) {
-		hasMissingConnection = true;
-		err << " Input \"heelWidth\" not connected.";
-	}
-	if (!extraLength) {
-		hasMissingConnection = true;
-		err << " Input \"extraLength\" not connected.";
-	}
-	if (!insole) {
-		hasMissingConnection = true;
-		err << " Output \"insole\" not set.";
-	}
-	if (hasMissingConnection) {
+	if (!footLength)
+		missing += missing.empty() ? "\"footLength\"" : ", \"footLength\"";
+	if (!ballMeasurementAngle)
+		missing +=
+				missing.empty() ?
+						"\"ballMeasurementAngle\"" :
+						", \"ballMeasurementAngle\"";
+	if (!heelDirectionAngle)
+		missing +=
+				missing.empty() ?
+						"\"heelDirectionAngle\"" : ", \"heelDirectionAngle\"";
+	if (!littleToeAngle)
+		missing +=
+				missing.empty() ? "\"littleToeAngle\"" : ", \"littleToeAngle\"";
+	if (!bigToeAngle)
+		missing += missing.empty() ? "\"bigToeAngle\"" : ", \"bigToeAngle\"";
+	if (!ballWidth)
+		missing += missing.empty() ? "\"ballWidth\"" : ", \"ballWidth\"";
+	if (!heelWidth)
+		missing += missing.empty() ? "\"heelWidth\"" : ", \"heelWidth\"";
+	if (!extraLength)
+		missing += missing.empty() ? "\"extraLength\"" : ", \"extraLength\"";
+	if (!out)
+		missing += missing.empty() ? "\"out\"" : ", \"out\"";
+
+	if (!missing.empty()) {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
+				<< __FUNCTION__ << " -";
+		err << "The variables " << missing << " are not connected.";
 		error = err.str();
 		throw std::logic_error(err.str());
 	}
+
 	error.clear();
-	return true;
+
+	if (footLength->GetString().empty()) {
+		error += " Input \"footLength\" for InsoleConstruct is empty.";
+	}
+	if (ballMeasurementAngle->GetString().empty()) {
+		error +=
+				" Input \"ballMeasurementAngle\" for InsoleConstruct is empty.";
+	}
+	if (heelDirectionAngle->GetString().empty()) {
+		error += " Input \"heelDirectionAngle\" for InsoleConstruct is empty.";
+	}
+	if (littleToeAngle->GetString().empty()) {
+		error += " Input \"littleToeAngle\" for InsoleConstruct is empty.";
+	}
+	if (bigToeAngle->GetString().empty()) {
+		error += " Input \"bigToeAngle\" for InsoleConstruct is empty.";
+	}
+	if (ballWidth->GetString().empty()) {
+		error += " Input \"ballWidth\" for InsoleConstruct is empty.";
+	}
+	if (heelWidth->GetString().empty()) {
+		error += " Input \"heelWidth\" for InsoleConstruct is empty.";
+	}
+	if (extraLength->GetString().empty()) {
+		error += " Input \"extraLength\" for InsoleConstruct is empty.";
+	}
+
+	return error.empty();
 }
 
 bool InsoleConstruct::Propagate() {
-	bool modify = false;
-	if (!insole || !footLength || !ballMeasurementAngle || !heelDirectionAngle
+	if (!footLength || !ballMeasurementAngle || !heelDirectionAngle
 			|| !littleToeAngle || !bigToeAngle || !ballWidth || !heelWidth
-			|| !extraLength)
+			|| !extraLength || !out)
 		return false;
 
+	bool modify = false;
 	bool parameterModified = false;
 	parameterModified |= footLength->IsModified();
 	parameterModified |= ballMeasurementAngle->IsModified();
@@ -106,104 +125,105 @@ bool InsoleConstruct::Propagate() {
 	parameterModified |= extraLength->IsModified();
 
 	if (parameterModified) {
-		modify |= insole->IsValid();
-		insole->MarkValid(false);
+		modify |= out->IsValid();
+		out->MarkValid(false);
 	}
 	return modify;
 }
 
 bool InsoleConstruct::HasToRun() {
-	return insole && !insole->IsValid() && insole->IsNeeded();
+	return out && !out->IsValid() && out->IsNeeded();
 }
 
 void InsoleConstruct::Run() {
 	Construct();
-	insole->MarkValid(true);
-	insole->MarkNeeded(false);
+	out->MarkValid(true);
+	out->MarkNeeded(false);
 }
 
 void InsoleConstruct::Construct() {
 	// A and B have to be on the coordinate y = 0.0
 
-	insole->J.p.Set(0, 0, 0);
-	insole->A.p = insole->J.p - Vector3(footLength->ToDouble() / 6.0, 0, 0);
-	insole->C.p = insole->A.p + Vector3(footLength->ToDouble() * 0.62, 0, 0);
-	insole->D.p = insole->A.p + Vector3(footLength->ToDouble(), 0, 0);
-	insole->B.p = insole->A.p
+	out->J.p.Set(0, 0, 0);
+	out->A.p = out->J.p - Vector3(footLength->ToDouble() / 6.0, 0, 0);
+	out->C.p = out->A.p + Vector3(footLength->ToDouble() * 0.62, 0, 0);
+	out->D.p = out->A.p + Vector3(footLength->ToDouble(), 0, 0);
+	out->B.p = out->A.p
 			+ Vector3(footLength->ToDouble() + extraLength->ToDouble(), 0, 0);
 
 	{
 		const double s = sin(ballMeasurementAngle->ToDouble());
 		const double c = cos(ballMeasurementAngle->ToDouble());
 
-		insole->E.p = insole->C.p
+		out->E.p = out->C.p
 				+ Vector3(s * ballWidth->ToDouble() / 2,
-						c * ballWidth->ToDouble() / 2, 0);
-		insole->F.p = insole->C.p
+						-c * ballWidth->ToDouble() / 2, 0);
+		out->F.p = out->C.p
 				- Vector3(s * ballWidth->ToDouble() / 2 * 1.24,
-						c * ballWidth->ToDouble() / 2 * 1.24, 0);
+						-c * ballWidth->ToDouble() / 2 * 1.24, 0);
 	}
 	{
 		const double s = sin(heelDirectionAngle->ToDouble());
 		const double c = cos(heelDirectionAngle->ToDouble());
-		insole->K.p = insole->J.p
+		out->K.p = out->J.p
 				+ Vector3(s * heelWidth->ToDouble() / 2,
-						c * heelWidth->ToDouble() / 2, 0);
-		insole->L.p = insole->J.p
+						-c * heelWidth->ToDouble() / 2, 0);
+		out->L.p = out->J.p
 				- Vector3(s * heelWidth->ToDouble() / 2,
-						c * heelWidth->ToDouble() / 2, 0);
-		insole->N.p.x = insole->A.p.x * c;
-		insole->N.p.y = -insole->A.p.x * s;
-		insole->N.p.z = insole->A.p.z;
+						-c * heelWidth->ToDouble() / 2, 0);
+		out->N.p.x = out->A.p.x * c;
+		out->N.p.y = out->A.p.x * s;
+		out->N.p.z = out->A.p.z;
 	}
 	{
 		const double s = sin(bigToeAngle->ToDouble());
 		const double c = cos(bigToeAngle->ToDouble());
-		const double r = (insole->D.p.x - insole->E.p.x) * c;
-		insole->G.p = insole->E.p + Vector3(r, -s * r, 0);
+		const double r = out->D.p.x - out->E.p.x;
+		out->G.p = out->E.p + Vector3(r, s * r / c, 0);
 	}
 	{
 		const double s = sin(littleToeAngle->ToDouble());
 		const double c = cos(littleToeAngle->ToDouble());
-		const double r = (insole->D.p.x - insole->F.p.x) * c;
-		insole->H.p = insole->F.p + Vector3(r, s * r, 0);
+		const double r = out->D.p.x - out->F.p.x;
+		const double f = footLength->ToDouble() / 5;
+		out->H.p = out->F.p + Vector3(r, -s * r / c, 0);
+		out->Z.p = out->H.p - Vector3(f, -s * f / c, 0);
 	}
-	insole->Z.p = insole->H.p - Vector3(footLength->ToDouble() / 5, 0, 0);
 
 	// Normals
-	insole->N.SetNormal(insole->K, insole->L);
+	out->N.SetNormal(out->K, out->L);
 	{
 		const double s = sin(heelDirectionAngle->ToDouble());
 		const double c = cos(heelDirectionAngle->ToDouble());
-		insole->K.n.Set(-c, s, 0);
-		insole->L.n.Set(c, -s, 0);
+		out->K.n.Set(-c, -s, 0);
+		out->L.n.Set(c, s, 0);
 	}
-	insole->E.SetNormal(insole->E, insole->J);
-	insole->F.SetNormal(insole->J, insole->H);
-	insole->G.SetNormal(insole->B, insole->E);
-	insole->Z.SetNormal(insole->L, insole->C);
-	insole->B.SetNormal(insole->H, insole->G);
+	out->E.SetNormal(out->E, out->J);
+	out->F.SetNormal(out->J, out->H);
+	out->G.SetNormal(out->B, out->E);
+	out->Z.SetNormal(out->L, out->C);
+	out->B.SetNormal(out->H, out->G);
 
 	// The first line has to start at point B for the rest of the
 	// algorithm to work.
 	Insole::Line temp;
-	insole->lines.clear();
-	temp.Setup(insole->B, insole->G, 0.39, 0.39);
-	insole->lines.push_back(temp);
-	temp.Setup(insole->G, insole->E, 0.2, 0.3);
-	insole->lines.push_back(temp);
-	temp.Setup(insole->E, insole->K, 0.39, 0.7);
-	insole->lines.push_back(temp);
-	temp.Setup(insole->K, insole->N);
-	insole->lines.push_back(temp);
-	temp.Setup(insole->N, insole->L);
-	insole->lines.push_back(temp);
-	temp.Setup(insole->L, insole->F, 0.3, 0.39);
-	insole->lines.push_back(temp);
-	temp.Setup(insole->F, insole->Z, 0.39, 0.2);
-	insole->lines.push_back(temp);
-	temp.Setup(insole->Z, insole->B, 0.4, 0.3);
-	insole->lines.push_back(temp);
+	out->lines.clear();
+	temp.Setup(out->B, out->G, 0.39, 0.39);
+	out->lines.push_back(temp);
+	temp.Setup(out->G, out->E, 0.2, 0.3);
+	out->lines.push_back(temp);
+	temp.Setup(out->E, out->K, 0.39, 0.7);
+	out->lines.push_back(temp);
+	temp.Setup(out->K, out->N);
+	out->lines.push_back(temp);
+	temp.Setup(out->N, out->L);
+	out->lines.push_back(temp);
+	temp.Setup(out->L, out->F, 0.3, 0.39);
+	out->lines.push_back(temp);
+	temp.Setup(out->F, out->Z, 0.39, 0.2);
+	out->lines.push_back(temp);
+	temp.Setup(out->Z, out->B, 0.4, 0.3);
+	out->lines.push_back(temp);
 
 	FinishConstruction(100);
 }
@@ -211,12 +231,12 @@ void InsoleConstruct::Construct() {
 void InsoleConstruct::FinishConstruction(const size_t N) {
 	// Calculate the total length
 	double L0 = 0.0;
-	for (const auto &line : insole->lines)
+	for (const auto &line : out->lines)
 		L0 += line.Length();
 
 	// Rescale the polygons from 0..2*M_PI
 	double Lsum = 0.0;
-	for (auto &line : insole->lines) {
+	for (auto &line : out->lines) {
 		const double L = line.Length();
 		const double f = M_PI * 2.0 / L0;
 		const double mr = Lsum * f;
@@ -244,11 +264,11 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 	DependentVector tr;
 	tr.PushBack(0.0, 0.0);
 	{
-		const double rC1 = RatX(insole->C.p.x, positive);
-		const double rC2 = RatX(insole->C.p.x, !positive);
+		const double rC1 = RatX(out->C.p.x, positive);
+		const double rC2 = RatX(out->C.p.x, !positive);
 		const double rC = (rC1 + (2 * M_PI) - rC2) / 2.0;
-		const double rJ1 = RatX(insole->J.p.x, positive);
-		const double rJ2 = RatX(insole->J.p.x, !positive);
+		const double rJ1 = RatX(out->J.p.x, positive);
+		const double rJ2 = RatX(out->J.p.x, !positive);
 		const double rJ = (rJ1 + (2 * M_PI) - rJ2) / 2.0;
 		const double rA = RatY(0.0, false);
 		tr.PushBack(rC1, rC);
@@ -261,29 +281,30 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 
 	// Sample the lines
 	{
-		insole->outline.clear();
+		out->Clear();
 		Polynomial rs = Polynomial::ByValue(0.0, 0.0, (double) N, 2 * M_PI);
 		size_t m = 0;
 		for (size_t n = 0; n < N; ++n) {
 			const double r = rs(n);
-			while ((m + 1) < insole->lines.size() && insole->lines[m].r1 < r)
+			while ((m + 1) < out->lines.size() && out->lines[m].r1 < r)
 				++m;
 			const double r2 = (r > M_PI) ? (r - 2 * M_PI) : r;
-			insole->outline.push_back(Insole::Point(insole->lines[m](r), r2));
+			out->AddEdgeToVertex(out->lines[m](r));
 		}
+		out->CloseLoopNextGroup();
 	}
 
 	// Interpolate the polygons on the inside and the outside of the last.
-	insole->inside.Clear();
-	insole->outside.Clear();
+	out->inside.Clear();
+	out->outside.Clear();
 
-	const Polynomial px = Polynomial::ByValue(-0.2, insole->A.p.x,
-			(double) N - 1 + 0.2, insole->B.p.x);
+	const Polynomial px = Polynomial::ByValue(-0.2, out->A.p.x,
+			(double) N - 1 + 0.2, out->B.p.x);
 	for (size_t n = 0; n < N; ++n) {
 		const double x = px(n);
 		double y0 = DBL_MAX;
 		double y1 = -DBL_MAX;
-		for (const auto &line : insole->lines) {
+		for (const auto &line : out->lines) {
 			const double r = (line.x - x).FindZero((line.r0 + line.r1) / 2.0);
 			if (r < line.r0 || r > line.r1)
 				continue;
@@ -294,20 +315,19 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 				y1 = y;
 		}
 		Vector3 vert0(x, y0, 0);
-		insole->inside.AddEdgeToVertex(vert0);
+		out->inside.AddEdgeToVertex(vert0);
 
 		Vector3 vert1(x, y1, 0);
-		insole->outside.AddEdgeToVertex(vert1);
+		out->outside.AddEdgeToVertex(vert1);
 	}
-	insole->inside.CalculateNormals(Polygon3::CalculateNormalMethod::InPlaneZX);
-	insole->outside.CalculateNormals(
-			Polygon3::CalculateNormalMethod::InPlaneZX);
+	out->inside.CalculateNormals(Polygon3::CalculateNormalMethod::InPlaneZX);
+	out->outside.CalculateNormals(Polygon3::CalculateNormalMethod::InPlaneZX);
 }
 
 double InsoleConstruct::RatX(const double x, const bool yPositive) const {
 	double rr = -DBL_MAX;
 	double yy = (yPositive) ? (-DBL_MAX) : (DBL_MAX);
-	for (auto &line : insole->lines) {
+	for (auto &line : out->lines) {
 		const double r = (line.x - x).FindZero((line.r0 + line.r1) / 2.0);
 		if (!line.IsInside(r))
 			continue;
@@ -330,7 +350,7 @@ double InsoleConstruct::RatX(const double x, const bool yPositive) const {
 double InsoleConstruct::RatY(const double y, const bool xPositive) const {
 	double rr = -DBL_MAX;
 	double xx = (xPositive) ? (-DBL_MAX) : (DBL_MAX);
-	for (auto &line : insole->lines) {
+	for (auto &line : out->lines) {
 		const double r = (line.y - y).FindZero((line.r0 + line.r1) / 2.0);
 		if (!line.IsInside(r))
 			continue;

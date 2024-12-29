@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : FootScanLoad.cpp
+// Name               : HeelNormalize.cpp
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 24.12.2024
+// Created            : 26.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,24 +23,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "FootScanLoad.h"
+#include "HeelNormalize.h"
 
+#include <stdexcept>
 #include <sstream>
-#include <iostream>
 
-FootScanLoad::FootScanLoad() {
-	out = std::make_shared<FootModel>();
+HeelNormalize::HeelNormalize() {
+	out = std::make_shared<ObjectGeometry>();
 }
 
-std::string FootScanLoad::GetName() const {
-	return "FootScanLoad";
+std::string HeelNormalize::GetName() const {
+	return "HeelNormalize";
 }
 
-bool FootScanLoad::CanRun() {
+bool HeelNormalize::CanRun() {
 	std::string missing;
 
-	if (!filename)
-		missing += missing.empty() ? "\"filename\"" : ", \"filename\"";
+	if (!heelReorient)
+		missing += missing.empty() ? "\"heelReorient\"" : ", \"heelReorient\"";
+	if (!in)
+		missing += missing.empty() ? "\"in\"" : ", \"in\"";
 	if (!out)
 		missing += missing.empty() ? "\"out\"" : ", \"out\"";
 
@@ -55,59 +57,45 @@ bool FootScanLoad::CanRun() {
 
 	error.clear();
 
-	if (filename->GetString().empty()) {
-		error += " Input \"filename\" for FootScanLoad is empty.";
-	} else {
-		std::filesystem::path fn(filename->GetString());
-		if (!std::filesystem::exists(fn)) {
-			error += " The file \"" + filename->GetString()
-					+ "\" does not exist.";
-		}
-	}
-
 	return error.empty();
 }
 
-bool FootScanLoad::Propagate() {
-	if (!filename || !out)
+bool HeelNormalize::Propagate() {
+	if (!heelReorient || !in || !out)
 		return false;
 
 	bool modify = false;
 
-	if (filename->IsModified() || filename->GetString().empty()) {
+	if (!in->IsValid() || heelReorient->IsModified()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
-
-	if (modify)
-		return modify;
-
-	std::filesystem::path fn(filename->GetString());
-	if (!std::filesystem::exists(fn)) {
-		modify |= out->IsValid();
-		out->MarkValid(false);
-		return modify;
-	}
-	// Check, if the file on drive is modified.
-	auto timeModified = std::filesystem::last_write_time(fn);
-	if (timeModified != lastModified) {
-		modify |= out->IsValid();
-		out->MarkValid(false);
+	if (out->IsNeeded()) {
+		modify |= !in->IsNeeded();
+		in->MarkNeeded(true);
 	}
 	return modify;
 }
 
-bool FootScanLoad::HasToRun() {
-	return out && !out->IsValid() && out->IsNeeded();
+bool HeelNormalize::HasToRun() {
+	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
 }
 
-void FootScanLoad::Run() {
-	std::filesystem::path filepath(filename->GetString());
-	std::string extension = filepath.extension().string();
-	for (auto &ch : extension)
-		ch = std::tolower(ch);
+void HeelNormalize::Run() {
+	*out = *in;
 
-	lastModified = std::filesystem::last_write_time(filepath);
-//	out->MarkValid(true);
-//	out->MarkNeeded(false);
+	if (heelReorient->GetSelectionIdx() != 1) {
+		out->MarkValid(true);
+		out->MarkNeeded(false);
+		return;
+	}
+	out->UpdateBoundingBox();
+	AffineTransformMatrix m;
+
+	m.TranslateGlobal(0, -(out->BB.ymin + out->BB.ymax) / 2.0, -out->BB.zmin);
+	m.ScaleGlobal(-1, -1, 1);
+
+	out->Transform(m);
+	out->MarkValid(true);
+	out->MarkNeeded(false);
 }

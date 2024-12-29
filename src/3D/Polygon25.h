@@ -59,7 +59,7 @@ public:
 	 * Replaces every vertex i with the average of the vertices i-1, i, i+1.
 	 *
 	 * \todo Move to the more general Polygon3
-	 * \fixme This is broken, if the function Finish() is called on the Polygon.
+	 * \todo This is broken, if the function Finish() is called on the Polygon.
 	 */
 	void PolygonSmooth();
 
