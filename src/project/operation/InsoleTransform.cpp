@@ -131,8 +131,8 @@ void InsoleTransform::Shape() {
 	// Calculate gamma0 and gamma1
 	const double alpha0 = heelPitch->ToDouble();
 	const double alpha1 = toeSpring->ToDouble();
-	const double s0 = out->F.p.x - out->J.p.x;
-	const double s1 = out->Z.p.x - out->F.p.x;
+	const double s0 = out->F.x - out->J.x;
+	const double s1 = out->Z.x - out->F.x;
 	const double dt = heelHeight->ToDouble() - ballHeight->ToDouble()
 			+ legLengthDifference->ToDouble();
 
@@ -174,8 +174,8 @@ void InsoleTransform::Shape() {
 	// Bend toes
 	{
 		Bender b;
-		b.from0.SetOrigin(Vector3(out->F.p.x, 0, out->F.p.z));
-		b.from1.SetOrigin(Vector3(out->Z.p.x, 0, out->Z.p.z));
+		b.from0.SetOrigin(Vector3(out->F.x, 0, out->F.z));
+		b.from1.SetOrigin(Vector3(out->Z.x, 0, out->Z.z));
 		b.to0 = b.from0;
 		b.to1 = b.to0;
 		b.to1 *= AffineTransformMatrix::RotationXYZ(0, -gamma1 / 2, 0);
@@ -192,8 +192,8 @@ void InsoleTransform::Shape() {
 	// Bend heel and mid-section
 	{
 		Bender b;
-		b.from0.SetOrigin(Vector3(out->J.p.x, 0, out->J.p.z));
-		b.from1.SetOrigin(Vector3(out->F.p.x, 0, out->F.p.z));
+		b.from0.SetOrigin(Vector3(out->J.x, 0, out->J.z));
+		b.from1.SetOrigin(Vector3(out->F.x, 0, out->F.z));
 		b.to0 = b.from0;
 		b.to0 *= AffineTransformMatrix::RotationXYZ(0, alpha0, 0);
 		b.to1 = b.to0;

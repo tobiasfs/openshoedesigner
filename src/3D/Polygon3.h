@@ -268,6 +268,7 @@ public:
 	 * \return Center of polygon.
 	 */
 	Vector3 GetCenter() const;
+
 	/** \brief Get center of one group in the polygon.
 	 *
 	 * \param group Group to calculate the center for.
@@ -301,6 +302,18 @@ public:
 
 	/**\}
 	 */
+
+	struct Intersections {
+		std::vector<Geometry::Vertex> positive;
+		std::vector<Geometry::Vertex> negative;
+	};
+	/**\brief Intersect the polygon with a plane.
+	 *
+	 * \param n Normal vector of plane
+	 * \param d Distance from origin of the plane
+	 * \return Structure with positive and negative intersections of the plane.
+	 */
+	Intersections Intersect(Vector3 n, double d) const;
 
 	std::string ToString() const;
 

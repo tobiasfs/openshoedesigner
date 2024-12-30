@@ -294,18 +294,19 @@ AffineTransformMatrix AffineTransformMatrix::GetNormalMatrix() const {
 	if (fabs(T10) < DBL_MIN)
 		throw(std::logic_error(
 				__FILE__ " GetNormalMatrix() - Matrix is broken can cannot be inverted and transposed."));
+	const double T15 = 1.0 / T10;
 	const double T11 = T8 * T5 - T9 * T2;
 	const double T13 = -T4 * T5 + T9 * T6;
 	const double T14 = T4 * T2 - T8 * T6;
-	ret.a[0] = (T2 * T3 - T5 * T7) / T10;
-	ret.a[1] = (-T6 * T3 + T5 * T12) / T10;
-	ret.a[2] = (T6 * T7 - T2 * T12) / T10;
-	ret.a[4] = (-T8 * T3 + T9 * T7) / T10;
-	ret.a[5] = (T4 * T3 - T9 * T12) / T10;
-	ret.a[6] = (-T4 * T7 + T8 * T12) / T10;
-	ret.a[8] = T11 / T10;
-	ret.a[9] = T13 / T10;
-	ret.a[10] = T14 / T10;
+	ret.a[0] = (T2 * T3 - T5 * T7) * T15;
+	ret.a[1] = (-T6 * T3 + T5 * T12) * T15;
+	ret.a[2] = (T6 * T7 - T2 * T12) * T15;
+	ret.a[4] = (-T8 * T3 + T9 * T7) * T15;
+	ret.a[5] = (T4 * T3 - T9 * T12) * T15;
+	ret.a[6] = (-T4 * T7 + T8 * T12) * T15;
+	ret.a[8] = T11 * T15;
+	ret.a[9] = T13 * T15;
+	ret.a[10] = T14 * T15;
 	return ret;
 }
 

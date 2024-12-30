@@ -54,28 +54,34 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 	wxPen *d = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1,
 			wxPENSTYLE_DOT);
 
+//	double off = 0.0;
+
 	dc.SetPen(*c);
 	for (size_t n = 0; n < insole->EdgeCount(); ++n) {
+		if (insole->GetEdge(n).trianglecount >= 2)
+			continue;
 		const auto &v0 = insole->GetEdgeVertex(n, 0);
 		const auto &v1 = insole->GetEdgeVertex(n, 1);
+//		Geometry::Vertex j(off, 0, 0);
 		Vector3 p0 = m.Transform(v0);
 		Vector3 p1 = m.Transform(v1);
 		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
+//		off += 0.0001;
 	}
 
-	Vector3 A = m.Transform(insole->A.p);
-	Vector3 B = m.Transform(insole->B.p);
-	Vector3 C = m.Transform(insole->C.p);
-	Vector3 D = m.Transform(insole->D.p);
-	Vector3 E = m.Transform(insole->E.p);
-	Vector3 F = m.Transform(insole->F.p);
-	Vector3 G = m.Transform(insole->G.p);
-	Vector3 H = m.Transform(insole->H.p);
-	Vector3 J = m.Transform(insole->J.p);
-	Vector3 K = m.Transform(insole->K.p);
-	Vector3 L = m.Transform(insole->L.p);
-	Vector3 N = m.Transform(insole->N.p);
-	Vector3 Z = m.Transform(insole->Z.p);
+	Vector3 A = m.Transform(insole->A);
+	Vector3 B = m.Transform(insole->B);
+	Vector3 C = m.Transform(insole->C);
+	Vector3 D = m.Transform(insole->D);
+	Vector3 E = m.Transform(insole->E);
+	Vector3 F = m.Transform(insole->F);
+	Vector3 G = m.Transform(insole->G);
+	Vector3 H = m.Transform(insole->H);
+	Vector3 J = m.Transform(insole->J);
+	Vector3 K = m.Transform(insole->K);
+	Vector3 L = m.Transform(insole->L);
+	Vector3 N = m.Transform(insole->N);
+	Vector3 Z = m.Transform(insole->Z);
 
 	dc.SetPen(*a);
 	dc.DrawCircle(A.x, A.y, 2);
@@ -124,8 +130,9 @@ void CanvasInsole::OnPaint(wxPaintEvent &event) {
 
 	wxPoint temp;
 	wxPaintDC dc(this);
+#ifdef DEBUG
 	dc.DrawText(_T("CanvasInsole"), 10, 30);
-
+#endif
 	if (insoleL) {
 		const double d = (insoleL && insoleR) ? dL : 0.0;
 		AffineTransformMatrix m = s

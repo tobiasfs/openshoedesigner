@@ -38,6 +38,7 @@
 #include "../object/ObjectGeometry.h"
 #include "Operation.h"
 
+#include "../ParameterFormula.h"
 #include <memory>
 
 class HeelExtractInsole: public Operation {
@@ -52,6 +53,14 @@ public:
 	virtual void Run() override;
 
 public:
+
+	std::shared_ptr<ParameterFormula> footLength;
+	std::shared_ptr<ParameterFormula> ballMeasurementAngle;
+	std::shared_ptr<ParameterFormula> heelDirectionAngle;
+	std::shared_ptr<ParameterFormula> littleToeAngle;
+	std::shared_ptr<ParameterFormula> bigToeAngle;
+	std::shared_ptr<ParameterFormula> extraLength;
+
 	std::shared_ptr<ObjectGeometry> in;
 	std::shared_ptr<Insole> out;
 

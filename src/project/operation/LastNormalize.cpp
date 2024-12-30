@@ -99,6 +99,12 @@ void LastNormalize::Run() {
 //	out->Transform(AffineTransformMatrix::Scaling(0.1));
 	out->UpdateBoundingBox();
 
+	if (lastReorient->GetSelectionIdx() != 1) {
+		out->MarkValid(true);
+		out->MarkNeeded(false);
+		return;
+	}
+
 //	out->paintNormals = true;
 
 	DEBUGOUT << "Before LastNormalize::Run: Volume: " << out->GetVolume()

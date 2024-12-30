@@ -118,8 +118,9 @@ void CanvasMeasurementGrid::OnMouseEvent(wxMouseEvent &event) {
 void CanvasMeasurementGrid::OnPaint(wxPaintEvent &event) {
 	wxPoint temp;
 	wxPaintDC dc(this);
+#ifdef DEBUG
 	dc.DrawText(_T("CanvasMeasurementGrid"), 10, 10);
-
+#endif
 	// Deactivate all shifts and scalings from wxDC.
 	dc.SetMapMode(wxMM_TEXT); // Logical unit: pixel
 	dc.SetUserScale(1.0, 1.0);

@@ -94,6 +94,12 @@ bool LastAnalyse::HasToRun() {
 void LastAnalyse::Run() {
 	*out = *in;
 
+	if (lastReorient->GetSelectionIdx() != 1) {
+		out->MarkValid(true);
+		out->MarkNeeded(false);
+		return;
+	}
+
 	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": ";
 	DEBUGOUT << "Normal Curvature = " << out->GetNormalCurvature() << " rad\n";
 

@@ -1077,6 +1077,21 @@ size_t Polygon3::ClosestPoint(const Vector3 &p, size_t group) const {
 	return minimalIndex;
 }
 
+Polygon3::Intersections Polygon3::Intersect(Vector3 n, double d) const {
+	Polygon3::Intersections ret;
+	for (size_t idx = 0; idx < e.size(); ++idx) {
+		const auto &v0 = GetEdgeVertex(idx, 0);
+		const auto &v1 = GetEdgeVertex(idx, 1);
+		const double h0 = v0.Dot(n);
+		const double h1 = v1.Dot(n);
+		if (h0 <= d && h1 > d)
+			ret.positive.push_back(v0.Interp(v1, (d - h0) / (h1 - h0)));
+		if (h0 >= d && h1 < d)
+			ret.negative.push_back(v0.Interp(v1, (d - h0) / (h1 - h0)));
+	}
+	return ret;
+}
+
 std::string Polygon3::ToString() const {
 	std::ostringstream s;
 	s << '[';

@@ -69,6 +69,13 @@ void Builder::Setup(Project &project) {
 		}
 		if (!opHeelExtractInsole) {
 			opHeelExtractInsole = std::make_shared<HeelExtractInsole>();
+			opHeelExtractInsole->footLength = footL.footLength;
+			opHeelExtractInsole->ballMeasurementAngle =
+					config.ballMeasurementAngle;
+			opHeelExtractInsole->heelDirectionAngle = config.heelDirectionAngle;
+			opHeelExtractInsole->littleToeAngle = config.littleToeAngle;
+			opHeelExtractInsole->bigToeAngle = config.bigToeAngle;
+			opHeelExtractInsole->extraLength = config.extraLength;
 			operations.push_back(opHeelExtractInsole);
 		}
 		if (!opHeelLoad) {

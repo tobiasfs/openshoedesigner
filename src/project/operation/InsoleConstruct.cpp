@@ -144,50 +144,50 @@ void InsoleConstruct::Run() {
 void InsoleConstruct::Construct() {
 	// A and B have to be on the coordinate y = 0.0
 
-	out->J.p.Set(0, 0, 0);
-	out->A.p = out->J.p - Vector3(footLength->ToDouble() / 6.0, 0, 0);
-	out->C.p = out->A.p + Vector3(footLength->ToDouble() * 0.62, 0, 0);
-	out->D.p = out->A.p + Vector3(footLength->ToDouble(), 0, 0);
-	out->B.p = out->A.p
+	out->J.Set(0, 0, 0);
+	out->A = out->J - Vector3(footLength->ToDouble() / 6.0, 0, 0);
+	out->C = out->A + Vector3(footLength->ToDouble() * 0.62, 0, 0);
+	out->D = out->A + Vector3(footLength->ToDouble(), 0, 0);
+	out->B = out->A
 			+ Vector3(footLength->ToDouble() + extraLength->ToDouble(), 0, 0);
 
 	{
 		const double s = sin(ballMeasurementAngle->ToDouble());
 		const double c = cos(ballMeasurementAngle->ToDouble());
 
-		out->E.p = out->C.p
+		out->E = out->C
 				+ Vector3(s * ballWidth->ToDouble() / 2,
 						-c * ballWidth->ToDouble() / 2, 0);
-		out->F.p = out->C.p
+		out->F = out->C
 				- Vector3(s * ballWidth->ToDouble() / 2 * 1.24,
 						-c * ballWidth->ToDouble() / 2 * 1.24, 0);
 	}
 	{
 		const double s = sin(heelDirectionAngle->ToDouble());
 		const double c = cos(heelDirectionAngle->ToDouble());
-		out->K.p = out->J.p
+		out->K = out->J
 				+ Vector3(s * heelWidth->ToDouble() / 2,
 						-c * heelWidth->ToDouble() / 2, 0);
-		out->L.p = out->J.p
+		out->L = out->J
 				- Vector3(s * heelWidth->ToDouble() / 2,
 						-c * heelWidth->ToDouble() / 2, 0);
-		out->N.p.x = out->A.p.x * c;
-		out->N.p.y = out->A.p.x * s;
-		out->N.p.z = out->A.p.z;
+		out->N.x = out->A.x * c;
+		out->N.y = out->A.x * s;
+		out->N.z = out->A.z;
 	}
 	{
 		const double s = sin(bigToeAngle->ToDouble());
 		const double c = cos(bigToeAngle->ToDouble());
-		const double r = out->D.p.x - out->E.p.x;
-		out->G.p = out->E.p + Vector3(r, s * r / c, 0);
+		const double r = out->D.x - out->E.x;
+		out->G = out->E + Vector3(r, s * r / c, 0);
 	}
 	{
 		const double s = sin(littleToeAngle->ToDouble());
 		const double c = cos(littleToeAngle->ToDouble());
-		const double r = out->D.p.x - out->F.p.x;
+		const double r = out->D.x - out->F.x;
 		const double f = footLength->ToDouble() / 5;
-		out->H.p = out->F.p + Vector3(r, -s * r / c, 0);
-		out->Z.p = out->H.p - Vector3(f, -s * f / c, 0);
+		out->H = out->F + Vector3(r, -s * r / c, 0);
+		out->Z = out->H - Vector3(f, -s * f / c, 0);
 	}
 
 	// Normals
@@ -264,11 +264,11 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 	DependentVector tr;
 	tr.PushBack(0.0, 0.0);
 	{
-		const double rC1 = RatX(out->C.p.x, positive);
-		const double rC2 = RatX(out->C.p.x, !positive);
+		const double rC1 = RatX(out->C.x, positive);
+		const double rC2 = RatX(out->C.x, !positive);
 		const double rC = (rC1 + (2 * M_PI) - rC2) / 2.0;
-		const double rJ1 = RatX(out->J.p.x, positive);
-		const double rJ2 = RatX(out->J.p.x, !positive);
+		const double rJ1 = RatX(out->J.x, positive);
+		const double rJ2 = RatX(out->J.x, !positive);
 		const double rJ = (rJ1 + (2 * M_PI) - rJ2) / 2.0;
 		const double rA = RatY(0.0, false);
 		tr.PushBack(rC1, rC);
@@ -298,8 +298,8 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 	out->inside.Clear();
 	out->outside.Clear();
 
-	const Polynomial px = Polynomial::ByValue(-0.2, out->A.p.x,
-			(double) N - 1 + 0.2, out->B.p.x);
+	const Polynomial px = Polynomial::ByValue(-0.2, out->A.x,
+			(double) N - 1 + 0.2, out->B.x);
 	for (size_t n = 0; n < N; ++n) {
 		const double x = px(n);
 		double y0 = DBL_MAX;

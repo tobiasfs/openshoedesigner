@@ -27,6 +27,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 CoordinateSystemConstruct::CoordinateSystemConstruct() {
 	out = std::make_shared<CoordinateSystem>();
@@ -80,6 +81,8 @@ bool CoordinateSystemConstruct::HasToRun() {
 }
 
 void CoordinateSystemConstruct::Run() {
+
+	std::cerr << GetName() << ": No Operation implemented.\n";
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

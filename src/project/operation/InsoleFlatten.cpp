@@ -27,6 +27,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 InsoleFlatten::InsoleFlatten() {
 	out = std::make_shared<Insole>();
@@ -82,7 +83,7 @@ bool InsoleFlatten::HasToRun() {
 void InsoleFlatten::Run() {
 	*out = *in;
 
-	//TODO Implement this.
+	std::cerr << GetName() << ": No Operation implemented.\n";
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

@@ -52,13 +52,10 @@ class Insole: public Polygon3, public Object {
 	friend class InsoleTransform;
 
 protected:
-	struct Point {
+	struct Point:Vector3 {
 	public:
 		Point() = default;
-		Point(Vector3 p, double r = 0.0) :
-				p(p), rx(r) {
-		}
-		Vector3 p;
+		Point(Vector3 p, double r = 0.0);
 		Vector3 n;
 		double rx = 0.0;
 		void SetNormal(const Point &p0, const Point &p1);

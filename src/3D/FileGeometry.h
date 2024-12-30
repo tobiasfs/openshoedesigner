@@ -37,7 +37,7 @@
  * 3D formats to look into:
  *
  *  - DAE
- *  - DXF - implemented, need some bugfixing
+ *  - DXF - implemented, needs some bugfixing
  *  - FBX
  *  - FLT
  *  - GLTF - very small files <- this is next to implement

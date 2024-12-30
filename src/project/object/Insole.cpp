@@ -37,28 +37,38 @@
 #include "../../3D/OpenGL.h"
 
 void Insole::Point::SetNormal(const Point &p0, const Point &p1) {
-	n = (p1.p - p0.p).Normal();
+	n = (p1 - p0).Normal();
+}
+
+Insole::Point::Point(Vector3 p, double r) {
+	x = p.x;
+	y = p.y;
+	z = p.z;
+	rx = r;
 }
 
 void Insole::Point::Transform(std::function<Vector3(Vector3)> func) {
 	// Scale the normals to be closer to the base point p.
 	// The transformation function might be non-linear.
 	const double scale = 0.001;
-	Vector3 h = p + n * scale;
-	p = func(p);
+	Vector3 h = *this + n * scale;
+	Vector3 temp = func(*this);
+	x = temp.x;
+	y = temp.y;
+	z = temp.z;
 	h = func(h);
-	n = (h - p).Normal();
+	n = (h - temp).Normal();
 }
 
 void Insole::Line::Setup(const Point &p0, const Point &p1, double f0,
 		double f1) {
-	const double d = (p1.p - p0.p).Abs();
-	x = Polynomial::ByBezier(p0.p.x, p0.p.x + d * f0 * p0.n.x,
-			p1.p.x - d * f1 * p1.n.x, p1.p.x);
-	y = Polynomial::ByBezier(p0.p.y, p0.p.y + d * f0 * p0.n.y,
-			p1.p.y - d * f1 * p1.n.y, p1.p.y);
-	z = Polynomial::ByBezier(p0.p.z, p0.p.z + d * f0 * p0.n.z,
-			p1.p.z - d * f1 * p1.n.z, p1.p.z);
+	const double d = (p1 - p0).Abs();
+	x = Polynomial::ByBezier(p0.x, p0.x + d * f0 * p0.n.x,
+			p1.x - d * f1 * p1.n.x, p1.x);
+	y = Polynomial::ByBezier(p0.y, p0.y + d * f0 * p0.n.y,
+			p1.y - d * f1 * p1.n.y, p1.y);
+	z = Polynomial::ByBezier(p0.z, p0.z + d * f0 * p0.n.z,
+			p1.z - d * f1 * p1.n.z, p1.z);
 	r0 = 0.0;
 	r1 = 1.0;
 }

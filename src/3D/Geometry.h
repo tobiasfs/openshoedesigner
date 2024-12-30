@@ -317,7 +317,7 @@ public:
 	 */
 	void AddVertex(const Geometry::Vertex &vertex, size_t sourceIndex =
 			(size_t) -1);
-	void AddVertex(const Vector3 &vertex);
+//	void AddVertex(const Vector3 &vertex);
 	void AddVertex(const std::vector<Vector3> &vertices);
 
 	/** \brief Adds an edge and sets up emap for the given source-index.
@@ -333,7 +333,9 @@ public:
 	 * \param sourceIndex Index of the edge in the source Geometry.
 	 */
 	void AddEdge(const Geometry::Edge &edge, size_t sourceIndex = (size_t) -1);
-	void AddEdge(const Vector3 &vertex0, const Vector3 &vertex1);
+	void AddEdge(const Geometry::Vertex &vertex0,
+			const Geometry::Vertex &vertex1);
+//	void AddEdge(const Vector3 &vertex0, const Vector3 &vertex1);
 	void AddEdge(size_t index0, size_t index1);
 
 	/** \brief Adds a triangle and sets up tmap for the given source-index.
@@ -350,8 +352,10 @@ public:
 	 */
 	void AddTriangle(const Geometry::Triangle &triangle, size_t sourceIndex =
 			(size_t) -1);
-	void AddTriangle(const Vector3 &vertex0, const Vector3 &vertex1,
-			const Vector3 &vertex2);
+	void AddTriangle(const Geometry::Vertex &vertex0,
+			const Geometry::Vertex &vertex1, const Geometry::Vertex &vertex2);
+//	void AddTriangle(const Vector3 &vertex0, const Vector3 &vertex1,
+//			const Vector3 &vertex2);
 	void AddTriangle(size_t index0, size_t index1, size_t index2);
 
 	void AddQuad(const Vector3 &vertex0, const Vector3 &vertex1,
@@ -773,7 +777,9 @@ protected:
 	Vector3 addNormal = { }; ///< Normal for new vertices, edges and triangles.
 	bool addColors = false;
 	Color addColor = { }; ///< Color for new vertices, edges and triangles.
+	bool useAddMatrix = false;
 	AffineTransformMatrix addMatrix = AffineTransformMatrix::Identity(); ///< Matrix used to modify newly added vertices.
+	AffineTransformMatrix addNormalMatrix = AffineTransformMatrix::Identity(); ///< Matrix used to modify newly added normals.
 
 	unsigned vertexArrayObject = 0;
 	unsigned vertexBufferObject = 0;

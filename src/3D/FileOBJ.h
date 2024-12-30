@@ -45,8 +45,8 @@ public:
 
 	virtual void ReadStream(Geometry &geometry) override;
 	virtual void WriteStream(const Geometry &geometry) override;
-private:
 
+private:
 	int ExtractNumbers(std::vector<float> &v, int v_width);
 	std::string NextToken();
 };

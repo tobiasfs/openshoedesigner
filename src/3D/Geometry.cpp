@@ -440,10 +440,14 @@ void Geometry::ResetAddColor() {
 
 void Geometry::SetAddMatrix(const AffineTransformMatrix &m) {
 	addMatrix = m;
+	addNormalMatrix = m.GetNormalMatrix();
+	useAddMatrix = true;
 }
 
 void Geometry::ResetAddMatrix() {
 	addMatrix.SetIdentity();
+	addNormalMatrix.SetIdentity();
+	useAddMatrix = false;
 }
 
 void Geometry::ResetPresets() {
@@ -468,14 +472,14 @@ void Geometry::AddVertex(const Geometry::Vertex &vertex, size_t sourceIndex) {
 
 }
 
-void Geometry::AddVertex(const Vector3 &vertex) {
-	Vector3 temp = addMatrix(vertex);
-	Vertex temp2;
-	temp2.x = temp.x;
-	temp2.y = temp.y;
-	temp2.z = temp.z;
-	AddVertex(temp2);
-}
+//void Geometry::AddVertex(const Vector3 &vertex) {
+//	Vector3 temp = addMatrix(vertex);
+//	Vertex temp2;
+//	temp2.x = temp.x;
+//	temp2.y = temp.y;
+//	temp2.z = temp.z;
+//	AddVertex(temp2);
+//}
 
 void Geometry::AddVertex(const std::vector<Vector3> &vertices) {
 	for (const Vector3 &vertex : vertices)
@@ -497,13 +501,21 @@ void Geometry::AddEdge(const Geometry::Edge &edge, size_t sourceIndex) {
 		e.back().c = addColor;
 }
 
-void Geometry::AddEdge(const Vector3 &va, const Vector3 &vb) {
-	AddVertex(va);
+void Geometry::AddEdge(const Geometry::Vertex &v0, const Geometry::Vertex &v1) {
+	AddVertex(v0);
 	size_t idx0 = v.size() - 1;
-	AddVertex(vb);
+	AddVertex(v1);
 	size_t idx1 = v.size() - 1;
 	AddEdge(idx0, idx1);
 }
+
+//void Geometry::AddEdge(const Vector3 &v0, const Vector3 &v1) {
+//	AddVertex(v0);
+//	size_t idx0 = v.size() - 1;
+//	AddVertex(v1);
+//	size_t idx1 = v.size() - 1;
+//	AddEdge(idx0, idx1);
+//}
 
 void Geometry::AddEdge(size_t idx0, size_t idx1) {
 	edgesHaveNormal |= addNormals;
@@ -534,16 +546,27 @@ void Geometry::AddTriangle(const Geometry::Triangle &triangle,
 		t.back().c = addColor;
 }
 
-void Geometry::AddTriangle(const Vector3 &va, const Vector3 &vb,
-		const Vector3 &vc) {
-	AddVertex(va);
+void Geometry::AddTriangle(const Geometry::Vertex &v0,
+		const Geometry::Vertex &v1, const Geometry::Vertex &v2) {
+	AddVertex(v0);
 	size_t idx0 = v.size() - 1;
-	AddVertex(vb);
+	AddVertex(v1);
 	size_t idx1 = v.size() - 1;
-	AddVertex(vc);
+	AddVertex(v2);
 	size_t idx2 = v.size() - 1;
 	AddTriangle(idx0, idx1, idx2);
 }
+
+//void Geometry::AddTriangle(const Vector3 &v0, const Vector3 &v1,
+//		const Vector3 &v2) {
+//	AddVertex(v0);
+//	size_t idx0 = v.size() - 1;
+//	AddVertex(v1);
+//	size_t idx1 = v.size() - 1;
+//	AddVertex(v2);
+//	size_t idx2 = v.size() - 1;
+//	AddTriangle(idx0, idx1, idx2);
+//}
 
 void Geometry::AddTriangle(size_t idx0, size_t idx1, size_t idx2) {
 	trianglesHaveNormal |= addNormals;
@@ -775,6 +798,10 @@ void Geometry::Remap(int vstart, int estart, int tstart) {
 				RANGE_CHECK(tmap, ed->tb);
 				ed->tb = tmap[ed->tb];
 			}
+			uint_least8_t c = 0;
+			c += (ed->ta != nothing) ? 1 : 0;
+			c += (ed->tb != nothing) ? 1 : 0;
+			ed->trianglecount = c;
 		}
 		tmap.clear();
 	}
