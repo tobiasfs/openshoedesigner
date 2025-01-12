@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : HeelExtractInsole.h
+// Name               : InsoleAnalyze.h
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 27.12.2024
-// Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 12.01.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,28 +23,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OPERATION_HEELEXTRACTINSOLE_H_
-#define SRC_PROJECT_OPERATION_HEELEXTRACTINSOLE_H_
+#ifndef SRC_PROJECT_OPERATION_INSOLEANALYZE_H_
+#define SRC_PROJECT_OPERATION_INSOLEANALYZE_H_
 
-/** \class HeelExtractInsole
- * 	\code #include "HeelExtractInsole.h"\endcode
+/** \class InsoleAnalyze
+ * 	\code #include "InsoleAnalyze.h"\endcode
  * 	\ingroup GroupName
  *  \brief Description
  *
  * Text
  */
 
-#include "../object/Insole.h"
-#include "../object/ObjectGeometry.h"
 #include "Operation.h"
 
+#include "../object/Insole.h"
 #include "../ParameterFormula.h"
-#include <memory>
 
-class HeelExtractInsole: public Operation {
+#include <memory>
+class InsoleAnalyze: public Operation {
 public:
-	HeelExtractInsole();
-	virtual ~HeelExtractInsole() = default;
+	InsoleAnalyze();
+	virtual ~InsoleAnalyze() = default;
 
 	virtual std::string GetName() const override;
 	virtual bool CanRun() override;
@@ -53,12 +52,15 @@ public:
 	virtual void Run() override;
 
 public:
+	std::shared_ptr<ParameterFormula> footLength;
+	std::shared_ptr<ParameterFormula> ballMeasurementAngle;
+	std::shared_ptr<ParameterFormula> heelDirectionAngle;
+	std::shared_ptr<ParameterFormula> littleToeAngle;
+	std::shared_ptr<ParameterFormula> bigToeAngle;
+	std::shared_ptr<ParameterFormula> extraLength;
 
-
-
-	std::shared_ptr<ObjectGeometry> in;
+	std::shared_ptr<Insole> in;
 	std::shared_ptr<Insole> out;
-
 };
 
-#endif /* SRC_PROJECT_OPERATION_HEELEXTRACTINSOLE_H_ */
+#endif /* SRC_PROJECT_OPERATION_INSOLEANALYZE_H_ */

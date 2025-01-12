@@ -36,26 +36,18 @@
  *
  */
 
+#include "AffineTransformMatrix.h"
+
+#include "Polygon3.h"
+
+#include "Surface.h"
 #include <cstddef>
 #include <vector>
 
-struct Ellipse {
+struct Ellipse: public AffineTransformMatrix {
 public:
-	struct Point {
-	public:
-		Point() = default;
-		Point(double x, double y) :
-				x(x), y(y) {
-		}
-		virtual ~Point() = default;
-		double x = 0.0;
-		double y = 0.0;
-	};
 	Ellipse() = default;
 	virtual ~Ellipse() = default;
-
-	double w = 0.0; ///< Width of the ellipse in x-direction
-	double h = 0.0; ///< Height of the ellipse in y-direction
 
 	double Excentricity() const;
 	double Circumfence() const;
@@ -70,14 +62,16 @@ public:
 	 * of Ellipse::Point.
 	 *
 	 * \param nrOfPoints Number of points on the circumfence to generate
-	 * \return vector of Ellipse::Point
+	 * \return Geometry with points an edges.
 	 */
-	std::vector<Point> SteinerConstruction(size_t nrOfPoints) const;
+	Polygon3 SteinerConstruction(size_t nrOfPoints) const;
+
+	Polynomial3 GetSpline(size_t N, size_t n) const;
 
 	void Paint() const;
 
 private:
-	double E(const double e) const; ///< Complete elliptic integral of the 2nd kind as series evaluation
+	static double E(const double e); ///< Complete elliptic integral of the 2nd kind as series evaluation
 };
 
 #endif /* ELLIPSE_H */

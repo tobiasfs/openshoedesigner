@@ -28,7 +28,9 @@
 #include "Project.h"
 #include "Configuration.h"
 
+#include "../system/StopWatch.h"
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <stdexcept>
 
@@ -46,6 +48,34 @@ void Builder::Setup(Project &project) {
 		if (!opCoordinateSystemConstruct) {
 			opCoordinateSystemConstruct = std::make_shared<
 					CoordinateSystemConstruct>();
+			opCoordinateSystemConstruct->belowCrutchGirth =
+					footL.belowCrutchGirth;
+			opCoordinateSystemConstruct->belowCrutchLevel =
+					footL.belowCrutchLevel;
+			opCoordinateSystemConstruct->middleOfCalfGirth =
+					footL.middleOfCalfGirth;
+			opCoordinateSystemConstruct->middleOfCalfLevel =
+					footL.middleOfCalfLevel;
+			opCoordinateSystemConstruct->aboveKneeGirth = footL.aboveKneeGirth;
+			opCoordinateSystemConstruct->aboveKneeLevel = footL.aboveKneeLevel;
+			opCoordinateSystemConstruct->overKneeCapGirth =
+					footL.overKneeCapGirth;
+			opCoordinateSystemConstruct->overKneeCapLevel =
+					footL.overKneeCapLevel;
+			opCoordinateSystemConstruct->belowKneeGirth = footL.belowKneeGirth;
+			opCoordinateSystemConstruct->belowKneeLevel = footL.belowKneeLevel;
+			opCoordinateSystemConstruct->middleOfShankGirth =
+					footL.middleOfShankGirth;
+			opCoordinateSystemConstruct->middleOfShankLevel =
+					footL.middleOfShankLevel;
+			opCoordinateSystemConstruct->aboveAnkleGirth =
+					footL.aboveAnkleGirth;
+			opCoordinateSystemConstruct->aboveAnkleLevel =
+					footL.aboveAnkleLevel;
+			opCoordinateSystemConstruct->overAnkleBoneGirth =
+					footL.overAnkleBoneGirth;
+			opCoordinateSystemConstruct->overAnkleBoneLevel =
+					footL.overAnkleBoneLevel;
 			operations.push_back(opCoordinateSystemConstruct);
 		}
 		if (!opFootModelLoad) {
@@ -67,15 +97,13 @@ void Builder::Setup(Project &project) {
 			opFootScanLoad->filename = config.filenameScan;
 			operations.push_back(opFootScanLoad);
 		}
+		if (!opHeelConstruct) {
+			opHeelConstruct = std::make_shared<HeelConstruct>();
+			opHeelConstruct->heelCode = config.heelCode;
+			operations.push_back(opHeelConstruct);
+		}
 		if (!opHeelExtractInsole) {
 			opHeelExtractInsole = std::make_shared<HeelExtractInsole>();
-			opHeelExtractInsole->footLength = footL.footLength;
-			opHeelExtractInsole->ballMeasurementAngle =
-					config.ballMeasurementAngle;
-			opHeelExtractInsole->heelDirectionAngle = config.heelDirectionAngle;
-			opHeelExtractInsole->littleToeAngle = config.littleToeAngle;
-			opHeelExtractInsole->bigToeAngle = config.bigToeAngle;
-			opHeelExtractInsole->extraLength = config.extraLength;
 			operations.push_back(opHeelExtractInsole);
 		}
 		if (!opHeelLoad) {
@@ -88,16 +116,27 @@ void Builder::Setup(Project &project) {
 			opHeelNormalize->heelReorient = config.heelReorient;
 			operations.push_back(opHeelNormalize);
 		}
+		if (!opInsoleAnalyze) {
+			opInsoleAnalyze = std::make_shared<InsoleAnalyze>();
+			opInsoleAnalyze->footLength = footL.footLength;
+			opInsoleAnalyze->ballMeasurementAngle = config.ballMeasurementAngle;
+			opInsoleAnalyze->heelDirectionAngle = config.heelDirectionAngle;
+			opInsoleAnalyze->littleToeAngle = config.littleToeAngle;
+			opInsoleAnalyze->bigToeAngle = config.bigToeAngle;
+			opInsoleAnalyze->extraLength = config.extraLength;
+			operations.push_back(opInsoleAnalyze);
+		}
 		if (!opInsoleConstruct) {
 			opInsoleConstruct = std::make_shared<InsoleConstruct>();
 			opInsoleConstruct->footLength = footL.footLength;
+			opInsoleConstruct->ballWidth = footL.ballWidth;
+			opInsoleConstruct->heelWidth = footL.heelWidth;
 			opInsoleConstruct->ballMeasurementAngle =
 					config.ballMeasurementAngle;
 			opInsoleConstruct->heelDirectionAngle = config.heelDirectionAngle;
 			opInsoleConstruct->littleToeAngle = config.littleToeAngle;
 			opInsoleConstruct->bigToeAngle = config.bigToeAngle;
-			opInsoleConstruct->ballWidth = footL.ballWidth;
-			opInsoleConstruct->heelWidth = footL.heelWidth;
+			opInsoleConstruct->tipSharpness = config.tipSharpness;
 			opInsoleConstruct->extraLength = config.extraLength;
 			operations.push_back(opInsoleConstruct);
 		}
@@ -118,6 +157,10 @@ void Builder::Setup(Project &project) {
 			opLastAnalyse = std::make_shared<LastAnalyse>();
 			opLastAnalyse->lastReorient = config.lastReorient;
 			operations.push_back(opLastAnalyse);
+		}
+		if (!opLastConstruct) {
+			opLastConstruct = std::make_shared<LastConstruct>();
+			operations.push_back(opLastConstruct);
 		}
 		if (!opLastLoad) {
 			opLastLoad = std::make_shared<ObjectLoad>();
@@ -143,34 +186,133 @@ void Builder::Setup(Project &project) {
 	Connect(project);
 }
 
+void Builder::ToDot(std::ostream &out, const Project &project) const {
+
+	out << "digraph{\n";
+	out << "rankdir=TB;\n";
+	out
+			<< "opCoordinateSystemConstruct [shape=record,label=\"{ <i1> in }| opCoordinateSystemConstruct | { <o1> out }\"];\n";
+	out << "\"" << opCoordinateSystemConstruct->in
+			<< "\" -> opCoordinateSystemConstruct:i1;\n";
+	out << "opCoordinateSystemConstruct:o1 -> \""
+			<< opCoordinateSystemConstruct->out << "\";\n";
+	out
+			<< "opFootModelLoad [shape=record,label=\"{  }| opFootModelLoad | { <o1> out }\"];\n";
+	out << "opFootModelLoad:o1 -> \"" << opFootModelLoad->out << "\";\n";
+	out
+			<< "opFootModelUpdate [shape=record,label=\"{ <i1> in }| opFootModelUpdate | { <o1> out }\"];\n";
+	out << "\"" << opFootModelUpdate->in << "\" -> opFootModelUpdate:i1;\n";
+	out << "opFootModelUpdate:o1 -> \"" << opFootModelUpdate->out << "\";\n";
+	out
+			<< "opFootScanLoad [shape=record,label=\"{  }| opFootScanLoad | { <o1> out }\"];\n";
+	out << "opFootScanLoad:o1 -> \"" << opFootScanLoad->out << "\";\n";
+	out
+			<< "opHeelConstruct [shape=record,label=\"{ <i1> in }| opHeelConstruct | { <o1> out }\"];\n";
+	out << "\"" << opHeelConstruct->in << "\" -> opHeelConstruct:i1;\n";
+	out << "opHeelConstruct:o1 -> \"" << opHeelConstruct->out << "\";\n";
+	out
+			<< "opHeelExtractInsole [shape=record,label=\"{ <i1> in }| opHeelExtractInsole | { <o1> out }\"];\n";
+	out << "\"" << opHeelExtractInsole->in << "\" -> opHeelExtractInsole:i1;\n";
+	out << "opHeelExtractInsole:o1 -> \"" << opHeelExtractInsole->out
+			<< "\";\n";
+	out
+			<< "opHeelLoad [shape=record,label=\"{  }| opHeelLoad | { <o1> out }\"];\n";
+	out << "opHeelLoad:o1 -> \"" << opHeelLoad->out << "\";\n";
+	out
+			<< "opHeelNormalize [shape=record,label=\"{ <i1> in }| opHeelNormalize | { <o1> out }\"];\n";
+	out << "\"" << opHeelNormalize->in << "\" -> opHeelNormalize:i1;\n";
+	out << "opHeelNormalize:o1 -> \"" << opHeelNormalize->out << "\";\n";
+	out
+			<< "opInsoleAnalyze [shape=record,label=\"{ <i1> in }| opInsoleAnalyze | { <o1> out }\"];\n";
+	out << "\"" << opInsoleAnalyze->in << "\" -> opInsoleAnalyze:i1;\n";
+	out << "opInsoleAnalyze:o1 -> \"" << opInsoleAnalyze->out << "\";\n";
+	out
+			<< "opInsoleConstruct [shape=record,label=\"{  }| opInsoleConstruct | { <o1> out }\"];\n";
+	out << "opInsoleConstruct:o1 -> \"" << opInsoleConstruct->out << "\";\n";
+	out
+			<< "opInsoleFlatten [shape=record,label=\"{ <i1> in }| opInsoleFlatten | { <o1> out }\"];\n";
+	out << "\"" << opInsoleFlatten->in << "\" -> opInsoleFlatten:i1;\n";
+	out << "opInsoleFlatten:o1 -> \"" << opInsoleFlatten->out << "\";\n";
+	out
+			<< "opInsoleTransform [shape=record,label=\"{ <i1> in }| opInsoleTransform | { <o1> out }\"];\n";
+	out << "\"" << opInsoleTransform->in << "\" -> opInsoleTransform:i1;\n";
+	out << "opInsoleTransform:o1 -> \"" << opInsoleTransform->out << "\";\n";
+	out
+			<< "opLastAnalyse [shape=record,label=\"{ <i1> in }| opLastAnalyse | { <o1> out }\"];\n";
+	out << "\"" << opLastAnalyse->in << "\" -> opLastAnalyse:i1;\n";
+	out << "opLastAnalyse:o1 -> \"" << opLastAnalyse->out << "\";\n";
+	out
+			<< "opLastConstruct [shape=record,label=\"{ <i1> insole | <i2> cs }| opLastConstruct | { <o1> out }\"];\n";
+	out << "\"" << opLastConstruct->insole << "\" -> opLastConstruct:i1;\n";
+	out << "\"" << opLastConstruct->cs << "\" -> opLastConstruct:i2;\n";
+	out << "opLastConstruct:o1 -> \"" << opLastConstruct->out << "\";\n";
+	out
+			<< "opLastLoad [shape=record,label=\"{  }| opLastLoad | { <o1> out }\"];\n";
+	out << "opLastLoad:o1 -> \"" << opLastLoad->out << "\";\n";
+	out
+			<< "opLastNormalize [shape=record,label=\"{ <i1> in }| opLastNormalize | { <o1> out }\"];\n";
+	out << "\"" << opLastNormalize->in << "\" -> opLastNormalize:i1;\n";
+	out << "opLastNormalize:o1 -> \"" << opLastNormalize->out << "\";\n";
+	out
+			<< "opLastUpdate [shape=record,label=\"{ <i1> in }| opLastUpdate | { <o1> out }\"];\n";
+	out << "\"" << opLastUpdate->in << "\" -> opLastUpdate:i1;\n";
+	out << "opLastUpdate:o1 -> \"" << opLastUpdate->out << "\";\n";
+
+	out
+			<< "project [shape=record,label=\"{ <i1> insoleFlatL | <i2> insoleL | <i3> heelL | <i4> lastL | <i5> csL}| project | { }\"];\n";
+	out << "\"" << project.insoleFlatL << "\" -> project:i1;\n";
+	out << "\"" << project.insoleL << "\" -> project:i2;\n";
+	out << "\"" << project.heelL << "\" -> project:i3;\n";
+	out << "\"" << project.lastL << "\" -> project:i4;\n";
+	out << "\"" << project.csL << "\" -> project:i5;\n";
+
+	out << "}\n";
+
+}
+
 void Builder::Connect(Project &project) {
 	auto &config = project.config;
 
 	const bool symmetric = (project.footL == project.footR);
 
+	opFootModelUpdate->in = opFootModelLoad->out;
+
+
 	if (config.heelConstructionType->IsSelection("construct")) {
 		opInsoleTransform->in = opInsoleConstruct->out;
 		project.insoleFlatL = opInsoleConstruct->out;
 		project.insoleL = opInsoleTransform->out;
+		opHeelConstruct->in = project.insoleL;
+		project.heelL = opHeelConstruct->out;
+
 		project.insoleFlatR = project.insoleFlatL;
 		project.insoleR = project.insoleL;
+		project.heelR = project.heelL;
 	}
 
 	if (config.heelConstructionType->IsSelection("loadFromFile")) {
 		opHeelNormalize->in = opHeelLoad->out;
 		project.heelL = opHeelNormalize->out;
 		opHeelExtractInsole->in = opHeelNormalize->out;
-		project.insoleL = opHeelExtractInsole->out;
+		opInsoleAnalyze->in = opHeelExtractInsole->out;
+		project.insoleL = opInsoleAnalyze->out;
 		opInsoleFlatten->in = project.insoleL;
 		project.insoleFlatL = opInsoleFlatten->out;
 
-		project.heelR = project.heelL;
 		project.insoleFlatR = project.insoleFlatL;
 		project.insoleR = project.insoleL;
+		project.heelR = project.heelL;
 	}
 
-	if (config.lastConstructionType->IsSelection("construct")) {
+	opCoordinateSystemConstruct->in = project.insoleL;
+	project.csL = opCoordinateSystemConstruct->out;
+	project.csR = project.csL;
 
+	if (config.lastConstructionType->IsSelection("construct")) {
+		opLastConstruct->cs = project.csL;
+		opLastConstruct->insole = project.insoleL;
+		opLastAnalyse->in = opLastConstruct->out;
+		project.lastL = opLastAnalyse->out;
 	}
 
 	if (config.lastConstructionType->IsSelection("boneBased")) {
@@ -180,13 +322,31 @@ void Builder::Connect(Project &project) {
 	if (config.lastConstructionType->IsSelection("loadFromFile")) {
 		opLastNormalize->in = opLastLoad->out;
 		opLastAnalyse->in = opLastNormalize->out;
-		project.lastR = opLastAnalyse->out;
-		project.lastL = opLastAnalyse->out;
+		opLastUpdate->in = opLastAnalyse->out;
+		project.lastR = opLastUpdate->out;
+		project.lastL = opLastUpdate->out;
 	}
 
-	opCoordinateSystemConstruct->in = project.insoleL;
-	project.csL = opCoordinateSystemConstruct->out;
-	project.csR = project.csL;
+	if (config.heelConstructionType->IsModified()) {
+		project.insoleFlatL->MarkValid(false);
+		project.insoleFlatR->MarkValid(false);
+		project.insoleL->MarkValid(false);
+		project.insoleR->MarkValid(false);
+		project.heelL->MarkValid(false);
+		project.heelR->MarkValid(false);
+		DEBUGOUT << __FUNCTION__ << "heelConstructionType = "
+				<< config.heelConstructionType->GetString() << "\n";
+		DEBUGOUT << __FUNCTION__ << "lastConstructionType = "
+				<< config.lastConstructionType->GetString() << "\n";
+	}
+
+#ifdef DEBUG
+	{
+		std::ofstream out("/tmp/graph.dot");
+		ToDot(out, project);
+	}
+#endif
+
 }
 
 void Builder::Update(Project &project) {
@@ -217,7 +377,15 @@ void Builder::Update(Project &project) {
 	}
 
 	// Single threaded execution for debugging
+
+	bool hasToRun = false;
+	for (auto &op : operations)
+		hasToRun |= op->HasToRun();
+	if (!hasToRun)
+		return;
+
 	DEBUGOUT << "----- Updating -----\n";
+	StopWatch sw;
 	bool operations_complete = false;
 	while (!operations_complete) {
 		operations_complete = true;
@@ -228,7 +396,8 @@ void Builder::Update(Project &project) {
 				operations_complete = false;
 			}
 	}
-	DEBUGOUT << "----- done -----\n";
+	sw.Stop();
+	DEBUGOUT << "----- Updating done in " << sw.GetSecondsCPU() << "s -----\n";
 }
 
 void Builder::Paint() const {

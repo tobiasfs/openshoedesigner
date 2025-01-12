@@ -47,6 +47,7 @@ public:
 
 public:
 	void UpdateBoundingBox();
+	void SelectFacesCloseTo(const Vector3 &normalVector);
 
 public:
 	BoundingBox BB;

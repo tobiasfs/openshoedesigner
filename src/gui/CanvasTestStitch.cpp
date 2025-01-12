@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : CanvasWalkcycle.h
-// Purpose            :
+// Name               : CanvasTestStitch.cpp
+// Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 30.10.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 11.01.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,33 +23,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#include "CanvasTestStitch.h"
 
-#ifndef CANVASWALKCYCLE_H
-#define CANVASWALKCYCLE_H
+CanvasTestStitch::CanvasTestStitch(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		OpenGLCanvas(parent, id, pos, size, style, name) {
 
-/*!\class CanvasWalkcycle
- * \brief ...
- *
- * ...
- */
+}
 
-#include "CanvasGraph.h"
+CanvasTestStitch::~CanvasTestStitch() {
+}
 
-class CanvasWalkcycle: public CanvasGraph {
-public:
-	CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-			const wxString &name = wxPanelNameStr);
-	virtual ~CanvasWalkcycle();
+void CanvasTestStitch::Render() {
 
-protected:
+}
 
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent &event);
-	void OnLeftDown(wxMouseEvent &event);
-};
-
-#endif /* CANVASWALKCYCLE_H */

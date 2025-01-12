@@ -38,14 +38,16 @@
 
 class Canvas3D: public OpenGLCanvas {
 public:
-	Canvas3D(wxWindow *parent);
+	Canvas3D(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
+			wxDefaultPosition, const wxSize &size = wxDefaultSize, long style =
+			0, const wxString &name = _T("Canvas3D"));
 	virtual ~Canvas3D() = default;
 	void SetProjectView(const ProjectView *projectview);
 //
 //	void ConnectMouseEvents();
 //	void DisconnectMouseEvents();
-	void Render();
-	void RenderPick();
+	void Render() override;
+	void RenderPick() override;
 
 protected:
 	void PaintCorrdinateSystem();

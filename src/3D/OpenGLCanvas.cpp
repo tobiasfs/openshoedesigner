@@ -523,7 +523,8 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 //		InitGL(); // Init OpenGL once, but after SetCurrent
 //		isInitialized = true;
 //	}
-	int w, h;
+	int w;
+	int h;
 	GetClientSize(&w, &h);
 	glViewport(0, 0, (GLint) w, (GLint) h);
 
@@ -582,75 +583,75 @@ void OpenGLCanvas::RenderPick() {
 	this->Render();
 }
 
-void OpenGLCanvas::Render() {
-	glPushMatrix();
-
-	GLfloat x = 1.0;
-	GLfloat y = 0.5;
-	GLfloat z = 2.0;
-
-	GLfloat t = (float) sqrt(x * x + y * y + z * z);
-	GLfloat nx = x / t;
-	GLfloat ny = y / t;
-	GLfloat nz = z / t;
-
-	glBegin(GL_QUADS);
-	glNormal3f(nx, ny, nz);
-	glVertex3f(x, y, z);
-	glNormal3f(nx, -ny, nz);
-	glVertex3f(x, -y, z);
-	glNormal3f(nx, -ny, -nz);
-	glVertex3f(x, -y, -z);
-	glNormal3f(nx, ny, -nz);
-	glVertex3f(x, y, -z);
-
-	glNormal3f(-nx, ny, nz);
-	glVertex3f(-x, y, z);
-	glNormal3f(-nx, ny, -nz);
-	glVertex3f(-x, y, -z);
-	glNormal3f(-nx, -ny, -nz);
-	glVertex3f(-x, -y, -z);
-	glNormal3f(-nx, -ny, nz);
-	glVertex3f(-x, -y, z);
-
-	glNormal3f(nx, ny, nz);
-	glVertex3f(x, y, z);
-	glNormal3f(nx, ny, -nz);
-	glVertex3f(x, y, -z);
-	glNormal3f(-nx, ny, -nz);
-	glVertex3f(-x, y, -z);
-	glNormal3f(-nx, ny, nz);
-	glVertex3f(-x, y, z);
-
-	glNormal3f(nx, -ny, nz);
-	glVertex3f(x, -y, z);
-	glNormal3f(-nx, -ny, nz);
-	glVertex3f(-x, -y, z);
-	glNormal3f(-nx, -ny, -nz);
-	glVertex3f(-x, -y, -z);
-	glNormal3f(nx, -ny, -nz);
-	glVertex3f(x, -y, -z);
-
-	glNormal3f(nx, ny, nz);
-	glVertex3f(x, y, z);
-	glNormal3f(-nx, ny, nz);
-	glVertex3f(-x, y, z);
-	glNormal3f(-nx, -ny, nz);
-	glVertex3f(-x, -y, z);
-	glNormal3f(nx, -ny, nz);
-	glVertex3f(x, -y, z);
-
-	glNormal3f(nx, ny, -nz);
-	glVertex3f(x, y, -z);
-	glNormal3f(nx, -ny, -nz);
-	glVertex3f(x, -y, -z);
-	glNormal3f(-nx, -ny, -nz);
-	glVertex3f(-x, -y, -z);
-	glNormal3f(-nx, ny, -nz);
-	glVertex3f(-x, y, -z);
-
-	glEnd();
-
-	glPopMatrix();
-}
+//void OpenGLCanvas::Render() {
+//	glPushMatrix();
+//
+//	GLfloat x = 1.0;
+//	GLfloat y = 0.5;
+//	GLfloat z = 2.0;
+//
+//	GLfloat t = (float) sqrt(x * x + y * y + z * z);
+//	GLfloat nx = x / t;
+//	GLfloat ny = y / t;
+//	GLfloat nz = z / t;
+//
+//	glBegin(GL_QUADS);
+//	glNormal3f(nx, ny, nz);
+//	glVertex3f(x, y, z);
+//	glNormal3f(nx, -ny, nz);
+//	glVertex3f(x, -y, z);
+//	glNormal3f(nx, -ny, -nz);
+//	glVertex3f(x, -y, -z);
+//	glNormal3f(nx, ny, -nz);
+//	glVertex3f(x, y, -z);
+//
+//	glNormal3f(-nx, ny, nz);
+//	glVertex3f(-x, y, z);
+//	glNormal3f(-nx, ny, -nz);
+//	glVertex3f(-x, y, -z);
+//	glNormal3f(-nx, -ny, -nz);
+//	glVertex3f(-x, -y, -z);
+//	glNormal3f(-nx, -ny, nz);
+//	glVertex3f(-x, -y, z);
+//
+//	glNormal3f(nx, ny, nz);
+//	glVertex3f(x, y, z);
+//	glNormal3f(nx, ny, -nz);
+//	glVertex3f(x, y, -z);
+//	glNormal3f(-nx, ny, -nz);
+//	glVertex3f(-x, y, -z);
+//	glNormal3f(-nx, ny, nz);
+//	glVertex3f(-x, y, z);
+//
+//	glNormal3f(nx, -ny, nz);
+//	glVertex3f(x, -y, z);
+//	glNormal3f(-nx, -ny, nz);
+//	glVertex3f(-x, -y, z);
+//	glNormal3f(-nx, -ny, -nz);
+//	glVertex3f(-x, -y, -z);
+//	glNormal3f(nx, -ny, -nz);
+//	glVertex3f(x, -y, -z);
+//
+//	glNormal3f(nx, ny, nz);
+//	glVertex3f(x, y, z);
+//	glNormal3f(-nx, ny, nz);
+//	glVertex3f(-x, y, z);
+//	glNormal3f(-nx, -ny, nz);
+//	glVertex3f(-x, -y, z);
+//	glNormal3f(nx, -ny, nz);
+//	glVertex3f(x, -y, z);
+//
+//	glNormal3f(nx, ny, -nz);
+//	glVertex3f(x, y, -z);
+//	glNormal3f(nx, -ny, -nz);
+//	glVertex3f(x, -y, -z);
+//	glNormal3f(-nx, -ny, -nz);
+//	glVertex3f(-x, -y, -z);
+//	glNormal3f(-nx, ny, -nz);
+//	glVertex3f(-x, y, -z);
+//
+//	glEnd();
+//
+//	glPopMatrix();
+//}
 

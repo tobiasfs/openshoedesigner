@@ -28,8 +28,9 @@
 #include <wx/dcclient.h>
 
 CanvasWalkcycle::CanvasWalkcycle(wxWindow *parent, wxWindowID id,
-		const wxPoint &pos, const wxSize &size, long style) :
-		wxPanel(parent, id, pos, size, style) {
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		CanvasGraph(parent, id, pos, size, style, name) {
 
 //	this->SetBackgroundColour(wxColour(200, 200, 200));
 

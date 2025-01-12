@@ -403,7 +403,8 @@ void SVD::Decompose(const Matrix &A) {
 				break;
 			}
 			if (flagRun1) {
-				std::cout << "\nThis matrix has a very bad solvability.\n";
+				std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__
+						<< ": This matrix has a very bad solvability.\n";
 				break;
 			}
 
@@ -574,6 +575,30 @@ Matrix SVD::Solve(const Matrix &Y, double maxCond, double minAllowed) const {
 		}
 	}
 
+	return X;
+}
+
+Matrix SVD::Variation(double maxCond, double minAllowed) const {
+	const size_t NI = V.Size(0);
+	Matrix X = Matrix::Eye(NI, NI);
+
+	const double smax = W.Max();
+	const double smin = (std::isinf(maxCond)) ? 0.0 : (smax / maxCond);
+
+	auto Wc = W.Pointer();
+	auto Vc = V.Pointer();
+	const size_t Vcol = V.Size(0);
+
+	for (size_t J = 0; J < Vcol; ++J) {
+		const double SV = Wc[J];
+		if (SV < smin || SV < minAllowed || SV <= DBL_EPSILON)
+			continue;
+		for (size_t I = 0; I < NI; ++I) {
+			for (size_t K = 0; K < NI; ++K) {
+				X(I, K) -= V(I, J) * V(K, J);
+			}
+		}
+	}
 	return X;
 }
 

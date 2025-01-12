@@ -29,8 +29,9 @@
 #include <wx/dcclient.h>
 
 CanvasMeasurementGrid::CanvasMeasurementGrid(wxWindow *parent, wxWindowID id,
-		const wxPoint &pos, const wxSize &size, long style) :
-		wxPanel(parent, id, pos, size, style) {
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		wxPanel(parent, id, pos, size, style, name) {
 
 	unit = Unit("cm");
 
@@ -116,7 +117,6 @@ void CanvasMeasurementGrid::OnMouseEvent(wxMouseEvent &event) {
 }
 
 void CanvasMeasurementGrid::OnPaint(wxPaintEvent &event) {
-	wxPoint temp;
 	wxPaintDC dc(this);
 #ifdef DEBUG
 	dc.DrawText(_T("CanvasMeasurementGrid"), 10, 10);

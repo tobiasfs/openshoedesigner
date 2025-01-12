@@ -78,7 +78,8 @@ public:
 	class Vertex: public Vector3 {
 	public:
 		Vertex() = default;
-		Vertex(double x_, double y_, double z_);
+		Vertex(double x_, double y_, double z_ = 0.0, double u_ = 0.0,
+				double v_ = 0.0);
 		Vertex(const Vector3 &vector, const Vector3 &normal = Vector3());
 
 		void Transform(const AffineTransformMatrix &m);
@@ -421,25 +422,6 @@ public:
 	 */
 	void Join();
 
-	/**\brief Spread normals from the vertices to the edges and triangles
-	 *
-	 * Is called internally by Finish(), because that function averages some of
-	 * the normal information by combining vertices and edges.
-	 *
-	 * If some normals are defined for the geometry (for triangles, edges or
-	 * vertices) these are spread to the elements without normals. If no
-	 * normals are available at all, the function CalculateNormals() is called.
-	 */
-	void PropagateNormals();
-
-	/**\brief Calculate the UV coordinate system with normal, tangent and
-	 * bi-tangent.
-	 *
-	 * These coordinate systems are used by the shaders to display the textures
-	 * correctly.
-	 */
-	void CalculateUVCoordinateSystems();
-
 	/**\brief Finish the insertion process.
 	 *
 	 * Spreads the normals, fixes, sorts and joins the vertices, edges and
@@ -486,8 +468,8 @@ public:
 	 *                          turned off for checking some polygon structures.
 	 * \return True, if there are no errors in the geometry.
 	 */
-	bool SelfCheckPassed(size_t maxErrorsPerType = 10, bool checkWellOrdering =
-			true) const;
+	bool SelfCheckPassed(bool checkWellOrdering = false,
+			size_t maxErrorsPerType = 10) const;
 
 	/**\}
 	 */
@@ -498,8 +480,41 @@ public:
 	 * anew.
 	 */
 	void CalculateNormals();
-	void FlipNormals(); ///< Flip the normal vectors of vertices, edges and triangles.
+
+	/**\brief Spread normals from the vertices to the edges and triangles
+	 *
+	 * Is called internally by Finish(), because that function averages some of
+	 * the normal information by combining vertices and edges.
+	 *
+	 * If some normals are defined for the geometry (for triangles, edges or
+	 * vertices) these are spread to the elements without normals. If no
+	 * normals are available at all, the function CalculateNormals() is called.
+	 */
+	void PropagateNormals();
+
+	/**\brief Update the normals of the vertices, edges, or triangles
+	 *
+	 * Use this function, if the vertices were updated together with the
+	 * vertex normals externally and need to propagate to the edges and
+	 * triangles.
+	 */
+	void UpdateNormals(bool updateVertices = false, bool updateEdges = true,
+			bool updateTriangles = true);
+
+	/**\brief Flip the normal vectors of vertices, edges and triangles.
+	 */
+	void FlipNormals();
+
+	/**\brief Calculate the UV coordinate system with normal, tangent and
+	 * bi-tangent.
+	 *
+	 * These coordinate systems are used by the shaders to display the textures
+	 * correctly.
+	 */
+	void CalculateUVCoordinateSystems();
+
 	void FlipInsideOutside(); ///< Flip all edges and all triangles, normals are not changed.
+
 	void CalcSharpEdges(double angle); ///< For each edge decide, if sharp, given an max angle.
 
 	/**\brief Reset group indices

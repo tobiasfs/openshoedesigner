@@ -38,6 +38,7 @@
 
 #include "../CoordinateSystem.h"
 #include "../object/Insole.h"
+#include "../ParameterFormula.h"
 
 #include <memory>
 class CoordinateSystemConstruct: public Operation {
@@ -54,6 +55,23 @@ public:
 public:
 	std::shared_ptr<Insole> in;
 	std::shared_ptr<CoordinateSystem> out;
+
+	std::shared_ptr<ParameterFormula> belowCrutchGirth;
+	std::shared_ptr<ParameterFormula> belowCrutchLevel;
+	std::shared_ptr<ParameterFormula> middleOfCalfGirth;
+	std::shared_ptr<ParameterFormula> middleOfCalfLevel;
+	std::shared_ptr<ParameterFormula> aboveKneeGirth;
+	std::shared_ptr<ParameterFormula> aboveKneeLevel;
+	std::shared_ptr<ParameterFormula> overKneeCapGirth;
+	std::shared_ptr<ParameterFormula> overKneeCapLevel;
+	std::shared_ptr<ParameterFormula> belowKneeGirth;
+	std::shared_ptr<ParameterFormula> belowKneeLevel;
+	std::shared_ptr<ParameterFormula> middleOfShankGirth;
+	std::shared_ptr<ParameterFormula> middleOfShankLevel;
+	std::shared_ptr<ParameterFormula> aboveAnkleGirth;
+	std::shared_ptr<ParameterFormula> aboveAnkleLevel;
+	std::shared_ptr<ParameterFormula> overAnkleBoneGirth;
+	std::shared_ptr<ParameterFormula> overAnkleBoneLevel;
 
 };
 

@@ -226,6 +226,7 @@ Polynomial Polynomial::ByBezier(double v0, double v1, double v2, double v3) {
 }
 
 Polynomial Polynomial::ByBezier(const std::vector<double> &v) {
+	// https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Polynomial_form
 	switch (v.size()) {
 	case 1:
 		return Polynomial::ByBezier(v[0]);

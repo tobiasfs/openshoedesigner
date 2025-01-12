@@ -37,10 +37,12 @@
 
 class CanvasAnisotropy: public wxPanel {
 public:
-	CanvasAnisotropy(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style =
-			wxTAB_TRAVERSAL);
+	CanvasAnisotropy(wxWindow *parent,
+            wxWindowID id = wxID_ANY,
+            const wxPoint& pos = wxDefaultPosition,
+            const wxSize& size = wxDefaultSize,
+            long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+            const wxString& name = wxPanelNameStr);
 	virtual ~CanvasAnisotropy();
 
 protected:

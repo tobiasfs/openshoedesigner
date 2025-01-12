@@ -25,6 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "InsoleFlatten.h"
 
+#include <cfloat>
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
@@ -83,7 +84,117 @@ bool InsoleFlatten::HasToRun() {
 void InsoleFlatten::Run() {
 	*out = *in;
 
-	std::cerr << GetName() << ": No Operation implemented.\n";
+	out->MarkValid(true);
+	out->MarkNeeded(false);
+	return;
+
+	//TODO Bugfix and activate below
+
+	// Find the start triangle closest to the origin.
+	size_t n;
+	for (n = 0; n < out->TriangleCount(); ++n) {
+		const auto &v0 = out->GetTriangleVertex(n, 0);
+		const auto &v1 = out->GetTriangleVertex(n, 1);
+		const auto &v2 = out->GetTriangleVertex(n, 2);
+		if (v0.x < 0.0 && v1.x < 0.0 && v2.x < 0.0)
+			continue;
+		if (v0.x > 0.0 && v1.x > 0.0 && v2.x > 0.0)
+			continue;
+		break;
+	}
+	if (n >= out->TriangleCount()) {
+		out->MarkNeeded(false);
+		error += GetName() + ": The Insole does not reach to the origin.";
+		return;
+	}
+
+	// UV-Map the insole starting from the start triangle
+	// Reset UV Map
+	for (n = 0; n < out->VertexCount(); ++n) {
+		auto &v = out->GetVertex(n);
+		v.u = -DBL_MAX;
+		v.v = -DBL_MAX;
+	}
+
+	// Map the start triangle.
+	{
+		const auto &t0 = out->GetTriangle(n);
+		Geometry::Vertex &v0 = out->GetVertex(t0.va);
+		Geometry::Vertex &v1 = out->GetVertex(t0.vb);
+		Geometry::Vertex &v2 = out->GetVertex(t0.vc);
+
+		AffineTransformMatrix m;
+		m.SetEz(t0.n);
+		m.CalculateEx();
+		m.CalculateEy();
+		m.SetOrigin(
+				{ 0, 0, v0.z + v0.x * t0.n.x / t0.n.z + v0.y * t0.n.y / t0.n.z });
+
+		v0.u = m.LocalX(v0);
+		v1.u = m.LocalX(v1);
+		v2.u = m.LocalX(v2);
+		v0.v = m.LocalY(v0);
+		v1.v = m.LocalY(v1);
+		v2.v = m.LocalY(v2);
+	}
+
+	bool again = true;
+
+	while (again) {
+
+		for (size_t m2 = 0; m2 < out->TriangleCount(); ++m2) {
+			again = false;
+			const auto &t = out->GetTriangle(m2);
+			Geometry::Vertex &v0 = out->GetVertex(t.va);
+			Geometry::Vertex &v1 = out->GetVertex(t.vb);
+			Geometry::Vertex &v2 = out->GetVertex(t.vc);
+
+			if (v0.u < -FLT_MAX && v0.v < -FLT_MAX && v1.u < -FLT_MAX
+					&& v1.v < -FLT_MAX && v2.u < -FLT_MAX && v2.v < -FLT_MAX)
+				continue;
+			if (v0.u >= -FLT_MAX && v0.v >= -FLT_MAX && v1.u >= -FLT_MAX
+					&& v1.v >= -FLT_MAX && v2.u >= -FLT_MAX && v2.v >= -FLT_MAX)
+				continue;
+
+			again = true;
+			AffineTransformMatrix m;
+			m.SetEz(t.n);
+			m.CalculateEx();
+			m.CalculateEy();
+
+			if (v0.u > -FLT_MAX && v0.v > -FLT_MAX) {
+				Vector3 c = m.Transform(v0.u, v0.v);
+				m.SetOrigin(-c);
+			}
+			if (v1.u > -FLT_MAX && v1.v > -FLT_MAX) {
+				Vector3 c = m.Transform(v1.u, v1.v);
+				m.SetOrigin(-c);
+			}
+			if (v2.u > -FLT_MAX && v2.v > -FLT_MAX) {
+				Vector3 c = m.Transform(v2.u, v2.v);
+				m.SetOrigin(-c);
+			}
+			if (v0.u < -FLT_MAX || v0.v < -FLT_MAX) {
+				v0.u = m.LocalX(v0);
+				v0.v = m.LocalY(v0);
+			}
+			if (v1.u < -FLT_MAX || v1.v < -FLT_MAX) {
+				v1.u = m.LocalX(v1);
+				v1.v = m.LocalY(v1);
+			}
+			if (v2.u < -FLT_MAX || v2.v < -FLT_MAX) {
+				v2.u = m.LocalX(v2);
+				v2.v = m.LocalY(v2);
+			}
+		}
+	}
+
+	for (n = 0; n < out->VertexCount(); ++n) {
+		auto &v = out->GetVertex(n);
+		v.x = v.u;
+		v.y = v.v;
+		v.z = 0.0;
+	}
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

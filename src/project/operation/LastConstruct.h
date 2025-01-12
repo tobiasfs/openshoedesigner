@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : CanvasWalkcycle.h
-// Purpose            :
+// Name               : LastConstruct.h
+// Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 30.10.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 12.01.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,33 +23,39 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#ifndef SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
+#define SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
 
-#ifndef CANVASWALKCYCLE_H
-#define CANVASWALKCYCLE_H
-
-/*!\class CanvasWalkcycle
- * \brief ...
+/** \class LastConstruct
+ * 	\code #include "LastConstruct.h"\endcode
+ * 	\ingroup GroupName
+ *  \brief Description
  *
- * ...
+ * Text
  */
 
-#include "CanvasGraph.h"
+#include "Operation.h"
 
-class CanvasWalkcycle: public CanvasGraph {
+#include "../CoordinateSystem.h"
+#include "../object/Insole.h"
+#include "../object/ObjectGeometry.h"
+
+#include <memory>
+class LastConstruct: public Operation {
 public:
-	CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-			const wxString &name = wxPanelNameStr);
-	virtual ~CanvasWalkcycle();
+	LastConstruct();
+	virtual ~LastConstruct() = default;
 
-protected:
+	virtual std::string GetName() const override;
+	virtual bool CanRun() override;
+	virtual bool Propagate() override;
+	virtual bool HasToRun() override;
+	virtual void Run() override;
 
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent &event);
-	void OnLeftDown(wxMouseEvent &event);
+public:
+	std::shared_ptr<Insole> insole;
+	std::shared_ptr<CoordinateSystem> cs;
+	std::shared_ptr<ObjectGeometry> out;
 };
 
-#endif /* CANVASWALKCYCLE_H */
+#endif /* SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_ */

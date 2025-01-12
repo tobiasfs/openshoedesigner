@@ -42,6 +42,7 @@
 #include <initializer_list>
 #include <string>
 
+class Matrix;
 class DependentVector;
 class Polygon3;
 class Geometry;
@@ -54,6 +55,7 @@ public:
 	void Add(const DependentVector &vector, const std::string &name = "");
 	void Add(const Polygon3 &polygon, const std::string &name = "");
 	void Add(const Geometry &geo, const std::string &name = "");
+	void Add(const Matrix &matrix, const std::string &name = "");
 
 	void Add(const std::initializer_list<double> &values,
 			const std::string &name);

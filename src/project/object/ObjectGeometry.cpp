@@ -26,6 +26,9 @@
 
 #include "ObjectGeometry.h"
 
+#include <sstream>
+#include <stdexcept>
+
 ObjectGeometry::ObjectGeometry(const Geometry &other) :
 		Geometry(other) {
 }
@@ -38,4 +41,33 @@ void ObjectGeometry::UpdateBoundingBox() {
 	BB.Empty();
 	for (size_t i = 0; i < VertexCount(); ++i)
 		BB.Insert(v[i]);
+}
+
+void ObjectGeometry::SelectFacesCloseTo(const Vector3 &vect) {
+
+	std::map<size_t, double> groupdir;
+	for (size_t n = 0; n < TriangleCount(); ++n) {
+		const Geometry::Triangle &tri = GetTriangle(n);
+		auto xi = groupdir.find(tri.group);
+		if (xi == groupdir.end()) {
+			groupdir[tri.group] = tri.n.Dot(vect) * GetTriangleArea(n);
+		} else {
+			xi->second += tri.n.Dot(vect) * GetTriangleArea(n);
+		}
+	}
+
+	auto it = std::max_element(groupdir.begin(), groupdir.end(),
+			[](const auto &lhs, const auto &rhs) {
+				return lhs.second < rhs.second;
+			});
+	if (it == groupdir.end()) {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " -";
+		err
+				<< "Could not find any surfaces in geometry. Is this geometry devoid of triangles?";
+		throw std::runtime_error(err.str());
+	}
+
+	UnselectAll();
+	SelectByGroup(it->first);
 }

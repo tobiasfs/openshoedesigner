@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : HeelNormalize.cpp
+// Name               : HeelConstruct.cpp
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 26.12.2024
-// Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 12.01.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,28 +23,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "HeelNormalize.h"
-
-#include <stdexcept>
+#include "HeelConstruct.h"
 #include <sstream>
+#include <stdexcept>
 
-HeelNormalize::HeelNormalize() {
+HeelConstruct::HeelConstruct() {
 	out = std::make_shared<ObjectGeometry>();
 }
 
-std::string HeelNormalize::GetName() const {
-	return "HeelNormalize";
+std::string HeelConstruct::GetName() const {
+	return "HeelConstruct";
 }
 
-bool HeelNormalize::CanRun() {
+bool HeelConstruct::CanRun() {
 	std::string missing;
 
-	if (!heelReorient)
-		missing += missing.empty() ? "\"heelReorient\"" : ", \"heelReorient\"";
 	if (!in)
 		missing += missing.empty() ? "\"in\"" : ", \"in\"";
 	if (!out)
 		missing += missing.empty() ? "\"out\"" : ", \"out\"";
+	if (!heelCode)
+		missing += missing.empty() ? "\"heelCode\"" : ", \"heelCode\"";
 
 	if (!missing.empty()) {
 		std::ostringstream err;
@@ -57,16 +56,24 @@ bool HeelNormalize::CanRun() {
 
 	error.clear();
 
+	if (heelCode->GetString().empty()) {
+		error += " Input \"heelCode\" for HeelConstruct is empty.";
+	}
+
 	return error.empty();
 }
 
-bool HeelNormalize::Propagate() {
-	if (!heelReorient || !in || !out)
+bool HeelConstruct::Propagate() {
+	if (!in || !out || !heelCode)
 		return false;
 
 	bool modify = false;
+	bool parameterModified = false;
+	parameterModified |= !in->IsValid();
+	parameterModified |= heelCode->IsModified();
+	parameterModified |= heelCode->GetString().empty();
 
-	if (!in->IsValid() || heelReorient->IsModified()) {
+	if (parameterModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
@@ -77,27 +84,15 @@ bool HeelNormalize::Propagate() {
 	return modify;
 }
 
-bool HeelNormalize::HasToRun() {
+bool HeelConstruct::HasToRun() {
 	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
 }
 
-void HeelNormalize::Run() {
-	*out = *in;
+void HeelConstruct::Run() {
 
-	if (heelReorient->GetSelectionIdx() == 1) {
-		AffineTransformMatrix mo;
-		mo.ScaleGlobal(-1, -1, 1); //TODO Automate flipping and rotation
-		out->Transform(mo);
-	}
+	out->Clear();
 
-	out->UpdateBoundingBox();
-
-	AffineTransformMatrix m;
-	m.TranslateGlobal(-out->BB.xmin, -(out->BB.ymin + out->BB.ymax) / 2.0,
-			-out->BB.zmin);
-	m.TranslateGlobal(-out->BB.GetSizeX() / 5, 0, 0);
-
-	out->Transform(m);
 	out->MarkValid(true);
 	out->MarkNeeded(false);
 }
+

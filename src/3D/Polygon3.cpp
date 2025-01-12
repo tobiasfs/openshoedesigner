@@ -89,6 +89,25 @@ void Polygon3::CloseLoopNextGroup() {
 	NextGroup();
 }
 
+void Polygon3::ExtractOutline(const Geometry &other) {
+	const Vector3 center = other.GetCenter();
+	for (size_t n = 0; n < other.EdgeCount(); ++n) {
+		const auto &ed = other.GetEdge(n);
+		if (ed.trianglecount >= 2)
+			continue;
+		const auto &v0 = other.GetEdgeVertex(n, 0);
+		const auto &v1 = other.GetEdgeVertex(n, 1);
+		SetAddNormal(ed.n);
+		Vector3 rot = (v0 - center) * (v1 - v0);
+		if (rot.z > 0.0)
+			AddEdge(v0, v1);
+		else
+			AddEdge(v1, v0);
+	}
+	Join();
+	SortLoop();
+}
+
 void Polygon3::SortLoop() {
 
 	// Un-flip edges
@@ -1107,3 +1126,17 @@ std::string Polygon3::ToString() const {
 	return s.str();
 }
 
+double Polygon3::MapU() {
+	if (v.empty())
+		return 0.0;
+	if (e.empty())
+		return 0.0;
+	v.front().u = 0.0;
+	for (Edge ed : e) {
+		auto &v0 = v[ed.va];
+		auto &v1 = v[ed.vb];
+		const double d = (v1 - v0).Abs();
+		v1.u = v0.u + d;
+	}
+	return v[e.back().vb].u;
+}

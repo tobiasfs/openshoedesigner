@@ -30,8 +30,9 @@
 #include <wx/log.h>
 
 CanvasSupport::CanvasSupport(wxWindow *parent, wxWindowID id,
-		const wxPoint &pos, const wxSize &size, long style) :
-		wxPanel(parent, id, pos, size, style) {
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		wxPanel(parent, id, pos, size, style, name) {
 
 	this->SetBackgroundColour(wxColour(200, 200, 200));
 
@@ -59,7 +60,6 @@ void CanvasSupport::OnSize(wxSizeEvent &event) {
 
 void CanvasSupport::OnPaint(wxPaintEvent &event) {
 
-	wxPoint temp;
 	wxPaintDC dc(this);
 	wxSize sz = GetClientSize();
 

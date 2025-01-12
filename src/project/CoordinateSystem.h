@@ -43,18 +43,7 @@ class LastModel;
 
 class CoordinateSystem: public Surface, public Object {
 public:
-//	CoordinateSystem() = default;
-
-	void Update();
-
-	void Paint() const;
-
-private:
-	Polygon3 inside08;
-	Polygon3 outside08;
-
-	Polynomial3 p0;
-
+	CoordinateSystem() = default;
 };
 
 #endif /* L3D_COORDINATESYSTEM_H */

@@ -46,14 +46,15 @@ class CanvasMeasurementGrid: public wxPanel {
 public:
 	CanvasMeasurementGrid(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style =
-			wxTAB_TRAVERSAL);
+					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+			const wxString &name = wxPanelNameStr);
 	virtual ~CanvasMeasurementGrid();
 
 protected:
 	void OnSize(wxSizeEvent &event);
 	void OnMouseEvent(wxMouseEvent &event);
 	void OnPaint(wxPaintEvent &event);
+
 	void PaintGrid(wxDC &dc);
 
 protected:

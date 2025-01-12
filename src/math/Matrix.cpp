@@ -30,9 +30,17 @@
 #include <cfloat>
 #include <cmath>
 #include <cstring>
+#include <sstream>
 #include <iterator>
 #include <stddef.h>
 #include <stdexcept>
+
+#define ERROR(errortxt) { \
+		std::ostringstream err; \
+		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": "; \
+		err << errortxt; \
+		throw std::runtime_error(err.str()); \
+	}
 
 Matrix::Matrix(size_t S0, size_t S1, size_t S2, size_t S3) {
 	SetSize(S0, S1, S2, S3);
@@ -81,9 +89,7 @@ Matrix Matrix::Eye(size_t S0, size_t S1) {
 Matrix Matrix::Eye(const Matrix &other) {
 	const size_t N = other.dimensions[0] * other.dimensions[1];
 	if (N != other.values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Eye(const Matrix&): The other matrix does not have only two dimensions."));
+		ERROR("The other matrix does not have only two dimensions.");
 	return Eye(other.dimensions[0], other.dimensions[1]);
 }
 
@@ -155,7 +161,7 @@ bool Matrix::IsEmpty() const {
 
 void Matrix::SetSize(const size_t S0, const size_t S1, const size_t S2,
 		const size_t S3) {
-	dimensions.resize(4, 1);
+	dimensions.resize(4);
 	dimensions[0] = S0;
 	dimensions[1] = S1;
 	dimensions[2] = S2;
@@ -184,8 +190,9 @@ size_t Matrix::Numel() const {
 
 size_t Matrix::Size(const size_t dim) const {
 	// Copy of the Octave/Matlab behavior, but 0-based
-	if (values.empty())
-		return (dim > 0) ? 1 : 0;
+	// If the dimensions are empty return 0 for dim=0 and dim=1 and 1 otherwise.
+	if (dimensions.empty())
+		return (dim > 1) ? 1 : 0;
 	if (dim >= dimensions.size())
 		return 1;
 	return dimensions[dim];
@@ -224,27 +231,26 @@ void Matrix::SetInsertPosition(const size_t p0, const size_t p1,
 
 void Matrix::Insert(const double value) {
 	if (bufferpos >= values.size())
-		throw(std::logic_error(
-				std::string(__FILE__) + ": Insert(double): Matrix full."));
+		ERROR(
+				"Matrix full, " << bufferpos << " have already been written. Additional " << values.size() << " values do not fit.");
 	values[bufferpos++] = value;
 }
 
 void Matrix::Insert(const std::initializer_list<double> values_) {
 	if (bufferpos + values_.size() > values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(initalizer_list<double>): Matrix is full."));
+		ERROR(
+				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << values_.size() << " values cannot be written.");
 	for (auto val = values_.begin(); val != values_.end(); ++val)
 		values[bufferpos++] = *val;
 }
 
 void Matrix::Insert(const double value, const size_t p0, const size_t p1) {
 	if (p0 >= this->Size(0))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": Insert(double,p0,p2): p0 >= S0."));
+		ERROR(
+				"Index p0 = " << p0 << " is larger than the dimension 0 of " << this->Size(0)<<".");
 	if (p1 >= this->Size(1))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": Insert(double,p0,p1): p0 >= S1."));
+		ERROR(
+				"Index p1 = " << p1 << " is larger than the dimension 1 of " << this->Size(1)<<".");
 	bufferpos = p0 + p1 * Size(0);
 	values[bufferpos++] = value;
 }
@@ -252,34 +258,27 @@ void Matrix::Insert(const double value, const size_t p0, const size_t p1) {
 void Matrix::Insert(const double value, const size_t p0, const size_t p1,
 		const size_t p2, const size_t p3) {
 	if (p0 >= this->Size(0))
-		throw(std::out_of_range(
-				std::string(__FILE__)
-						+ ": Insert(double,p0,p1,p2,p3): p0 >= S0."));
+		ERROR(
+				"Index p0 = " << p0 << " is larger than the dimension 0 of " << this->Size(0)<<".");
 	if (p1 >= this->Size(1))
-		throw(std::out_of_range(
-				std::string(__FILE__)
-						+ ": Insert(double,p0,p1,p2,p3): p1 >= S1."));
+		ERROR(
+				"Index p1 = " << p1 << " is larger than the dimension 1 of " << this->Size(1)<<".");
 	if (p2 >= this->Size(2))
-		throw(std::out_of_range(
-				std::string(__FILE__)
-						+ ": Insert(double,p0,p1,p2,p3): p2 >= S2."));
+		ERROR(
+				"Index p2 = " << p2 << " is larger than the dimension 2 of " << this->Size(2)<<".");
 	if (p3 >= this->Size(3))
-		throw(std::out_of_range(
-				std::string(__FILE__)
-						+ ": Insert(double,p0,p1,p2,p3): p3 >= S3."));
+		ERROR(
+				"Index p3 = " << p3 << " is larger than the dimension 3 of " << this->Size(3)<<".");
 	bufferpos = p0 + (p1 + (p2 + p3 * Size(2)) * Size(1)) * Size(0);
 	values[bufferpos++] = value;
 }
 
 void Matrix::Insert(const double *value, const size_t count) {
 	if (bufferpos + count > values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(double*,count): Matrix is full."));
+		ERROR(
+				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(double*,count): value == nullptr."));
+		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; ++i)
 		values[bufferpos++] = value[i];
 }
@@ -287,39 +286,30 @@ void Matrix::Insert(const double *value, const size_t count) {
 void Matrix::Insert(const double *value, const size_t count, const size_t p1) {
 	bufferpos = p1 * Size(0);
 	if (bufferpos + count > values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(col,double*,count): Matix full."));
+		ERROR(
+				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(col,double*,count): value == nullptr."));
+		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; ++i)
 		values[bufferpos++] = value[i];
 }
 
 void Matrix::Insert(const float *value, const size_t count) {
 	if (bufferpos + count > values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(float*,count): Matrix is full."));
+		ERROR(
+				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(float*,count): value == nullptr."));
+		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; i++)
 		values[bufferpos++] = (double) value[i];
 }
 
 void Matrix::Insert(const bool *value, const size_t count) {
 	if (bufferpos + count > values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(bool*,count): Matrix is full."));
+		ERROR(
+				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Insert(bool*,count): value == nullptr."));
+		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; i++)
 		values[bufferpos++] = value[i] ? 1.0 : 0.0;
 }
@@ -330,32 +320,32 @@ bool Matrix::IsFilled() const {
 
 double& Matrix::operator[](const size_t &index) {
 	if (index >= values.size())
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": operator[]: Access out of bounds!"));
+		ERROR(
+				"Access out of bounds: " << index << " >= " << values.size()<< ".");
 	return values[index];
 }
 
 double Matrix::operator[](const size_t &index) const {
 	if (index >= values.size())
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": operator[]: Access out of bounds!"));
+		ERROR(
+				"Access out of bounds: " << index << " >= " << values.size()<< ".");
 	return values[index];
 }
 
 double& Matrix::operator ()(const size_t p0, const size_t p1, const size_t p2,
 		const size_t p3) {
 	if (p0 >= this->Size(0))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p0 >= S0."));
+		ERROR(
+				"Index p0 = " << p0 << " is larger than the dimension 0 of " << this->Size(0)<<".");
 	if (p1 >= this->Size(1))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p1 >= S1."));
+		ERROR(
+				"Index p1 = " << p1 << " is larger than the dimension 1 of " << this->Size(1)<<".");
 	if (p2 >= this->Size(2))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p2 >= S2."));
+		ERROR(
+				"Index p2 = " << p2 << " is larger than the dimension 2 of " << this->Size(2)<<".");
 	if (p3 >= this->Size(3))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p3 >= S3."));
+		ERROR(
+				"Index p3 = " << p3 << " is larger than the dimension 3 of " << this->Size(3)<<".");
 	const size_t pos = p0 + (p1 + (p2 + p3 * Size(2)) * Size(1)) * Size(0);
 	return values[pos];
 }
@@ -363,17 +353,17 @@ double& Matrix::operator ()(const size_t p0, const size_t p1, const size_t p2,
 double Matrix::operator ()(const size_t p0, const size_t p1, const size_t p2,
 		const size_t p3) const {
 	if (p0 >= this->Size(0))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p0 >= S0."));
+		ERROR(
+				"Index p0 = " << p0 << " is larger than the dimension 0 of " << this->Size(0)<<".");
 	if (p1 >= this->Size(1))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p1 >= S1."));
+		ERROR(
+				"Index p1 = " << p1 << " is larger than the dimension 1 of " << this->Size(1)<<".");
 	if (p2 >= this->Size(2))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p2 >= S2."));
+		ERROR(
+				"Index p2 = " << p2 << " is larger than the dimension 2 of " << this->Size(2)<<".");
 	if (p3 >= this->Size(3))
-		throw(std::out_of_range(
-				std::string(__FILE__) + ": GetValue(p0,p1,p2,p3): p3 >= S3."));
+		ERROR(
+				"Index p3 = " << p3 << " is larger than the dimension 3 of " << this->Size(3)<<".");
 	const size_t pos = p0 + (p1 + (p2 + p3 * Size(2)) * Size(1)) * Size(0);
 	return values[pos];
 }
@@ -412,22 +402,18 @@ void Matrix::Reshape(const size_t S0, const size_t S1, const size_t S2,
 		newNumel *= S3;
 
 	if (nrCalculatedDimensions > 1)
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Reshape: More than one dimension is set to -1."));
+		ERROR(
+				"More than one dimension need to be calculated. " << nrCalculatedDimensions << " dimensions are set to -1.");
 	if (newNumel > values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Reshape: The new dimensions describe a matrix with more values than before."));
+		ERROR(
+				"The new dimensions describe a matrix with more values than before. Old count was " << values.size() << ", the new count would be " << newNumel << ".");
 	if (nrCalculatedDimensions == 0 && newNumel != values.size())
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Reshape: The new dimensions describe a different number of values than contained in the matrix."));
+		ERROR(
+				"The new dimensions describe a different number of values than contained in the matrix. Old count was " << values.size() << ", the new count would be " << newNumel << ".");
 	if (nrCalculatedDimensions > 0) {
 		if (values.size() % newNumel != 0)
-			throw(std::logic_error(
-					std::string(__FILE__)
-							+ ": Reshape: The new dimensions do not fit without remainder."));
+			ERROR(
+					"The new dimensions do not fit without a remainder. " << values.size() << " are not evenly divisible by " << newNumel<<".");
 	}
 	size_t calculatedDimension = values.size() / newNumel;
 	dimensions.resize(4);
@@ -453,11 +439,10 @@ void Matrix::Reshape(const std::vector<size_t> &dims) {
 	size_t N = 1;
 	for (size_t n = 0; n < dims.size(); n++)
 		N *= dims[n];
-	if (N != values.size()) {
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Reshape(vector<size_t>): New shape has wrong number of elements."));
-	}
+	if (N != values.size())
+		ERROR(
+				"New shape has wrong number of elements. "<< values.size() << " elements cannot be shaped into " << N<< " elements.");
+
 	dimensions = dims;
 }
 
@@ -509,11 +494,9 @@ bool Matrix::Invert() {
 	const size_t N = Size(0);
 	const size_t M = Size(1);
 	if (N * M != values.size())
-		throw std::logic_error(
-		__FILE__ "Matrix::Invert - Only 2D-matrices can be inverted.");
+		ERROR("Only 2D-matrices can be inverted.");
 	if (N != M)
-		throw std::logic_error(
-				__FILE__ "Matrix::Invert - Only square matrices can be inverted (maybe use PseudoInvert().");
+		ERROR("Only square matrices can be inverted (maybe use PseudoInvert().");
 	std::vector<size_t> p(N, 0);
 	for (size_t k = 0; k < N; ++k) {
 		double max = 0.0;
@@ -560,8 +543,7 @@ void Matrix::PseudoInvert() {
 	const size_t N = Size(0);
 	const size_t M = Size(1);
 	if (N * M != values.size())
-		throw std::logic_error(
-				__FILE__ "Matrix::PseudoInvert - Only 2D-matrices can be (pseudo-)inverted.");
+		ERROR("Only 2D-matrices can be (pseudo-)inverted.");
 	Matrix A = *this;
 	Matrix H(M, M);
 	H.values.assign(M * M, 0.0);
@@ -726,9 +708,7 @@ void Matrix::Rotate(Axis a, int quarters) {
 		return;
 	}
 	if (quarters != 1 && quarters != 3)
-		throw(std::logic_error(
-				std::string(__FILE__)
-						+ ": Rotate(Axis,int): Rotation in the wrong quadrant."));
+		ERROR("Rotation in the wrong quadrant.");
 	std::vector<double> temp;
 	temp.resize(values.size());
 
@@ -818,6 +798,9 @@ void Matrix::Rotate(Axis a, int quarters) {
 		Matrix::Reshape(Ny, Nx, Nz);
 		break;
 	}
+	default:
+		// Nothing to do.
+		break;
 	}
 	values.swap(temp);
 }
@@ -826,8 +809,7 @@ Matrix& Matrix::operator +=(const Matrix &b) {
 	auto D0 = Size();
 	auto D1 = b.Size();
 	if (D0 != D1)
-		throw std::runtime_error(
-				"Matrix::operator += : The dimensions of both matrices are not equal.");
+		ERROR("The dimensions of both matrices are not equal.");
 	for (size_t i = 0; i < Numel(); ++i)
 		values[i] += b.values[i];
 	return *this;
@@ -837,8 +819,7 @@ Matrix& Matrix::operator -=(const Matrix &b) {
 	auto D0 = Size();
 	auto D1 = b.Size();
 	if (D0 != D1)
-		throw std::runtime_error(
-				"Matrix::operator -= : The dimensions of both matrices are not equal.");
+		ERROR("The dimensions of both matrices are not equal.");
 	for (size_t i = 0; i < Numel(); ++i)
 		values[i] -= b.values[i];
 	return *this;
@@ -848,15 +829,13 @@ Matrix& Matrix::operator *=(const Matrix &b) {
 	const size_t N = Size(0);
 	const size_t M = Size(1);
 	if (N * M != Numel())
-		throw std::logic_error(
-		__FILE__ "Matrix::operator*= - Only 2D-matrices can be multiplied.");
+		ERROR("Only 2D-matrices can be multiplied.");
 	if (M != b.Size(0))
-		throw std::logic_error(
-				__FILE__ "Matrix::operator*= - The right matrix does not have as many rows as the left matrix has columns.");
+		ERROR(
+				"The right matrix [" << N << "x" << M << "] does not have as many columns as the left matrix [" << b.Size(0) << "x" << b.Size(1) << "] has rows.");
 	const size_t P = b.Size(1);
 	if (P * M != b.Numel())
-		throw std::logic_error(
-		__FILE__ "Matrix::operator*= - Only 2D-matrices can be multiplied.");
+		ERROR("Only 2D-matrices can be multiplied.");
 	const Matrix A = *this;
 	this->SetSize(N, P);
 	this->values.assign(N * P, 0.0);

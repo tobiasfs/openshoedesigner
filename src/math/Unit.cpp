@@ -291,7 +291,7 @@ void Unit::Power(const double exponent) {
 
 	this->otherName = "?";
 
-//TODO: Create a more reliable algorithm here.
+	//TODO: Create a more reliable algorithm here.
 	if (fabs(exponent) < 1.0) {
 		double f = (double) 1.0 / exponent;
 		double r = std::round(f);
@@ -464,88 +464,88 @@ void Unit::Action(const size_t action) {
 		powerprefix = -21;
 		break;
 	case 24:
-// Inch
+		// Inch
 		powerunit[1] = 1;
 		factor = 0.0254;
 		break;
 	case 25:
-// Feet
+		// Feet
 		powerunit[1] = 1;
 		factor = 0.3048;
 		break;
 	case 26:
-// Ampere
+		// Ampere
 		powerunit[3] = 1;
 		break;
 	case 27:
-// Coulomb
+		// Coulomb
 		powerunit[0] = 1;
 		powerunit[3] = 1;
 		break;
 	case 28:
-// Farad
+		// Farad
 		powerunit[0] = 4;
 		powerunit[1] = -2;
 		powerunit[2] = -1;
 		powerunit[3] = 2;
 		break;
 	case 29:
-// Henry
+		// Henry
 		powerunit[0] = -2;
 		powerunit[1] = 2;
 		powerunit[2] = 1;
 		powerunit[3] = -2;
 		break;
 	case 30:
-// Joule
+		// Joule
 		powerunit[0] = -2;
 		powerunit[1] = 2;
 		powerunit[2] = 1;
 		break;
 	case 31:
-// Kelvin
+		// Kelvin
 		powerunit[4] = 1;
 		break;
 	case 32:
-// Litre
+		// Litre
 		powerunit[1] = 3;
 		factor = 0.001;
 		break;
 	case 33:
-// Newton
+		// Newton
 		powerunit[0] = -2;
 		powerunit[1] = 1;
 		powerunit[2] = 1;
 		break;
 	case 34:
-// Siemens
+		// Siemens
 		powerunit[0] = 3;
 		powerunit[1] = -2;
 		powerunit[2] = -1;
 		powerunit[3] = 2;
 		break;
 	case 35:
-// Tesla
+		// Tesla
 		powerprefix = 0;
 		powerunit[0] = -2;
 		powerunit[2] = 1;
 		powerunit[3] = -1;
 		break;
 	case 36:
-// Volt
+		// Volt
 		powerunit[0] = -3;
 		powerunit[1] = 2;
 		powerunit[2] = 1;
 		powerunit[3] = -1;
 		break;
 	case 37:
-// Watt
+		// Watt
 		powerunit[0] = -3;
 		powerunit[1] = 2;
 		powerunit[2] = 1;
 		break;
 	case 38:
-// Day
+		// Day
 		powerprefix = 0;
 		powerunit[0] = 1;
 		factor = 86400;
@@ -554,224 +554,224 @@ void Unit::Action(const size_t action) {
 		powerprefix = 1;
 		break;
 	case 40:
-// Gram
+		// Gram
 		powerunit[2] = 1;
 		factor = 0.001;
 		break;
 	case 41:
-// Hour
+		// Hour
 		powerprefix = 0;
 		powerunit[0] = 1;
 		factor = 3600;
 		break;
 	case 42:
-// Metre
+		// Metre
 		powerprefix = 0;
 		powerunit[1] = 1;
 		break;
 	case 43:
-// Second
+		// Second
 		powerunit[0] = 1;
 		break;
 	case 44:
-// Tonne
+		// Tonne
 		powerunit[2] = 1;
 		factor = 1000;
 		break;
 	case 45:
-// Dalton
+		// Dalton
 		powerprefix = 0;
 		powerunit[2] = 1;
 		factor = 1.6605390402e-27;
 		break;
 	case 46:
-// Becquerel
+		// Becquerel
 		powerunit[0] = -1;
 		break;
 	case 47:
-// Dalton
+		// Dalton
 		powerunit[2] = 1;
 		factor = 1.6605390402e-27;
 		break;
 	case 48:
-// Tesla
+		// Tesla
 		powerunit[0] = -2;
 		powerunit[2] = 1;
 		powerunit[3] = -1;
 		break;
 	case 49:
-// Metre
+		// Metre
 		powerunit[1] = 1;
 		break;
 	case 50:
-// Gray
+		// Gray
 		powerprefix = 0;
 		powerunit[0] = -2;
 		powerunit[1] = 2;
 		break;
 	case 51:
-// Hertz
+		// Hertz
 		powerunit[0] = -1;
 		break;
 	case 52:
-// Pascal
+		// Pascal
 		powerprefix = 0;
 		powerunit[0] = -2;
 		powerunit[1] = -1;
 		powerunit[2] = 1;
 		break;
 	case 53:
-// Sievert
+		// Sievert
 		powerunit[0] = -2;
 		powerunit[1] = 2;
 		break;
 	case 54:
-// Weber
+		// Weber
 		powerunit[0] = -2;
 		powerunit[1] = 2;
 		powerunit[2] = 1;
 		powerunit[3] = -1;
 		break;
 	case 55:
-// Astronomical unit
+		// Astronomical unit
 		powerprefix = 0;
 		powerunit[1] = 1;
 		factor = 149597870700;
 		break;
 	case 56:
-// Candela
+		// Candela
 		powerprefix = 0;
 		powerunit[6] = 1;
 		break;
 	case 57:
-// Electronvolt
+		// Electronvolt
 		powerunit[0] = -2;
 		powerunit[1] = 2;
 		powerunit[2] = 1;
 		factor = 1.602176634e-19;
 		break;
 	case 58:
-// Feet
+		// Feet
 		powerprefix = 0;
 		powerunit[1] = 1;
 		factor = 0.3048;
 		break;
 	case 59:
-// Hectare
+		// Hectare
 		powerprefix = 0;
 		powerunit[1] = 2;
 		factor = 10000;
 		break;
 	case 60:
-// Lumen
+		// Lumen
 		powerunit[6] = 1;
 		break;
 	case 61:
-// Lux
+		// Lux
 		powerunit[1] = -2;
 		powerunit[6] = 1;
 		break;
 	case 62:
-// Parsec
+		// Parsec
 		powerprefix = 0;
 		powerunit[1] = 1;
 		factor = 96939420213600000.0 / M_PI;
 		break;
 	case 63:
-// Steradian
+		// Steradian
 		break;
 	case 64:
-// Degree
+		// Degree
 		factor = M_PI / 180.0;
 		break;
 	case 65:
-// Angstrom
+		// Angstrom
 		powerunit[1] = 1;
 		factor = 1e-10;
 		break;
 	case 66:
-// Ohm
+		// Ohm
 		powerunit[0] = -3;
 		powerunit[1] = 2;
 		powerunit[2] = 1;
 		powerunit[3] = -2;
 		break;
 	case 67:
-// Gray
+		// Gray
 		powerunit[0] = -2;
 		powerunit[1] = 2;
 		break;
 	case 68:
-// Pascal
+		// Pascal
 		powerunit[0] = -2;
 		powerunit[1] = -1;
 		powerunit[2] = 1;
 		break;
 	case 69:
-// Candela
+		// Candela
 		powerunit[6] = 1;
 		break;
 	case 70:
-// Parsec
+		// Parsec
 		powerunit[1] = 1;
 		factor = 96939420213600000.0 / M_PI;
 		break;
 	case 71:
-// Bar
+		// Bar
 		powerunit[0] = -2;
 		powerunit[1] = -1;
 		powerunit[2] = 1;
 		factor = 100000;
 		break;
 	case 72:
-// Degree
+		// Degree
 		powerprefix = 0;
 		factor = M_PI / 180.0;
 		break;
 	case 73:
-// Gon
+		// Gon
 		factor = M_PI / 200.0;
 		break;
 	case 74:
-// Katal
+		// Katal
 		powerprefix = 0;
 		powerunit[0] = -1;
 		powerunit[5] = 1;
 		break;
 	case 75:
-// Mil
+		// Mil
 		powerprefix = 0;
 		powerunit[1] = 1;
 		factor = 2.54e-05;
 		break;
 	case 76:
-// Minute
+		// Minute
 		powerprefix = 0;
 		powerunit[0] = 1;
 		factor = 60;
 		break;
 	case 77:
-// Mole
+		// Mole
 		powerprefix = 0;
 		powerunit[5] = 1;
 		break;
 	case 78:
-// Radian
+		// Radian
 		powerprefix = 0;
 		break;
 	case 79:
-// Rpm
+		// Rpm
 		powerprefix = 0;
 		powerunit[0] = -1;
 		factor = 1.0 / 60.0;
 		break;
 	case 80:
-// Katal
+		// Katal
 		powerunit[0] = -1;
 		powerunit[5] = 1;
 		break;
 	case 81:
-// Mole
+		// Mole
 		powerunit[5] = 1;
 		break;
 	}

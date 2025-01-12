@@ -30,12 +30,14 @@
 #include "../3D/OpenGL.h"
 
 double Ellipse::Excentricity() const {
+	const double w = GetEx().Abs();
+	const double h = GetEy().Abs();
 	const double a = (h > w) ? h : w;
 	const double b = (h > w) ? w : h;
 	return sqrt(1 - (a * a) / (b * b));
 }
 
-double Ellipse::E(const double e) const {
+double Ellipse::E(const double e) {
 	const double e2 = e * e;
 	double h = 1.0;
 	double k = e2;
@@ -49,35 +51,61 @@ double Ellipse::E(const double e) const {
 }
 
 double Ellipse::Circumfence() const {
-	const double a = (h > w) ? h : w;
+	const double w = GetEx().Abs();
+	const double h = GetEy().Abs();
+	const double a_ = (h > w) ? h : w;
 	const double e = Excentricity();
-	return 4.0 * a * E(e);
+	return 4.0 * a_ * E(e);
 }
 
-std::vector<Ellipse::Point> Ellipse::SteinerConstruction(
-		size_t nrOfPoints) const {
-	std::vector<Point> temp;
+Polygon3 Ellipse::SteinerConstruction(size_t nrOfPoints) const {
+	Polygon3 ret;
 	const double dd = 4.0 / (double) (nrOfPoints);
 	double d = 0.0;
 	for (; d < 1.0; d += dd) {
 		const double r = d;
 		const double r2 = r * r;
 		const double rd = 1.0 / (1 + r2);
-		temp.push_back(Point(w * (r2 - 1.0) * rd, h * 2.0 * d * r));
+		Geometry::Vertex vert = Transform((r2 - 1.0) * rd, 2.0 * d * r);
+		ret.AddEdgeToVertex(vert);
 	}
 	for (; d < 3.0; d += dd) {
 		const double r = d - 1.0;
 		const double r2 = d * d;
 		const double rd = 1.0 / (1 + r2);
-		temp.push_back(Point(-w * (r2 - 1.0) * rd, -h * 2.0 * r * rd));
+		Geometry::Vertex vert = Transform(-(r2 - 1.0) * rd, -2.0 * r * rd);
+		ret.AddEdgeToVertex(vert);
 	}
 	for (; d < (4.0 - dd / 2.0); d += dd) {
 		const double r = d - 3.0;
 		const double r2 = r * r;
 		const double rd = 1.0 / (1 + r2);
-		temp.push_back(Point(w * (r2 - 1.0) * rd, h * 2.0 * d * r));
+		Geometry::Vertex vert = Transform((r2 - 1.0) * rd, 2.0 * d * r);
+		ret.AddEdgeToVertex(vert);
 	}
-	return temp;
+	ret.CloseLoopNextGroup();
+	return ret;
+}
+
+Polynomial3 Ellipse::GetSpline(size_t N, size_t n) const {
+	// "Magic" polynomial for the offsetting of the inner Bezier-handles.
+	const Polynomial shift( { -5.6457e-01, 7.6449e-01, -6.7089e-02, 7.3566e-03,
+			-3.0604e-04 });
+	const Polynomial ang = Polynomial::ByValue(0, -M_PI, N, M_PI);
+	const double a0 = ang(n);
+	const double a1 = ang(n + 1);
+	const double s0 = sin(a0);
+	const double s1 = sin(a1);
+	const double c0 = cos(a0);
+	const double c1 = cos(a1);
+	const Vector3 v0 = Transform(c0, s0);
+	const Vector3 v1 = Transform(c1, s1);
+	const Vector3 n0 = Transform(c0 - s0, s0 + c0) - v0;
+	const Vector3 n1 = Transform(c1 - s1, s1 + c1) - v1;
+	const double sval = 1.0 / shift(N);
+	Polynomial3 ret = Polynomial3::ByBezier(v0, v0 + n0 * sval, v1 - n1 * sval,
+			v1);
+	return ret;
 }
 
 void Ellipse::Paint() const {
@@ -86,14 +114,15 @@ void Ellipse::Paint() const {
 	for (double r = -1.0; r <= (1.0 + dr / 2); r += dr) {
 		const double r2 = r * r;
 		const double rd = 1.0 / (1 + r2);
-		glVertex2d(w * (r2 - 1.0) * rd, h * 2.0 * r * rd);
+		Vector3 v = Transform((r2 - 1.0) * rd, 2.0 * r * rd);
+		glVertex3d(v.x, v.y, v.z);
 	}
 	for (double r = -1.0; r <= (1.0 + dr / 2); r += dr) {
 		const double r2 = r * r;
 		const double rd = 1.0 / (1 + r2);
-		glVertex2d(-w * (r2 - 1.0) * rd, -h * 2.0 * r * rd);
+		Vector3 v = Transform(-(r2 - 1.0) * rd, -2.0 * r * rd);
+		glVertex3d(v.x, v.y, v.z);
 	}
-
 	glEnd();
 }
 

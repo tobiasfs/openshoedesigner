@@ -39,18 +39,20 @@
 
 class CanvasPattern: public CanvasMeasurementGrid {
 public:
-	CanvasPattern(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style =
-			wxTAB_TRAVERSAL);
+	CanvasPattern(wxWindow *parent,
+            wxWindowID id = wxID_ANY,
+            const wxPoint& pos = wxDefaultPosition,
+            const wxSize& size = wxDefaultSize,
+            long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+            const wxString& name = wxPanelNameStr);
 	virtual ~CanvasPattern();
 
 protected:
 	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent &event);
-	void OnLeftDown(wxMouseEvent &event);
+//	void OnSize(wxSizeEvent &event);
+//
+//	void OnMotion(wxMouseEvent &event);
+//	void OnLeftDown(wxMouseEvent &event);
 };
 
 #endif /* CANVASPATTERN_H */

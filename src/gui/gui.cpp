@@ -765,7 +765,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelPageLast->SetSizer( bSizerLast );
 	m_panelPageLast->Layout();
 	bSizerLast->Fit( m_panelPageLast );
-	m_notebook->AddPage( m_panelPageLast, _("Last"), true );
+	m_notebook->AddPage( m_panelPageLast, _("Last"), false );
 	m_panelPageShoe = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerShoe;
 	bSizerShoe = new wxBoxSizer( wxVERTICAL );
@@ -1172,30 +1172,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelPagePattern->Layout();
 	bSizerPattern->Fit( m_panelPagePattern );
 	m_notebook->AddPage( m_panelPagePattern, _("Pattern"), false );
-	m_panelPageFlattening = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizerFlattening;
-	bSizerFlattening = new wxBoxSizer( wxHORIZONTAL );
-
-
-	bSizerFlattening->Add( 0, 0, 1, 0, 5 );
-
-	wxBoxSizer* bSizerFlattening2;
-	bSizerFlattening2 = new wxBoxSizer( wxVERTICAL );
-
-	m_buttonExportFlattening = new wxButton( m_panelPageFlattening, ID_FLATTENING, _("Export Flattening"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizerFlattening2->Add( m_buttonExportFlattening, 0, wxALL|wxEXPAND, 5 );
-
-	m_buttonTestStitch = new wxButton( m_panelPageFlattening, ID_TESTSTITCH, _("Test Stitch"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizerFlattening2->Add( m_buttonTestStitch, 0, wxALL|wxEXPAND, 5 );
-
-
-	bSizerFlattening->Add( bSizerFlattening2, 1, wxEXPAND, 5 );
-
-
-	m_panelPageFlattening->SetSizer( bSizerFlattening );
-	m_panelPageFlattening->Layout();
-	bSizerFlattening->Fit( m_panelPageFlattening );
-	m_notebook->AddPage( m_panelPageFlattening, _("Flattening"), false );
 
 	bSizerConfig->Add( m_notebook, 1, wxEXPAND | wxALL, 5 );
 
@@ -1212,31 +1188,67 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	wxBoxSizer* bSizerCanvas3D;
 	bSizerCanvas3D = new wxBoxSizer( wxVERTICAL );
 
-	m_canvas3D = new Canvas3D(m_panelCanvas3D);
+	m_canvas3D = new Canvas3D( m_panelCanvas3D, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	bSizerCanvas3D->Add( m_canvas3D, 1, wxALL|wxEXPAND, 5 );
 
 
 	m_panelCanvas3D->SetSizer( bSizerCanvas3D );
 	m_panelCanvas3D->Layout();
 	bSizerCanvas3D->Fit( m_panelCanvas3D );
-	m_notebookCanvas->AddPage( m_panelCanvas3D, _("3D"), false );
-	m_panelInsole = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizerInsole;
-	bSizerInsole = new wxBoxSizer( wxVERTICAL );
+	m_notebookCanvas->AddPage( m_panelCanvas3D, _("3D"), true );
+	m_panelCanvasInsole = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerCanvasInsole;
+	bSizerCanvasInsole = new wxBoxSizer( wxVERTICAL );
 
-	m_canvasInsole = new CanvasInsole(m_panelInsole);
-	bSizerInsole->Add( m_canvasInsole, 1, wxALL|wxEXPAND, 5 );
+	m_canvasInsole = new CanvasInsole( m_panelCanvasInsole, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerCanvasInsole->Add( m_canvasInsole, 1, wxALL|wxEXPAND, 5 );
 
 
-	m_panelInsole->SetSizer( bSizerInsole );
-	m_panelInsole->Layout();
-	bSizerInsole->Fit( m_panelInsole );
-	m_notebookCanvas->AddPage( m_panelInsole, _("Insole"), true );
+	m_panelCanvasInsole->SetSizer( bSizerCanvasInsole );
+	m_panelCanvasInsole->Layout();
+	bSizerCanvasInsole->Fit( m_panelCanvasInsole );
+	m_notebookCanvas->AddPage( m_panelCanvasInsole, _("Insole"), false );
+	m_panelCanvasPattern = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerCanvasPattern;
+	bSizerCanvasPattern = new wxBoxSizer( wxVERTICAL );
+
+	m_canvasPattern = new CanvasPattern( m_panelCanvasPattern, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerCanvasPattern->Add( m_canvasPattern, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_panelCanvasPattern->SetSizer( bSizerCanvasPattern );
+	m_panelCanvasPattern->Layout();
+	bSizerCanvasPattern->Fit( m_panelCanvasPattern );
+	m_notebookCanvas->AddPage( m_panelCanvasPattern, _("Pattern"), false );
+	m_panelFlattening = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerCanvasFlattening;
+	bSizerCanvasFlattening = new wxBoxSizer( wxVERTICAL );
+
+	m_canvasFlattening = new CanvasFlattening( m_panelFlattening, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerCanvasFlattening->Add( m_canvasFlattening, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_panelFlattening->SetSizer( bSizerCanvasFlattening );
+	m_panelFlattening->Layout();
+	bSizerCanvasFlattening->Fit( m_panelFlattening );
+	m_notebookCanvas->AddPage( m_panelFlattening, _("Flattening"), false );
+	m_panelCanvasTestStitch = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerCanvasTestStitch;
+	bSizerCanvasTestStitch = new wxBoxSizer( wxVERTICAL );
+
+	m_canvasTestStitch = new CanvasTestStitch( m_panelCanvasTestStitch, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerCanvasTestStitch->Add( m_canvasTestStitch, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_panelCanvasTestStitch->SetSizer( bSizerCanvasTestStitch );
+	m_panelCanvasTestStitch->Layout();
+	bSizerCanvasTestStitch->Fit( m_panelCanvasTestStitch );
+	m_notebookCanvas->AddPage( m_panelCanvasTestStitch, _("Test Stitch"), false );
 	m_panelCanvasAnalysis = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasAnalysis;
 	bSizerCanvasAnalysis = new wxBoxSizer( wxHORIZONTAL );
 
-	m_canvasSupport = new CanvasSupport(m_panelCanvasAnalysis);
+	m_canvasSupport = new CanvasSupport( m_panelCanvasAnalysis, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	bSizerCanvasAnalysis->Add( m_canvasSupport, 1, wxALL|wxEXPAND, 5 );
 
 	wxBoxSizer* bSizerAnalysisSupport;
@@ -1245,7 +1257,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	wxStaticBoxSizer* sbSizerCycle;
 	sbSizerCycle = new wxStaticBoxSizer( new wxStaticBox( m_panelCanvasAnalysis, wxID_ANY, _("Walkcycle") ), wxVERTICAL );
 
-	m_canvasCycle = new CanvasWalkcycle(sbSizerCycle->GetStaticBox());
+	m_canvasCycle = new CanvasWalkcycle( sbSizerCycle->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizerCycle->Add( m_canvasCycle, 1, wxALL|wxEXPAND, 5 );
 
 	m_checkBoxLockAnkle = new wxCheckBox( sbSizerCycle->GetStaticBox(), ID_ANKLELOCK, _("Lock Ankle"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -1263,7 +1275,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_choiceDisplay->SetSelection( 0 );
 	sbSizerPlot->Add( m_choiceDisplay, 0, wxALL|wxEXPAND, 5 );
 
-	m_canvasGraph = new CanvasGraph(sbSizerPlot->GetStaticBox());
+	m_canvasGraph = new CanvasGraph( sbSizerPlot->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizerPlot->Add( m_canvasGraph, 1, wxALL|wxEXPAND, 5 );
 
 
@@ -1277,18 +1289,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelCanvasAnalysis->Layout();
 	bSizerCanvasAnalysis->Fit( m_panelCanvasAnalysis );
 	m_notebookCanvas->AddPage( m_panelCanvasAnalysis, _("Analysis"), false );
-	m_panelCanvasPattern = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizerCanvasPattern;
-	bSizerCanvasPattern = new wxBoxSizer( wxVERTICAL );
-
-	m_canvasPattern = new CanvasPattern(m_panelCanvasPattern);
-	bSizerCanvasPattern->Add( m_canvasPattern, 1, wxALL|wxEXPAND, 5 );
-
-
-	m_panelCanvasPattern->SetSizer( bSizerCanvasPattern );
-	m_panelCanvasPattern->Layout();
-	bSizerCanvasPattern->Fit( m_panelCanvasPattern );
-	m_notebookCanvas->AddPage( m_panelCanvasPattern, _("Pattern"), false );
 
 	bSizerCanvas->Add( m_notebookCanvas, 1, wxEXPAND | wxALL, 5 );
 
@@ -1563,8 +1563,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_buttonOnPatternAddLaces->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonAdd ), NULL, this );
 	m_buttonOnPatternAddAccessory->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonAdd ), NULL, this );
 	m_listBoxFabric->Connect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( GUIFrameMain::OnPatternSelectFabric ), NULL, this );
-	m_buttonExportFlattening->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), NULL, this );
-	m_buttonTestStitch->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonTestStitch ), NULL, this );
 	m_notebookCanvas->Connect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameMain::OnNotebookPageChanged ), NULL, this );
 	m_canvas3D->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( GUIFrameMain::On3DSelect ), NULL, this );
 	m_checkBoxLockAnkle->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameMain::OnCheckBox ), NULL, this );
@@ -1789,8 +1787,6 @@ GUIFrameMain::~GUIFrameMain()
 	m_buttonOnPatternAddLaces->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonAdd ), NULL, this );
 	m_buttonOnPatternAddAccessory->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonAdd ), NULL, this );
 	m_listBoxFabric->Disconnect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( GUIFrameMain::OnPatternSelectFabric ), NULL, this );
-	m_buttonExportFlattening->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnObjectSave ), NULL, this );
-	m_buttonTestStitch->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameMain::OnButtonTestStitch ), NULL, this );
 	m_notebookCanvas->Disconnect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameMain::OnNotebookPageChanged ), NULL, this );
 	m_canvas3D->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( GUIFrameMain::On3DSelect ), NULL, this );
 	m_checkBoxLockAnkle->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameMain::OnCheckBox ), NULL, this );

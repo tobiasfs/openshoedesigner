@@ -39,11 +39,14 @@ class Project;
 
 class CanvasFootModel: public OpenGLCanvas {
 public:
-	CanvasFootModel(wxWindow *parent);
+	CanvasFootModel(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
+					wxDefaultSize, long style = 0,
+			const wxString &name = _T("CanvasFootModel"));
 	virtual ~CanvasFootModel() = default;
 
-	void Render();
-	void RenderPick();
+	void Render() override;
+	void RenderPick() override;
 
 	FootModel model;
 };

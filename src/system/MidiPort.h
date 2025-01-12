@@ -26,6 +26,7 @@
 
 #ifndef SYSTEM_MIDIPORT_H
 #define SYSTEM_MIDIPORT_H
+#include <set>
 
 /*!\class MidiPort
  * \brief Connection to MIDI Instruments
@@ -53,7 +54,6 @@
 #include <memory>
 #include <vector>
 #include <array>
-#include <set>
 
 class MidiDevice {
 	friend class MidiPort;
@@ -101,18 +101,34 @@ public:
 
 //	void CycleLibrary(); //!< Closes all open connections and cycles the portmidi library. Needed when a new device is connected, while the software is running.
 
+	/**\brief Return a set of strings with all Midi-device-names.
+	 *
+	 * Midi-hardware can have more than one midi device attached to it. Most
+	 * common case is the input and output of the same device.
+	 *
+	 * For example a motor-fader (eg. BCF2000) would have and input, where
+	 * changes made to the faders show up and an output where the faders can
+	 * be manipulated by software.
+	 *
+	 */
 	std::set<std::string> GetDeviceNames() const;
+
+	/**\brief Number of available Midi-devices.
+	 *
+	 * Note that some Midi-Hardware
+	 *
+	 */
 	int GetDeviceCount() const;
 
 	int GetDefaultInputDevice() const;
 	int GetDefaultOutputDevice() const;
 
-	std::string GetDeviceName(int nr) const;
-	std::string GetDeviceInterfaceName(int nr) const;
+	std::string GetDeviceName(int idx) const;
+	std::string GetDeviceInterfaceName(int idx) const;
 
-	bool IsDeviceInput(int nr) const;
-	bool IsDeviceOutput(int nr) const;
-	bool IsDeviceAvailable(int nr) const; //!< i.e. not used by this class or somebody else.
+	bool IsDeviceInput(int idx) const;
+	bool IsDeviceOutput(int idx) const;
+	bool IsDeviceAvailable(int idx) const;
 
 	std::shared_ptr<MidiDevice> Open(const std::string &name,
 			Direction direction);
@@ -137,7 +153,13 @@ private:
 	PmError length;
 #endif
 private:
-	// The instance counter is needed, because the Pm_Initialize() and Pm_Terminate() functions are global.
+	/**\brief Track the number of instances of the PortMidi library.
+	 *
+	 * The instance counter is needed, because the Pm_Initialize() and
+	 * Pm_Terminate() functions are globals. Pm_Terminate() should not be
+	 * called in the destructor of MidiPort when there are still other
+	 * instances of this class around.
+	 */
 	static size_t instancecounter;
 };
 

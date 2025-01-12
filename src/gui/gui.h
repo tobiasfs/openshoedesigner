@@ -44,10 +44,12 @@
 #include <wx/notebook.h>
 #include "Canvas3D.h"
 #include "CanvasInsole.h"
+#include "CanvasPattern.h"
+#include "CanvasFlattening.h"
+#include "CanvasTestStitch.h"
 #include "CanvasSupport.h"
 #include "CanvasWalkcycle.h"
 #include "CanvasGraph.h"
-#include "CanvasPattern.h"
 #include <wx/splitter.h>
 #include <wx/statusbr.h>
 #include <wx/frame.h>
@@ -163,25 +165,24 @@
 #define ID_PADDING 1099
 #define ID_LACES 1100
 #define ID_ACCESSORY 1101
-#define ID_TESTSTITCH 1102
-#define ID_MAINVIEW 1103
-#define ID_ANKLELOCK 1104
-#define ID_DISPLAY 1105
-#define ID_GRIDDIAMETER 1106
-#define ID_GRIDLENGTH 1107
-#define ID_GRIDSKIN 1108
-#define ID_FORMULA 1109
-#define ID_SELECTION 1110
-#define ID_IMAGE 1111
-#define ID_FRONT 1112
-#define ID_BACK 1113
-#define ID_TOP 1114
-#define ID_BOTTOM 1115
-#define ID_SCALE 1116
-#define ID_OFFSETHORIZONTAL 1117
-#define ID_OFFSETVERTICAL 1118
-#define ID_ROTATION 1119
-#define ID_POINT 1120
+#define ID_MAINVIEW 1102
+#define ID_ANKLELOCK 1103
+#define ID_DISPLAY 1104
+#define ID_GRIDDIAMETER 1105
+#define ID_GRIDLENGTH 1106
+#define ID_GRIDSKIN 1107
+#define ID_FORMULA 1108
+#define ID_SELECTION 1109
+#define ID_IMAGE 1110
+#define ID_FRONT 1111
+#define ID_BACK 1112
+#define ID_TOP 1113
+#define ID_BOTTOM 1114
+#define ID_SCALE 1115
+#define ID_OFFSETHORIZONTAL 1116
+#define ID_OFFSETVERTICAL 1117
+#define ID_ROTATION 1118
+#define ID_POINT 1119
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrameMain
@@ -374,23 +375,24 @@ class GUIFrameMain : public wxDocChildFrame
 		wxPGProperty* m_propertyGridItemVisible;
 		wxPGProperty* m_propertyGridItemFabric;
 		wxListBox* m_listBoxFabric;
-		wxPanel* m_panelPageFlattening;
-		wxButton* m_buttonExportFlattening;
-		wxButton* m_buttonTestStitch;
 		wxPanel* m_panelCanvas;
 		wxNotebook* m_notebookCanvas;
 		wxPanel* m_panelCanvas3D;
-		Canvas3D * m_canvas3D;
-		wxPanel* m_panelInsole;
-		CanvasInsole *m_canvasInsole;
+		Canvas3D* m_canvas3D;
+		wxPanel* m_panelCanvasInsole;
+		CanvasInsole* m_canvasInsole;
+		wxPanel* m_panelCanvasPattern;
+		CanvasPattern* m_canvasPattern;
+		wxPanel* m_panelFlattening;
+		CanvasFlattening* m_canvasFlattening;
+		wxPanel* m_panelCanvasTestStitch;
+		CanvasTestStitch* m_canvasTestStitch;
 		wxPanel* m_panelCanvasAnalysis;
-		CanvasSupport *m_canvasSupport;
+		CanvasSupport* m_canvasSupport;
 		CanvasWalkcycle* m_canvasCycle;
 		wxCheckBox* m_checkBoxLockAnkle;
 		wxChoice* m_choiceDisplay;
-		CanvasGraph *m_canvasGraph;
-		wxPanel* m_panelCanvasPattern;
-		CanvasPattern* m_canvasPattern;
+		CanvasGraph* m_canvasGraph;
 		wxStatusBar* m_statusBar;
 
 		// Virtual event handlers, override them in your derived class
@@ -424,7 +426,6 @@ class GUIFrameMain : public wxDocChildFrame
 		virtual void OnPatternSelect( wxTreeListEvent& event ) = 0;
 		virtual void OnButtonCopy( wxCommandEvent& event ) = 0;
 		virtual void OnPatternSelectFabric( wxCommandEvent& event ) = 0;
-		virtual void OnButtonTestStitch( wxCommandEvent& event ) = 0;
 		virtual void OnNotebookPageChanged( wxNotebookEvent& event ) = 0;
 		virtual void On3DSelect( wxMouseEvent& event ) = 0;
 

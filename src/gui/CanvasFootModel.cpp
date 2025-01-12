@@ -27,13 +27,13 @@
 #include "CanvasFootModel.h"
 
 #include "../3D/OpenGLMaterial.h"
-CanvasFootModel::CanvasFootModel(wxWindow* parent)
-		: OpenGLCanvas(parent)
-{
+CanvasFootModel::CanvasFootModel(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		OpenGLCanvas(parent, id, pos, size, style, name) {
 }
 
-void CanvasFootModel::Render()
-{
+void CanvasFootModel::Render() {
 	OpenGLMaterial mat1(OpenGLMaterial::Preset::Emerald);
 	mat1.UseMaterial();
 	model.PaintBones();
@@ -42,6 +42,5 @@ void CanvasFootModel::Render()
 	model.PaintSkin();
 }
 
-void CanvasFootModel::RenderPick()
-{
+void CanvasFootModel::RenderPick() {
 }

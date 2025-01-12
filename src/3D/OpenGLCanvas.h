@@ -139,7 +139,7 @@ public:
 #endif
 
 protected:
-	virtual void Render();
+	virtual void Render() = 0;
 	virtual void RenderPick();
 
 	void OnPaint(wxPaintEvent&WXUNUSED(event));

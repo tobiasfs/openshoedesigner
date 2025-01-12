@@ -33,45 +33,4 @@
 //#include "Insole.h"
 //#include "last/LastModel.h"
 
-void CoordinateSystem::Update() {
 
-//	inside08 = insole.inside;
-//	outside08 = insole.outside;
-//
-//	for(size_t n = 0; n < inside08.Size(); ++n){
-//		const double h = last.height08((double) n / (double) inside08.Size());
-//		inside08[n] += inside08.Normal(n) * h;
-//	}
-//	for(size_t n = 0; n < outside08.Size(); ++n){
-//		const double h = last.height08((double) n / (double) outside08.Size());
-//		outside08[n] += outside08.Normal(n) * h;
-//	}
-
-//	SetSize(3, 3);
-//	P(0, 0).p.Set(0, 0, 0.1);
-//	P(1, 0).p.Set(1, 0, 0.4);
-//	P(2, 0).p.Set(2, 0, -0.3);
-//	P(0, 1).p.Set(0, 1, 0.3);
-//	P(1, 1).p.Set(1, 1, 0.7);
-//	P(2, 1).p.Set(2, 1, 0.4);
-//	P(0, 2).p.Set(0, 2, 0.1);
-//	P(1, 2).p.Set(1, 2, 0.5);
-//	P(2, 2).p.Set(2, 2, 0.1);
-//	CalculateDirections();
-//	Calculate();
-
-//	p0 = Polynom3::ByPolygon3(0.01, 3, 0, 25);
-
-}
-
-void CoordinateSystem::Paint() const {
-//	inside08.Paint(0);
-//	outside08.Paint(0);
-
-	Paint();
-//	p0.Paint();
-//	Ellipse e;
-//	e.w = 0.1;
-//	e.h = 0.05;
-//	e.Paint();
-}

@@ -28,14 +28,16 @@
 #include <wx/dcclient.h>
 
 CanvasAnisotropy::CanvasAnisotropy(wxWindow *parent, wxWindowID id,
-		const wxPoint &pos, const wxSize &size, long style) :
-		wxPanel(parent, id, pos, size, style) {
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		wxPanel(parent, id, pos, size, style, name) {
 	this->SetBackgroundColour(wxColour(200, 200, 200));
 
 	// Connect Events
 	this->Connect(wxEVT_LEFT_DOWN,
 			wxMouseEventHandler(CanvasAnisotropy::OnLeftDown));
-	this->Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasAnisotropy::OnMotion));
+	this->Connect(wxEVT_MOTION,
+			wxMouseEventHandler(CanvasAnisotropy::OnMotion));
 	this->Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasAnisotropy::OnPaint));
 	this->Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasAnisotropy::OnSize));
 

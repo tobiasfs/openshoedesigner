@@ -123,6 +123,7 @@ public:
 	std::shared_ptr<ParameterFormula> heelDirectionAngle;
 	std::shared_ptr<ParameterFormula> littleToeAngle;
 	std::shared_ptr<ParameterFormula> bigToeAngle;
+	std::shared_ptr<ParameterFormula> tipSharpness;
 	std::shared_ptr<ParameterFormula> extraLength;
 
 	std::shared_ptr<Insole> out;

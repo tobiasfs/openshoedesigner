@@ -130,6 +130,13 @@ public:
 	 * \{
 	 */
 
+	/** \brief Extract the outline from a given geometry.
+	 *
+	 *
+	 *
+	 */
+	void ExtractOutline(const Geometry &other);
+
 	/** \brief Sort the edges and vertices into a loop.
 	 *
 	 * The Finish() command resorts the vertices, edges (and triangles) for
@@ -188,6 +195,8 @@ public:
 	 * The vertex normals are interpolated between the adjacent edges.
 	 */
 	void CalculateNormalsAroundVector(const Vector3 &planenormal);
+
+	double MapU();
 
 	void Shift(double distance); ///< Move the polygon along the normals.
 

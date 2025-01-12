@@ -27,9 +27,10 @@
 
 #include <wx/dcclient.h>
 
-CanvasInsole::CanvasInsole(wxWindow *parent, wxWindowID id, const wxPoint &pos,
-		const wxSize &size, long style) :
-		CanvasMeasurementGrid(parent, id, pos, size, style) {
+CanvasInsole::CanvasInsole(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		CanvasMeasurementGrid(parent, id, pos, size, style, name) {
 
 	this->Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasInsole::OnPaint));
 	this->Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasInsole::OnSize));
@@ -128,7 +129,6 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 void CanvasInsole::OnPaint(wxPaintEvent &event) {
 	CanvasMeasurementGrid::OnPaint(event);
 
-	wxPoint temp;
 	wxPaintDC dc(this);
 #ifdef DEBUG
 	dc.DrawText(_T("CanvasInsole"), 10, 30);

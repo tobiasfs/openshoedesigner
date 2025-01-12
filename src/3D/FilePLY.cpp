@@ -260,7 +260,8 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 //					tc.useColor = TriangleCollection::Style::Vertex;
 			}
 			geo.Finish();
-			if (!geo.SelfCheckPassed()) {
+			geo.Sort();
+			if (!geo.SelfCheckPassed(true)) {
 				std::cerr << __FILE__ << " (" << __LINE__ << "): "
 						<< "The file seems to contain data that breaks the Finish() method.\n";
 			}
@@ -427,7 +428,8 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 				//					tc.useColor = TriangleCollection::Style::Vertex;
 			}
 			geo.Finish();
-			if (!geo.SelfCheckPassed()) {
+			geo.Sort();
+			if (!geo.SelfCheckPassed(true)) {
 				std::cerr << __FILE__ << " (" << __LINE__ << "): "
 						<< "The file seems to contain data that breaks the Finish() method.\n";
 			}

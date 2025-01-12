@@ -37,10 +37,12 @@
 
 class CanvasSupport: public wxPanel {
 public:
-	CanvasSupport(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style =
-			wxTAB_TRAVERSAL);
+	CanvasSupport(wxWindow *parent,
+            wxWindowID id = wxID_ANY,
+            const wxPoint& pos = wxDefaultPosition,
+            const wxSize& size = wxDefaultSize,
+            long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+            const wxString& name = wxPanelNameStr);
 	virtual ~CanvasSupport();
 
 	void OnPaint(wxPaintEvent &event);

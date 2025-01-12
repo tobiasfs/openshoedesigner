@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : HeelNormalize.cpp
+// Name               : LastConstruct.cpp
 // Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 26.12.2024
-// Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 12.01.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,26 +23,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "HeelNormalize.h"
+#include "LastConstruct.h"
 
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
-HeelNormalize::HeelNormalize() {
+LastConstruct::LastConstruct() {
 	out = std::make_shared<ObjectGeometry>();
 }
 
-std::string HeelNormalize::GetName() const {
-	return "HeelNormalize";
+std::string LastConstruct::GetName() const {
+	return "LastConstruct";
 }
 
-bool HeelNormalize::CanRun() {
+bool LastConstruct::CanRun() {
 	std::string missing;
 
-	if (!heelReorient)
-		missing += missing.empty() ? "\"heelReorient\"" : ", \"heelReorient\"";
-	if (!in)
-		missing += missing.empty() ? "\"in\"" : ", \"in\"";
+	if (!insole)
+		missing += missing.empty() ? "\"insole\"" : ", \"insole\"";
+	if (!cs)
+		missing += missing.empty() ? "\"cs\"" : ", \"cs\"";
 	if (!out)
 		missing += missing.empty() ? "\"out\"" : ", \"out\"";
 
@@ -60,44 +60,35 @@ bool HeelNormalize::CanRun() {
 	return error.empty();
 }
 
-bool HeelNormalize::Propagate() {
-	if (!heelReorient || !in || !out)
+bool LastConstruct::Propagate() {
+	if (!insole || !cs || !out)
 		return false;
 
 	bool modify = false;
 
-	if (!in->IsValid() || heelReorient->IsModified()) {
+	if (!insole->IsValid() || !cs->IsValid()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
 	if (out->IsNeeded()) {
-		modify |= !in->IsNeeded();
-		in->MarkNeeded(true);
+		modify |= !insole->IsNeeded();
+		modify |= !cs->IsNeeded();
+		insole->MarkNeeded(true);
+		cs->MarkNeeded(true);
 	}
 	return modify;
 }
 
-bool HeelNormalize::HasToRun() {
-	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
+bool LastConstruct::HasToRun() {
+	return insole && insole->IsValid() && cs && cs->IsValid() && out
+			&& !out->IsValid() && out->IsNeeded();
 }
 
-void HeelNormalize::Run() {
-	*out = *in;
+void LastConstruct::Run() {
+	*out = cs->ExtractByUVPlane(0, -1, -1);
 
-	if (heelReorient->GetSelectionIdx() == 1) {
-		AffineTransformMatrix mo;
-		mo.ScaleGlobal(-1, -1, 1); //TODO Automate flipping and rotation
-		out->Transform(mo);
-	}
+	//TODO Extend algorithm to stitch the insole to the bottom of the last.
 
-	out->UpdateBoundingBox();
-
-	AffineTransformMatrix m;
-	m.TranslateGlobal(-out->BB.xmin, -(out->BB.ymin + out->BB.ymax) / 2.0,
-			-out->BB.zmin);
-	m.TranslateGlobal(-out->BB.GetSizeX() / 5, 0, 0);
-
-	out->Transform(m);
 	out->MarkValid(true);
 	out->MarkNeeded(false);
 }

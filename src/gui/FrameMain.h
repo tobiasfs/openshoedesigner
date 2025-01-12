@@ -123,7 +123,6 @@ protected:
 	void OnButtonAdd(wxCommandEvent &event) override;
 	void OnButtonCopy(wxCommandEvent &event) override;
 	void OnButtonDelete(wxCommandEvent &event) override;
-	void OnButtonTestStitch(wxCommandEvent &event) override;
 
 	void OnObjectEdit(wxCommandEvent &event) override;
 	void OnObjectLoad(wxCommandEvent &event) override;

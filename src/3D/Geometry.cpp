@@ -48,12 +48,18 @@
 			std::string("The index "#idx" is larger than the size of the array "#ary"."))
 #endif
 
+using std::swap;
+
 static const size_t nothing = (size_t) -1;
 
-Geometry::Vertex::Vertex(double x_, double y_, double z_) {
+Geometry::Vertex::Vertex(double x_, double y_, double z_, double u_,
+		double v_) {
 	this->x = x_;
 	this->y = y_;
 	this->z = z_;
+	this->u = u_;
+	this->v = v_;
+
 }
 
 Geometry::Vertex::Vertex(const Vector3 &vector, const Vector3 &normal) :
@@ -112,8 +118,26 @@ bool Geometry::Edge::AttachTriangle(size_t index) {
 }
 
 void Geometry::Edge::Fix() {
+	if (ta == nothing) {
+		if (tb == nothing) {
+			trianglecount = 0;
+		} else {
+			trianglecount = 1;
+			swap(ta, tb);
+		}
+	} else {
+		if (tb == nothing) {
+			trianglecount = 1;
+		} else {
+			// If there are more than 2 triangles joined at the edge, the
+			// number of triangles is preserved.
+			trianglecount = (trianglecount < 2) ? 2 : trianglecount;
+			if (ta > tb)
+				swap(ta, tb);
+		}
+	}
 	if (va > vb) {
-		std::swap(va, vb);
+		swap(va, vb);
 		flip = !flip;
 	}
 }
@@ -177,8 +201,8 @@ void Geometry::Triangle::Fix() {
 	// a < c < b
 	if (va < vc && vc < vb) {
 		// Swap b and c
-		std::swap(vb, vc);
-		std::swap(ea, ec);
+		swap(vb, vc);
+		swap(ea, ec);
 		flip = !flip;
 		return;
 	}
@@ -198,8 +222,8 @@ void Geometry::Triangle::Fix() {
 	// b < a < c
 	if (vb < va && va < vc) {
 		// Swap a and b
-		std::swap(va, vb);
-		std::swap(ec, eb);
+		swap(va, vb);
+		swap(ec, eb);
 		flip = !flip;
 		return;
 	}
@@ -219,8 +243,8 @@ void Geometry::Triangle::Fix() {
 	// c < b < a
 	if (vc < vb && vb < va) {
 		// Swap a and c
-		std::swap(va, vc);
-		std::swap(ea, eb);
+		swap(va, vc);
+		swap(ea, eb);
 		flip = !flip;
 		return;
 	}
@@ -831,7 +855,7 @@ void Geometry::Fix() {
 }
 
 void Geometry::Sort() {
-	// Note, that the lambdas below are different to the lambdas in Finish().
+	// Note, that the lambdas below are different to the lambdas in Join().
 	auto vertex_less = [eps=epsilon, &vref=v](const size_t &idxa,
 			const size_t &idxb) {
 		const auto &a = vref[idxa];
@@ -913,7 +937,7 @@ void Geometry::Sort() {
 	{
 		std::vector<Triangle> temp;
 		temp.reserve(t.size());
-		for (size_t idx : vmap)
+		for (size_t idx : tmap)
 			temp.push_back(t[idx]);
 		t.swap(temp);
 	}
@@ -1102,142 +1126,11 @@ void Geometry::Join() {
 	}
 }
 
-void Geometry::PropagateNormals() {
-
-	if (!verticesHaveNormal && !edgesHaveNormal && !trianglesHaveNormal)
-		CalculateNormals();
-
-	// Spread information from the vertices normals to the edges and triangles,
-	// before the information is removed by removing the vertices in the Join()
-	// method.
-	if (verticesHaveNormal) {
-		if (!edgesHaveNormal) {
-			for (Edge &ed : e) {
-				ed.n = (v[ed.va].n + v[ed.vb].n);
-				ed.n.Normalize();
-			}
-			edgesHaveNormal = true;
-		}
-		if (!trianglesHaveNormal) {
-			for (Triangle &tri : t) {
-				tri.n = (v[tri.va].n + v[tri.vb].n + v[tri.vc].n);
-				tri.n.Normalize();
-			}
-			trianglesHaveNormal = true;
-		}
-	}
-
-	if (edgesHaveNormal) {
-		if (!verticesHaveNormal) {
-			for (Vertex &vert : v)
-				vert.n.Zero();
-			for (Edge &ed : e) {
-				v[ed.va].n += ed.n;
-				v[ed.vb].n += ed.n;
-			}
-			for (Vertex &vert : v)
-				vert.n.Normalize();
-			verticesHaveNormal = true;
-		}
-		if (!trianglesHaveNormal && !t.empty()) {
-			for (Triangle &tri : t) {
-				tri.n = (e[tri.ea].n + e[tri.eb].n + e[tri.ec].n);
-				tri.n.Normalize();
-			}
-			trianglesHaveNormal = true;
-		}
-	}
-
-	if (trianglesHaveNormal) {
-		if (!verticesHaveNormal) {
-			for (Vertex &vert : v)
-				vert.n.Zero();
-
-			for (Triangle &tri : t) {
-				v[tri.va].n += tri.n;
-				v[tri.vb].n += tri.n;
-				v[tri.vc].n += tri.n;
-			}
-			for (Vertex &vert : v)
-				vert.n.Normalize();
-			verticesHaveNormal = true;
-		}
-		if (!edgesHaveNormal && !e.empty()) {
-			for (Edge &ed : e)
-				ed.n.Zero();
-			for (Triangle &tri : t) {
-				e[tri.ea].n += tri.n;
-				e[tri.eb].n += tri.n;
-				e[tri.ec].n += tri.n;
-			}
-			for (Edge &ed : e)
-				ed.n.Normalize();
-			edgesHaveNormal = true;
-		}
-	}
-}
-
-void Geometry::CalculateUVCoordinateSystems() {
-	if (verticesHaveTextur && !trianglesHaveTexture) {
-		for (Triangle &tri : t) {
-			tri.tua = v[tri.va].u;
-			tri.tva = v[tri.va].v;
-			tri.tub = v[tri.vb].u;
-			tri.tvb = v[tri.vb].v;
-			tri.tuc = v[tri.vc].u;
-			tri.tvc = v[tri.vc].v;
-		}
-		trianglesHaveTexture = true;
-	}
-	if (trianglesHaveTexture) {
-		bool texturesFlat = true;
-		// Calculate 't' and 'b' of the TBN-matrix.
-		for (Triangle &tri : t) {
-			const double dU1 = tri.tub - tri.tua;
-			const double dV1 = tri.tvb - tri.tva;
-			const double dU2 = tri.tuc - tri.tua;
-			const double dV2 = tri.tvc - tri.tva;
-			const double det = dU1 * dV2 - dU2 * dV1;
-			if (fabs(det) < FLT_EPSILON) {
-				tri.t.Zero();
-				tri.b.Zero();
-				continue;
-			}
-			texturesFlat = false;
-			const double f = 1.0 / det;
-
-			const Vector3 dE1 = v[tri.vb] - v[tri.va];
-			const Vector3 dE2 = v[tri.vc] - v[tri.va];
-
-			tri.b.x = f * (-dU2 * dE1.x + dU1 * dE2.x);
-			tri.b.y = f * (-dU2 * dE1.y + dU1 * dE2.y);
-			tri.b.z = f * (-dU2 * dE1.z + dU1 * dE2.z);
-
-			tri.t.x = f * (dV2 * dE1.x - dV1 * dE2.x);
-			tri.t.y = f * (dV2 * dE1.y - dV1 * dE2.y);
-			tri.t.z = f * (dV2 * dE1.z - dV1 * dE2.z);
-		}
-		if (texturesFlat)
-			trianglesHaveTexture = false;
-	}
-	if (trianglesHaveTexture && !verticesHaveTextur) {
-		for (Triangle &tri : t) {
-			v[tri.va].u = tri.tua;
-			v[tri.va].v = tri.tva;
-			v[tri.vb].u = tri.tub;
-			v[tri.vb].v = tri.tvb;
-			v[tri.vc].u = tri.tuc;
-			v[tri.vc].v = tri.tvc;
-		}
-		verticesHaveTextur = true;
-	}
-}
-
 void Geometry::Finish() {
-	finished = true;
 	PropagateNormals();
 	CalculateUVCoordinateSystems();
 	Join();
+	finished = true;
 }
 
 #define SELFCHECK_EQUAL(idxa, idxb, fielda, fieldb, typea, typeb) if(fielda != fieldb){ \
@@ -1296,8 +1189,8 @@ void Geometry::Finish() {
 	<< t[idxb].ea << ", " << t[idxb].eb << ", and " << t[idxb].ec << ".\n"; \
 	++errorCount; passed = false;}
 
-bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
-		bool checkWellOrdering) const {
+bool Geometry::SelfCheckPassed(bool checkWellOrdering,
+		size_t maxErrorsPerType) const {
 
 	// All checks are done on the data in the objects (vertex, edge, triangle).
 	// None of the methods of the objects are called.
@@ -1438,7 +1331,9 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 						"vertex");
 				SELFCHECK_LESS_THAN(idx, t[idx].ea, t[idx].eb, "triangle",
 						"edge");
-				SELFCHECK_LESS_THAN(idx, t[idx].eb, t[idx].ec, "triangle",
+				// Note, that this check is inverted, because of the way the
+				// vertices are ordered in a triangle.
+				SELFCHECK_LESS_THAN(idx, t[idx].ec, t[idx].eb, "triangle",
 						"edge");
 				if (errorCount >= maxErrorsPerType) {
 					std::cerr << "...\n";
@@ -1449,7 +1344,7 @@ bool Geometry::SelfCheckPassed(size_t maxErrorsPerType,
 				triangleOK = false;
 		}
 
-		// Check triangle edge well ordering This is only possible for edges,
+		// Check triangle edge well ordering. This is only possible for edges,
 		// that are connected to one triangle. Otherwise the edge would be
 		// reversed for one of the triangles.
 
@@ -1586,6 +1481,89 @@ void Geometry::CalculateNormals() {
 	trianglesHaveNormal = true;
 }
 
+void Geometry::PropagateNormals() {
+
+	if (!verticesHaveNormal && !edgesHaveNormal && !trianglesHaveNormal)
+		CalculateNormals();
+
+	// Spread information from the vertices normals to the edges and triangles,
+	// before the information is removed by removing the vertices in the Join()
+	// method.
+	if (verticesHaveNormal) {
+		if (!edgesHaveNormal) {
+			for (Edge &ed : e) {
+				ed.n = (v[ed.va].n + v[ed.vb].n);
+				ed.n.Normalize();
+			}
+			edgesHaveNormal = true;
+		}
+		if (!trianglesHaveNormal) {
+			for (Triangle &tri : t) {
+				tri.n = (v[tri.va].n + v[tri.vb].n + v[tri.vc].n);
+				tri.n.Normalize();
+			}
+			trianglesHaveNormal = true;
+		}
+	}
+
+	if (edgesHaveNormal) {
+		if (!verticesHaveNormal) {
+			for (Vertex &vert : v)
+				vert.n.Zero();
+			for (Edge &ed : e) {
+				v[ed.va].n += ed.n;
+				v[ed.vb].n += ed.n;
+			}
+			for (Vertex &vert : v)
+				vert.n.Normalize();
+			verticesHaveNormal = true;
+		}
+		if (!trianglesHaveNormal && !t.empty()) {
+			for (Triangle &tri : t) {
+				tri.n = (e[tri.ea].n + e[tri.eb].n + e[tri.ec].n);
+				tri.n.Normalize();
+			}
+			trianglesHaveNormal = true;
+		}
+	}
+
+	if (trianglesHaveNormal) {
+		if (!verticesHaveNormal) {
+			for (Vertex &vert : v)
+				vert.n.Zero();
+
+			for (Triangle &tri : t) {
+				v[tri.va].n += tri.n;
+				v[tri.vb].n += tri.n;
+				v[tri.vc].n += tri.n;
+			}
+			for (Vertex &vert : v)
+				vert.n.Normalize();
+			verticesHaveNormal = true;
+		}
+		if (!edgesHaveNormal && !e.empty()) {
+			for (Edge &ed : e)
+				ed.n.Zero();
+			for (Triangle &tri : t) {
+				e[tri.ea].n += tri.n;
+				e[tri.eb].n += tri.n;
+				e[tri.ec].n += tri.n;
+			}
+			for (Edge &ed : e)
+				ed.n.Normalize();
+			edgesHaveNormal = true;
+		}
+	}
+}
+
+void Geometry::UpdateNormals(bool updateVertices, bool updateEdges,
+		bool updateTriangles) {
+	verticesHaveNormal &= (!updateVertices);
+	edgesHaveNormal &= (!updateEdges);
+	trianglesHaveNormal &= (!updateTriangles);
+	PropagateNormals();
+}
+
 void Geometry::FlipNormals() {
 	for (Vertex &v : this->v)
 		v.FlipNormal();
@@ -1600,6 +1578,62 @@ void Geometry::FlipInsideOutside() {
 		ed.flip = !ed.flip;
 	for (Triangle &tri : t)
 		tri.flip = !tri.flip;
+}
+
+void Geometry::CalculateUVCoordinateSystems() {
+	if (verticesHaveTextur && !trianglesHaveTexture) {
+		for (Triangle &tri : t) {
+			tri.tua = v[tri.va].u;
+			tri.tva = v[tri.va].v;
+			tri.tub = v[tri.vb].u;
+			tri.tvb = v[tri.vb].v;
+			tri.tuc = v[tri.vc].u;
+			tri.tvc = v[tri.vc].v;
+		}
+		trianglesHaveTexture = true;
+	}
+	if (trianglesHaveTexture) {
+		bool texturesFlat = true;
+		// Calculate 't' and 'b' of the TBN-matrix.
+		for (Triangle &tri : t) {
+			const double dU1 = tri.tub - tri.tua;
+			const double dV1 = tri.tvb - tri.tva;
+			const double dU2 = tri.tuc - tri.tua;
+			const double dV2 = tri.tvc - tri.tva;
+			const double det = dU1 * dV2 - dU2 * dV1;
+			if (fabs(det) < FLT_EPSILON) {
+				tri.t.Zero();
+				tri.b.Zero();
+				continue;
+			}
+			texturesFlat = false;
+			const double f = 1.0 / det;
+
+			const Vector3 dE1 = v[tri.vb] - v[tri.va];
+			const Vector3 dE2 = v[tri.vc] - v[tri.va];
+
+			tri.b.x = f * (-dU2 * dE1.x + dU1 * dE2.x);
+			tri.b.y = f * (-dU2 * dE1.y + dU1 * dE2.y);
+			tri.b.z = f * (-dU2 * dE1.z + dU1 * dE2.z);
+
+			tri.t.x = f * (dV2 * dE1.x - dV1 * dE2.x);
+			tri.t.y = f * (dV2 * dE1.y - dV1 * dE2.y);
+			tri.t.z = f * (dV2 * dE1.z - dV1 * dE2.z);
+		}
+		if (texturesFlat)
+			trianglesHaveTexture = false;
+	}
+	if (trianglesHaveTexture && !verticesHaveTextur) {
+		for (Triangle &tri : t) {
+			v[tri.va].u = tri.tua;
+			v[tri.va].v = tri.tva;
+			v[tri.vb].u = tri.tub;
+			v[tri.vb].v = tri.tvb;
+			v[tri.vc].u = tri.tuc;
+			v[tri.vc].v = tri.tvc;
+		}
+		verticesHaveTextur = true;
+	}
 }
 
 void Geometry::CalcSharpEdges(double angle) {
@@ -2503,18 +2537,24 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 
 			if (useNormals)
 				GLNormal(na);
+			if (verticesHaveTextur)
+				glTexCoord2d(va.u, va.v);
 			if (verticesHaveColor)
-				glColor4f(ca.r, ca.g, ca.b, ca.a);
+				GLColor(ca);
 			GLVertex(va);
 			if (useNormals)
 				GLNormal(nb);
+			if (verticesHaveTextur)
+				glTexCoord2d(vb.u, vb.v);
 			if (verticesHaveColor)
-				glColor4f(cb.r, cb.g, cb.b, cb.a);
+				GLColor(cb);
 			GLVertex(vb);
 			if (useNormals)
 				GLNormal(nc);
+			if (verticesHaveTextur)
+				glTexCoord2d(vc.u, vc.v);
 			if (verticesHaveColor)
-				glColor4f(cc.r, cc.g, cc.b, cc.a);
+				GLColor(cc);
 			GLVertex(vc);
 
 //			glNormal3d(v[tri.va].n.x, v[tri.va].n.y, v[tri.va].n.z);
@@ -2570,14 +2610,20 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 
 			if (trianglesHaveNormal)
 				GLNormal(n);
+			if (verticesHaveTextur)
+				glTexCoord2d(va.u, va.v);
 			if (verticesHaveColor)
-				glColor4f(ca.r, ca.g, ca.b, ca.a);
+				GLColor(ca);
 			GLVertex(va);
+			if (verticesHaveTextur)
+				glTexCoord2d(vb.u, vb.v);
 			if (verticesHaveColor)
-				glColor4f(cb.r, cb.g, cb.b, cb.a);
+				GLColor(cb);
 			GLVertex(vb);
+			if (verticesHaveTextur)
+				glTexCoord2d(vc.u, vc.v);
 			if (verticesHaveColor)
-				glColor4f(cc.r, cc.g, cc.b, cc.a);
+				GLColor(cc);
 			GLVertex(vc);
 		}
 	}
@@ -2760,7 +2806,7 @@ inline void Geometry::GLNormal(const Vector3 &n) {
 }
 
 inline void Geometry::GLColor(const Color &c) {
-	glColor3d(c.r, c.g, c.b);
+	glColor4d(c.r, c.g, c.b, c.a);
 }
 
 void Geometry::SendToGLVertexArray(const std::string fields) {

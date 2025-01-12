@@ -44,6 +44,10 @@ bool InsoleConstruct::CanRun() {
 
 	if (!footLength)
 		missing += missing.empty() ? "\"footLength\"" : ", \"footLength\"";
+	if (!ballWidth)
+		missing += missing.empty() ? "\"ballWidth\"" : ", \"ballWidth\"";
+	if (!heelWidth)
+		missing += missing.empty() ? "\"heelWidth\"" : ", \"heelWidth\"";
 	if (!ballMeasurementAngle)
 		missing +=
 				missing.empty() ?
@@ -58,10 +62,8 @@ bool InsoleConstruct::CanRun() {
 				missing.empty() ? "\"littleToeAngle\"" : ", \"littleToeAngle\"";
 	if (!bigToeAngle)
 		missing += missing.empty() ? "\"bigToeAngle\"" : ", \"bigToeAngle\"";
-	if (!ballWidth)
-		missing += missing.empty() ? "\"ballWidth\"" : ", \"ballWidth\"";
-	if (!heelWidth)
-		missing += missing.empty() ? "\"heelWidth\"" : ", \"heelWidth\"";
+	if (!tipSharpness)
+		missing += missing.empty() ? "\"tipSharpness\"" : ", \"tipSharpness\"";
 	if (!extraLength)
 		missing += missing.empty() ? "\"extraLength\"" : ", \"extraLength\"";
 	if (!out)
@@ -81,6 +83,12 @@ bool InsoleConstruct::CanRun() {
 	if (footLength->GetString().empty()) {
 		error += " Input \"footLength\" for InsoleConstruct is empty.";
 	}
+	if (ballWidth->GetString().empty()) {
+		error += " Input \"ballWidth\" for InsoleConstruct is empty.";
+	}
+	if (heelWidth->GetString().empty()) {
+		error += " Input \"heelWidth\" for InsoleConstruct is empty.";
+	}
 	if (ballMeasurementAngle->GetString().empty()) {
 		error +=
 				" Input \"ballMeasurementAngle\" for InsoleConstruct is empty.";
@@ -94,11 +102,8 @@ bool InsoleConstruct::CanRun() {
 	if (bigToeAngle->GetString().empty()) {
 		error += " Input \"bigToeAngle\" for InsoleConstruct is empty.";
 	}
-	if (ballWidth->GetString().empty()) {
-		error += " Input \"ballWidth\" for InsoleConstruct is empty.";
-	}
-	if (heelWidth->GetString().empty()) {
-		error += " Input \"heelWidth\" for InsoleConstruct is empty.";
+	if (tipSharpness->GetString().empty()) {
+		error += " Input \"tipSharpness\" for InsoleConstruct is empty.";
 	}
 	if (extraLength->GetString().empty()) {
 		error += " Input \"extraLength\" for InsoleConstruct is empty.";
@@ -108,20 +113,21 @@ bool InsoleConstruct::CanRun() {
 }
 
 bool InsoleConstruct::Propagate() {
-	if (!footLength || !ballMeasurementAngle || !heelDirectionAngle
-			|| !littleToeAngle || !bigToeAngle || !ballWidth || !heelWidth
-			|| !extraLength || !out)
+	if (!footLength || !ballWidth || !heelWidth || !ballMeasurementAngle
+			|| !heelDirectionAngle || !littleToeAngle || !bigToeAngle
+			|| !tipSharpness || !extraLength || !out)
 		return false;
 
 	bool modify = false;
 	bool parameterModified = false;
 	parameterModified |= footLength->IsModified();
+	parameterModified |= ballWidth->IsModified();
+	parameterModified |= heelWidth->IsModified();
 	parameterModified |= ballMeasurementAngle->IsModified();
 	parameterModified |= heelDirectionAngle->IsModified();
 	parameterModified |= littleToeAngle->IsModified();
 	parameterModified |= bigToeAngle->IsModified();
-	parameterModified |= ballWidth->IsModified();
-	parameterModified |= heelWidth->IsModified();
+	parameterModified |= tipSharpness->IsModified();
 	parameterModified |= extraLength->IsModified();
 
 	if (parameterModified) {
@@ -142,8 +148,8 @@ void InsoleConstruct::Run() {
 }
 
 void InsoleConstruct::Construct() {
-	// A and B have to be on the coordinate y = 0.0
 
+	// A and B have to be on the axis y = 0.0
 	out->J.Set(0, 0, 0);
 	out->A = out->J - Vector3(footLength->ToDouble() / 6.0, 0, 0);
 	out->C = out->A + Vector3(footLength->ToDouble() * 0.62, 0, 0);
@@ -208,7 +214,8 @@ void InsoleConstruct::Construct() {
 	// algorithm to work.
 	Insole::Line temp;
 	out->lines.clear();
-	temp.Setup(out->B, out->G, 0.39, 0.39);
+	double tip = 1.0 - tipSharpness->ToDouble();
+	temp.Setup(out->B, out->G, 0.39 * tip, 0.39);
 	out->lines.push_back(temp);
 	temp.Setup(out->G, out->E, 0.2, 0.3);
 	out->lines.push_back(temp);
@@ -222,7 +229,7 @@ void InsoleConstruct::Construct() {
 	out->lines.push_back(temp);
 	temp.Setup(out->F, out->Z, 0.39, 0.2);
 	out->lines.push_back(temp);
-	temp.Setup(out->Z, out->B, 0.4, 0.3);
+	temp.Setup(out->Z, out->B, 0.4, 0.3 * tip);
 	out->lines.push_back(temp);
 
 	FinishConstruction(100);

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : CanvasWalkcycle.h
-// Purpose            :
+// Name               : CanvasTestStitch.h
+// Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 30.10.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 11.01.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,33 +23,29 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#ifndef SRC_GUI_CANVASTESTSTITCH_H_
+#define SRC_GUI_CANVASTESTSTITCH_H_
 
-#ifndef CANVASWALKCYCLE_H
-#define CANVASWALKCYCLE_H
-
-/*!\class CanvasWalkcycle
- * \brief ...
+/** \class CanvasTestStitch
+ * 	\code #include "CanvasTestStitch.h"\endcode
+ * 	\ingroup GroupName
+ *  \brief Description
  *
- * ...
+ * Text
  */
 
-#include "CanvasGraph.h"
+#include "../3D/OpenGLCanvas.h"
 
-class CanvasWalkcycle: public CanvasGraph {
+class CanvasTestStitch: public OpenGLCanvas {
 public:
-	CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
+	CanvasTestStitch(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-			const wxString &name = wxPanelNameStr);
-	virtual ~CanvasWalkcycle();
+					wxDefaultSize, long style = 0,
+			const wxString &name = _T("CanvasTestStitch"));
+	virtual ~CanvasTestStitch();
 
 protected:
-
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent &event);
-	void OnLeftDown(wxMouseEvent &event);
+	void Render() override;
 };
 
-#endif /* CANVASWALKCYCLE_H */
+#endif /* SRC_GUI_CANVASTESTSTITCH_H_ */

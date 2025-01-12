@@ -36,6 +36,13 @@ Exporter::Exporter(const std::string &filename_, const std::string &prefix_) :
 		MatlabFile(filename_), prefix(prefix_) {
 }
 
+void Exporter::Add(const Matrix &matrix, const std::string &name) {
+	std::string name_ = GenName(name);
+	Matrix M = matrix;
+	M.SetVariableName(name_);
+	WriteMatrix(M);
+}
+
 void Exporter::Add(const Geometry &geo, const std::string &name) {
 	std::string name_ = GenName(name);
 	std::string nameX = name_ + "x";

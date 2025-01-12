@@ -80,6 +80,17 @@ public:
 			std::numeric_limits<double>::infinity(), double minAllowed =
 			std::numeric_limits<double>::epsilon()) const;
 
+	/**\brief Solution Variation matrix.
+	 *
+	 * Used to calculate variations of a under-determined solution.
+	 *
+	 * \param maxCond (optional) Maximum condition of the solution.
+	 * \param minAllowed (optional) Minimal allowed value for a eigenvalue.
+	 * \return The matrix __I__ - __Vt__ * __V__
+	 */
+	Matrix Variation(double maxCond = std::numeric_limits<double>::infinity(),
+			double minAllowed = std::numeric_limits<double>::epsilon()) const;
+
 	/**\brief Condition of the decomposed matrix __A__.
 	 *
 	 * The condition is the biggest eigenvalue divided by the smallest.

@@ -28,55 +28,43 @@
 #include <wx/dcclient.h>
 
 CanvasPattern::CanvasPattern(wxWindow *parent, wxWindowID id,
-		const wxPoint &pos, const wxSize &size, long style) :
-		CanvasMeasurementGrid(parent, id, pos, size, style) {
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		CanvasMeasurementGrid(parent, id, pos, size, style, name) {
 
 	// Connect Events
-	Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
-	Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
+//	Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
+//	Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
 	Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasPattern::OnPaint));
-	Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
+//	Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
 }
 
 CanvasPattern::~CanvasPattern() {
 	// Disconnect Events
-	Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
-	Disconnect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
+//	Disconnect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
+//	Disconnect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
 	Disconnect(wxEVT_PAINT, wxPaintEventHandler(CanvasPattern::OnPaint));
-	Disconnect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
+//	Disconnect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
 }
 
-void CanvasPattern::OnSize(wxSizeEvent &event) {
-	Refresh();
-}
+//void CanvasPattern::OnSize(wxSizeEvent &event) {
+//	Refresh();
+//}
 
 void CanvasPattern::OnPaint(wxPaintEvent &event) {
 	CanvasMeasurementGrid::OnPaint(event);
 	wxPaintDC dc(this);
-	wxSize sz = GetClientSize();
-
+#ifdef DEBUG
 	wxString text = wxString::Format(_T("CanvasPattern"));
 	dc.DrawText(text, 10, 30);
+#endif
 
-	float height = 1.0; //TODO: <-Replace this
-	float width = 1.0; //TODO: <-Replace this
-
-	float scaleX = (float) sz.x / width;
-	float scaleY = (float) sz.y / (height);
-
-	float scaleFactor = (scaleX < scaleY) ? scaleX : scaleY;
-	scaleFactor *= 0.9;
-
-	int mx = sz.x / 2;
-	int my = (int) (scaleY * height * 0.5);
-
-	dc.CrossHair(mx, my);
 
 }
 
-void CanvasPattern::OnMotion(wxMouseEvent &event) {
-}
-
-void CanvasPattern::OnLeftDown(wxMouseEvent &event) {
-}
+//void CanvasPattern::OnMotion(wxMouseEvent &event) {
+//}
+//
+//void CanvasPattern::OnLeftDown(wxMouseEvent &event) {
+//}
 

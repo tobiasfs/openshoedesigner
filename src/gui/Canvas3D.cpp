@@ -44,8 +44,10 @@
 //#include <GL/glu.h>
 //#endif
 
-Canvas3D::Canvas3D(wxWindow *parent) :
-		OpenGLCanvas(parent) {
+Canvas3D::Canvas3D(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		OpenGLCanvas(parent, id, pos, size, style, name)  {
 	projectview = nullptr;
 }
 

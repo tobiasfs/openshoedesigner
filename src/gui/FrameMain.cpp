@@ -1287,11 +1287,6 @@ void FrameMain::OnButtonDelete(wxCommandEvent &event) {
 			<< event.GetId() << " ) not implemented.\n";
 }
 
-void FrameMain::OnButtonTestStitch(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
-			<< event.GetId() << " ) not implemented.\n";
-}
-
 void FrameMain::OnObjectEdit(wxCommandEvent &event) {
 	switch (event.GetId()) {
 

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : CanvasWalkcycle.h
-// Purpose            :
+// Name               : CanvasFlattening.cpp
+// Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 30.10.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 11.01.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,33 +23,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#include "CanvasFlattening.h"
 
-#ifndef CANVASWALKCYCLE_H
-#define CANVASWALKCYCLE_H
+#include <wx/dcclient.h>
+CanvasFlattening::CanvasFlattening(wxWindow *parent, wxWindowID id,
+		const wxPoint &pos, const wxSize &size, long style,
+		const wxString &name) :
+		CanvasMeasurementGrid(parent, id, pos, size, style, name) {
 
-/*!\class CanvasWalkcycle
- * \brief ...
- *
- * ...
- */
+	Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasFlattening::OnPaint));
 
-#include "CanvasGraph.h"
+}
 
-class CanvasWalkcycle: public CanvasGraph {
-public:
-	CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
-					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-			const wxString &name = wxPanelNameStr);
-	virtual ~CanvasWalkcycle();
+CanvasFlattening::~CanvasFlattening() {
+	Disconnect(wxEVT_PAINT, wxPaintEventHandler(CanvasFlattening::OnPaint));
 
-protected:
+}
 
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent &event);
-	void OnLeftDown(wxMouseEvent &event);
-};
-
-#endif /* CANVASWALKCYCLE_H */
+void CanvasFlattening::OnPaint(wxPaintEvent &event) {
+	CanvasMeasurementGrid::OnPaint(event);
+	wxPaintDC dc(this);
+#ifdef DEBUG
+	dc.DrawText(_T("CanvasFlattening"), 10, 30);
+#endif
+}

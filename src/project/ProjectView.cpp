@@ -45,7 +45,7 @@ ProjectView::ProjectView() :
 	active = Side::Both;
 
 	showLeft = true;
-	showRight = true;
+	showRight = false;
 
 	showFootScan = false;
 	showBones = false;
@@ -53,9 +53,9 @@ ProjectView::ProjectView() :
 	showLeg = false;
 
 	showLastScan = false;
-	showLast = true;
+	showLast = false;
 	showInsole = true;
-	showHeel = false;
+	showHeel = true;
 	showUpper = false;
 	showCutaway = false;
 	showFloor = false;
@@ -266,7 +266,7 @@ void ProjectView::Paint(bool usePicking) const {
 
 		if (showCoordinateSystem) {
 			glPushName(15);
-//			project->csL.Paint();
+			project->csL->Paint();
 			glPopName();
 		}
 
@@ -347,7 +347,7 @@ void ProjectView::Paint(bool usePicking) const {
 
 		if (showCoordinateSystem) {
 			glPushName(15);
-//			project->csR.Paint();
+			project->csR->Paint();
 			glPopName();
 		}
 
