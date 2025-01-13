@@ -40,6 +40,8 @@
 
 #include "OpenGL.h"
 
+#include <GL/glu.h>
+
 #ifdef _MSC_VER
 #define _USE_MATH_DEFINES
 #endif
@@ -61,7 +63,7 @@ OpenGLCanvas::OpenGLCanvas(wxWindow *parent, wxWindowID id, const wxPoint &pos,
 
 	turntableX = 0;
 	turntableY = M_PI / 2;
-	scale = 1.0;
+	scale = 5.0;
 	stereoMode = Stereo3D::Off;
 	eyeDistance = 0.1;
 	focalDistance = 1.0;
@@ -286,8 +288,8 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 	} else {
 		const int x = event.GetWheelRotation();
 		if (x != 0) {
-//			scale *= exp(-((float) x) / 1000.0);
-			transmat.TranslateGlobal(0, 0, (float) -x / 1000.0);
+			scale *= exp(-((float) x) / 1000.0);
+//			transmat.TranslateGlobal(0, 0, (float) -x / 1000.0);
 			this->Refresh();
 		}
 	}
@@ -438,7 +440,12 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 	transmat.GLMultMatrix();
 	rotmat.GLMultMatrix();
 
-	{ // Determine unit length at origin
+	{
+		// Determine unit length at origin
+		// Note that the reference implementation is off by one.
+		// https://www.khronos.org/opengl/wiki/GluProject_and_gluUnProject_code
+		// It should be fTempo[7]=1.0-fTempo[2];
+
 		GLint vp[4];
 		GLdouble mv[16];
 		GLdouble pr[16];
@@ -446,7 +453,9 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 		glGetDoublev( GL_PROJECTION_MATRIX, pr);
 		glGetIntegerv( GL_VIEWPORT, vp);
 
-		unitAtOrigin = -vp[2] * (mv[3] * pr[12] + pr[0]) / (2.0 * mv[14]);
+		double sc = std::sqrt(mv[0] * mv[0] + mv[1] * mv[1] + mv[2] * mv[2]);
+		unitAtOrigin = sc * vp[2] * (mv[3] * pr[12] + pr[0])
+				/ (2.0 * (1.0 - mv[14]));
 	}
 
 	//	if(m_gllist == 0){

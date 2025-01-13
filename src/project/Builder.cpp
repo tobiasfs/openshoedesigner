@@ -277,6 +277,15 @@ void Builder::Connect(Project &project) {
 
 	opFootModelUpdate->in = opFootModelLoad->out;
 
+	opLastNormalize->in = opLastLoad->out;
+	opLastAnalyse->in = opLastNormalize->out;
+	opLastUpdate->in = opLastAnalyse->out;
+
+	opHeelNormalize->in = opHeelLoad->out;
+	project.heelL = opHeelNormalize->out;
+	opHeelExtractInsole->in = opHeelNormalize->out;
+	opInsoleAnalyze->in = opHeelExtractInsole->out;
+	opInsoleFlatten->in = opInsoleAnalyze->out;
 
 	if (config.heelConstructionType->IsSelection("construct")) {
 		opInsoleTransform->in = opInsoleConstruct->out;
@@ -291,12 +300,7 @@ void Builder::Connect(Project &project) {
 	}
 
 	if (config.heelConstructionType->IsSelection("loadFromFile")) {
-		opHeelNormalize->in = opHeelLoad->out;
-		project.heelL = opHeelNormalize->out;
-		opHeelExtractInsole->in = opHeelNormalize->out;
-		opInsoleAnalyze->in = opHeelExtractInsole->out;
 		project.insoleL = opInsoleAnalyze->out;
-		opInsoleFlatten->in = project.insoleL;
 		project.insoleFlatL = opInsoleFlatten->out;
 
 		project.insoleFlatR = project.insoleFlatL;
@@ -320,9 +324,7 @@ void Builder::Connect(Project &project) {
 
 	}
 	if (config.lastConstructionType->IsSelection("loadFromFile")) {
-		opLastNormalize->in = opLastLoad->out;
-		opLastAnalyse->in = opLastNormalize->out;
-		opLastUpdate->in = opLastAnalyse->out;
+
 		project.lastR = opLastUpdate->out;
 		project.lastL = opLastUpdate->out;
 	}
