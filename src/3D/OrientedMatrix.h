@@ -127,7 +127,7 @@ public:
 	Display2D display2D = Display2D::Image;
 	Display3D display3D = Display3D::Points3D;
 
-	double surface = 0.5; ///< Value of the surface: values greater than surface are inside the Volume
+	double surface = 0.0; ///< Value of the surface: values greater than surface are inside the Volume
 };
 
 #endif /* ORIENTEDMATRIX_H */

@@ -107,8 +107,8 @@ public:
 	 *
 	 * Use ParseCode() for multi-line blocks of code.
 	 *
-	 * User ParseExpression for a single line with a single expression. The
-	 * line does not need a closing ';'.
+	 * Use ParseExpression() for a single line with a single expression. The
+	 * line does not have a closing ';'.
 	 *
 	 * \{
 	 */
@@ -151,7 +151,7 @@ public:
 	 *
 	 * If false: 1 A s results in a parse error.
 	 * 			 It would have to be written as 1 A*s if glueUnitToNumber is
-	 * 			 true or 1*A*s if it is false.
+	 * 			 true or 1*A*s if glueUnitToNumber is false.
 	 */
 	bool implicitMultiplication = true;
 
@@ -288,8 +288,8 @@ public:
 			F_CBRT, ///< Calculate the cubic root.
 			F_SQRT, ///< Calculate the square root. The value on the stack has to be positive.
 			F_CEIL, ///< Round the top value up. Round is done related to the base SI unit.
-			F_FLOOR, ///< Round the top value down. Round is done related to the base SI unit.
-			F_ROUND ///< Round the top value. Round is done related to the base SI unit.
+			F_FLOOR, ///< Round the top value down. Rounding is done related to the base SI unit.
+			F_ROUND ///< Round the top value. Rounding is done related to the base SI unit.
 		};
 
 		class Instruction {
@@ -322,7 +322,7 @@ public:
 		 * Derived from the Value is the Variable, which contains additionally
 		 * a name and direction indicators.
 		 *
-		 *
+		 * A variable can be used as an input or an output or both.
 		 */
 		class Variable: public Value {
 		public:
@@ -374,6 +374,7 @@ public:
 		/** \brief Run the program until it finishes.
 		 */
 		void Run();
+
 		/** \brief Checks if a program was successfully evaluated.
 		 *
 		 * An empty parser (i.e. where no string of code or expression has been
@@ -381,9 +382,11 @@ public:
 		 * have been called.
 		 */
 		bool HasRun() const;
+
 		/** \brief Execute a single opcode.
 		 */
 		void StepOpCode();
+
 		/** \brief Execute all opcodes, that make up a single expression.
 		 */
 		void StepExpression();

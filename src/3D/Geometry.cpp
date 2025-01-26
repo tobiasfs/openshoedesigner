@@ -1026,8 +1026,8 @@ void Geometry::Join() {
 	// Remove duplicated vertices
 
 	if (!v.empty()) {
-		std::sort(v.begin(), v.end(), vertex_less);
 		vmap.assign(v.size(), nothing);
+		std::sort(v.begin(), v.end(), vertex_less);
 		size_t j = 0;
 		vmap[v[j].group] = j;
 		for (size_t i = 1; i < v.size(); ++i) {
@@ -1054,6 +1054,7 @@ void Geometry::Join() {
 	// Remove duplicate edges
 
 	if (!e.empty()) {
+		emap.assign(e.size(), nothing);
 
 		// Remove collapsed edges
 		auto edge_collapsed = [](const Edge &ed) {
@@ -1065,7 +1066,6 @@ void Geometry::Join() {
 			ed.Fix();
 		std::sort(e.begin(), e.end(), edge_less);
 
-		emap.assign(e.size(), nothing);
 		std::vector<size_t> ecount;
 		ecount.assign(e.size(), 1);
 		size_t j = 0;
@@ -1102,12 +1102,13 @@ void Geometry::Join() {
 	// Remove duplicate triangles
 
 	if (!t.empty()) {
+		tmap.assign(t.size(), nothing);
+
 		//TODO: Remove collapsed triangles.
 		for (Triangle &tri : t)
 			tri.Fix();
 		std::sort(t.begin(), t.end(), triangle_less);
 
-		tmap.assign(t.size(), nothing);
 		size_t j = 0;
 		tmap[t[j].group] = j;
 		for (size_t i = 1; i < t.size(); ++i) {
@@ -2517,12 +2518,19 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 							nc = e[idx_eb].n;
 							nb = (na + nc) / 2.0;
 						} else {
-							const auto ha = e[idx_ea].n;
-							const auto hb = e[idx_eb].n;
-							const auto hc = e[idx_ec].n;
-							na = (hc + ha) / 2.0;
-							nb = (ha + hb) / 2.0;
-							nc = (hb + hc) / 2.0;
+							if (verticesHaveNormal) {
+								useNormals = true;
+								na = v[idx_a].n;
+								nb = v[idx_b].n;
+								nc = v[idx_c].n;
+							} else {
+								const auto ha = e[idx_ea].n;
+								const auto hb = e[idx_eb].n;
+								const auto hc = e[idx_ec].n;
+								na = (hc + ha) / 2.0;
+								nb = (ha + hb) / 2.0;
+								nc = (hb + hc) / 2.0;
+							}
 						}
 					}
 				}

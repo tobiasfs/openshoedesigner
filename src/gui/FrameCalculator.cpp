@@ -95,11 +95,12 @@ FrameCalculator::FrameCalculator(wxWindow *parent) :
 	}
 	// Initial code
 	m_textCtrlCode->SetText(
-			"x2 = x*x;\ny2=y^2;\n{\n\td = sqrt(x2+y2+z*z); // Calculate the distance from the center of the sphere.\n}\n\n/* 0 at a distance of 1 */\nreturn d-1;\n");
+			"// A torus\n\nd = abs(sqrt(x^2+y^2)-0.5);\nreturn sqrt(d^2+z^2)-0.2;\n");
+//	m_textCtrlCode->SetText("d = abs(sqrt(x^2+y^2)-0.5);\nreturn sqrt(d^2+z^2+sqrt(abs(x))/20)-0.2;\n");
 
-	// Always present set of input variables
+// Always present set of input variables
 	parser.vm.heap.Set("x", 0);
-	parser.vm.heap.Set("y", 0.5);
+	parser.vm.heap.Set("y", 0);
 	parser.vm.heap.Set("z", 0);
 
 	// Initial Parsing of the code
@@ -227,6 +228,41 @@ wxThread::ExitCode FrameCalculator::Entry() {
 			wxQueueEvent(GetEventHandler(), new wxThreadEvent());
 			return (wxThread::ExitCode) 0;
 		}
+
+		const int Nx = 40;
+		const int Ny = 40;
+		const int Nz = 40;
+		const size_t idxX = updaterVm.heap.GetIndex("x");
+		const size_t idxY = updaterVm.heap.GetIndex("y");
+		const size_t idxZ = updaterVm.heap.GetIndex("z");
+		Polynomial mapX = Polynomial::ByValue(0, xmin.ToDouble(), Nx - 1,
+				xmax.ToDouble());
+		Polynomial mapY = Polynomial::ByValue(0, ymin.ToDouble(), Ny - 1,
+				ymax.ToDouble());
+		Polynomial mapZ = Polynomial::ByValue(0, zmin.ToDouble(), Nz - 1,
+				zmax.ToDouble());
+
+		values3D->SetSize(Nx, Ny, Nz, 1);
+
+		for (size_t nz = 0; nz < Nz; ++nz) {
+			for (size_t ny = 0; ny < Ny; ++ny) {
+				for (size_t nx = 0; nx < Nx; ++nx) {
+					updaterVm.Reset();
+					const double x = mapX((double) nx);
+					const double y = mapY((double) ny);
+					const double z = mapZ((double) nz);
+					updaterVm.heap[idxX]() = x;
+					updaterVm.heap[idxY]() = y;
+					updaterVm.heap[idxZ]() = z;
+					try {
+						updaterVm.Run();
+						values3D->Insert(updaterVm.stack.front().ToDouble(), nx,
+								ny, nz);
+					} catch (const std::exception &ex) {
+					}
+				}
+			}
+		}
 	}
 		break;
 	default:
@@ -273,7 +309,41 @@ void FrameCalculator::OnThreadUpdate(wxThreadEvent &evt) {
 			geo.CalculateNormals();
 		}
 	}
+	try {
+		if (updateDimensions == 3) {
+			values3D->CalcSurface();
+			m_canvasXYZ->geometries.resize(1);
+			Geometry &geo = m_canvasXYZ->geometries[0];
+			geo.Clear();
+			geo = values3D->geometry;
+			geo.FlipInsideOutside();
+			// Rescale and center generated surface.
+			const int Nx = 40;
+			const int Ny = 40;
+			const int Nz = 40;
+			AffineTransformMatrix m;
+			m.ScaleGlobal(
+					(xmax.ToDouble() - xmin.ToDouble()) / (double) (Nx - 1),
+					(ymax.ToDouble() - ymin.ToDouble()) / (double) (Ny - 1),
+					(zmax.ToDouble() - zmin.ToDouble()) / (double) (Nz - 1));
+			m.TranslateGlobal(xmin.ToDouble(), ymin.ToDouble(),
+					zmin.ToDouble());
+			geo.Transform(m);
 
+			if(!geo.SelfCheckPassed(false))
+			{
+				std::cout << "Problem.\n";
+			}
+
+
+
+			geo.Join();
+			geo.CalculateNormals();
+			geo.smooth = true;
+		}
+	} catch (std::exception &ex) {
+		std::cout << ex.what() << "\n";
+	}
 	isUpdatingGraphs.Unlock();
 
 	m_canvasGraph->Refresh();
@@ -292,7 +362,6 @@ void FrameCalculator::OnNotebookPageChanged(wxNotebookEvent &event) {
 	shouldUpdateGraphs = true;
 	UpdateGraphs();
 }
-
 
 void FrameCalculator::OnTextEnter(wxCommandEvent &event) {
 	SemaphoreTryLocker lock(loopGuard);

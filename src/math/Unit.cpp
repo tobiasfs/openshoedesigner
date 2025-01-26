@@ -135,6 +135,7 @@ std::string Unit::ToString(bool useNegativeExponents,
 	bool first = true;
 
 	//FIXME Per volume units are rendered incorrectly e.g. "mol/ml" -> "lx*mol/(m*cd)"
+	//FIXME The whole algorithm is unstable when working with L=log2(x);return 2^L; without any unit anywhere!
 
 	std::array<int, derivedunitcount> f;
 	f.fill(0);
@@ -1283,7 +1284,7 @@ std::array<Unit::DerivedUnit, Unit::derivedunitcount> Unit::InitDerivedUnits() {
 	table[11].exp = { { -2, 2, 0, 0, 0, 0, 0 } };
 	table[12].name = "lx";
 	table[12].exp = { { 0, -2, 0, 0, 0, 0, 1 } };
-	table[13].name = "l";
+	table[13].name = "l"; // FIXME: Shadows m^3; missing factor as well. Remove and add a unit rescaling system.
 	table[13].exp = { { 0, 3, 0, 0, 0, 0, 0 } };
 	table[14].name = "C";
 	table[14].exp = { { 1, 0, 0, 1, 0, 0, 0 } };

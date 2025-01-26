@@ -706,6 +706,8 @@ void Volume::CalcSurface() {
 						case 11:
 							t.p[2 - (n % 3)] = p11;
 							break;
+						default:
+							break;
 						}
 
 //					if(t.p[2 - (n % 3)].Abs() < 0.001){
@@ -990,13 +992,13 @@ void Volume::CalcSurface() {
 				 }
 				 */
 				p.x += dx;
-				c++;
+				c++; // Advance c to next cell
 			}
-			c++;
+			c++; // Add the missing cell at then end of a Nx column
 			p.x = 0;
 			p.y += dy;
 		}
-		c += Nx;
+		c += Nx; // Add the missing cells at the end of a Ny row
 		p.y = 0;
 		p.z += dz;
 	}
