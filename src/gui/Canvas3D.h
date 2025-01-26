@@ -33,14 +33,19 @@
  * \note A copy-/ assignment-constructor is not needed because the pointers do not contain direct objects.
  */
 
-#include "../project/ProjectView.h"
+#include "../3D/Geometry.h"
 #include "../3D/OpenGLCanvas.h"
+#include "../project/ProjectView.h"
+
+#include <vector>
 
 class Canvas3D: public OpenGLCanvas {
 public:
 	Canvas3D(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
 			wxDefaultPosition, const wxSize &size = wxDefaultSize, long style =
 			0, const wxString &name = _T("Canvas3D"));
+	Canvas3D(const Canvas3D&) = delete;
+	Canvas3D& operator=(const Canvas3D&) = delete;
 	virtual ~Canvas3D() = default;
 	void SetProjectView(const ProjectView *projectview);
 //
@@ -48,6 +53,8 @@ public:
 //	void DisconnectMouseEvents();
 	void Render() override;
 	void RenderPick() override;
+
+	std::vector<Geometry> geometries;
 
 protected:
 	void PaintCorrdinateSystem();

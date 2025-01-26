@@ -267,7 +267,8 @@ void CoordinateSystemConstruct::Run() {
 	double L = outline0.MapU();
 	Polynomial m = Polynomial::ByValue(0, 0, L, 2.0 * M_PI);
 	auto inter = outline0.Intersect( { 0, 1, 0 }, 0);
-	m.ShiftX(inter.positive[0].u);
+	if (!inter.positive.empty())
+		m.ShiftX(inter.positive[0].u);
 	for (size_t n = 0; n < outline0.VertexCount(); ++n) {
 		auto &vert = outline0.GetVertex(n);
 		vert.u = m(vert.u);
@@ -291,11 +292,12 @@ void CoordinateSystemConstruct::Run() {
 		el *= AffineTransformMatrix::RotationAroundVector( { 0, 1, 0 }, -0.1);
 		el.SetOrigin( { 0, 0, 0.25 });
 		el.ScaleLocal(0.04, 0.02, 1.0);
+		elb = el.GetBezierSpline(4);
+
 		out->HardBoundaries();
 		Polynomial mapu = Polynomial::ByValue(0, -M_PI, 4, M_PI);
 		for (size_t n = 0; n < 4; ++n)
-			out->AddPolynomial(mapu(n), mapu(n + 1), 1, 1, el.GetSpline(4, n));
-
+			out->AddPolynomial(mapu(n), mapu(n + 1), 1, 1, elb.GetSegment(n));
 		out->SoftBoundaries();
 	}
 	for (size_t n = 0; n < outline0.VertexCount(); ++n)
@@ -307,3 +309,6 @@ void CoordinateSystemConstruct::Run() {
 	out->MarkNeeded(false);
 }
 
+void CoordinateSystemConstruct::Paint() const {
+	elb.Paint();
+}

@@ -218,9 +218,9 @@ void Skeleton::LoadJSON(std::string filename) {
 bool Skeleton::SaveJSON(std::string filename) {
 	MathParser parser;
 
-	parser.SetVariable("L", MathParser::Value(1.0));
-	parser.SetVariable("R", MathParser::Value(1.0));
-	parser.SetVariable("S", MathParser::Value(1.0));
+	parser.vm.heap.Set("L", MathParser::Value(1.0));
+	parser.vm.heap.Set("R", MathParser::Value(1.0));
+	parser.vm.heap.Set("S", MathParser::Value(1.0));
 	Skeleton::UpdateBonesFromFormula(parser);
 	Skeleton::Update();
 

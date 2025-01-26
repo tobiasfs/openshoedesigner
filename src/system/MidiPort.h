@@ -59,6 +59,8 @@ class MidiDevice {
 	friend class MidiPort;
 public:
 	explicit MidiDevice(const std::string &name);
+	MidiDevice(const MidiDevice&) = delete;
+	MidiDevice& operator=(const MidiDevice&) = delete;
 	virtual ~MidiDevice();
 
 	void Close();

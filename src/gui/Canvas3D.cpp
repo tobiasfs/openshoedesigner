@@ -44,14 +44,11 @@
 //#include <GL/glu.h>
 //#endif
 
-Canvas3D::Canvas3D(wxWindow *parent, wxWindowID id,
-		const wxPoint &pos, const wxSize &size, long style,
-		const wxString &name) :
-		OpenGLCanvas(parent, id, pos, size, style, name)  {
+Canvas3D::Canvas3D(wxWindow *parent, wxWindowID id, const wxPoint &pos,
+		const wxSize &size, long style, const wxString &name) :
+		OpenGLCanvas(parent, id, pos, size, style, name) {
 	projectview = nullptr;
 }
-
-
 
 //void Canvas3D::ConnectMouseEvents()
 //{
@@ -98,30 +95,35 @@ void Canvas3D::SetProjectView(const ProjectView *projectview_) {
 }
 
 void Canvas3D::Render() {
-	if (projectview == nullptr)
-		return;
-	projectview->PaintBackground(true);
 
-	glClear( GL_DEPTH_BUFFER_BIT);
+	if (projectview != nullptr) {
+		glPushMatrix();
+		// XY in the plane and Z pointing upwards.
+		glRotatef(-90, 1, 0, 0);
 
-	// XY in the plane and Z pointing upwards.
-	glRotatef(-90, 1, 0, 0);
+		projectview->PaintBackground(true);
+		glClear( GL_DEPTH_BUFFER_BIT);
 
-	if (projectview->showCoordinateSystem)
-		PaintCorrdinateSystem();
+		if (projectview->showCoordinateSystem)
+			PaintCorrdinateSystem();
 
-	// Paint a 3D cursor on the surface of the last.
-	{
-		OpenGLMaterial matCursor(1, 1, 1, 0.9);
-		matCursor.UseMaterial();
-		glBegin(GL_LINES);
-		Vector3 c = a + b;
-		glVertex3d(a.x, a.y, a.z);
-		glVertex3d(c.x, c.y, c.z);
-		glEnd();
+		projectview->Paint(false);
+
+		// Paint a 3D cursor on the surface of the last.
+//	{
+//		OpenGLMaterial matCursor(1, 1, 1, 0.9);
+//		matCursor.UseMaterial();
+//		glBegin(GL_LINES);
+//		Vector3 c = a + b;
+//		glVertex3d(a.x, a.y, a.z);
+//		glVertex3d(c.x, c.y, c.z);
+//		glEnd();
+//	}
+		glPopMatrix();
 	}
 
-	projectview->Paint(false);
+	for (const Geometry &geometry : geometries)
+		geometry.Paint();
 }
 
 void Canvas3D::RenderPick() {
@@ -164,9 +166,9 @@ void Canvas3D::PaintCorrdinateSystem() {
 	matX.UseMaterial();
 	glBegin(GL_LINES);
 	for (uint_fast8_t n = 0; n < N; n++) {
-		const double a = 2 * M_PI / N * (double) (n);
-		const double c = cos(a);
-		const double s = sin(a);
+		const double phi = 2 * M_PI / N * (double) (n);
+		const double c = cos(phi);
+		const double s = sin(phi);
 		glNormal3d(n0, c * n1, s * n1);
 		glVertex3d(len, 0, 0);
 		glVertex3d(len - rad, rad * c, rad * s);
@@ -175,9 +177,9 @@ void Canvas3D::PaintCorrdinateSystem() {
 	matY.UseMaterial();
 	glBegin(GL_LINES);
 	for (uint_fast8_t n = 0; n < N; n++) {
-		const double a = 2 * M_PI / N * (double) (n);
-		const double c = cos(a);
-		const double s = sin(a);
+		const double phi = 2 * M_PI / N * (double) (n);
+		const double c = cos(phi);
+		const double s = sin(phi);
 		glNormal3d(s * n1, n0, c * n1);
 		glVertex3d(0, len, 0);
 		glVertex3d(rad * s, len - rad, rad * c);
@@ -186,9 +188,9 @@ void Canvas3D::PaintCorrdinateSystem() {
 	matZ.UseMaterial();
 	glBegin(GL_LINES);
 	for (uint_fast8_t n = 0; n < N; n++) {
-		const double a = 2 * M_PI / N * (double) (n);
-		const double c = cos(a);
-		const double s = sin(a);
+		const double phi = 2 * M_PI / N * (double) (n);
+		const double c = cos(phi);
+		const double s = sin(phi);
 		glNormal3d(c * n1, s * n1, n0);
 		glVertex3d(0, 0, len);
 		glVertex3d(rad * c, rad * s, len - rad);

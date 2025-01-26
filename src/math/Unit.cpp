@@ -80,7 +80,13 @@ std::string Unit::TextFromSIWithUnit(const double value,
 		buf.setf(std::ios::fixed, std::ios::floatfield);
 		buf.precision(digitsAfterComma);
 	}
-	buf << FromSI(value) << ' ' << otherName;
+	buf << FromSI(value);
+	if (!NoUnit()) {
+		if (otherName.empty() && std::fabs(factor - 1.0) < DBL_EPSILON)
+			buf << ' ' << ToString();
+		else
+			buf << ' ' << otherName;
+	}
 	return buf.str();
 }
 
@@ -365,7 +371,7 @@ void Unit::ParseString(const std::string &txt) {
 			break;
 //		std::cout << "State: " << state << " Action: " << action << '\n';
 		Action(action);
-	}
+	}{
 	const size_t action = actionTable[state << 8];
 	Action(action);
 	state = transitionTable[state << 8];
@@ -374,7 +380,7 @@ void Unit::ParseString(const std::string &txt) {
 		throw std::runtime_error(
 				"Unit::ParseString - The string \"" + txt
 						+ "\" is not a parsible unit.");
-	}
+	}}
 	factor *= std::pow(10.0, (double) powerprefix);
 }
 

@@ -62,7 +62,10 @@
 class FileGeometry {
 public:
 	FileGeometry() = delete;
+	FileGeometry(const FileGeometry&) = delete;
+	FileGeometry& operator=(const FileGeometry&) = delete;
 	explicit FileGeometry(const std::string &filename_);
+
 	/**\brief Constructor to read from a stream
 	 *
 	 * The stream is stored as a raw pointer. Therefore the Read operation

@@ -60,6 +60,7 @@
 #include <wx/spinbutt.h>
 #include <wx/slider.h>
 #include "CanvasAnisotropy.h"
+#include <wx/wrapsizer.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -98,91 +99,105 @@
 #define ID_BACKGROUND 1032
 #define ID_BACKGROUND_SETUP 1033
 #define ID_PARSER 1034
-#define ID_BOTH 1035
-#define ID_MEASUREMENTSOURCE 1036
-#define ID_MEASUREMENT_FOOTLENGTH 1037
-#define ID_MEASUREMENT_BALLWIDTH 1038
-#define ID_MEASUREMENT_BIGTOEGIRTH 1039
-#define ID_MEASUREMENT_LITTLETOEGIRTH 1040
-#define ID_MEASUREMENT_WAISTGIRTH 1041
-#define ID_MEASUREMENT_HEELGIRTH 1042
-#define ID_MEASUREMENT_HEELWIDTH 1043
-#define ID_MEASUREMENT_ANGLEMIXING 1044
-#define ID_MEASUREMENT_LEGLENGTHDIFFERENCE 1045
-#define ID_IMAGEFOOT 1046
-#define ID_MEASUREMENT_BELOWCRUTCHGIRTH 1047
-#define ID_MEASUREMENT_BELOWCRUTCHLEVEL 1048
-#define ID_MEASUREMENT_MIDDLEOFCALFGIRTH 1049
-#define ID_MEASUREMENT_MIDDLEOFCALFLEVEL 1050
-#define ID_MEASUREMENT_ABOVEKNEEGIRTH 1051
-#define ID_MEASUREMENT_ABOVEKNEELEVEL 1052
-#define ID_MEASUREMENT_OVERKNEECAPGIRTH 1053
-#define ID_MEASUREMENT_OVERKNEECAPLEVEL 1054
-#define ID_MEASUREMENT_BELOWKNEEGIRTH 1055
-#define ID_MEASUREMENT_BELOWKNEELEVEL 1056
-#define ID_MEASUREMENT_MIDDLEOFSHANKGIRTH 1057
-#define ID_MEASUREMENT_MIDDLEOFSHANKLEVEL 1058
-#define ID_MEASUREMENT_ABOVEANKLEGIRTH 1059
-#define ID_MEASUREMENT_ABOVEANKLELEVEL 1060
-#define ID_MEASUREMENT_OVERANKLEBONEGIRTH 1061
-#define ID_MEASUREMENT_OVERANKLEBONELEVEL 1062
-#define ID_LASTCONSTRUCTIONTYPE 1063
-#define ID_BIGTOEANGLE 1064
-#define ID_LITTLETOEANGLE 1065
-#define ID_BALLMEASUREMENTANGLE 1066
-#define ID_HEELDIRECTIONANGLE 1067
-#define ID_TIPSHARPNESS 1068
-#define ID_EXTRALENGTH 1069
-#define ID_FOOTCOMPRESSION 1070
-#define ID_HEELREORIENT 1071
-#define ID_LASTMODIFY 1072
-#define ID_LASTREORIENT 1073
-#define ID_HEELCONSTRUCTIONTYPE 1074
-#define ID_PRESETSHOETYPE 1075
-#define ID_HEELHEIGHT 1076
-#define ID_BALLHEIGHT 1077
-#define ID_HEELPITCH 1078
-#define ID_TOESPRING 1079
-#define ID_PRESETSHOEHEIGHT 1080
-#define ID_UPPERLEVEL 1081
-#define ID_GENERATOR 1082
-#define ID_WELTSIZE 1083
-#define ID_THICKNESS 1084
-#define ID_BRIDGE 1085
-#define ID_SUPPORTHEELRADIUS 1086
-#define ID_SUPPORTHEELOFFSET 1087
-#define ID_SUPPORTTOERADIUS 1088
-#define ID_SUPPORTTOEOFFSET 1089
-#define ID_PRESETHEEL 1090
-#define ID_PRESETHEELCODE 1091
-#define ID_PRESETHEELVARIANT 1092
-#define ID_HEELCODE 1093
-#define ID_HEELVARIANT 1094
-#define ID_SELECTED 1095
-#define ID_LINE 1096
-#define ID_PATCH 1097
-#define ID_STITCHING 1098
-#define ID_PADDING 1099
-#define ID_LACES 1100
-#define ID_ACCESSORY 1101
-#define ID_MAINVIEW 1102
-#define ID_ANKLELOCK 1103
-#define ID_DISPLAY 1104
-#define ID_GRIDDIAMETER 1105
-#define ID_GRIDLENGTH 1106
-#define ID_GRIDSKIN 1107
-#define ID_FORMULA 1108
-#define ID_SELECTION 1109
-#define ID_IMAGE 1110
-#define ID_FRONT 1111
-#define ID_BACK 1112
-#define ID_TOP 1113
-#define ID_BOTTOM 1114
-#define ID_SCALE 1115
-#define ID_OFFSETHORIZONTAL 1116
-#define ID_OFFSETVERTICAL 1117
-#define ID_ROTATION 1118
-#define ID_POINT 1119
+#define ID_CALCULATOR 1035
+#define ID_BOTH 1036
+#define ID_MEASUREMENTSOURCE 1037
+#define ID_MEASUREMENT_FOOTLENGTH 1038
+#define ID_MEASUREMENT_BALLWIDTH 1039
+#define ID_MEASUREMENT_BIGTOEGIRTH 1040
+#define ID_MEASUREMENT_LITTLETOEGIRTH 1041
+#define ID_MEASUREMENT_WAISTGIRTH 1042
+#define ID_MEASUREMENT_HEELGIRTH 1043
+#define ID_MEASUREMENT_HEELWIDTH 1044
+#define ID_MEASUREMENT_ANGLEMIXING 1045
+#define ID_MEASUREMENT_LEGLENGTHDIFFERENCE 1046
+#define ID_IMAGEFOOT 1047
+#define ID_MEASUREMENT_BELOWCRUTCHGIRTH 1048
+#define ID_MEASUREMENT_BELOWCRUTCHLEVEL 1049
+#define ID_MEASUREMENT_MIDDLEOFCALFGIRTH 1050
+#define ID_MEASUREMENT_MIDDLEOFCALFLEVEL 1051
+#define ID_MEASUREMENT_ABOVEKNEEGIRTH 1052
+#define ID_MEASUREMENT_ABOVEKNEELEVEL 1053
+#define ID_MEASUREMENT_OVERKNEECAPGIRTH 1054
+#define ID_MEASUREMENT_OVERKNEECAPLEVEL 1055
+#define ID_MEASUREMENT_BELOWKNEEGIRTH 1056
+#define ID_MEASUREMENT_BELOWKNEELEVEL 1057
+#define ID_MEASUREMENT_MIDDLEOFSHANKGIRTH 1058
+#define ID_MEASUREMENT_MIDDLEOFSHANKLEVEL 1059
+#define ID_MEASUREMENT_ABOVEANKLEGIRTH 1060
+#define ID_MEASUREMENT_ABOVEANKLELEVEL 1061
+#define ID_MEASUREMENT_OVERANKLEBONEGIRTH 1062
+#define ID_MEASUREMENT_OVERANKLEBONELEVEL 1063
+#define ID_LASTCONSTRUCTIONTYPE 1064
+#define ID_BIGTOEANGLE 1065
+#define ID_LITTLETOEANGLE 1066
+#define ID_BALLMEASUREMENTANGLE 1067
+#define ID_HEELDIRECTIONANGLE 1068
+#define ID_TIPSHARPNESS 1069
+#define ID_EXTRALENGTH 1070
+#define ID_FOOTCOMPRESSION 1071
+#define ID_HEELREORIENT 1072
+#define ID_LASTMODIFY 1073
+#define ID_LASTREORIENT 1074
+#define ID_HEELCONSTRUCTIONTYPE 1075
+#define ID_PRESETSHOETYPE 1076
+#define ID_HEELHEIGHT 1077
+#define ID_BALLHEIGHT 1078
+#define ID_HEELPITCH 1079
+#define ID_TOESPRING 1080
+#define ID_PRESETSHOEHEIGHT 1081
+#define ID_UPPERLEVEL 1082
+#define ID_GENERATOR 1083
+#define ID_WELTSIZE 1084
+#define ID_THICKNESS 1085
+#define ID_BRIDGE 1086
+#define ID_SUPPORTHEELRADIUS 1087
+#define ID_SUPPORTHEELOFFSET 1088
+#define ID_SUPPORTTOERADIUS 1089
+#define ID_SUPPORTTOEOFFSET 1090
+#define ID_PRESETHEEL 1091
+#define ID_PRESETHEELCODE 1092
+#define ID_PRESETHEELVARIANT 1093
+#define ID_HEELCODE 1094
+#define ID_HEELVARIANT 1095
+#define ID_SELECTED 1096
+#define ID_LINE 1097
+#define ID_PATCH 1098
+#define ID_STITCHING 1099
+#define ID_PADDING 1100
+#define ID_LACES 1101
+#define ID_ACCESSORY 1102
+#define ID_MAINVIEW 1103
+#define ID_ANKLELOCK 1104
+#define ID_DISPLAY 1105
+#define ID_GRIDDIAMETER 1106
+#define ID_GRIDLENGTH 1107
+#define ID_GRIDSKIN 1108
+#define ID_FORMULA 1109
+#define ID_SELECTION 1110
+#define ID_IMAGE 1111
+#define ID_FRONT 1112
+#define ID_BACK 1113
+#define ID_TOP 1114
+#define ID_BOTTOM 1115
+#define ID_SCALE 1116
+#define ID_OFFSETHORIZONTAL 1117
+#define ID_OFFSETVERTICAL 1118
+#define ID_ROTATION 1119
+#define ID_POINT 1120
+#define ID_CODE 1121
+#define ID_XMIN 1122
+#define ID_XMAX 1123
+#define ID_YMIN 1124
+#define ID_YMAX 1125
+#define ID_ZMIN 1126
+#define ID_ZMAX 1127
+#define ID_AUTORUN 1128
+#define ID_MAXSTEPS 1129
+#define ID_RUN 1130
+#define ID_STOP 1131
+#define ID_STEPASM 1132
+#define ID_STEPINSTRUCTION 1133
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrameMain
@@ -408,6 +423,7 @@ class GUIFrameMain : public wxDocChildFrame
 		virtual void OnToggleStereo3D( wxCommandEvent& event ) = 0;
 		virtual void OnBackgroundImagesSetup( wxCommandEvent& event ) = 0;
 		virtual void OnParserDebug( wxCommandEvent& event ) = 0;
+		virtual void OnCalculator( wxCommandEvent& event ) = 0;
 		virtual void OnMouseWheel( wxMouseEvent& event ) = 0;
 		virtual void OnRadioButton( wxCommandEvent& event ) = 0;
 		virtual void OnPageChanged( wxChoicebookEvent& event ) = 0;
@@ -565,7 +581,7 @@ class GUIFrameDebugParser : public wxFrame
 
 	public:
 
-		GUIFrameDebugParser( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Test Parser and Units"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxTAB_TRAVERSAL );
+		GUIFrameDebugParser( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Test Parser and Units"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxCAPTION|wxCLOSE_BOX|wxFRAME_FLOAT_ON_PARENT|wxFRAME_NO_TASKBAR|wxRESIZE_BORDER|wxSTAY_ON_TOP|wxSYSTEM_MENU|wxTAB_TRAVERSAL );
 
 		~GUIFrameDebugParser();
 
@@ -742,7 +758,7 @@ class GUIDialogMidiSetup : public wxDialog
 
 	public:
 
-		GUIDialogMidiSetup( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Midi Controller"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 321,175 ), long style = wxDEFAULT_DIALOG_STYLE );
+		GUIDialogMidiSetup( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Midi Controller"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 321,-1 ), long style = wxDEFAULT_DIALOG_STYLE );
 
 		~GUIDialogMidiSetup();
 
@@ -770,6 +786,98 @@ class GUIDialogAnisotropy : public wxDialog
 		GUIDialogAnisotropy( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Editor Anisotropy"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 670,719 ), long style = wxDEFAULT_DIALOG_STYLE );
 
 		~GUIDialogAnisotropy();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class GUIFrameCalculator
+///////////////////////////////////////////////////////////////////////////////
+class GUIFrameCalculator : public wxFrame
+{
+	private:
+
+	protected:
+		wxSplitterWindow* m_splitterVertical;
+		wxPanel* m_panelLeft;
+		wxSplitterWindow* m_splitterHorizontal;
+		wxPanel* m_panelTop;
+		wxStyledTextCtrl* m_textCtrlCode;
+		wxPanel* m_panelBottom;
+		wxNotebook* m_notebook;
+		wxPanel* m_panelX;
+		CanvasGraph* m_canvasGraph;
+		wxStaticText* m_staticTextXMin;
+		ExtendedTextCtrl* m_textCtrlXMin;
+		wxStaticText* m_staticTextXMax;
+		ExtendedTextCtrl* m_textCtrlXMax;
+		wxPanel* m_panelXY;
+		Canvas3D* m_canvasXY;
+		wxStaticText* m_staticTextXMin2;
+		ExtendedTextCtrl* m_textCtrlXMin2;
+		wxStaticText* m_staticTextXMax2;
+		ExtendedTextCtrl* m_textCtrlXMax2;
+		wxStaticText* m_staticTextYMin2;
+		ExtendedTextCtrl* m_textCtrlYMin2;
+		wxStaticText* m_staticTextYMax2;
+		ExtendedTextCtrl* m_textCtrlYMax2;
+		wxPanel* m_panelXYZ;
+		Canvas3D* m_canvasXYZ;
+		wxStaticText* m_staticTextXMin3;
+		ExtendedTextCtrl* m_textCtrlXMin3;
+		wxStaticText* m_staticTextXMax3;
+		ExtendedTextCtrl* m_textCtrlXMax3;
+		wxStaticText* m_staticTextYMin3;
+		ExtendedTextCtrl* m_textCtrlYMin3;
+		wxStaticText* m_staticTextYMax3;
+		ExtendedTextCtrl* m_textCtrlYMax3;
+		wxStaticText* m_staticTextZMin3;
+		ExtendedTextCtrl* m_textCtrlZMin3;
+		wxStaticText* m_staticTextZMax3;
+		ExtendedTextCtrl* m_textCtrlZMax3;
+		wxPanel* m_panelRight;
+		wxStaticText* m_staticTextVariables;
+		wxPropertyGrid* m_propertyGridVariables;
+		wxStaticText* m_staticTextStack;
+		wxStyledTextCtrl* m_textCtrlStack;
+		wxStaticText* m_staticTextAsm;
+		wxStyledTextCtrl* m_textCtrlAsm;
+		wxCheckBox* m_checkBoxAutorun;
+		wxStaticText* m_staticTextMaxSteps;
+		ExtendedTextCtrl* m_textCtrlMaxSteps;
+		wxButton* m_buttonRun;
+		wxButton* m_buttonReset;
+		wxButton* m_buttonStepAsm;
+		wxButton* m_buttonStepExpr;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
+		virtual void OnNotebookPageChanged( wxNotebookEvent& event ) { event.Skip(); }
+		virtual void OnNotebookPageChanging( wxNotebookEvent& event ) { event.Skip(); }
+		virtual void OnKillFocus( wxFocusEvent& event ) { event.Skip(); }
+		virtual void OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPropertyGridChanged( wxPropertyGridEvent& event ) { event.Skip(); }
+		virtual void OnPropertyGridChanging( wxPropertyGridEvent& event ) { event.Skip(); }
+		virtual void OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnButton( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		GUIFrameCalculator( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Calculator"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1396,1103 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxTAB_TRAVERSAL );
+
+		~GUIFrameCalculator();
+
+		void m_splitterVerticalOnIdle( wxIdleEvent& )
+		{
+			m_splitterVertical->SetSashPosition( 1040 );
+			m_splitterVertical->Disconnect( wxEVT_IDLE, wxIdleEventHandler( GUIFrameCalculator::m_splitterVerticalOnIdle ), NULL, this );
+		}
+
+		void m_splitterHorizontalOnIdle( wxIdleEvent& )
+		{
+			m_splitterHorizontal->SetSashPosition( 344 );
+			m_splitterHorizontal->Disconnect( wxEVT_IDLE, wxIdleEventHandler( GUIFrameCalculator::m_splitterHorizontalOnIdle ), NULL, this );
+		}
 
 };
 

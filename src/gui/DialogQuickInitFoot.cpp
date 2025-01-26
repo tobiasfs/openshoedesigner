@@ -59,15 +59,6 @@ void DialogQuickInitFoot::ParseText(std::string text) {
 		text = text.substr(0, idx + 1);
 	}
 
-	MathParser parser;
-	parser.ParseExpression(text);
-
-	parser.InitMachine();
-	parser.Run();
-	const double num = parser.GetStack(0).ToDouble();
-	const Unit unit_2 = parser.GetStack(0).GetUnit();
-
-	m_textCtrlShoeSize->SetValue(wxString::Format(_T("%g"), num));
 	if (!unit.empty()) {
 		if (unit.compare("EU") == 0)
 			m_choiceUnit->SetSelection(0);
@@ -91,42 +82,52 @@ void DialogQuickInitFoot::ParseText(std::string text) {
 			m_choiceUnit->SetSelection(9);
 	}
 
-	switch (m_choiceUnit->GetSelection()) {
-	case 0:
-		length = num / 150 - 1.5e-2;
-		break;
-	case 1:
-		length = (num + 21.5) / 3 * 2.54e-2;
-		break;
-	case 2:
-		length = num / 100;
-		break;
-	case 3:
-		length = ((num + 25) * 8.46e-3) - 1.5e-2;
-		break;
-	case 4:
-		length = num / 1000;
-		break;
-	case 5:
-		length = ((num + 25) * 8.46e-3) - 1.5e-2;
-		break;
-	case 6:
-		length = num * 1e-3;
-		break;
-	case 7:
-		length = num * 1e-2;
-		break;
-	case 8:
-		length = num * 2.54e-2;
-		break;
-	case 9:
-		length = num * 0.3048;
-		break;
-	}
-
 	width = 1.0;
 	if (m_radioBtnSmall->GetValue())
 		width = 0.9;
 	if (m_radioBtnWide->GetValue())
 		width = 1.1;
+
+	MathParser parser;
+	parser.ParseExpression(text);
+	MathParser::VM &vm = parser.vm;
+	vm.Reset();
+	vm.Run();
+	if (!vm.stack.empty()) {
+		const double num = vm.stack.front().ToDouble();
+		const Unit unit_2 = vm.stack.front().GetUnit();
+		m_textCtrlShoeSize->SetValue(wxString::Format(_T("%g"), num));
+		switch (m_choiceUnit->GetSelection()) {
+		case 0:
+			length = num / 150 - 1.5e-2;
+			break;
+		case 1:
+			length = (num + 21.5) / 3 * 2.54e-2;
+			break;
+		case 2:
+			length = num / 100;
+			break;
+		case 3:
+			length = ((num + 25) * 8.46e-3) - 1.5e-2;
+			break;
+		case 4:
+			length = num / 1000;
+			break;
+		case 5:
+			length = ((num + 25) * 8.46e-3) - 1.5e-2;
+			break;
+		case 6:
+			length = num * 1e-3;
+			break;
+		case 7:
+			length = num * 1e-2;
+			break;
+		case 8:
+			length = num * 2.54e-2;
+			break;
+		case 9:
+			length = num * 0.3048;
+			break;
+		}
+	}
 }

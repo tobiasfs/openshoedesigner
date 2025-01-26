@@ -28,10 +28,8 @@
 
 #include <sstream>
 
-DialogEditorFootModel::DialogEditorFootModel(wxWindow *parent, wxWindowID id,
-		const wxString &title, const wxPoint &pos, const wxSize &size,
-		long style) :
-		GUIFrameEditorFootModel(parent, id, title, pos, size, style) {
+DialogEditorFootModel::DialogEditorFootModel(wxWindow *parent) :
+		GUIFrameEditorFootModel(parent) {
 	timer.SetOwner(this);
 
 	timer.Start(100); // ms
@@ -108,8 +106,8 @@ DialogEditorFootModel::~DialogEditorFootModel() {
 			wxTimerEventHandler(DialogEditorFootModel::OnTimer), nullptr, this);
 }
 
-void DialogEditorFootModel::SetMidi(MidiPort *midi) {
-	device = midi->GetFirstOpenDevice(MidiPort::Direction::Input);
+void DialogEditorFootModel::SetMidi(std::shared_ptr<MidiDevice> midi) {
+	device = midi;
 
 	for (size_t n = 0; n < 32; ++n)
 		device->cc[n] = 0;

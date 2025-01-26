@@ -34,10 +34,12 @@
  */
 
 #include "../3D/AffineTransformMatrix.h"
+#include "../math/Matrix.h"
 #include "../math/Unit.h"
 
 #include <wx/panel.h>
 
+#include <memory>
 class CanvasGraph: public wxPanel {
 public:
 	CanvasGraph(wxWindow *parent,
@@ -55,14 +57,18 @@ protected:
 
 public:
 
-	Unit unit; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
+	Unit unitX; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
+	Unit unitY; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
 	int multiplier = 5; ///< Plot a darker line ever x units.
+
+	std::shared_ptr<Matrix> values;
 
 protected:
 	AffineTransformMatrix projection;
 	AffineTransformMatrix view;
 
 	AffineTransformMatrix s; ///< Mapping from SI-units to screen pixels.
+	AffineTransformMatrix sRev;
 
 private:
 	int m_x = 0;

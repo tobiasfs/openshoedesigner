@@ -1078,7 +1078,7 @@ std::tuple<size_t, size_t> Polygon3::ClosestPoint(const Vector3 &p) const {
 			minimalIndex = n;
 		}
 	}
-	return std::make_tuple(minimalIndex, v[minimalIndex].group);
+	return std::make_tuple(minimalIndex, v[minimalIndex].group); // @suppress("Function cannot be instantiated")
 }
 
 size_t Polygon3::ClosestPoint(const Vector3 &p, size_t group) const {

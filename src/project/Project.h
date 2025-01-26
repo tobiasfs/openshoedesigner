@@ -153,6 +153,7 @@ private:
 	wxCriticalSection CSRight;
 
 DECLARE_DYNAMIC_CLASS(Project)
+	;DECLARE_NO_COPY_CLASS(Project)
 	;
 
 };

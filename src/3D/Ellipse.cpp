@@ -87,24 +87,27 @@ Polygon3 Ellipse::SteinerConstruction(size_t nrOfPoints) const {
 	return ret;
 }
 
-Polynomial3 Ellipse::GetSpline(size_t N, size_t n) const {
-	// "Magic" polynomial for the offsetting of the inner Bezier-handles.
+Bezier3 Ellipse::GetBezierSpline(size_t N) const {
+	// Polynomial for the offsetting of the inner Bezier-handles.
 	const Polynomial shift( { -5.6457e-01, 7.6449e-01, -6.7089e-02, 7.3566e-03,
 			-3.0604e-04 });
 	const Polynomial ang = Polynomial::ByValue(0, -M_PI, N, M_PI);
-	const double a0 = ang(n);
-	const double a1 = ang(n + 1);
-	const double s0 = sin(a0);
-	const double s1 = sin(a1);
-	const double c0 = cos(a0);
-	const double c1 = cos(a1);
-	const Vector3 v0 = Transform(c0, s0);
-	const Vector3 v1 = Transform(c1, s1);
-	const Vector3 n0 = Transform(c0 - s0, s0 + c0) - v0;
-	const Vector3 n1 = Transform(c1 - s1, s1 + c1) - v1;
-	const double sval = 1.0 / shift(N);
-	Polynomial3 ret = Polynomial3::ByBezier(v0, v0 + n0 * sval, v1 - n1 * sval,
-			v1);
+
+	Bezier3 ret;
+	ret.SetSize(N);
+	ret.CloseLoop(true);
+
+	for (size_t n = 0; n < N; ++n) {
+		const double a0 = ang(n);
+		const double s0 = sin(a0);
+		const double c0 = cos(a0);
+		const double sval = 3.0 / shift(N);
+
+		ret[n] = Transform(c0, s0);
+		ret[n].dirIn = (Transform(c0 - s0, s0 + c0) - ret[n]) * sval;
+		ret[n].continuity = Bezier3::Continuity::Symmetric;
+	}
+	ret.UpdateSegments();
 	return ret;
 }
 

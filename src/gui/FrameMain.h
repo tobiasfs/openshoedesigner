@@ -110,6 +110,7 @@ protected:
 
 	void On3DSelect(wxMouseEvent &event) override;
 	void OnBackgroundImagesSetup(wxCommandEvent &event) override;
+	void OnCalculator(wxCommandEvent &event) override;
 	void OnConstructionChanged(wxCommandEvent &event) override;
 	void OnMeasurementsCopy(wxCommandEvent &event) override;
 	void OnMeasurementsQuickSetup(wxCommandEvent &event) override;
@@ -128,6 +129,8 @@ protected:
 	void OnObjectLoad(wxCommandEvent &event) override;
 	void OnObjectSave(wxCommandEvent &event) override;
 
+	DECLARE_NO_COPY_CLASS(FrameMain)
+		;
 };
 
 #endif /* FRAMEMAIN_H */

@@ -54,7 +54,7 @@ std::string ParameterFormula::GetString() const {
 }
 
 void ParameterFormula::Init() {
-	parser.ClearVariables();
+	parser.vm.Clear();
 	errorFlag = false;
 	errorStr.clear();
 	try {
@@ -68,13 +68,17 @@ void ParameterFormula::Init() {
 double ParameterFormula::Calculate() {
 	const double oldValue = value;
 	const Unit oldUnit = unit;
-	parser.InitMachine();
+	MathParser::VM &vm = parser.vm;
+	vm.Reset();
 	try {
-		parser.Run();
+		vm.Run();
 		errorFlag = false;
 		errorStr.clear();
-		value = parser.stack.back().ToDouble();
-		unit = parser.stack.back().GetUnit();
+		if (vm.stack.empty())
+			throw std::runtime_error("The expression returned no value.");
+		const auto &var = vm.stack.front();
+		value = var.ToDouble();
+		unit = var.GetUnit();
 		modified |= (std::fabs(value - oldValue) > FLT_EPSILON)
 				|| (unit != oldUnit);
 	} catch (const std::exception &ex) {

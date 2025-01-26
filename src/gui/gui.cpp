@@ -264,9 +264,13 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menubar->Append( m_menuPreferences, _("P&references") );
 
 	m_menuHelp = new wxMenu();
-	wxMenuItem* m_menuItemdebugParser;
-	m_menuItemdebugParser = new wxMenuItem( m_menuHelp, ID_PARSER, wxString( _("Debug Mathparser") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menuHelp->Append( m_menuItemdebugParser );
+	wxMenuItem* m_menuItemDebugParser;
+	m_menuItemDebugParser = new wxMenuItem( m_menuHelp, ID_PARSER, wxString( _("Debug Mathparser") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menuHelp->Append( m_menuItemDebugParser );
+
+	wxMenuItem* m_menuItemCalculator;
+	m_menuItemCalculator = new wxMenuItem( m_menuHelp, ID_CALCULATOR, wxString( _("Calculator") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menuHelp->Append( m_menuItemCalculator );
 
 	m_menubar->Append( m_menuHelp, _("&Help") );
 
@@ -478,7 +482,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelMeasurementBased->SetSizer( bSizerFootMeasurements );
 	m_panelMeasurementBased->Layout();
 	bSizerFootMeasurements->Fit( m_panelMeasurementBased );
-	m_choicebookMeasurementSource->AddPage( m_panelMeasurementBased, _("Measurement based"), false );
+	m_choicebookMeasurementSource->AddPage( m_panelMeasurementBased, _("Measurement based"), true );
 	m_panelScanBased = new wxPanel( m_choicebookMeasurementSource, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerScanBasedModel;
 	bSizerScanBasedModel = new wxBoxSizer( wxVERTICAL );
@@ -494,7 +498,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelScanBased->SetSizer( bSizerScanBasedModel );
 	m_panelScanBased->Layout();
 	bSizerScanBasedModel->Fit( m_panelScanBased );
-	m_choicebookMeasurementSource->AddPage( m_panelScanBased, _("Scan based"), true );
+	m_choicebookMeasurementSource->AddPage( m_panelScanBased, _("Scan based"), false );
 	bSizerFoot->Add( m_choicebookMeasurementSource, 1, wxEXPAND | wxALL, 5 );
 
 
@@ -1348,7 +1352,8 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowCoordinateSystem->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowBackground->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnBackgroundImagesSetup ), this, m_menuItemSetupBackground->GetId());
-	m_menuHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnParserDebug ), this, m_menuItemdebugParser->GetId());
+	m_menuHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnParserDebug ), this, m_menuItemDebugParser->GetId());
+	m_menuHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnCalculator ), this, m_menuItemCalculator->GetId());
 	m_panelPageFoot->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_radioBtnEditLeft->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUIFrameMain::OnRadioButton ), NULL, this );
 	m_radioBtnEditBoth->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUIFrameMain::OnRadioButton ), NULL, this );
@@ -2619,6 +2624,9 @@ GUIDialogMidiSetup::GUIDialogMidiSetup( wxWindow* parent, wxWindowID id, const w
 	m_choice->SetSelection( 0 );
 	bSizer->Add( m_choice, 0, wxALL|wxEXPAND, 5 );
 
+
+	bSizer->Add( 0, 0, 1, wxEXPAND, 5 );
+
 	m_buttonConnectDisconnect = new wxButton( this, wxID_ANY, _("Connect"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer->Add( m_buttonConnectDisconnect, 0, wxALL|wxEXPAND, 5 );
 
@@ -2684,5 +2692,486 @@ GUIDialogAnisotropy::~GUIDialogAnisotropy()
 	// Disconnect Events
 	m_buttonAdd->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialogAnisotropy::OnButtonAdd ), NULL, this );
 	m_buttonRemove->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialogAnisotropy::OnButtonRemove ), NULL, this );
+
+}
+
+GUIFrameCalculator::GUIFrameCalculator( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizerSplitterVertical;
+	bSizerSplitterVertical = new wxBoxSizer( wxVERTICAL );
+
+	m_splitterVertical = new wxSplitterWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D );
+	m_splitterVertical->SetSashGravity( 1 );
+	m_splitterVertical->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrameCalculator::m_splitterVerticalOnIdle ), NULL, this );
+
+	m_panelLeft = new wxPanel( m_splitterVertical, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerSplitterHorizontal;
+	bSizerSplitterHorizontal = new wxBoxSizer( wxVERTICAL );
+
+	m_splitterHorizontal = new wxSplitterWindow( m_panelLeft, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D );
+	m_splitterHorizontal->SetSashGravity( 0.1 );
+	m_splitterHorizontal->Connect( wxEVT_IDLE, wxIdleEventHandler( GUIFrameCalculator::m_splitterHorizontalOnIdle ), NULL, this );
+
+	m_panelTop = new wxPanel( m_splitterHorizontal, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerTop;
+	bSizerTop = new wxBoxSizer( wxVERTICAL );
+
+	m_textCtrlCode = new wxStyledTextCtrl( m_panelTop, ID_CODE, wxDefaultPosition, wxDefaultSize, 0, wxEmptyString );
+	m_textCtrlCode->SetUseTabs( true );
+	m_textCtrlCode->SetTabWidth( 4 );
+	m_textCtrlCode->SetIndent( 4 );
+	m_textCtrlCode->SetTabIndents( true );
+	m_textCtrlCode->SetBackSpaceUnIndents( true );
+	m_textCtrlCode->SetViewEOL( false );
+	m_textCtrlCode->SetViewWhiteSpace( false );
+	m_textCtrlCode->SetMarginWidth( 2, 0 );
+	m_textCtrlCode->SetIndentationGuides( true );
+	m_textCtrlCode->SetReadOnly( false );
+	m_textCtrlCode->SetMarginType( 1, wxSTC_MARGIN_SYMBOL );
+	m_textCtrlCode->SetMarginMask( 1, wxSTC_MASK_FOLDERS );
+	m_textCtrlCode->SetMarginWidth( 1, 16);
+	m_textCtrlCode->SetMarginSensitive( 1, true );
+	m_textCtrlCode->SetProperty( wxT("fold"), wxT("1") );
+	m_textCtrlCode->SetFoldFlags( wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED );
+	m_textCtrlCode->SetMarginType( 0, wxSTC_MARGIN_NUMBER );
+	m_textCtrlCode->SetMarginWidth( 0, m_textCtrlCode->TextWidth( wxSTC_STYLE_LINENUMBER, wxT("_99999") ) );
+	m_textCtrlCode->MarkerDefine( wxSTC_MARKNUM_FOLDER, wxSTC_MARK_BOXPLUS );
+	m_textCtrlCode->MarkerSetBackground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("BLACK") ) );
+	m_textCtrlCode->MarkerSetForeground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("WHITE") ) );
+	m_textCtrlCode->MarkerDefine( wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_BOXMINUS );
+	m_textCtrlCode->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("BLACK") ) );
+	m_textCtrlCode->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("WHITE") ) );
+	m_textCtrlCode->MarkerDefine( wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY );
+	m_textCtrlCode->MarkerDefine( wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_BOXPLUS );
+	m_textCtrlCode->MarkerSetBackground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("BLACK") ) );
+	m_textCtrlCode->MarkerSetForeground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("WHITE") ) );
+	m_textCtrlCode->MarkerDefine( wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUS );
+	m_textCtrlCode->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("BLACK") ) );
+	m_textCtrlCode->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("WHITE") ) );
+	m_textCtrlCode->MarkerDefine( wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY );
+	m_textCtrlCode->MarkerDefine( wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY );
+	m_textCtrlCode->SetSelBackground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHT ) );
+	m_textCtrlCode->SetSelForeground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHTTEXT ) );
+	bSizerTop->Add( m_textCtrlCode, 1, wxEXPAND | wxALL, 5 );
+
+
+	m_panelTop->SetSizer( bSizerTop );
+	m_panelTop->Layout();
+	bSizerTop->Fit( m_panelTop );
+	m_panelBottom = new wxPanel( m_splitterHorizontal, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerBottom;
+	bSizerBottom = new wxBoxSizer( wxVERTICAL );
+
+	m_notebook = new wxNotebook( m_panelBottom, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	m_panelX = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerX;
+	bSizerX = new wxBoxSizer( wxVERTICAL );
+
+	m_canvasGraph = new CanvasGraph( m_panelX, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerX->Add( m_canvasGraph, 1, wxALL|wxEXPAND, 5 );
+
+	wxWrapSizer* wSizerX;
+	wSizerX = new wxWrapSizer( wxHORIZONTAL, 0 );
+
+
+	wSizerX->Add( 0, 0, 1, wxEXPAND, 5 );
+
+	m_staticTextXMin = new wxStaticText( m_panelX, wxID_ANY, _("x min:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextXMin->Wrap( -1 );
+	wSizerX->Add( m_staticTextXMin, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlXMin = new ExtendedTextCtrl( m_panelX, ID_XMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerX->Add( m_textCtrlXMin, 0, wxALL, 5 );
+
+	m_staticTextXMax = new wxStaticText( m_panelX, wxID_ANY, _("x max:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextXMax->Wrap( -1 );
+	wSizerX->Add( m_staticTextXMax, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlXMax = new ExtendedTextCtrl( m_panelX, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerX->Add( m_textCtrlXMax, 0, wxALL, 5 );
+
+
+	wSizerX->Add( 0, 0, 1, wxEXPAND, 5 );
+
+
+	bSizerX->Add( wSizerX, 0, wxEXPAND, 5 );
+
+
+	m_panelX->SetSizer( bSizerX );
+	m_panelX->Layout();
+	bSizerX->Fit( m_panelX );
+	m_notebook->AddPage( m_panelX, _("y = f(x)"), true );
+	m_panelXY = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerXY;
+	bSizerXY = new wxBoxSizer( wxVERTICAL );
+
+	m_canvasXY = new Canvas3D( m_panelXY, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerXY->Add( m_canvasXY, 1, wxALL|wxEXPAND, 5 );
+
+	wxWrapSizer* wSizerXY;
+	wSizerXY = new wxWrapSizer( wxHORIZONTAL, 0 );
+
+
+	wSizerXY->Add( 0, 0, 1, wxEXPAND, 5 );
+
+	m_staticTextXMin2 = new wxStaticText( m_panelXY, wxID_ANY, _("x min:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextXMin2->Wrap( -1 );
+	wSizerXY->Add( m_staticTextXMin2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlXMin2 = new ExtendedTextCtrl( m_panelXY, ID_XMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXY->Add( m_textCtrlXMin2, 0, wxALL, 5 );
+
+	m_staticTextXMax2 = new wxStaticText( m_panelXY, wxID_ANY, _("x max:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextXMax2->Wrap( -1 );
+	wSizerXY->Add( m_staticTextXMax2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlXMax2 = new ExtendedTextCtrl( m_panelXY, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXY->Add( m_textCtrlXMax2, 0, wxALL, 5 );
+
+	m_staticTextYMin2 = new wxStaticText( m_panelXY, wxID_ANY, _("y min:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextYMin2->Wrap( -1 );
+	wSizerXY->Add( m_staticTextYMin2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlYMin2 = new ExtendedTextCtrl( m_panelXY, ID_YMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXY->Add( m_textCtrlYMin2, 0, wxALL, 5 );
+
+	m_staticTextYMax2 = new wxStaticText( m_panelXY, wxID_ANY, _("y max:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextYMax2->Wrap( -1 );
+	wSizerXY->Add( m_staticTextYMax2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlYMax2 = new ExtendedTextCtrl( m_panelXY, ID_YMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXY->Add( m_textCtrlYMax2, 0, wxALL, 5 );
+
+
+	wSizerXY->Add( 0, 0, 1, wxEXPAND, 5 );
+
+
+	bSizerXY->Add( wSizerXY, 0, wxEXPAND, 5 );
+
+
+	m_panelXY->SetSizer( bSizerXY );
+	m_panelXY->Layout();
+	bSizerXY->Fit( m_panelXY );
+	m_notebook->AddPage( m_panelXY, _("z = f(x,y)"), false );
+	m_panelXYZ = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizerXYZ;
+	bSizerXYZ = new wxBoxSizer( wxVERTICAL );
+
+	m_canvasXYZ = new Canvas3D( m_panelXYZ, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerXYZ->Add( m_canvasXYZ, 1, wxALL|wxEXPAND, 5 );
+
+	wxWrapSizer* wSizerXYZ;
+	wSizerXYZ = new wxWrapSizer( wxHORIZONTAL, 0 );
+
+
+	wSizerXYZ->Add( 0, 0, 1, wxEXPAND, 5 );
+
+	m_staticTextXMin3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("x min:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextXMin3->Wrap( -1 );
+	wSizerXYZ->Add( m_staticTextXMin3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlXMin3 = new ExtendedTextCtrl( m_panelXYZ, ID_XMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
+	wSizerXYZ->Add( m_textCtrlXMin3, 0, wxALL, 5 );
+
+	m_staticTextXMax3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("x max:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextXMax3->Wrap( -1 );
+	wSizerXYZ->Add( m_staticTextXMax3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlXMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXYZ->Add( m_textCtrlXMax3, 0, wxALL, 5 );
+
+	m_staticTextYMin3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("y Min:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextYMin3->Wrap( -1 );
+	wSizerXYZ->Add( m_staticTextYMin3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlYMin3 = new ExtendedTextCtrl( m_panelXYZ, ID_YMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXYZ->Add( m_textCtrlYMin3, 0, wxALL, 5 );
+
+	m_staticTextYMax3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("y max:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextYMax3->Wrap( -1 );
+	wSizerXYZ->Add( m_staticTextYMax3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlYMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_YMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXYZ->Add( m_textCtrlYMax3, 0, wxALL, 5 );
+
+	m_staticTextZMin3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("z min:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextZMin3->Wrap( -1 );
+	wSizerXYZ->Add( m_staticTextZMin3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlZMin3 = new ExtendedTextCtrl( m_panelXYZ, ID_ZMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXYZ->Add( m_textCtrlZMin3, 0, wxALL, 5 );
+
+	m_staticTextZMax3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("z max:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextZMax3->Wrap( -1 );
+	wSizerXYZ->Add( m_staticTextZMax3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlZMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_ZMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	wSizerXYZ->Add( m_textCtrlZMax3, 0, wxALL, 5 );
+
+
+	wSizerXYZ->Add( 0, 0, 1, wxEXPAND, 5 );
+
+
+	bSizerXYZ->Add( wSizerXYZ, 0, wxEXPAND, 5 );
+
+
+	m_panelXYZ->SetSizer( bSizerXYZ );
+	m_panelXYZ->Layout();
+	bSizerXYZ->Fit( m_panelXYZ );
+	m_notebook->AddPage( m_panelXYZ, _("0 = f(x,y,z)"), false );
+
+	bSizerBottom->Add( m_notebook, 1, wxEXPAND | wxALL, 5 );
+
+
+	m_panelBottom->SetSizer( bSizerBottom );
+	m_panelBottom->Layout();
+	bSizerBottom->Fit( m_panelBottom );
+	m_splitterHorizontal->SplitHorizontally( m_panelTop, m_panelBottom, 344 );
+	bSizerSplitterHorizontal->Add( m_splitterHorizontal, 1, wxEXPAND, 5 );
+
+
+	m_panelLeft->SetSizer( bSizerSplitterHorizontal );
+	m_panelLeft->Layout();
+	bSizerSplitterHorizontal->Fit( m_panelLeft );
+	m_panelRight = new wxPanel( m_splitterVertical, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxFlexGridSizer* fgSizerInfo;
+	fgSizerInfo = new wxFlexGridSizer( 8, 1, 0, 0 );
+	fgSizerInfo->AddGrowableCol( 0 );
+	fgSizerInfo->AddGrowableRow( 1 );
+	fgSizerInfo->AddGrowableRow( 3 );
+	fgSizerInfo->AddGrowableRow( 5 );
+	fgSizerInfo->SetFlexibleDirection( wxBOTH );
+	fgSizerInfo->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	m_staticTextVariables = new wxStaticText( m_panelRight, wxID_ANY, _("Variables:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextVariables->Wrap( -1 );
+	fgSizerInfo->Add( m_staticTextVariables, 0, wxALL, 5 );
+
+	m_propertyGridVariables = new wxPropertyGrid(m_panelRight, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_SPLITTER_AUTO_CENTER|wxTAB_TRAVERSAL);
+	fgSizerInfo->Add( m_propertyGridVariables, 0, wxALL|wxEXPAND, 5 );
+
+	m_staticTextStack = new wxStaticText( m_panelRight, wxID_ANY, _("Stack:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextStack->Wrap( -1 );
+	fgSizerInfo->Add( m_staticTextStack, 0, wxALL, 5 );
+
+	m_textCtrlStack = new wxStyledTextCtrl( m_panelRight, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, wxEmptyString );
+	m_textCtrlStack->SetUseTabs( true );
+	m_textCtrlStack->SetTabWidth( 4 );
+	m_textCtrlStack->SetIndent( 4 );
+	m_textCtrlStack->SetTabIndents( true );
+	m_textCtrlStack->SetBackSpaceUnIndents( true );
+	m_textCtrlStack->SetViewEOL( false );
+	m_textCtrlStack->SetViewWhiteSpace( false );
+	m_textCtrlStack->SetMarginWidth( 2, 0 );
+	m_textCtrlStack->SetIndentationGuides( true );
+	m_textCtrlStack->SetReadOnly( false );
+	m_textCtrlStack->SetMarginType( 1, wxSTC_MARGIN_SYMBOL );
+	m_textCtrlStack->SetMarginMask( 1, wxSTC_MASK_FOLDERS );
+	m_textCtrlStack->SetMarginWidth( 1, 16);
+	m_textCtrlStack->SetMarginSensitive( 1, true );
+	m_textCtrlStack->SetProperty( wxT("fold"), wxT("1") );
+	m_textCtrlStack->SetFoldFlags( wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED );
+	m_textCtrlStack->SetMarginType( 0, wxSTC_MARGIN_NUMBER );
+	m_textCtrlStack->SetMarginWidth( 0, m_textCtrlStack->TextWidth( wxSTC_STYLE_LINENUMBER, wxT("_99999") ) );
+	m_textCtrlStack->MarkerDefine( wxSTC_MARKNUM_FOLDER, wxSTC_MARK_BOXPLUS );
+	m_textCtrlStack->MarkerSetBackground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("BLACK") ) );
+	m_textCtrlStack->MarkerSetForeground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("WHITE") ) );
+	m_textCtrlStack->MarkerDefine( wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_BOXMINUS );
+	m_textCtrlStack->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("BLACK") ) );
+	m_textCtrlStack->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("WHITE") ) );
+	m_textCtrlStack->MarkerDefine( wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY );
+	m_textCtrlStack->MarkerDefine( wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_BOXPLUS );
+	m_textCtrlStack->MarkerSetBackground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("BLACK") ) );
+	m_textCtrlStack->MarkerSetForeground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("WHITE") ) );
+	m_textCtrlStack->MarkerDefine( wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUS );
+	m_textCtrlStack->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("BLACK") ) );
+	m_textCtrlStack->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("WHITE") ) );
+	m_textCtrlStack->MarkerDefine( wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY );
+	m_textCtrlStack->MarkerDefine( wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY );
+	m_textCtrlStack->SetSelBackground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHT ) );
+	m_textCtrlStack->SetSelForeground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHTTEXT ) );
+	fgSizerInfo->Add( m_textCtrlStack, 1, wxEXPAND | wxALL, 5 );
+
+	m_staticTextAsm = new wxStaticText( m_panelRight, wxID_ANY, _("Compiled instructions:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextAsm->Wrap( -1 );
+	fgSizerInfo->Add( m_staticTextAsm, 0, wxALL, 5 );
+
+	m_textCtrlAsm = new wxStyledTextCtrl( m_panelRight, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, wxEmptyString );
+	m_textCtrlAsm->SetUseTabs( true );
+	m_textCtrlAsm->SetTabWidth( 4 );
+	m_textCtrlAsm->SetIndent( 4 );
+	m_textCtrlAsm->SetTabIndents( true );
+	m_textCtrlAsm->SetBackSpaceUnIndents( true );
+	m_textCtrlAsm->SetViewEOL( false );
+	m_textCtrlAsm->SetViewWhiteSpace( false );
+	m_textCtrlAsm->SetMarginWidth( 2, 0 );
+	m_textCtrlAsm->SetIndentationGuides( true );
+	m_textCtrlAsm->SetReadOnly( false );
+	m_textCtrlAsm->SetMarginType( 1, wxSTC_MARGIN_SYMBOL );
+	m_textCtrlAsm->SetMarginMask( 1, wxSTC_MASK_FOLDERS );
+	m_textCtrlAsm->SetMarginWidth( 1, 16);
+	m_textCtrlAsm->SetMarginSensitive( 1, true );
+	m_textCtrlAsm->SetProperty( wxT("fold"), wxT("1") );
+	m_textCtrlAsm->SetFoldFlags( wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED );
+	m_textCtrlAsm->SetMarginType( 0, wxSTC_MARGIN_NUMBER );
+	m_textCtrlAsm->SetMarginWidth( 0, m_textCtrlAsm->TextWidth( wxSTC_STYLE_LINENUMBER, wxT("_99999") ) );
+	m_textCtrlAsm->MarkerDefine( wxSTC_MARKNUM_FOLDER, wxSTC_MARK_BOXPLUS );
+	m_textCtrlAsm->MarkerSetBackground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("BLACK") ) );
+	m_textCtrlAsm->MarkerSetForeground( wxSTC_MARKNUM_FOLDER, wxColour( wxT("WHITE") ) );
+	m_textCtrlAsm->MarkerDefine( wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_BOXMINUS );
+	m_textCtrlAsm->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("BLACK") ) );
+	m_textCtrlAsm->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPEN, wxColour( wxT("WHITE") ) );
+	m_textCtrlAsm->MarkerDefine( wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY );
+	m_textCtrlAsm->MarkerDefine( wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_BOXPLUS );
+	m_textCtrlAsm->MarkerSetBackground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("BLACK") ) );
+	m_textCtrlAsm->MarkerSetForeground( wxSTC_MARKNUM_FOLDEREND, wxColour( wxT("WHITE") ) );
+	m_textCtrlAsm->MarkerDefine( wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUS );
+	m_textCtrlAsm->MarkerSetBackground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("BLACK") ) );
+	m_textCtrlAsm->MarkerSetForeground( wxSTC_MARKNUM_FOLDEROPENMID, wxColour( wxT("WHITE") ) );
+	m_textCtrlAsm->MarkerDefine( wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY );
+	m_textCtrlAsm->MarkerDefine( wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY );
+	m_textCtrlAsm->SetSelBackground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHT ) );
+	m_textCtrlAsm->SetSelForeground( true, wxSystemSettings::GetColour( wxSYS_COLOUR_HIGHLIGHTTEXT ) );
+	fgSizerInfo->Add( m_textCtrlAsm, 1, wxEXPAND | wxALL, 5 );
+
+	wxBoxSizer* bSizerCheckbox;
+	bSizerCheckbox = new wxBoxSizer( wxHORIZONTAL );
+
+	m_checkBoxAutorun = new wxCheckBox( m_panelRight, ID_AUTORUN, _("autorun"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_checkBoxAutorun->SetValue(true);
+	bSizerCheckbox->Add( m_checkBoxAutorun, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	bSizerCheckbox->Add( 0, 0, 1, wxEXPAND, 5 );
+
+	m_staticTextMaxSteps = new wxStaticText( m_panelRight, wxID_ANY, _("max steps:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextMaxSteps->Wrap( -1 );
+	bSizerCheckbox->Add( m_staticTextMaxSteps, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrlMaxSteps = new ExtendedTextCtrl( m_panelRight, ID_MAXSTEPS, _("10000"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrlMaxSteps->SetToolTip( _("Maximum number of instructions to execute. Prevents infinite loops.") );
+
+	bSizerCheckbox->Add( m_textCtrlMaxSteps, 0, wxALL, 5 );
+
+
+	fgSizerInfo->Add( bSizerCheckbox, 1, wxEXPAND, 5 );
+
+	wxFlexGridSizer* fgSizerButtons;
+	fgSizerButtons = new wxFlexGridSizer( 0, 2, 0, 0 );
+	fgSizerButtons->AddGrowableCol( 0 );
+	fgSizerButtons->AddGrowableCol( 1 );
+	fgSizerButtons->AddGrowableRow( 0 );
+	fgSizerButtons->AddGrowableRow( 1 );
+	fgSizerButtons->SetFlexibleDirection( wxBOTH );
+	fgSizerButtons->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	m_buttonRun = new wxButton( m_panelRight, ID_RUN, _("run"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizerButtons->Add( m_buttonRun, 0, wxALL|wxEXPAND, 5 );
+
+	m_buttonReset = new wxButton( m_panelRight, ID_STOP, _("stop/reset"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizerButtons->Add( m_buttonReset, 0, wxALL|wxEXPAND, 5 );
+
+	m_buttonStepAsm = new wxButton( m_panelRight, ID_STEPASM, _("step asm"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizerButtons->Add( m_buttonStepAsm, 0, wxALL|wxEXPAND, 5 );
+
+	m_buttonStepExpr = new wxButton( m_panelRight, ID_STEPINSTRUCTION, _("step expr"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizerButtons->Add( m_buttonStepExpr, 0, wxALL|wxEXPAND, 5 );
+
+
+	fgSizerInfo->Add( fgSizerButtons, 1, wxEXPAND, 5 );
+
+
+	m_panelRight->SetSizer( fgSizerInfo );
+	m_panelRight->Layout();
+	fgSizerInfo->Fit( m_panelRight );
+	m_splitterVertical->SplitVertically( m_panelLeft, m_panelRight, 1040 );
+	bSizerSplitterVertical->Add( m_splitterVertical, 1, wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizerSplitterVertical );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrameCalculator::OnClose ) );
+	m_notebook->Connect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameCalculator::OnNotebookPageChanged ), NULL, this );
+	m_notebook->Connect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGING, wxNotebookEventHandler( GUIFrameCalculator::OnNotebookPageChanging ), NULL, this );
+	m_textCtrlXMin->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMin->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMax->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMax->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMin2->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMin2->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMax2->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMax2->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMin2->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMin2->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMax2->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMax2->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMin3->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMin3->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMax3->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMax3->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMin3->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMin3->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMax3->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMax3->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlZMin3->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlZMin3->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlZMax3->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlZMax3->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_propertyGridVariables->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( GUIFrameCalculator::OnPropertyGridChanged ), NULL, this );
+	m_propertyGridVariables->Connect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( GUIFrameCalculator::OnPropertyGridChanging ), NULL, this );
+	m_checkBoxAutorun->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnCheckBox ), NULL, this );
+	m_textCtrlMaxSteps->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlMaxSteps->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_buttonRun->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
+	m_buttonReset->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
+	m_buttonStepAsm->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
+	m_buttonStepExpr->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
+}
+
+GUIFrameCalculator::~GUIFrameCalculator()
+{
+	// Disconnect Events
+	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( GUIFrameCalculator::OnClose ) );
+	m_notebook->Disconnect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameCalculator::OnNotebookPageChanged ), NULL, this );
+	m_notebook->Disconnect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGING, wxNotebookEventHandler( GUIFrameCalculator::OnNotebookPageChanging ), NULL, this );
+	m_textCtrlXMin->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMin->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMax->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMax->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMin2->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMin2->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMax2->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMax2->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMin2->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMin2->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMax2->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMax2->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMin3->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMin3->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlXMax3->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlXMax3->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMin3->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMin3->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlYMax3->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlYMax3->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlZMin3->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlZMin3->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_textCtrlZMax3->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlZMax3->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_propertyGridVariables->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( GUIFrameCalculator::OnPropertyGridChanged ), NULL, this );
+	m_propertyGridVariables->Disconnect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( GUIFrameCalculator::OnPropertyGridChanging ), NULL, this );
+	m_checkBoxAutorun->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnCheckBox ), NULL, this );
+	m_textCtrlMaxSteps->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameCalculator::OnKillFocus ), NULL, this );
+	m_textCtrlMaxSteps->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameCalculator::OnTextEnter ), NULL, this );
+	m_buttonRun->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
+	m_buttonReset->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
+	m_buttonStepAsm->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
+	m_buttonStepExpr->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIFrameCalculator::OnButton ), NULL, this );
 
 }

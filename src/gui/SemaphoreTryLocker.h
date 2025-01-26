@@ -38,13 +38,24 @@
 class SemaphoreTryLocker {
 public:
 	SemaphoreTryLocker() = delete;
-	SemaphoreTryLocker(wxSemaphore &semaphore_);
-	virtual ~SemaphoreTryLocker();
+	SemaphoreTryLocker(wxSemaphore &semaphore_) :
+			semaphore(semaphore_), isOK(false) {
+		isOK = (semaphore_.TryWait() == wxSEMA_NO_ERROR);
+	}
+	virtual ~SemaphoreTryLocker() {
+		if (isOK)
+			semaphore.Post();
+	}
 	SemaphoreTryLocker(const SemaphoreTryLocker &other) = delete;
 	SemaphoreTryLocker& operator=(const SemaphoreTryLocker &other) = delete;
 
-	bool IsOK() const;
-	void UnLock();
+	bool IsOK() const {
+		return isOK;
+	}
+	void UnLock() {
+		semaphore.Post();
+		isOK = false;
+	}
 private:
 	wxSemaphore &semaphore;
 	bool isOK = false;

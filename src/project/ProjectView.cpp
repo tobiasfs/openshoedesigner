@@ -33,8 +33,6 @@
 #include "../gui/FrameParent.h"
 #include "../main.h"
 
-#include "../math/Polynom2D.h"
-#include "../3D/NagataPatch.h"
 #include "../3D/Surface.h"
 #include "../3D/TestGrid.h"
 
@@ -117,7 +115,7 @@ void ProjectView::Paint(bool usePicking) const {
 		OpenGLMaterial::EnableColors();
 		matLines.UseColor(0.0);
 
-//		project->builder.Paint();
+		project->builder.Paint();
 
 //	NagataPatch p0;
 //

@@ -40,8 +40,6 @@
 
 #include "OpenGL.h"
 
-#include <GL/glu.h>
-
 #ifdef _MSC_VER
 #define _USE_MATH_DEFINES
 #endif

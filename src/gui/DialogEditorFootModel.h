@@ -40,17 +40,14 @@
 
 class DialogEditorFootModel: public GUIFrameEditorFootModel {
 public:
-	DialogEditorFootModel(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxString &title = _("Foot model editor"), const wxPoint &pos =
-					wxDefaultPosition, const wxSize &size = wxSize(715, 351),
-			long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
+	DialogEditorFootModel(wxWindow *parent);
 	virtual ~DialogEditorFootModel();
 
 	void OnLoad(wxCommandEvent &event) override;
 	void OnSave(wxCommandEvent &event) override;
 	void OnClose(wxCommandEvent &event) override;
 
-	void SetMidi(MidiPort *midi);
+	void SetMidi(std::shared_ptr<MidiDevice> midi);
 
 	wxTimer timer;
 

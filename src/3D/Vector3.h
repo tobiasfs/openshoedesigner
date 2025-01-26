@@ -36,16 +36,25 @@
  */
 
 // http://www.parashift.com/c++-faq-lite/operator-overloading.html
-
-#include <string>
 #include <cmath>
+#include <initializer_list>
 #include <ostream>
+#include <string>
 
 struct Vector3 {
 public:
 	Vector3() = default;
 	Vector3(double x_, double y_, double z_) :
 			x(x_), y(y_), z(z_) {
+	}
+	Vector3(std::initializer_list<double> list) {
+		auto it = list.begin();
+		if (it != list.end())
+			x = *it++;
+		if (it != list.end())
+			y = *it++;
+		if (it != list.end())
+			z = *it;
 	}
 	explicit Vector3(const std::string &string);
 
@@ -54,7 +63,7 @@ public:
 	 * \{
 	 */
 
-	void Set(double x_, double y_, double z_) {
+	void Set(double x_, double y_ = 0.0, double z_ = 0.0) {
 		this->x = x_;
 		this->y = y_;
 		this->z = z_;
@@ -204,9 +213,9 @@ public:
 	/**\brief Comparison operator equality.
 	 *
 	 * This function checks, if both vectors are closer than DBL_EPSILON
-	 * together. The distance is done in Manhattan distance (= a tiny box) not
-	 * with Pythagoras (= a tiny sphere). The latter would be unstable.
-	 *
+	 * together. The distance is calculated in Manhattan distance (= a tiny
+	 * box) not with Pythagoras (= a tiny sphere). The latter would be
+	 * unstable.
 	 */
 	bool operator==(const Vector3 &b) const;
 

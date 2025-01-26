@@ -51,6 +51,7 @@ public:
 	Polynomial x;
 	Polynomial y;
 	Polynomial z;
+	Polynomial mapR = { 0.0, 1.0 };
 	double r0 = 0.0; ///< Range start
 	double r1 = 1.0; ///< Range end
 

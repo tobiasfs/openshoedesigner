@@ -59,6 +59,9 @@ template<class T>
 class FacadeTextField {
 public:
 	FacadeTextField() = default;
+	FacadeTextField(const FacadeTextField&) = delete;
+	FacadeTextField& operator=(const FacadeTextField&) = delete;
+
 	void Set(wxTextCtrl *textctrl, wxStaticText *statictextunit = nullptr);
 	void NoUnit();
 
@@ -236,15 +239,16 @@ inline T FacadeTextField<T>::ToVariable(const wxString &str, const Unit &unit) {
 	MathParser m;
 	try {
 		m.ParseExpression(str.ToStdString());
-		m.InitMachine();
-		m.Run();
+		MathParser::VM &vm = m.vm;
+		vm.Reset();
+		vm.Run();
 
-		if (m.StackSize() < 1)
+		if (vm.stack.empty())
 			throw std::runtime_error(
 					"The entered string did not return a value.");
-		size_t idx = m.StackSize() - 1;
-		double result = m.GetStack(idx).ToDouble();
-		Unit resultunit = m.GetStack(idx).GetUnit();
+
+		double result = vm.stack.front().ToDouble();
+		Unit resultunit = vm.stack.front().GetUnit();
 		if (resultunit.NoUnit()) {
 			result = unit.ToSI(result);
 		} else {

@@ -29,6 +29,7 @@
 
 /*!\class Spline3
  * \brief Spline interpolation of a number of points in 3D space.
+ * \deprecated Superseded by Bezier3 and Surface
  *
  * The spline consists of several points. These points are either sharp corners
  * or rounded off by the spline algorithm. The spline can either be closed or
@@ -46,7 +47,7 @@
 
 class Spline3 {
 public:
-	class Point:public Vector3 {
+	class Point: public Vector3 {
 	public:
 		Point() = default;
 		Polynomial px;
@@ -63,7 +64,7 @@ public:
 	Spline3();
 	virtual ~Spline3() = default;
 
-	std::vector <Point> points;
+	std::vector<Point> points;
 
 	Vector3 color;
 	bool closed;

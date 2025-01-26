@@ -112,7 +112,8 @@ FrameParent::FrameParent(wxDocManager *manager, wxConfig *config,
 	dialogSetupStereo3D = new DialogSetupStereo3D(this, &settingsStereo3D,
 			&units);
 #ifdef USE_PORTMIDI
-	dialogSetupMidi = new DialogSetupMidi(this, &midi);
+	midiport = std::make_shared<MidiPort>();
+	dialogSetupMidi = new DialogSetupMidi(this);
 #endif
 
 	// Logging is disable here, because the SESSION_MANAGER variable is not defined since Ubuntu 16.04.
@@ -185,8 +186,7 @@ void FrameParent::OnSetupStereo3D(wxCommandEvent &event) {
 	dialogSetupStereo3D->Raise();
 }
 #ifdef USE_PORTMIDI
-void FrameParent::OnSetupMidi(wxCommandEvent& event)
-{
+void FrameParent::OnSetupMidi(wxCommandEvent &event) {
 	dialogSetupMidi->UpdateDevices();
 	dialogSetupMidi->Show(true);
 	dialogSetupMidi->Raise();

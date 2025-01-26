@@ -48,6 +48,7 @@
 #include "../languages.h"
 #include "SemaphoreTryLocker.h"
 
+#include "FrameCalculator.h"
 #include <wx/cmdproc.h>
 #include <wx/dir.h>
 #include <wx/filedlg.h>
@@ -694,21 +695,25 @@ void FrameMain::OnSize(wxSizeEvent &event) {
 void FrameMain::OnTimer(wxTimerEvent &event) {
 #ifdef USE_PORTMIDI
 	Project *project = wxStaticCast(GetDocument(), Project);
-	midi.Poll();
-	if(project->vol.Numel() == 8){
-		for(size_t n = 0; n < 8; n++)
-			project->vol[n] = ((double) midi.cc[n + 1] - 64.0) / 64.0;
-	}else{
-		project->vol.At(1, 1, 1) = ((double) midi.cc[1] - 64.0) / 64.0;
-		project->vol.At(2, 1, 1) = ((double) midi.cc[2] - 64.0) / 64.0;
-		project->vol.At(1, 2, 1) = ((double) midi.cc[3] - 64.0) / 64.0;
-		project->vol.At(2, 2, 1) = ((double) midi.cc[4] - 64.0) / 64.0;
-		project->vol.At(1, 1, 2) = ((double) midi.cc[5] - 64.0) / 64.0;
-		project->vol.At(2, 1, 2) = ((double) midi.cc[6] - 64.0) / 64.0;
-		project->vol.At(1, 2, 2) = ((double) midi.cc[7] - 64.0) / 64.0;
-		project->vol.At(2, 2, 2) = ((double) midi.cc[8] - 64.0) / 64.0;
-	}
-	project->vol.CalcSurface();
+//	midi.Poll();
+//	if(project->vol.Numel() == 8){
+//		for(size_t n = 0; n < 8; n++)
+//			project->vol[n] = ((double) midi.cc[n + 1] - 64.0) / 64.0;
+//	}else{
+//		project->vol.At(1, 1, 1) = ((double) midi.cc[1] - 64.0) / 64.0;
+//		project->vol.At(2, 1, 1) = ((double) midi.cc[2] - 64.0) / 64.0;
+//		project->vol.At(1, 2, 1) = ((double) midi.cc[3] - 64.0) / 64.0;
+//		project->vol.At(2, 2, 1) = ((double) midi.cc[4] - 64.0) / 64.0;
+//		project->vol.At(1, 1, 2) = ((double) midi.cc[5] - 64.0) / 64.0;
+//		project->vol.At(2, 1, 2) = ((double) midi.cc[6] - 64.0) / 64.0;
+//		project->vol.At(1, 2, 2) = ((double) midi.cc[7] - 64.0) / 64.0;
+//		project->vol.At(2, 2, 2) = ((double) midi.cc[8] - 64.0) / 64.0;
+//	}
+//	project->vol.CalcSurface();
+
+	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	wxString status = wxString::Format(_T("use_count=%ld"),parentframe->mididevice.use_count());
+	SetStatusText(status, 1);
 
 	this->Refresh();
 #endif
@@ -737,6 +742,7 @@ void FrameMain::UpdateProject(wxCommandEvent &event) {
 void FrameMain::OnChar(wxKeyEvent &event) {
 	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
+	event.Skip();
 }
 
 void FrameMain::OnCheckBox(wxCommandEvent &event) {
@@ -879,6 +885,21 @@ void FrameMain::OnKillFocus(wxFocusEvent &event) {
 void FrameMain::OnListCtrlOnSelectionChanged(wxDataViewEvent &event) {
 	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
+}
+
+void FrameMain::OnNotebookPageChanged(wxNotebookEvent &event) {
+	Project *project = wxStaticCast(GetDocument(), Project);
+	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+
+	if (event.GetId() != ID_MAINVIEW)
+		return;
+
+	int newPage = event.GetSelection();
+	if (newPage >= 0 && newPage <= 3) {
+		projectview->display = (ProjectView::Display) newPage;
+		project->Update();
+		Refresh();
+	}
 }
 
 void FrameMain::OnPageChanged(wxNotebookEvent &event) {
@@ -1075,6 +1096,13 @@ void FrameMain::On3DSelect(wxMouseEvent &event) {
 
 void FrameMain::OnBackgroundImagesSetup(wxCommandEvent &event) {
 	(new FrameSetupBackgroundImages(this))->Show();
+}
+
+void FrameMain::OnCalculator(wxCommandEvent &event) {
+	auto frame = new FrameCalculator(this);
+	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	frame->mididevice = parentframe->mididevice;
+	frame->Show();
 }
 
 void FrameMain::OnConstructionChanged(wxCommandEvent &event) {
@@ -1295,7 +1323,7 @@ void FrameMain::OnObjectEdit(wxCommandEvent &event) {
 			DialogEditorFootModel *dialog = new DialogEditorFootModel(this);
 #ifdef USE_PORTMIDI
 			FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
-			dialog->SetMidi(&(parentframe->midi));
+			dialog->SetMidi(parentframe->mididevice);
 #endif
 			dialog->Show();
 		} catch (std::exception &e) {
@@ -1348,21 +1376,6 @@ void FrameMain::OnObjectLoad(wxCommandEvent &event) {
 		break;
 	}
 	TransferDataToWindow();
-}
-
-void FrameMain::OnNotebookPageChanged(wxNotebookEvent &event) {
-	Project *project = wxStaticCast(GetDocument(), Project);
-	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
-
-	if (event.GetId() != ID_MAINVIEW)
-		return;
-
-	int newPage = event.GetSelection();
-	if (newPage >= 0 && newPage <= 3) {
-		projectview->display = (ProjectView::Display) newPage;
-		project->Update();
-		Refresh();
-	}
 }
 
 void FrameMain::OnObjectSave(wxCommandEvent &event) {

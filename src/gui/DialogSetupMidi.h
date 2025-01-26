@@ -38,17 +38,12 @@
 
 class DialogSetupMidi: public GUIDialogMidiSetup {
 public:
-	DialogSetupMidi(wxWindow *parent, MidiPort *midi, wxWindowID id = wxID_ANY,
-			const wxString &title = _("Midi Controller"), const wxPoint &pos =
-					wxDefaultPosition, const wxSize &size = wxSize(321, 175),
-			long style = wxDEFAULT_DIALOG_STYLE);
-
+	DialogSetupMidi(wxWindow *parent);
 	virtual ~DialogSetupMidi() = default;
+
 	void UpdateDevices();
 	void OnConnectDisconnect(wxCommandEvent &event) override;
 	void OnClose(wxCommandEvent &event) override;
-
-	MidiPort *midi;
 
 protected:
 	virtual void OnChoice(wxCommandEvent &event);

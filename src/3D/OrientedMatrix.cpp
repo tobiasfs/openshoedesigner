@@ -366,13 +366,13 @@ void OrientedMatrix::Rotate(Axis a, int quarters) {
 	assert(quarters == 1 || quarters == 3);
 	switch (a) {
 	case Axis::X:
-		swap(dy, dz);
+		swap(dy, dz); // @suppress("Invalid arguments")
 		break;
 	case Axis::Y:
-		swap(dz, dx);
+		swap(dz, dx); // @suppress("Invalid arguments")
 		break;
 	case Axis::Z:
-		swap(dx, dy);
+		swap(dx, dy); // @suppress("Invalid arguments")
 		break;
 	}
 }

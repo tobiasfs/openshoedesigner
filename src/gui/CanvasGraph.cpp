@@ -74,8 +74,9 @@ void CanvasGraph::OnMouseEvent(wxMouseEvent &event) {
 		m_y = event.m_y;
 	}
 	if (event.ButtonDClick(wxMOUSE_BTN_RIGHT)) {
-		view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 },
-		M_PI_2);
+//		view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 },
+//		M_PI_2);
+		view.SetIdentity();
 		m_x = event.m_x;
 		m_y = event.m_y;
 		this->Refresh();
@@ -124,16 +125,39 @@ void CanvasGraph::OnPaint(wxPaintEvent &event) {
 	projection[13] = (double) sd.y / 2.0;
 
 	s = projection * view;
+	sRev = s.Inverse();
 
-//	g = s;
-//	g[0] = -g[1];
-//	g[1] = 0.0;
-//	g[5] = g[4];
-//	g[4] = 0.0;
-//	gRev = g.Inverse();
-//
-//	PaintGrid(dc);
-//
-//	dc.CrossHair(mx, my);
+	if (!values)
+		return;
 
+	const size_t rows = values->Size(0);
+	const size_t plots = values->Size(1) - 1;
+
+	if (plots <= 0)
+		return;
+	const double xmin = values->operator()(0, 0);
+	const double xmax = values->operator()(rows - 1, 0);
+
+	{
+		Vector3 p0 = s.Transform(xmin, 0);
+		Vector3 p1 = s.Transform(xmax, 0);
+		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
+	}
+	{
+		Vector3 p0 = s.Transform(0, -1);
+		Vector3 p1 = s.Transform(0, 1);
+		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
+	}
+
+	std::vector<wxPoint> points(rows);
+	for (size_t m = 0; m < plots; ++m) {
+		for (size_t n = 0; n < rows; ++n) {
+			double x = values->operator()(n, 0);
+			double y = values->operator()(n, m + 1);
+			Vector3 p = s.Transform(x, y);
+			points[n].x = p.x;
+			points[n].y = p.y;
+		}
+		dc.DrawLines(points.size(), points.data());
+	}
 }

@@ -65,6 +65,7 @@ public:
 	 * \{
 	 */
 
+	static Polynomial Identity();
 	static Polynomial ByValue(double r0, double v0); ///< Initialize by 1 point with position and value (actually only the value is used, because it is a constant)
 	static Polynomial ByValue(double r0, double v0, double r1, double v1); ///< Initialize by 2 points with position and value
 	static Polynomial ByValue(double r0, double v0, double r1, double v1,
@@ -157,7 +158,7 @@ public:
 	 */
 
 	explicit Polynomial(size_t N = 0);
-	explicit Polynomial(const std::initializer_list<double> coefficients);
+	Polynomial(const std::initializer_list<double> coefficients);
 
 	size_t Size() const; ///< Number of coefficients
 	size_t Order() const; ///< Order of the polynomial (= number of coefficients - 1)
@@ -293,7 +294,10 @@ public:
 	 * \param N (optional) Change the number of coefficient for the approximation
 	 * \return Approximated inverted polynomial
 	 */
-	Polynomial Inverse(double a = 0.0, double b = 1.0, size_t N = (size_t) -1);
+	Polynomial Inverse(double a = 0.0, double b = 1.0,
+			size_t N = (size_t) -1) const;
+
+	void Invert(double a = 0.0, double b = 1.0, size_t N = (size_t) -1);
 
 	/**\}\name Analysis
 	 * \{
@@ -323,7 +327,7 @@ public:
 		for (size_t n = 0; n < p.Size(); ++n) {
 			if (n > 0)
 				os << ", ";
-			os << p[n];
+			os << p[p.Size() - n - 1];
 		}
 		os << "]";
 		return os;

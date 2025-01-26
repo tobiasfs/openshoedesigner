@@ -26,14 +26,20 @@
 
 #include "DialogSetupMidi.h"
 
-DialogSetupMidi::DialogSetupMidi(wxWindow *parent, MidiPort *midi,
-		wxWindowID id, const wxString &title, const wxPoint &pos,
-		const wxSize &size, long style) :
-		GUIDialogMidiSetup(parent, id, title, pos, size, style), midi(midi) {
+#include "FrameParent.h"
+
+DialogSetupMidi::DialogSetupMidi(wxWindow *parent) :
+		GUIDialogMidiSetup(parent) {
 }
 
 void DialogSetupMidi::UpdateDevices() {
-	auto devicenames = midi->GetDeviceNames();
+	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
+
+	if (!midiport)
+		return;
+
+	auto devicenames = midiport->GetDeviceNames();
 	m_choice->Clear();
 	int n = 0;
 	for (auto &name : devicenames)
@@ -45,14 +51,21 @@ void DialogSetupMidi::OnClose(wxCommandEvent &event) {
 }
 
 void DialogSetupMidi::OnConnectDisconnect(wxCommandEvent &event) {
+	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
+	std::shared_ptr<MidiDevice> &mididevice = parentframe->mididevice;
+
+	if (!midiport)
+		return;
+
 	if (m_buttonConnectDisconnect->GetLabel() == _T("Connect")) {
 		if (m_choice->GetSelection() < 0)
 			return;
 		wxString device = m_choice->GetStringSelection();
-		auto d = midi->Open(device.ToStdString(),
-				MidiPort::Direction::Bidirectional);
 
-		d->Poll();
+		mididevice = midiport->Open(device.ToStdString(),
+				MidiPort::Direction::Bidirectional);
+		mididevice->Poll();
 //		for(int i = 0; i < 100; ++i)
 //			d->cc[i] = 64;
 //		d->Poll();
@@ -60,13 +73,15 @@ void DialogSetupMidi::OnConnectDisconnect(wxCommandEvent &event) {
 		m_buttonConnectDisconnect->SetLabel(_T("Disconnect"));
 		m_choice->Enable(false);
 	} else {
-		midi->CloseAll();
+		mididevice.reset();
+		midiport->CloseAll();
 		m_buttonConnectDisconnect->SetLabel(_T("Connect"));
 		m_choice->Enable(true);
 	}
 }
 
 void DialogSetupMidi::OnChoice(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
+

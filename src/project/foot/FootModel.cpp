@@ -540,9 +540,9 @@ void FootModel::UpdateFormx(const FootMeasurements &measurements) {
 void FootModel::CalculateBones() {
 	MathParser parser;
 
-	parser.SetVariable("L", MathParser::Value(L));
-	parser.SetVariable("R", MathParser::Value(R));
-	parser.SetVariable("S", MathParser::Value(S));
+	parser.vm.heap.Set("L", MathParser::Value(L));
+	parser.vm.heap.Set("R", MathParser::Value(R));
+	parser.vm.heap.Set("S", MathParser::Value(S));
 	Skeleton::UpdateBonesFromFormula(parser);
 	Skeleton::Update();
 }

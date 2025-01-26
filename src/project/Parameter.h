@@ -43,7 +43,7 @@
  * \todo Remove the error mechanism and only rely on Exceptions.
  *
  */
-class Parameter: public MathParser::Variable {
+class Parameter: public MathParser::VM::Variable {
 public:
 	Parameter() = delete;
 	explicit Parameter(const std::string &name, const std::string &description =

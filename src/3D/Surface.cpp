@@ -681,14 +681,14 @@ void Surface::Calculate() {
 
 	Eigen::MatrixXd pinvA0 =
 			A0.completeOrthogonalDecomposition().pseudoInverse();
-	Eigen::MatrixXd J = pinvA0 * b0;
+	Eigen::MatrixXd J = pinvA0 * b0; // @suppress("Invalid arguments")
 	Eigen::MatrixXd H = Eigen::MatrixXd::Identity(A0.cols(), A0.cols())
 			- pinvA0 * A0;
 
-	Eigen::MatrixXd K = A1 * H;
+	Eigen::MatrixXd K = A1 * H; // @suppress("Invalid arguments")
 	Eigen::MatrixXd pinvA1 =
 			K.completeOrthogonalDecomposition().pseudoInverse();
-	Eigen::MatrixXd w = pinvA1 * (b1 - A1 * J);
+	Eigen::MatrixXd w = pinvA1 * (b1 - A1 * J); // @suppress("Invalid arguments")
 	Eigen::MatrixXd c = J + H * w;
 
 #else

@@ -36,6 +36,7 @@
 
 #include "Operation.h"
 
+#include "../../3D/Bezier3.h"
 #include "../CoordinateSystem.h"
 #include "../object/Insole.h"
 #include "../ParameterFormula.h"
@@ -51,6 +52,7 @@ public:
 	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
+	virtual void Paint() const override;
 
 public:
 	std::shared_ptr<Insole> in;
@@ -73,6 +75,9 @@ public:
 	std::shared_ptr<ParameterFormula> overAnkleBoneGirth;
 	std::shared_ptr<ParameterFormula> overAnkleBoneLevel;
 
+
+private:
+	Bezier3 elb;
 };
 
 #endif /* SRC_PROJECT_OPERATION_COORDINATESYSTEMCONSTRUCT_H_ */

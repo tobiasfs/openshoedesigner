@@ -31,7 +31,7 @@
 
 Parameter::Parameter(const std::string &name_, const std::string &description_,
 		const size_t id_, const size_t group_) :
-		MathParser::Variable(name_), id(id_), group(group_), description(
+		MathParser::VM::Variable(name_), id(id_), group(group_), description(
 				description_) {
 }
 

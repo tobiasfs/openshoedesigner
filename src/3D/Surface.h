@@ -29,7 +29,7 @@
 
 /*!\class Surface
  * \ingroup Base3D
- * \brief Surface description and coordinate system from quadratic patches
+ * \brief DEPRECATED: Surface description and coordinate system from quadratic patches
  *
  * A surface is described by patches of 2D polynomials. These polynomials map
  * from an UV coordinate system into a XYZ coordinate system. For each mapped
@@ -55,7 +55,6 @@
 #include <vector>
 
 class Surface: protected Geometry {
-	friend class Geometry;
 public:
 	/**\brief Patch in the surface.
 	 *

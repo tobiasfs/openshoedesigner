@@ -98,7 +98,8 @@ public:
 	Control3D control;
 #endif
 #ifdef USE_PORTMIDI
-	MidiPort midi;
+	std::shared_ptr<MidiPort> midiport;
+	std::shared_ptr<MidiDevice> mididevice;
 	DialogSetupMidi *dialogSetupMidi;
 #endif
 
@@ -106,7 +107,8 @@ public:
 	float t;
 	float dt;
 
-wxDECLARE_EVENT_TABLE();
+wxDECLARE_EVENT_TABLE();DECLARE_NO_COPY_CLASS(FrameParent)
+	;
 };
 
 #endif /* FRAMEPARENT_H */

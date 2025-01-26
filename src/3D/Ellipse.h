@@ -37,10 +37,9 @@
  */
 
 #include "AffineTransformMatrix.h"
-
+#include "Bezier3.h"
 #include "Polygon3.h"
 
-#include "Surface.h"
 #include <cstddef>
 #include <vector>
 
@@ -66,7 +65,7 @@ public:
 	 */
 	Polygon3 SteinerConstruction(size_t nrOfPoints) const;
 
-	Polynomial3 GetSpline(size_t N, size_t n) const;
+	Bezier3 GetBezierSpline(size_t N = 4) const;
 
 	void Paint() const;
 

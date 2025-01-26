@@ -124,13 +124,15 @@ Polynomial3 Polynomial3::ByPolygon3(const Polygon3 &p, size_t order,
 		if ((n + 1) < N)
 			L += (p[n + 1] - p[n]).Abs();
 	}
-	// Normalize
-	const double b = r[0];
-	const double a = 1.0 / (r[N - 1] - b);
-	for (size_t n = 0; n < N; ++n)
-		r[n] = (r[n] - b) * a;
-
 	Polynomial3 temp;
+
+	// Normalize
+	temp.r0 = r[0];
+	temp.r1 = r[N - 1];
+	temp.mapR = Polynomial::ByValue(temp.r0, 0.0, temp.r1, 1.0);
+	for (size_t n = 0; n < N; ++n)
+		r[n] = temp.mapR(r[n]);
+
 	temp.x = Polynomial::ByVector(r, vx, order);
 	temp.y = Polynomial::ByVector(r, vy, order);
 	temp.z = Polynomial::ByVector(r, vz, order);
@@ -138,9 +140,9 @@ Polynomial3 Polynomial3::ByPolygon3(const Polygon3 &p, size_t order,
 }
 
 double Polynomial3::Length(const size_t N) const {
-	Polynomial rn = Polynomial::ByValue(0, r0, N - 1, r1);
+	Polynomial rn = Polynomial::ByValue(0, mapR(r0), N - 1, mapR(r1));
 	double d = 0;
-	Vector3 p0(x(r0), y(r0), z(r0));
+	Vector3 p0(x(0), y(0), z(0));
 	for (size_t n = 1; n < N; ++n) {
 		const double r = rn(n);
 		Vector3 p1(x(r), y(r), z(r));
@@ -151,7 +153,8 @@ double Polynomial3::Length(const size_t N) const {
 }
 
 Vector3 Polynomial3::operator ()(double r) const {
-	return Vector3(x(r), y(r), z(r));
+	const double rn = mapR(r);
+	return Vector3(x(rn), y(rn), z(rn));
 }
 
 void Polynomial3::Paint() const {
@@ -162,7 +165,7 @@ void Polynomial3::Paint() const {
 	glEnd();
 	glBegin(GL_LINE_STRIP);
 	const double N = 100;
-	const Polynomial i = Polynomial::ByValue(0, r0, (N - 1), r1);
+	const Polynomial i = Polynomial::ByValue(0, mapR(r0), (N - 1), mapR(r1));
 	for (size_t n = 0; n < N; ++n) {
 		const double r = i(n);
 		glVertex3d(x(r), y(r), z(r));

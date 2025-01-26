@@ -101,12 +101,12 @@ bool ParameterEvaluator::HasID(const size_t id, const size_t group) const {
 bool ParameterEvaluator::ConnectExternal(size_t n, std::set<size_t> &open) {
 
 	bool skip = false;
-	const size_t NVar = parameter[n]->parser.variables.size();
-	parameter[n]->parser.externalvariables.resize(NVar);
+	const size_t NVar = parameter[n]->parser.vm.heap.size();
+	parameter[n]->parser.vm.externalvariables.resize(NVar);
 	const size_t neededGroup = parameter[n]->group;
 	for (size_t idxNeededVar = 0; idxNeededVar < NVar; ++idxNeededVar) {
-		parameter[n]->parser.externalvariables[idxNeededVar].reset();
-		const auto &neededVar = parameter[n]->parser.variables[idxNeededVar];
+		parameter[n]->parser.vm.externalvariables[idxNeededVar].reset();
+		const auto &neededVar = parameter[n]->parser.vm.heap[idxNeededVar];
 		if (!neededVar.isinput)
 			continue;
 
@@ -144,19 +144,12 @@ bool ParameterEvaluator::ConnectExternal(size_t n, std::set<size_t> &open) {
 			}
 			// The parameter to be referenced was found. It is connected
 			// via a std::weak_ptr.
-			parameter[n]->parser.externalvariables[idxNeededVar] = parameter[m];
+			parameter[n]->parser.vm.externalvariables[idxNeededVar] =
+					parameter[m];
 			// Rewrite the opcodes to reference an external variable instead
 			// of an internal one.
-			for (auto &op : parameter[n]->parser.instructions) {
-				if (op.idx != idxNeededVar)
-					continue;
-				if (op.opcode == MathParser::OpCode::FETCH_I) {
-					op.opcode = MathParser::OpCode::FETCH_EXT_I;
-				}
-				if (op.opcode == MathParser::OpCode::STORE_I) {
-					op.opcode = MathParser::OpCode::STORE_EXT_I;
-				}
-			}
+			parameter[n]->parser.vm.ConvertToExternal(idxNeededVar,
+					idxNeededVar);
 			found = true;
 			break;
 		}
@@ -231,7 +224,11 @@ void ParameterEvaluator::Update() {
 			bool hasMissingReferences = false;
 			for (size_t idx : open) {
 				const size_t neededGroup = parameter[idx]->group;
-				for (const auto &neededVar : parameter[idx]->parser.variables) {
+				for (size_t idxNeededVar = 0;
+						idxNeededVar < parameter[idx]->parser.vm.heap.size();
+						++idxNeededVar) {
+					const auto &neededVar =
+							parameter[idx]->parser.vm.heap[idxNeededVar];
 					if (!neededVar.isinput)
 						continue;
 					auto varcmp = [neededGroup, name = neededVar.name](

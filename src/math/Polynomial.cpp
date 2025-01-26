@@ -34,6 +34,14 @@
 
 // Most formulas are calculated with the FRICAS computer algebra system.
 
+Polynomial Polynomial::Identity() {
+	Polynomial temp;
+	temp.c.resize(2);
+	temp.c[1] = 0.0;
+	temp.c[0] = 1.0;
+	return temp;
+}
+
 Polynomial Polynomial::ByValue(double r0, double v0) {
 	Polynomial temp;
 	(void) (r0); // Suppresses "Unused parameter" warning.
@@ -813,7 +821,7 @@ void Polynomial::Integrate(size_t order) {
 	}
 }
 
-Polynomial Polynomial::Inverse(double a, double b, size_t N) {
+Polynomial Polynomial::Inverse(double a, double b, size_t N) const {
 	if (c.size() < 2)
 		throw(std::range_error(
 		__FILE__" Invert - This function needs at least 2 coefficients."));
@@ -851,6 +859,10 @@ Polynomial Polynomial::Inverse(double a, double b, size_t N) {
 		ret = Polynomial::ByVector(y, x, N - 1);
 	}
 	return ret;
+}
+
+void Polynomial::Invert(double a, double b, size_t N) {
+	*this = Inverse(a, b, N);
 }
 
 double Polynomial::ExtremumPos() const {

@@ -46,16 +46,17 @@ void FrameDebugParser::OnText(wxCommandEvent &event) {
 	wxString text;
 	text = m_textCtrlExpression->GetValue();
 	std::string error;
+	MathParser::VM &vm = parser.vm;
 	try {
 		parser.ParseExpression(text.ToStdString());
-		parser.InitMachine();
-		parser.Run();
+		vm.Reset();
+		vm.Run();
 	} catch (std::exception &ex) {
 		error = std::string(ex.what());
 	}
 	m_textCtrlError->SetValue(error);
-	if (error.empty() && parser.StackSize() >= 1) {
-		const auto &value = parser.GetStack(0);
+	if (error.empty() && !vm.stack.empty()) {
+		const auto &value = vm.stack.front();
 		const auto &unit = value.GetUnit();
 
 		m_textCtrlNumber->SetValue(
