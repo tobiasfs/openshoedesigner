@@ -57,7 +57,7 @@ void SVD::Decompose(const Matrix &A) {
 
 	U = A;
 	U.SetVariableName("Ud");
-	auto Uc = U.Pointer();
+	auto Uc = U.data();
 
 	// Detect empty columns, remove columns from matrix
 	empty.clear();
@@ -85,13 +85,13 @@ void SVD::Decompose(const Matrix &A) {
 
 	W.SetSize(N, 1);
 	W.SetVariableName("Sd");
-	auto Wc = W.Pointer();
+	auto Wc = W.data();
 
 	V.SetSize(N, N);
 	V.SetVariableName("Vd");
-	auto Vc = V.Pointer();
+	auto Vc = V.data();
 	Matrix RV1(N, 1);
-	auto RV1c = RV1.Pointer();
+	auto RV1c = RV1.data();
 
 	const size_t Ucol = U.Size(0);
 	const size_t Vcol = V.Size(0);
@@ -333,7 +333,7 @@ void SVD::Decompose(const Matrix &A) {
 //	std::cout << "\nV = " << V << ";\n";
 //	std::cout << "\nRV1 = " << RV1 << ";\n";
 
-// Diagonalization of the bidiagonal form
+	// Diagonalization of the bidiagonal form
 	for (size_t K = N; K-- > 0;) {
 		// Loop over singular values
 		for (size_t ITS = 0; ITS <= maxIterations; ++ITS) {
@@ -494,7 +494,7 @@ void SVD::Decompose(const Matrix &A) {
 	}
 
 	if (sortW) {
-		auto Wp = W.Pointer();
+		auto Wp = W.data();
 		const size_t Nw = U.Size(1);
 		if (Nw > N0)
 			throw std::runtime_error(
@@ -538,18 +538,16 @@ Matrix SVD::Solve(const Matrix &Y, double maxCond, double minAllowed) const {
 	if (dims.empty())
 		throw std::runtime_error("SVD::Solve - Y has no dimensions.");
 	dims[0] = NI;
-	Matrix X;
-	X.SetSize(dims);
-	X = Matrix::Zeros(X);
+	Matrix X = Matrix::Zeros(dims);
 
-	const double smax = W.Max();
+	const double smax = W.AllMax();
 	const double smin = (std::isinf(maxCond)) ? 0.0 : (smax / maxCond);
 
-	auto Uc = U.Pointer();
-	auto Wc = W.Pointer();
-	auto Vc = V.Pointer();
-	auto Xc = X.Pointer();
-	auto Yc = Y.Pointer();
+	auto Uc = U.data();
+	auto Wc = W.data();
+	auto Vc = V.data();
+	auto Xc = X.data();
+	auto Yc = Y.data();
 	const size_t Ucol = U.Size(0);
 	const size_t Vcol = V.Size(0);
 
@@ -582,11 +580,11 @@ Matrix SVD::Variation(double maxCond, double minAllowed) const {
 	const size_t NI = V.Size(0);
 	Matrix X = Matrix::Eye(NI, NI);
 
-	const double smax = W.Max();
+	const double smax = W.AllMax();
 	const double smin = (std::isinf(maxCond)) ? 0.0 : (smax / maxCond);
 
-	auto Wc = W.Pointer();
-	auto Vc = V.Pointer();
+	auto Wc = W.data();
+	auto Vc = V.data();
 	const size_t Vcol = V.Size(0);
 
 	for (size_t J = 0; J < Vcol; ++J) {
@@ -603,6 +601,6 @@ Matrix SVD::Variation(double maxCond, double minAllowed) const {
 }
 
 double SVD::Cond() const {
-	return W.Max() / W.Min();
+	return W.AllMax() / W.AllMin();
 }
 

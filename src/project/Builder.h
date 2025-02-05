@@ -242,6 +242,10 @@ public:
 
 	void ToDot(std::ostream &out, const Project &project) const;
 
+	std::shared_ptr<const Matrix> GetDebugMatrix() const {
+		return opHeelNormalize->debug;
+	}
+
 private:
 	void Connect(Project &project);
 

@@ -80,14 +80,14 @@ double OrientedMatrix::GetValue(double x, double y, double z) const {
 		return 0.0;
 	const int pos = ix + (iy + iz * Ny) * Nx;
 	double v = 0.0;
-	v += values[pos] * (1 - mx) * (1 - my) * (1 - mz);
-	v += values[pos + 1] * (mx) * (1 - my) * (1 - mz);
-	v += values[pos + Nx] * (1 - mx) * (my) * (1 - mz);
-	v += values[pos + 1 + Nx] * (mx) * (my) * (1 - mz);
-	v += values[pos + Nx * Ny] * (1 - mx) * (1 - my) * (mz);
-	v += values[pos + 1 + Nx * Ny] * (mx) * (1 - my) * (mz);
-	v += values[pos + Nx + Nx * Ny] * (1 - mx) * (my) * (mz);
-	v += values[pos + 1 + Nx + Nx * Ny] * (mx) * (my) * (mz);
+	v += operator[](pos) * (1 - mx) * (1 - my) * (1 - mz);
+	v += operator[](pos + 1) * (mx) * (1 - my) * (1 - mz);
+	v += operator[](pos + Nx) * (1 - mx) * (my) * (1 - mz);
+	v += operator[](pos + 1 + Nx) * (mx) * (my) * (1 - mz);
+	v += operator[](pos + Nx * Ny) * (1 - mx) * (1 - my) * (mz);
+	v += operator[](pos + 1 + Nx * Ny) * (mx) * (1 - my) * (mz);
+	v += operator[](pos + Nx + Nx * Ny) * (1 - mx) * (my) * (mz);
+	v += operator[](pos + 1 + Nx + Nx * Ny) * (mx) * (my) * (mz);
 	return v;
 }
 
@@ -112,14 +112,14 @@ Vector3 OrientedMatrix::GetGrad(Vector3 p) const {
 	if (ix < 0 || iy < 0 || iz < 0 || ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz)
 		return temp;
 	const size_t pos = ix + (iy + iz * Ny) * Nx;
-	const double v0 = values[pos];
-	const double v1 = values[pos + 1];
-	const double v2 = values[pos + Nx];
-	const double v3 = values[pos + 1 + Nx];
-	const double v4 = values[pos + Nx * Ny];
-	const double v5 = values[pos + 1 + Nx * Ny];
-	const double v6 = values[pos + Nx + Nx * Ny];
-	const double v7 = values[pos + 1 + Nx + Nx * Ny];
+	const double v0 = operator[](pos);
+	const double v1 = operator[](pos + 1);
+	const double v2 = operator[](pos + Nx);
+	const double v3 = operator[](pos + 1 + Nx);
+	const double v4 = operator[](pos + Nx * Ny);
+	const double v5 = operator[](pos + 1 + Nx * Ny);
+	const double v6 = operator[](pos + Nx + Nx * Ny);
+	const double v7 = operator[](pos + 1 + Nx + Nx * Ny);
 
 	//  Maxima:
 	//  v(x,y,z):= v0*(1-x)*(1-y)*(1-z)+v1*x*(1-y)*(1-z)+v2*(1-x)*y*(1-z)+v3*x*y*(1-z)+v4*(1-x)*(1-y)*z+v5*x*(1-y)*z+v6*(1-x)*y*z+v7*x*y*z;
@@ -152,22 +152,22 @@ OrientedMatrix OrientedMatrix::SurfaceField() const {
 
 	const size_t h = Nx * Ny;
 	for (size_t i = 0; i < h; i++) {
-		double v0 = values[i];
+		double v0 = operator[](i);
 		size_t j = i;
 		double v = DBL_MAX;
 		for (size_t k = 1; k < Nz; k++) {
 			j += h;
-			if (values[j] > 0.5) {
+			if (operator[](j) > 0.5) {
 				if (v0 > 0.5) {
 					v = (double) (k - 1) * dz;
 				} else {
 					const double c = fmin(
-							fmax((0.5 - v0) / (values[j] - v0), 0), 1);
+							fmax((0.5 - v0) / (operator[](j) - v0), 0), 1);
 					v = ((double) (k - 1) + c) * dz;
 				}
 				break;
 			}
-			v0 = values[j];
+			v0 = operator[](j);
 		}
 		temp.Insert(v);
 	}
@@ -195,7 +195,7 @@ void OrientedMatrix::Paint() const {
 			for (size_t k = 0; k < Nz; k++) {
 				for (size_t j = 0; j < Ny; j++) {
 					for (size_t i = 0; i < Nx; i++) {
-						const double v0 = values[c];
+						const double v0 = operator[](c);
 						if (v0 > surface) {
 							glColor3f(v0 * 5, v0 * 5, v0 * 5);
 							glVertex3f(p.x, p.y, p.z);
@@ -257,8 +257,8 @@ void OrientedMatrix::Paint() const {
 			break;
 		}
 		case Display2D::Image: {
-			const double min = this->Min();
-			const double max = this->Max();
+			const double min = this->AllMin();
+			const double max = this->AllMax();
 			const double a = (max != min) ? (1 / (max - min)) : 1.0;
 			const double b = -min * a;
 			glNormal3f(0, 0, 1);
@@ -330,7 +330,7 @@ void OrientedMatrix::Paint() const {
 			for (size_t k = 0; k < Nz; k++) {
 				for (size_t j = 0; j < Ny; j++) {
 					for (size_t i = 0; i < Nx; i++) {
-						const double v0 = values[c];
+						const double v0 = operator[](c);
 						if (v0 > surface) {
 							glColor3f(v0 * 5, v0 * 5, v0 * 5);
 							glVertex3f(p.x, p.y, p.z);
@@ -366,13 +366,13 @@ void OrientedMatrix::Rotate(Axis a, int quarters) {
 	assert(quarters == 1 || quarters == 3);
 	switch (a) {
 	case Axis::X:
-		swap(dy, dz); // @suppress("Invalid arguments")
+		std::swap(dy, dz); // @suppress("Invalid arguments")
 		break;
 	case Axis::Y:
-		swap(dz, dx); // @suppress("Invalid arguments")
+		std::swap(dz, dx); // @suppress("Invalid arguments")
 		break;
 	case Axis::Z:
-		swap(dx, dy); // @suppress("Invalid arguments")
+		std::swap(dx, dy); // @suppress("Invalid arguments")
 		break;
 	}
 }

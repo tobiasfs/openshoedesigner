@@ -26,7 +26,6 @@
 
 #ifndef SYSTEM_MIDIPORT_H
 #define SYSTEM_MIDIPORT_H
-#include <set>
 
 /*!\class MidiPort
  * \brief Connection to MIDI Instruments
@@ -54,6 +53,7 @@
 #include <memory>
 #include <vector>
 #include <array>
+#include <set>
 
 class MidiDevice {
 	friend class MidiPort;

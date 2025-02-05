@@ -56,9 +56,7 @@ class ProjectView;
 class FrameMain: public GUIFrameMain {
 	friend class ProjectView;
 public:
-	enum class UnitType {
-		Without, Time, Distance, SmallDistance, Tolerance, Angle, Percent
-	};
+
 
 	FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 			wxDocParentFrame *parent);
@@ -115,9 +113,9 @@ protected:
 	void OnMeasurementsCopy(wxCommandEvent &event) override;
 	void OnMeasurementsQuickSetup(wxCommandEvent &event) override;
 	void OnModelChanged(wxCommandEvent &event) override;
-	void OnParserDebug(wxCommandEvent &event) override;
 	void OnPatternSelect(wxTreeListEvent &event) override;
 	void OnPatternSelectFabric(wxCommandEvent &event) override;
+	void OnScroll(wxScrollEvent &event) override;
 	void OnToggleStereo3D(wxCommandEvent &event) override;
 	void OnViewChanged(wxCommandEvent &event) override;
 
@@ -129,8 +127,8 @@ protected:
 	void OnObjectLoad(wxCommandEvent &event) override;
 	void OnObjectSave(wxCommandEvent &event) override;
 
-	DECLARE_NO_COPY_CLASS(FrameMain)
-		;
+DECLARE_NO_COPY_CLASS(FrameMain)
+	;
 };
 
 #endif /* FRAMEMAIN_H */

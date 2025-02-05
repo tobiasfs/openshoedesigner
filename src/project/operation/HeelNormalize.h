@@ -37,6 +37,7 @@
 #include "../object/ObjectGeometry.h"
 #include "../ParameterEnum.h"
 #include "Operation.h"
+#include "../../math/Matrix.h"
 
 #include <memory>
 
@@ -56,6 +57,8 @@ public:
 
 	std::shared_ptr<ObjectGeometry> in;
 	std::shared_ptr<ObjectGeometry> out;
+
+	std::shared_ptr<Matrix> debug;
 };
 
 #endif /* SRC_PROJECT_OPERATION_HEELNORMALIZE_H_ */

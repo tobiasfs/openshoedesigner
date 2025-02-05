@@ -372,16 +372,18 @@ void Unit::ParseString(const std::string &txt) {
 			break;
 //		std::cout << "State: " << state << " Action: " << action << '\n';
 		Action(action);
-	}{
-	const size_t action = actionTable[state << 8];
-	Action(action);
-	state = transitionTable[state << 8];
+	}
+	{
+		const size_t action = actionTable[state << 8];
+		Action(action);
+		state = transitionTable[state << 8];
 //	std::cout << "State: " << state << " Action: " << action << '\n';
-	if (state != Unit::stateOfValidUnit) {
-		throw std::runtime_error(
-				"Unit::ParseString - The string \"" + txt
-						+ "\" is not a parsible unit.");
-	}}
+		if (state != Unit::stateOfValidUnit) {
+			throw std::runtime_error(
+					"Unit::ParseString - The string \"" + txt
+							+ "\" is not a parsible unit.");
+		}
+	}
 	factor *= std::pow(10.0, (double) powerprefix);
 }
 
@@ -1284,28 +1286,26 @@ std::array<Unit::DerivedUnit, Unit::derivedunitcount> Unit::InitDerivedUnits() {
 	table[11].exp = { { -2, 2, 0, 0, 0, 0, 0 } };
 	table[12].name = "lx";
 	table[12].exp = { { 0, -2, 0, 0, 0, 0, 1 } };
-	table[13].name = "l"; // FIXME: Shadows m^3; missing factor as well. Remove and add a unit rescaling system.
-	table[13].exp = { { 0, 3, 0, 0, 0, 0, 0 } };
-	table[14].name = "C";
-	table[14].exp = { { 1, 0, 0, 1, 0, 0, 0 } };
-	table[15].name = "kat";
-	table[15].exp = { { -1, 0, 0, 0, 0, 1, 0 } };
-	table[16].name = "s";
-	table[16].exp = { { 1, 0, 0, 0, 0, 0, 0 } };
-	table[17].name = "m";
-	table[17].exp = { { 0, 1, 0, 0, 0, 0, 0 } };
-	table[18].name = "g"; // This is actually kg, but the correct prefixes have to be sorted out elsewhere.
-	table[18].exp = { { 0, 0, 1, 0, 0, 0, 0 } };
-	table[19].name = "A";
-	table[19].exp = { { 0, 0, 0, 1, 0, 0, 0 } };
-	table[20].name = "K";
-	table[20].exp = { { 0, 0, 0, 0, 1, 0, 0 } };
-	table[21].name = "mol";
-	table[21].exp = { { 0, 0, 0, 0, 0, 1, 0 } };
-	table[22].name = "cd";
-	table[22].exp = { { 0, 0, 0, 0, 0, 0, 1 } };
-	table[23].name = "Hz";
-	table[23].exp = { { -1, 0, 0, 0, 0, 0, 0 } };
+	table[13].name = "C";
+	table[13].exp = { { 1, 0, 0, 1, 0, 0, 0 } };
+	table[14].name = "kat";
+	table[14].exp = { { -1, 0, 0, 0, 0, 1, 0 } };
+	table[15].name = "s";
+	table[15].exp = { { 1, 0, 0, 0, 0, 0, 0 } };
+	table[16].name = "m";
+	table[16].exp = { { 0, 1, 0, 0, 0, 0, 0 } };
+	table[17].name = "g"; // This is actually kg, but the correct prefixes have to be sorted out elsewhere.
+	table[17].exp = { { 0, 0, 1, 0, 0, 0, 0 } };
+	table[18].name = "A";
+	table[18].exp = { { 0, 0, 0, 1, 0, 0, 0 } };
+	table[19].name = "K";
+	table[19].exp = { { 0, 0, 0, 0, 1, 0, 0 } };
+	table[20].name = "mol";
+	table[20].exp = { { 0, 0, 0, 0, 0, 1, 0 } };
+	table[21].name = "cd";
+	table[21].exp = { { 0, 0, 0, 0, 0, 0, 1 } };
+	table[22].name = "Hz";
+	table[22].exp = { { -1, 0, 0, 0, 0, 0, 0 } };
 	return table;
 }
 

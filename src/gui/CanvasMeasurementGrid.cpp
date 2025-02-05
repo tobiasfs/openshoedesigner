@@ -96,14 +96,27 @@ void CanvasMeasurementGrid::OnMouseEvent(wxMouseEvent &event) {
 		this->Refresh();
 	}
 
-	if (event.Dragging() && event.MiddleIsDown()) {
-		float movement = 107.0 / 0.0254;
-		const float dx = (float) (event.m_x - m_x) / movement;
-		const float dy = (float) (event.m_y - m_y) / movement;
-		view.TranslateGlobal(dx, -dy, 0);
-		m_x = event.m_x;
-		m_y = event.m_y;
-		this->Refresh();
+	if (event.Dragging()) {
+		if (event.MiddleIsDown()) {
+			float movement = 107.0 / 0.0254;
+			const float dx = (float) (event.m_x - m_x) / movement;
+			const float dy = (float) (m_y - event.m_y) / movement;
+			view.TranslateGlobal(dx, dy, 0);
+			m_x = event.m_x;
+			m_y = event.m_y;
+			this->Refresh();
+		}
+		if (event.RightIsDown()) {
+			float movement = 500.0;
+			const float dx = 1.0
+					+ (float) ((event.m_x - m_x) + (m_y - event.m_y))
+							/ movement;
+			view.ScaleGlobal(dx, dx, 1.00);
+			m_x = event.m_x;
+			m_y = event.m_y;
+			this->Refresh();
+		}
+
 	} else {
 		const int x = event.GetWheelRotation();
 		if (x != 0) {

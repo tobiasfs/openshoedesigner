@@ -96,6 +96,11 @@ void Canvas3D::SetProjectView(const ProjectView *projectview_) {
 
 void Canvas3D::Render() {
 
+	if(backfaceCulling)
+		glEnable(GL_CULL_FACE);
+	else
+		glDisable(GL_CULL_FACE);
+
 	if (projectview != nullptr) {
 		glPushMatrix();
 		// XY in the plane and Z pointing upwards.
@@ -124,6 +129,8 @@ void Canvas3D::Render() {
 
 	for (const Geometry &geometry : geometries)
 		geometry.Paint();
+
+	glEnable(GL_CULL_FACE);
 }
 
 void Canvas3D::RenderPick() {

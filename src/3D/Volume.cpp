@@ -58,7 +58,7 @@ Volume::~Volume() {
 }
 
 void Volume::Clear() {
-	values.assign(values.size(), 0.0);
+	this->assign(this->size(), 0.0);
 }
 
 void Volume::AddHalfplane(const Vector3 &p1, float d0, float k0) {
@@ -72,7 +72,7 @@ void Volume::AddHalfplane(const Vector3 &p1, float d0, float k0) {
 		for (size_t ny = 0; ny < Ny; ny++) {
 			for (size_t nx = 0; nx < Nx; nx++) {
 				const float d = (p + origin).Dot(p1);
-				values[c] += 1 - 1 / (1 + exp(kh * (d - d0)));
+				operator[](c) += 1 - 1 / (1 + exp(kh * (d - d0)));
 				c++;
 				p.x += dx;
 			}
@@ -96,7 +96,7 @@ void Volume::AddSphere(const Vector3 &p1, float r1, float k1) {
 		for (size_t ny = 0; ny < Ny; ny++) {
 			for (size_t nx = 0; nx < Nx; nx++) {
 				const float d = 1 - 1 / (1 + exp(kh * ((p - h1).Abs() - r1)));
-				values[c] += d;
+				operator[](c) += d;
 				c++;
 				p.x += dx;
 			}
@@ -132,7 +132,7 @@ void Volume::AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
 				const Vector3 h = h1 + n * r;
 				const float d = (p - h).Abs() - r1;
 
-				values[c] += 1 - 1 / (1 + exp(kh * d));
+				operator[](c) += 1 - 1 / (1 + exp(kh * d));
 				c++;
 				p.x += dx;
 			}
@@ -224,7 +224,7 @@ void Volume::AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
 					} else {
 						d = d * 0.25 + 0.5;
 					}
-					values[c] += d;
+					operator[](c) += d;
 				}
 				//d = 1 - 1 / (1 + exp(-k1 * d));
 //				if(d > -5){
@@ -233,7 +233,7 @@ void Volume::AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
 //					}else{
 //						d = 1 - 1 / (1 + exp(d));
 //					}
-//					values[c] += d;
+//					operator[](c) += d;
 //				}
 				c++;
 				p.x += dx;
@@ -333,7 +333,7 @@ void Volume::AddCylinder(const Vector3 &p1, const Vector3 &p2, const float r1,
 				d -= r;
 				//d = 1 - 1 / (1 + exp(-k1 * d));
 				d = 1 - 1 / (1 + exp(kh * d / k));
-				values[c] += d;
+				operator[](c) += d;
 				c++;
 				p.x += dx;
 			}
@@ -552,14 +552,14 @@ void Volume::CalcSurface() {
 		for (size_t j = 0; j < Ny - 1; ++j) {
 			for (size_t i = 0; i < Nx - 1; ++i) {
 
-				const double v0 = values[c];
-				const double v1 = values[c + 1];
-				const double v2 = values[c + Nx];
-				const double v3 = values[c + 1 + Nx];
-				const double v4 = values[c + Nx * Ny];
-				const double v5 = values[c + 1 + Nx * Ny];
-				const double v6 = values[c + Nx * (1 + Ny)];
-				const double v7 = values[c + 1 + Nx * (1 + Ny)];
+				const double v0 = operator[](c);
+				const double v1 = operator[](c + 1);
+				const double v2 = operator[](c + Nx);
+				const double v3 = operator[](c + 1 + Nx);
+				const double v4 = operator[](c + Nx * Ny);
+				const double v5 = operator[](c + 1 + Nx * Ny);
+				const double v6 = operator[](c + Nx * (1 + Ny));
+				const double v7 = operator[](c + 1 + Nx * (1 + Ny));
 				uint8_t v = 0;
 				if (v0 > surface)
 					v |= 1;

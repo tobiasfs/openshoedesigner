@@ -264,10 +264,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menubar->Append( m_menuPreferences, _("P&references") );
 
 	m_menuHelp = new wxMenu();
-	wxMenuItem* m_menuItemDebugParser;
-	m_menuItemDebugParser = new wxMenuItem( m_menuHelp, ID_PARSER, wxString( _("Debug Mathparser") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menuHelp->Append( m_menuItemDebugParser );
-
 	wxMenuItem* m_menuItemCalculator;
 	m_menuItemCalculator = new wxMenuItem( m_menuHelp, ID_CALCULATOR, wxString( _("Calculator") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menuHelp->Append( m_menuItemCalculator );
@@ -320,7 +316,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerFootMeasurementsVertical = new wxBoxSizer( wxVERTICAL );
 
 	wxFlexGridSizer* fgSizerFootMeasurements;
-	fgSizerFootMeasurements = new wxFlexGridSizer( 9, 2, 0, 0 );
+	fgSizerFootMeasurements = new wxFlexGridSizer( 8, 2, 0, 0 );
 	fgSizerFootMeasurements->AddGrowableCol( 1 );
 	fgSizerFootMeasurements->SetFlexibleDirection( wxHORIZONTAL );
 	fgSizerFootMeasurements->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -373,13 +369,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 
 	m_textCtrlHeelWidth = new ExtendedTextCtrl( m_panelMeasurementBased, ID_MEASUREMENT_HEELWIDTH, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	fgSizerFootMeasurements->Add( m_textCtrlHeelWidth, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
-
-	m_staticTextAngleMixing = new wxStaticText( m_panelMeasurementBased, wxID_ANY, _("Angle Mixing:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticTextAngleMixing->Wrap( -1 );
-	fgSizerFootMeasurements->Add( m_staticTextAngleMixing, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 5 );
-
-	m_textCtrlAngleMixing = new ExtendedTextCtrl( m_panelMeasurementBased, ID_MEASUREMENT_ANGLEMIXING, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
-	fgSizerFootMeasurements->Add( m_textCtrlAngleMixing, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
 
 	m_staticTextLegLengthDifference = new wxStaticText( m_panelMeasurementBased, wxID_ANY, _("Leg length difference:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextLegLengthDifference->Wrap( -1 );
@@ -505,7 +494,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelPageFoot->SetSizer( bSizerFoot );
 	m_panelPageFoot->Layout();
 	bSizerFoot->Fit( m_panelPageFoot );
-	m_notebook->AddPage( m_panelPageFoot, _("Foot"), false );
+	m_notebook->AddPage( m_panelPageFoot, _("Foot"), true );
 	m_panelPageLeg = new wxPanel( m_notebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerLeg;
 	bSizerLeg = new wxBoxSizer( wxVERTICAL );
@@ -622,7 +611,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	sbSizerShapeParameter = new wxStaticBoxSizer( new wxStaticBox( m_panelLastConstruct, wxID_ANY, _("Insole shape") ), wxVERTICAL );
 
 	wxFlexGridSizer* fgSizerShapePatameter;
-	fgSizerShapePatameter = new wxFlexGridSizer( 7, 2, 0, 0 );
+	fgSizerShapePatameter = new wxFlexGridSizer( 8, 2, 0, 0 );
 	fgSizerShapePatameter->AddGrowableCol( 1 );
 	fgSizerShapePatameter->SetFlexibleDirection( wxBOTH );
 	fgSizerShapePatameter->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -662,6 +651,13 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_textCtrlTipSharpness = new ExtendedTextCtrl( sbSizerShapeParameter->GetStaticBox(), ID_TIPSHARPNESS, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	fgSizerShapePatameter->Add( m_textCtrlTipSharpness, 0, wxALL|wxEXPAND, 5 );
 
+	m_staticTextAngleMixing = new wxStaticText( sbSizerShapeParameter->GetStaticBox(), wxID_ANY, _("Angle Mixing:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticTextAngleMixing->Wrap( -1 );
+	fgSizerShapePatameter->Add( m_staticTextAngleMixing, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 5 );
+
+	m_textCtrlAngleMixing = new ExtendedTextCtrl( sbSizerShapeParameter->GetStaticBox(), ID_MEASUREMENT_ANGLEMIXING, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
+	fgSizerShapePatameter->Add( m_textCtrlAngleMixing, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
+
 	m_staticTextExtraLength = new wxStaticText( sbSizerShapeParameter->GetStaticBox(), wxID_ANY, _("Extra length:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextExtraLength->Wrap( -1 );
 	fgSizerShapePatameter->Add( m_staticTextExtraLength, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 5 );
@@ -683,7 +679,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelLastConstruct->SetSizer( sbSizerShapeParameter );
 	m_panelLastConstruct->Layout();
 	sbSizerShapeParameter->Fit( m_panelLastConstruct );
-	m_choicebookLastConstructionType->AddPage( m_panelLastConstruct, _("Constructed last"), false );
+	m_choicebookLastConstructionType->AddPage( m_panelLastConstruct, _("Constructed last"), true );
 	m_panelLastBoneBased = new wxPanel( m_choicebookLastConstructionType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerBoneBasedModel;
 	bSizerBoneBasedModel = new wxBoxSizer( wxVERTICAL );
@@ -702,7 +698,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelLastBoneBased->SetSizer( bSizerBoneBasedModel );
 	m_panelLastBoneBased->Layout();
 	bSizerBoneBasedModel->Fit( m_panelLastBoneBased );
-	m_choicebookLastConstructionType->AddPage( m_panelLastBoneBased, _("Bone based last model"), true );
+	m_choicebookLastConstructionType->AddPage( m_panelLastBoneBased, _("Bone based last model"), false );
 	m_panelLastLoadFromFile = new wxPanel( m_choicebookLastConstructionType, ID_HEELREORIENT, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerLastBasedModel;
 	bSizerLastBasedModel = new wxBoxSizer( wxVERTICAL );
@@ -1199,7 +1195,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelCanvas3D->SetSizer( bSizerCanvas3D );
 	m_panelCanvas3D->Layout();
 	bSizerCanvas3D->Fit( m_panelCanvas3D );
-	m_notebookCanvas->AddPage( m_panelCanvas3D, _("3D"), true );
+	m_notebookCanvas->AddPage( m_panelCanvas3D, _("3D"), false );
 	m_panelCanvasInsole = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasInsole;
 	bSizerCanvasInsole = new wxBoxSizer( wxVERTICAL );
@@ -1229,13 +1225,18 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerCanvasFlattening = new wxBoxSizer( wxVERTICAL );
 
 	m_canvasFlattening = new CanvasFlattening( m_panelFlattening, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	m_canvasFlattening->Hide();
+
 	bSizerCanvasFlattening->Add( m_canvasFlattening, 1, wxALL|wxEXPAND, 5 );
+
+	m_canvasGraph = new CanvasGraph( m_panelFlattening, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerCanvasFlattening->Add( m_canvasGraph, 1, wxALL|wxEXPAND, 5 );
 
 
 	m_panelFlattening->SetSizer( bSizerCanvasFlattening );
 	m_panelFlattening->Layout();
 	bSizerCanvasFlattening->Fit( m_panelFlattening );
-	m_notebookCanvas->AddPage( m_panelFlattening, _("Flattening"), false );
+	m_notebookCanvas->AddPage( m_panelFlattening, _("Flattening"), true );
 	m_panelCanvasTestStitch = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasTestStitch;
 	bSizerCanvasTestStitch = new wxBoxSizer( wxVERTICAL );
@@ -1264,8 +1265,20 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_canvasCycle = new CanvasWalkcycle( sbSizerCycle->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizerCycle->Add( m_canvasCycle, 1, wxALL|wxEXPAND, 5 );
 
+	wxWrapSizer* wSizer4;
+	wSizer4 = new wxWrapSizer( wxHORIZONTAL, 0 );
+
 	m_checkBoxLockAnkle = new wxCheckBox( sbSizerCycle->GetStaticBox(), ID_ANKLELOCK, _("Lock Ankle"), wxDefaultPosition, wxDefaultSize, 0 );
-	sbSizerCycle->Add( m_checkBoxLockAnkle, 0, wxALL|wxEXPAND, 5 );
+	wSizer4->Add( m_checkBoxLockAnkle, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_sliderSpeed = new wxSlider( sbSizerCycle->GetStaticBox(), ID_SPEED, 833, 0, 8000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	wSizer4->Add( m_sliderSpeed, 1, wxALL|wxEXPAND, 5 );
+
+	m_textCtrlSpeed = new ExtendedTextCtrl( sbSizerCycle->GetStaticBox(), ID_SPEED, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
+	wSizer4->Add( m_textCtrlSpeed, 0, wxALL, 5 );
+
+
+	sbSizerCycle->Add( wSizer4, 0, wxEXPAND, 5 );
 
 
 	bSizerAnalysisSupport->Add( sbSizerCycle, 1, wxEXPAND, 5 );
@@ -1278,9 +1291,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_choiceDisplay = new wxChoice( sbSizerPlot->GetStaticBox(), ID_DISPLAY, wxDefaultPosition, wxDefaultSize, m_choiceDisplayNChoices, m_choiceDisplayChoices, 0 );
 	m_choiceDisplay->SetSelection( 0 );
 	sbSizerPlot->Add( m_choiceDisplay, 0, wxALL|wxEXPAND, 5 );
-
-	m_canvasGraph = new CanvasGraph( sbSizerPlot->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
-	sbSizerPlot->Add( m_canvasGraph, 1, wxALL|wxEXPAND, 5 );
 
 
 	bSizerAnalysisSupport->Add( sbSizerPlot, 1, wxEXPAND, 5 );
@@ -1352,7 +1362,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowCoordinateSystem->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnViewChanged ), this, m_menuItemShowBackground->GetId());
 	m_menuView->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnBackgroundImagesSetup ), this, m_menuItemSetupBackground->GetId());
-	m_menuHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnParserDebug ), this, m_menuItemDebugParser->GetId());
 	m_menuHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrameMain::OnCalculator ), this, m_menuItemCalculator->GetId());
 	m_panelPageFoot->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_radioBtnEditLeft->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( GUIFrameMain::OnRadioButton ), NULL, this );
@@ -1387,10 +1396,6 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_textCtrlHeelWidth->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlHeelWidth->Connect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
 	m_textCtrlHeelWidth->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
-	m_textCtrlAngleMixing->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
-	m_textCtrlAngleMixing->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
-	m_textCtrlAngleMixing->Connect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
-	m_textCtrlAngleMixing->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
 	m_textCtrlLegLengthDifference->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
 	m_textCtrlLegLengthDifference->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlLegLengthDifference->Connect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
@@ -1486,6 +1491,10 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_textCtrlTipSharpness->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlTipSharpness->Connect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
 	m_textCtrlTipSharpness->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
+	m_textCtrlAngleMixing->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
+	m_textCtrlAngleMixing->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
+	m_textCtrlAngleMixing->Connect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
+	m_textCtrlAngleMixing->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
 	m_textCtrlExtraLength->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
 	m_textCtrlExtraLength->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlExtraLength->Connect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
@@ -1571,6 +1580,18 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_notebookCanvas->Connect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameMain::OnNotebookPageChanged ), NULL, this );
 	m_canvas3D->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( GUIFrameMain::On3DSelect ), NULL, this );
 	m_checkBoxLockAnkle->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameMain::OnCheckBox ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_textCtrlSpeed->Connect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
+	m_textCtrlSpeed->Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
+	m_textCtrlSpeed->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
 	m_choiceDisplay->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
 }
 
@@ -1611,10 +1632,6 @@ GUIFrameMain::~GUIFrameMain()
 	m_textCtrlHeelWidth->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlHeelWidth->Disconnect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
 	m_textCtrlHeelWidth->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
-	m_textCtrlAngleMixing->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
-	m_textCtrlAngleMixing->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
-	m_textCtrlAngleMixing->Disconnect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
-	m_textCtrlAngleMixing->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
 	m_textCtrlLegLengthDifference->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
 	m_textCtrlLegLengthDifference->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlLegLengthDifference->Disconnect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
@@ -1710,6 +1727,10 @@ GUIFrameMain::~GUIFrameMain()
 	m_textCtrlTipSharpness->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlTipSharpness->Disconnect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
 	m_textCtrlTipSharpness->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
+	m_textCtrlAngleMixing->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
+	m_textCtrlAngleMixing->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
+	m_textCtrlAngleMixing->Disconnect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
+	m_textCtrlAngleMixing->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
 	m_textCtrlExtraLength->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
 	m_textCtrlExtraLength->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
 	m_textCtrlExtraLength->Disconnect( wxEVT_SET_FOCUS, wxFocusEventHandler( GUIFrameMain::OnSetFocus ), NULL, this );
@@ -1795,6 +1816,18 @@ GUIFrameMain::~GUIFrameMain()
 	m_notebookCanvas->Disconnect( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, wxNotebookEventHandler( GUIFrameMain::OnNotebookPageChanged ), NULL, this );
 	m_canvas3D->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( GUIFrameMain::On3DSelect ), NULL, this );
 	m_checkBoxLockAnkle->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( GUIFrameMain::OnCheckBox ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_sliderSpeed->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( GUIFrameMain::OnScroll ), NULL, this );
+	m_textCtrlSpeed->Disconnect( wxEVT_KILL_FOCUS, wxFocusEventHandler( GUIFrameMain::OnKillFocus ), NULL, this );
+	m_textCtrlSpeed->Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( GUIFrameMain::OnMouseWheel ), NULL, this );
+	m_textCtrlSpeed->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( GUIFrameMain::OnTextEnter ), NULL, this );
 	m_choiceDisplay->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIFrameMain::OnChoice ), NULL, this );
 
 }
@@ -2064,7 +2097,7 @@ GUIDialogQuickInitFoot::GUIDialogQuickInitFoot( wxWindow* parent, wxWindowID id,
 	m_staticTextShoeSize->Wrap( -1 );
 	bSizerSize->Add( m_staticTextShoeSize, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlShoeSize = new ExtendedTextCtrl( this, wxID_ANY, _("39"), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
+	m_textCtrlShoeSize = new ExtendedTextCtrl( this, wxID_ANY, _("39"), wxDefaultPosition, wxDefaultSize, wxTE_RIGHT );
 	bSizerSize->Add( m_textCtrlShoeSize, 0, wxALL|wxEXPAND, 5 );
 
 	wxString m_choiceUnitChoices[] = { _("EU"), _("US"), _("CN"), _("UK"), _("JP"), _("AU"), _("mm"), _("cm"), _("in"), _("ft") };

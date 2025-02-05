@@ -32,60 +32,37 @@
 CanvasSupport::CanvasSupport(wxWindow *parent, wxWindowID id,
 		const wxPoint &pos, const wxSize &size, long style,
 		const wxString &name) :
-		wxPanel(parent, id, pos, size, style, name) {
-
-	this->SetBackgroundColour(wxColour(200, 200, 200));
+		CanvasMeasurementGrid(parent, id, pos, size, style, name) {
 
 	// Connect Events
-	this->Connect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(CanvasSupport::OnLeftDown));
-	this->Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasSupport::OnMotion));
+//	this->Connect(wxEVT_LEFT_DOWN,
+//			wxMouseEventHandler(CanvasSupport::OnLeftDown));
+//	this->Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasSupport::OnMotion));
+//	this->Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasSupport::OnSize));
 	this->Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasSupport::OnPaint));
-	this->Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasSupport::OnSize));
 }
 
 CanvasSupport::~CanvasSupport() {
 	// Disconnect Events
-	this->Disconnect(wxEVT_LEFT_DOWN,
-			wxMouseEventHandler(CanvasSupport::OnLeftDown));
-	this->Disconnect(wxEVT_MOTION,
-			wxMouseEventHandler(CanvasSupport::OnMotion));
+//	this->Disconnect(wxEVT_LEFT_DOWN,
+//			wxMouseEventHandler(CanvasSupport::OnLeftDown));
+//	this->Disconnect(wxEVT_MOTION,
+//			wxMouseEventHandler(CanvasSupport::OnMotion));
 	this->Disconnect(wxEVT_PAINT, wxPaintEventHandler(CanvasSupport::OnPaint));
-	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(CanvasSupport::OnSize));
+//	this->Disconnect(wxEVT_SIZE, wxSizeEventHandler(CanvasSupport::OnSize));
 }
 
-void CanvasSupport::OnSize(wxSizeEvent &event) {
-	this->Refresh();
-}
+//void CanvasSupport::OnSize(wxSizeEvent &event) {
+//	this->Refresh();
+//}
 
 void CanvasSupport::OnPaint(wxPaintEvent &event) {
-
+	CanvasMeasurementGrid::OnPaint(event);
 	wxPaintDC dc(this);
-	wxSize sz = GetClientSize();
-
+#ifdef DEBUG
 	wxString text = wxString::Format(_T("CanvasSupport"));
-	dc.DrawText(text, 10, 10);
-
-	float height = 1.0; //TODO: <-Replace this
-	float width = 1.0; //TODO: <-Replace this
-
-	float scaleX = (float) sz.x / width;
-	float scaleY = (float) sz.y / (height);
-
-	float scaleFactor = (scaleX < scaleY) ? scaleX : scaleY;
-	scaleFactor *= 0.9;
-
-	int mx = sz.x / 2;
-	int my = (int) (scaleY * height * 0.5);
-
-	dc.CrossHair(mx, my);
+	dc.DrawText(text, 10, 30);
+#endif
 
 }
 
-void CanvasSupport::OnMotion(wxMouseEvent &event) {
-
-}
-
-void CanvasSupport::OnLeftDown(wxMouseEvent &event) {
-
-}

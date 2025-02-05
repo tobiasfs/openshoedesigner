@@ -55,6 +55,7 @@ public:
 	void RenderPick() override;
 
 	std::vector<Geometry> geometries;
+	bool backfaceCulling = true;
 
 protected:
 	void PaintCorrdinateSystem();

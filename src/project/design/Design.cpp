@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : Pattern.h
+// Name               : Design.cpp
 // Purpose            : 
-// Thread Safe        : Yes
+// Thread Safe        : No
 // Platform dependent : No
-// Compiler Options   :
+// Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 09.11.2015
-// Copyright          : (C) 2015 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 04.02.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,20 +23,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#include "Design.h"
 
-#ifndef PATTERN_H
-#define PATTERN_H
+void Design::Paint() {
 
-/*!\class Pattern
- * \brief ...
- *
- * ...
- */
-
-class Pattern {
-public:
-	Pattern();
-	virtual ~Pattern();
-};
-
-#endif /* PATTERN_H */
+}

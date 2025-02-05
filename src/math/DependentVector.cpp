@@ -26,6 +26,8 @@
 
 #include "DependentVector.h"
 
+#include "Matrix.h"
+
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
@@ -703,3 +705,15 @@ void DependentVector::PaintCircle(double radius) {
 	glEnd();
 }
 
+Matrix DependentVector::ToMatrix() const {
+	const size_t N = Size();
+	if (y.size() != N)
+		throw std::logic_error(
+		__FILE__":ToMatrix(): x and y should have the same number of values.");
+	Matrix ret(N, 2);
+	for (const double &v : x)
+		ret.Insert(v);
+	for (const double &v : y)
+		ret.Insert(v);
+	return ret;
+}

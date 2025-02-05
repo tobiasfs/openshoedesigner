@@ -33,9 +33,10 @@
  * ...
  */
 
+#include "CanvasMeasurementGrid.h"
 #include <wx/panel.h>
 
-class CanvasSupport: public wxPanel {
+class CanvasSupport: public CanvasMeasurementGrid {
 public:
 	CanvasSupport(wxWindow *parent,
             wxWindowID id = wxID_ANY,
@@ -46,10 +47,10 @@ public:
 	virtual ~CanvasSupport();
 
 	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
-
-	void OnMotion(wxMouseEvent &event);
-	void OnLeftDown(wxMouseEvent &event);
+//	void OnSize(wxSizeEvent &event);
+//
+//	void OnMotion(wxMouseEvent &event);
+//	void OnLeftDown(wxMouseEvent &event);
 
 private:
 

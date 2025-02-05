@@ -46,10 +46,12 @@
 #include "CanvasInsole.h"
 #include "CanvasPattern.h"
 #include "CanvasFlattening.h"
+#include "CanvasGraph.h"
 #include "CanvasTestStitch.h"
 #include "CanvasSupport.h"
 #include "CanvasWalkcycle.h"
-#include "CanvasGraph.h"
+#include <wx/slider.h>
+#include <wx/wrapsizer.h>
 #include <wx/splitter.h>
 #include <wx/statusbr.h>
 #include <wx/frame.h>
@@ -58,9 +60,7 @@
 #include <wx/dialog.h>
 #include <wx/listctrl.h>
 #include <wx/spinbutt.h>
-#include <wx/slider.h>
 #include "CanvasAnisotropy.h"
-#include <wx/wrapsizer.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -98,77 +98,77 @@
 #define ID_COORDINATESYSTEM 1031
 #define ID_BACKGROUND 1032
 #define ID_BACKGROUND_SETUP 1033
-#define ID_PARSER 1034
-#define ID_CALCULATOR 1035
-#define ID_BOTH 1036
-#define ID_MEASUREMENTSOURCE 1037
-#define ID_MEASUREMENT_FOOTLENGTH 1038
-#define ID_MEASUREMENT_BALLWIDTH 1039
-#define ID_MEASUREMENT_BIGTOEGIRTH 1040
-#define ID_MEASUREMENT_LITTLETOEGIRTH 1041
-#define ID_MEASUREMENT_WAISTGIRTH 1042
-#define ID_MEASUREMENT_HEELGIRTH 1043
-#define ID_MEASUREMENT_HEELWIDTH 1044
-#define ID_MEASUREMENT_ANGLEMIXING 1045
-#define ID_MEASUREMENT_LEGLENGTHDIFFERENCE 1046
-#define ID_IMAGEFOOT 1047
-#define ID_MEASUREMENT_BELOWCRUTCHGIRTH 1048
-#define ID_MEASUREMENT_BELOWCRUTCHLEVEL 1049
-#define ID_MEASUREMENT_MIDDLEOFCALFGIRTH 1050
-#define ID_MEASUREMENT_MIDDLEOFCALFLEVEL 1051
-#define ID_MEASUREMENT_ABOVEKNEEGIRTH 1052
-#define ID_MEASUREMENT_ABOVEKNEELEVEL 1053
-#define ID_MEASUREMENT_OVERKNEECAPGIRTH 1054
-#define ID_MEASUREMENT_OVERKNEECAPLEVEL 1055
-#define ID_MEASUREMENT_BELOWKNEEGIRTH 1056
-#define ID_MEASUREMENT_BELOWKNEELEVEL 1057
-#define ID_MEASUREMENT_MIDDLEOFSHANKGIRTH 1058
-#define ID_MEASUREMENT_MIDDLEOFSHANKLEVEL 1059
-#define ID_MEASUREMENT_ABOVEANKLEGIRTH 1060
-#define ID_MEASUREMENT_ABOVEANKLELEVEL 1061
-#define ID_MEASUREMENT_OVERANKLEBONEGIRTH 1062
-#define ID_MEASUREMENT_OVERANKLEBONELEVEL 1063
-#define ID_LASTCONSTRUCTIONTYPE 1064
-#define ID_BIGTOEANGLE 1065
-#define ID_LITTLETOEANGLE 1066
-#define ID_BALLMEASUREMENTANGLE 1067
-#define ID_HEELDIRECTIONANGLE 1068
-#define ID_TIPSHARPNESS 1069
-#define ID_EXTRALENGTH 1070
-#define ID_FOOTCOMPRESSION 1071
-#define ID_HEELREORIENT 1072
-#define ID_LASTMODIFY 1073
-#define ID_LASTREORIENT 1074
-#define ID_HEELCONSTRUCTIONTYPE 1075
-#define ID_PRESETSHOETYPE 1076
-#define ID_HEELHEIGHT 1077
-#define ID_BALLHEIGHT 1078
-#define ID_HEELPITCH 1079
-#define ID_TOESPRING 1080
-#define ID_PRESETSHOEHEIGHT 1081
-#define ID_UPPERLEVEL 1082
-#define ID_GENERATOR 1083
-#define ID_WELTSIZE 1084
-#define ID_THICKNESS 1085
-#define ID_BRIDGE 1086
-#define ID_SUPPORTHEELRADIUS 1087
-#define ID_SUPPORTHEELOFFSET 1088
-#define ID_SUPPORTTOERADIUS 1089
-#define ID_SUPPORTTOEOFFSET 1090
-#define ID_PRESETHEEL 1091
-#define ID_PRESETHEELCODE 1092
-#define ID_PRESETHEELVARIANT 1093
-#define ID_HEELCODE 1094
-#define ID_HEELVARIANT 1095
-#define ID_SELECTED 1096
-#define ID_LINE 1097
-#define ID_PATCH 1098
-#define ID_STITCHING 1099
-#define ID_PADDING 1100
-#define ID_LACES 1101
-#define ID_ACCESSORY 1102
-#define ID_MAINVIEW 1103
-#define ID_ANKLELOCK 1104
+#define ID_CALCULATOR 1034
+#define ID_BOTH 1035
+#define ID_MEASUREMENTSOURCE 1036
+#define ID_MEASUREMENT_FOOTLENGTH 1037
+#define ID_MEASUREMENT_BALLWIDTH 1038
+#define ID_MEASUREMENT_BIGTOEGIRTH 1039
+#define ID_MEASUREMENT_LITTLETOEGIRTH 1040
+#define ID_MEASUREMENT_WAISTGIRTH 1041
+#define ID_MEASUREMENT_HEELGIRTH 1042
+#define ID_MEASUREMENT_HEELWIDTH 1043
+#define ID_MEASUREMENT_LEGLENGTHDIFFERENCE 1044
+#define ID_IMAGEFOOT 1045
+#define ID_MEASUREMENT_BELOWCRUTCHGIRTH 1046
+#define ID_MEASUREMENT_BELOWCRUTCHLEVEL 1047
+#define ID_MEASUREMENT_MIDDLEOFCALFGIRTH 1048
+#define ID_MEASUREMENT_MIDDLEOFCALFLEVEL 1049
+#define ID_MEASUREMENT_ABOVEKNEEGIRTH 1050
+#define ID_MEASUREMENT_ABOVEKNEELEVEL 1051
+#define ID_MEASUREMENT_OVERKNEECAPGIRTH 1052
+#define ID_MEASUREMENT_OVERKNEECAPLEVEL 1053
+#define ID_MEASUREMENT_BELOWKNEEGIRTH 1054
+#define ID_MEASUREMENT_BELOWKNEELEVEL 1055
+#define ID_MEASUREMENT_MIDDLEOFSHANKGIRTH 1056
+#define ID_MEASUREMENT_MIDDLEOFSHANKLEVEL 1057
+#define ID_MEASUREMENT_ABOVEANKLEGIRTH 1058
+#define ID_MEASUREMENT_ABOVEANKLELEVEL 1059
+#define ID_MEASUREMENT_OVERANKLEBONEGIRTH 1060
+#define ID_MEASUREMENT_OVERANKLEBONELEVEL 1061
+#define ID_LASTCONSTRUCTIONTYPE 1062
+#define ID_BIGTOEANGLE 1063
+#define ID_LITTLETOEANGLE 1064
+#define ID_BALLMEASUREMENTANGLE 1065
+#define ID_HEELDIRECTIONANGLE 1066
+#define ID_TIPSHARPNESS 1067
+#define ID_MEASUREMENT_ANGLEMIXING 1068
+#define ID_EXTRALENGTH 1069
+#define ID_FOOTCOMPRESSION 1070
+#define ID_HEELREORIENT 1071
+#define ID_LASTMODIFY 1072
+#define ID_LASTREORIENT 1073
+#define ID_HEELCONSTRUCTIONTYPE 1074
+#define ID_PRESETSHOETYPE 1075
+#define ID_HEELHEIGHT 1076
+#define ID_BALLHEIGHT 1077
+#define ID_HEELPITCH 1078
+#define ID_TOESPRING 1079
+#define ID_PRESETSHOEHEIGHT 1080
+#define ID_UPPERLEVEL 1081
+#define ID_GENERATOR 1082
+#define ID_WELTSIZE 1083
+#define ID_THICKNESS 1084
+#define ID_BRIDGE 1085
+#define ID_SUPPORTHEELRADIUS 1086
+#define ID_SUPPORTHEELOFFSET 1087
+#define ID_SUPPORTTOERADIUS 1088
+#define ID_SUPPORTTOEOFFSET 1089
+#define ID_PRESETHEEL 1090
+#define ID_PRESETHEELCODE 1091
+#define ID_PRESETHEELVARIANT 1092
+#define ID_HEELCODE 1093
+#define ID_HEELVARIANT 1094
+#define ID_SELECTED 1095
+#define ID_LINE 1096
+#define ID_PATCH 1097
+#define ID_STITCHING 1098
+#define ID_PADDING 1099
+#define ID_LACES 1100
+#define ID_ACCESSORY 1101
+#define ID_MAINVIEW 1102
+#define ID_ANKLELOCK 1103
+#define ID_SPEED 1104
 #define ID_DISPLAY 1105
 #define ID_GRIDDIAMETER 1106
 #define ID_GRIDLENGTH 1107
@@ -247,8 +247,6 @@ class GUIFrameMain : public wxDocChildFrame
 		ExtendedTextCtrl* m_textCtrlHeelGirth;
 		wxStaticText* m_staticTextShortHeelGirth;
 		ExtendedTextCtrl* m_textCtrlHeelWidth;
-		wxStaticText* m_staticTextAngleMixing;
-		ExtendedTextCtrl* m_textCtrlAngleMixing;
 		wxStaticText* m_staticTextLegLengthDifference;
 		ExtendedTextCtrl* m_textCtrlLegLengthDifference;
 		wxButton* m_buttonQuickSetup;
@@ -304,6 +302,8 @@ class GUIFrameMain : public wxDocChildFrame
 		ExtendedTextCtrl* m_textCtrlHeelDirectionAngle;
 		wxStaticText* m_staticTextTipSharpness;
 		ExtendedTextCtrl* m_textCtrlTipSharpness;
+		wxStaticText* m_staticTextAngleMixing;
+		ExtendedTextCtrl* m_textCtrlAngleMixing;
 		wxStaticText* m_staticTextExtraLength;
 		ExtendedTextCtrl* m_textCtrlExtraLength;
 		wxStaticText* m_staticTextFootCompression;
@@ -400,14 +400,16 @@ class GUIFrameMain : public wxDocChildFrame
 		CanvasPattern* m_canvasPattern;
 		wxPanel* m_panelFlattening;
 		CanvasFlattening* m_canvasFlattening;
+		CanvasGraph* m_canvasGraph;
 		wxPanel* m_panelCanvasTestStitch;
 		CanvasTestStitch* m_canvasTestStitch;
 		wxPanel* m_panelCanvasAnalysis;
 		CanvasSupport* m_canvasSupport;
 		CanvasWalkcycle* m_canvasCycle;
 		wxCheckBox* m_checkBoxLockAnkle;
+		wxSlider* m_sliderSpeed;
+		ExtendedTextCtrl* m_textCtrlSpeed;
 		wxChoice* m_choiceDisplay;
-		CanvasGraph* m_canvasGraph;
 		wxStatusBar* m_statusBar;
 
 		// Virtual event handlers, override them in your derived class
@@ -422,7 +424,6 @@ class GUIFrameMain : public wxDocChildFrame
 		virtual void OnViewChanged( wxCommandEvent& event ) = 0;
 		virtual void OnToggleStereo3D( wxCommandEvent& event ) = 0;
 		virtual void OnBackgroundImagesSetup( wxCommandEvent& event ) = 0;
-		virtual void OnParserDebug( wxCommandEvent& event ) = 0;
 		virtual void OnCalculator( wxCommandEvent& event ) = 0;
 		virtual void OnMouseWheel( wxMouseEvent& event ) = 0;
 		virtual void OnRadioButton( wxCommandEvent& event ) = 0;
@@ -444,11 +445,12 @@ class GUIFrameMain : public wxDocChildFrame
 		virtual void OnPatternSelectFabric( wxCommandEvent& event ) = 0;
 		virtual void OnNotebookPageChanged( wxNotebookEvent& event ) = 0;
 		virtual void On3DSelect( wxMouseEvent& event ) = 0;
+		virtual void OnScroll( wxScrollEvent& event ) = 0;
 
 
 	public:
 
-		GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Open Shoe Designer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1000,800 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxTAB_TRAVERSAL );
+		GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Open Shoe Designer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1193,800 ), long style = wxDEFAULT_FRAME_STYLE|wxRESIZE_BORDER|wxTAB_TRAVERSAL );
 
 		~GUIFrameMain();
 

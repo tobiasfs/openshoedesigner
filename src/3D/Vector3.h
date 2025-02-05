@@ -36,6 +36,7 @@
  */
 
 // http://www.parashift.com/c++-faq-lite/operator-overloading.html
+
 #include <cmath>
 #include <initializer_list>
 #include <ostream>

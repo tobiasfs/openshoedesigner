@@ -53,11 +53,11 @@ void Dependencies::Calculate() {
 			for (size_t i = ki; i < N; ++i) {
 				double s = (double) 0.0;
 				for (size_t j = kj; j < M; ++j)
-					s += fabs(values[i + j * N]);
+					s += fabs(operator[](i + j * N));
 				if (s < DBL_EPSILON) {
 					continue;
 				}
-				const double q = fabs(values[i + kj * N]) / s;
+				const double q = fabs(operator[](i + kj * N)) / s;
 				if (q > max) {
 					max = q;
 					p = i;
@@ -72,23 +72,24 @@ void Dependencies::Calculate() {
 			continue;
 		if (p != ki) {
 			for (size_t j = 0; j < M; ++j)
-				std::swap(values[ki + j * N], values[p + j * N]);
+				std::swap(operator[](ki + j * N), operator[](p + j * N)); // @suppress("Invalid arguments")
 		}
 //		L = ki;
-		const double pivot = values[ki + kj * N];
+		const double pivot = operator[](ki + kj * N);
 		for (size_t j = 0; j < M; ++j)
-			values[ki + j * N] /= pivot;
+			operator[](ki + j * N) /= pivot;
 		for (size_t j = 0; j < M; ++j) {
 			if (j != kj) {
 				for (size_t i = 0; i < N; ++i)
 					if (i != ki)
-						values[i + j * N] -= values[i + kj * N]
-								* values[ki + j * N];
+						operator[](i + j * N) -= operator[](i + kj * N)
+								* operator[](ki + j * N);
 			}
 		}
 		for (size_t i = 0; i < N; ++i)
 			if (i != ki)
-				values[i + kj * N] -= values[ki + kj * N] * values[i + kj * N];
+				operator[](i + kj * N) -= operator[](ki + kj * N)
+						* operator[](i + kj * N);
 //		PlotMatrix();
 	}
 
@@ -102,11 +103,11 @@ void Dependencies::Calculate() {
 	for (size_t i = 0; i < M; ++i) {
 		if (Q[k] == i) {
 			for (size_t g = 0; g < W; ++g)
-				values[i + g * M] = (g == k) ? 1.0 : 0.0;
+				operator[](i + g * M) = (g == k) ? 1.0 : 0.0;
 			++k;
 		} else {
 			for (size_t g = 0; g < W; ++g)
-				values[i + g * M] = -temp.values[i - k + Q[g] * N];
+				operator[](i + g * M) = -temp[i - k + Q[g] * N];
 		}
 	}
 //	PlotMatrix();
@@ -120,7 +121,7 @@ void Dependencies::PlotMatrix() const {
 		for (size_t j = 0; j < M; ++j) {
 			if (j > 0)
 				std::cout << '\t';
-			std::cout << values[i + j * N];
+			std::cout << operator[](i + j * N);
 		}
 		std::cout << '\n';
 	}

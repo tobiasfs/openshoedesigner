@@ -40,6 +40,7 @@ MidiSignalMap::MidiSignalMap(std::shared_ptr<MidiDevice> md_, size_t channel_,
 	initialized = false;
 	Set(v0);
 }
+
 double MidiSignalMap::operator ()() {
 	if (md.use_count() == 0)
 		return v0;

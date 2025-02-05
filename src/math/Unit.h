@@ -216,7 +216,7 @@ private:
 		std::string name;
 		std::array<int, unitcount> exp;
 	};
-	static const size_t derivedunitcount = 24;
+	static const size_t derivedunitcount = 23;
 	static std::array<DerivedUnit, derivedunitcount> InitDerivedUnits();
 	static std::array<DerivedUnit, derivedunitcount> derivedUnits;
 

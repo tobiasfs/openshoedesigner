@@ -33,10 +33,10 @@ CanvasPattern::CanvasPattern(wxWindow *parent, wxWindowID id,
 		CanvasMeasurementGrid(parent, id, pos, size, style, name) {
 
 	// Connect Events
+//	Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
 //	Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(CanvasPattern::OnLeftDown));
 //	Connect(wxEVT_MOTION, wxMouseEventHandler(CanvasPattern::OnMotion));
 	Connect(wxEVT_PAINT, wxPaintEventHandler(CanvasPattern::OnPaint));
-//	Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasPattern::OnSize));
 }
 
 CanvasPattern::~CanvasPattern() {

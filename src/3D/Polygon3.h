@@ -196,7 +196,18 @@ public:
 	 */
 	void CalculateNormalsAroundVector(const Vector3 &planenormal);
 
-	double MapU();
+	/**\brief Assign the length around the polygon to the U component of the vectors
+	 *
+	 * Note that the first vector receives the total sum of all edge lengths.
+	 * because each edge is processed in order and the last edge connects
+	 * the last vertex with the first. For each edge the u-value of the first
+	 * edge-vertex plus the length of the edge is written to the second edge
+	 * vertex.
+	 *
+	 * \param fixFirstVertexToZero (default true, because principle of least surprise)
+	 * \return Total length of polygon (also found in the U of the first vertex).
+	 */
+	double MapU(bool fixFirstVertexToZero = false);
 
 	void Shift(double distance); ///< Move the polygon along the normals.
 

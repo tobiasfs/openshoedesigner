@@ -40,6 +40,8 @@
 #include <functional>
 #include <vector>
 
+class Matrix;
+
 class DependentVector {
 public:
 
@@ -151,6 +153,8 @@ public:
 
 	void Paint() const;
 	static void PaintCircle(double radius); //TODO This function is in the wrong place/class (again). It needs a better "home".
+
+	Matrix ToMatrix() const;
 
 private:
 	bool cyclic = false;

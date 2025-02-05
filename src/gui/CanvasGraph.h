@@ -35,19 +35,18 @@
 
 #include "../3D/AffineTransformMatrix.h"
 #include "../math/Matrix.h"
+#include "../math/Polynomial.h"
 #include "../math/Unit.h"
 
+#include <memory>
 #include <wx/panel.h>
 
-#include <memory>
 class CanvasGraph: public wxPanel {
 public:
-	CanvasGraph(wxWindow *parent,
-            wxWindowID id = wxID_ANY,
-            const wxPoint& pos = wxDefaultPosition,
-            const wxSize& size = wxDefaultSize,
-            long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-            const wxString& name = wxPanelNameStr);
+	CanvasGraph(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
+			wxDefaultPosition, const wxSize &size = wxDefaultSize,
+			long style = wxTAB_TRAVERSAL | wxNO_BORDER, const wxString &name =
+					wxPanelNameStr);
 	virtual ~CanvasGraph();
 
 protected:
@@ -55,13 +54,28 @@ protected:
 	void OnSize(wxSizeEvent &event);
 	void OnMouseEvent(wxMouseEvent &event);
 
+private:
+	class Axis {
+	public:
+		Axis() = default;
+		Axis(const Unit &unit_);
+		void Set(double vmin, double vmax, size_t tickCount);
+		void Paint(wxDC &dc, const AffineTransformMatrix &s) const;
+
+		double dv = 1.0;
+		int divs = 1;
+		int n0 = -1;
+		int n1 = 1;
+		Unit unit;
+	};
+
 public:
 
-	Unit unitX; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
-	Unit unitY; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
-	int multiplier = 5; ///< Plot a darker line ever x units.
+	Axis axisX; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
+	Axis axisY; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
+	int multiplier = 5; ///< Plot a darker line every x units.
 
-	std::shared_ptr<Matrix> values;
+	std::shared_ptr<const Matrix> values;
 
 protected:
 	AffineTransformMatrix projection;

@@ -376,6 +376,24 @@ void Polygon3::CalculateNormalsAroundVector(const Vector3 &planenormal) {
 		vect.n.Normalize();
 }
 
+double Polygon3::MapU(bool fixFirstVertexToZero) {
+	if (v.empty())
+		return 0.0;
+	if (e.empty())
+		return 0.0;
+	v.front().u = 0.0;
+	for (Edge ed : e) {
+		auto &v0 = v[ed.va];
+		auto &v1 = v[ed.vb];
+		const double d = (v1 - v0).Abs();
+		v1.u = v0.u + d;
+	}
+	const double L = v[e.back().vb].u;
+	if (fixFirstVertexToZero)
+		v[e.front().va].u = 0.0;
+	return L;
+}
+
 void Polygon3::Shift(double distance) {
 	for (auto &vert : v)
 		vert += vert.n * distance;
@@ -1126,17 +1144,3 @@ std::string Polygon3::ToString() const {
 	return s.str();
 }
 
-double Polygon3::MapU() {
-	if (v.empty())
-		return 0.0;
-	if (e.empty())
-		return 0.0;
-	v.front().u = 0.0;
-	for (Edge ed : e) {
-		auto &v0 = v[ed.va];
-		auto &v1 = v[ed.vb];
-		const double d = (v1 - v0).Abs();
-		v1.u = v0.u + d;
-	}
-	return v[e.back().vb].u;
-}

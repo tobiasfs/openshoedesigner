@@ -25,11 +25,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "HeelNormalize.h"
 
+#include "../../3D/Polygon3.h"
 #include <stdexcept>
 #include <sstream>
 
 HeelNormalize::HeelNormalize() {
 	out = std::make_shared<ObjectGeometry>();
+	debug = std::make_shared<Matrix>();
 }
 
 std::string HeelNormalize::GetName() const {
@@ -90,14 +92,50 @@ void HeelNormalize::Run() {
 		out->Transform(mo);
 	}
 
-	out->UpdateBoundingBox();
+	// Coarse alignment
+	{
+		out->UpdateBoundingBox();
 
-	AffineTransformMatrix m;
-	m.TranslateGlobal(-out->BB.xmin, -(out->BB.ymin + out->BB.ymax) / 2.0,
-			-out->BB.zmin);
-	m.TranslateGlobal(-out->BB.GetSizeX() / 5, 0, 0);
+		AffineTransformMatrix m;
+		m.TranslateGlobal(-out->BB.xmin, -(out->BB.ymin + out->BB.ymax) / 2.0,
+				-out->BB.zmin);
+		m.TranslateGlobal(-out->BB.GetSizeX() / 5, 0, 0);
+		out->Transform(m);
+	}
 
-	out->Transform(m);
+	// Extract the insole
+	{
+		out->CalcGroups(22.5 / 180.0 * M_PI);
+		out->SelectFacesCloseTo( { 1, 0, 1 });
+		Geometry insole;
+		insole.AddSelectedFrom(*out);
+		insole.UpdateNormals(true, true, false);
+		Polygon3 outline;
+		outline.ExtractOutline(insole);
+		const double L = outline.MapU(true);
+		*debug = Matrix::Zeros(outline.Size(), 2);
+		for (size_t idx1 = 0; idx1 < outline.Size(); idx1++) {
+			size_t idx0 = (idx1 + outline.Size() - 6) % outline.Size();
+			size_t idx2 = (idx1 + 6) % outline.Size();
+
+			const auto v0 = outline[idx0];
+			const auto v1 = outline[idx1];
+			const auto v2 = outline[idx2];
+			// Local coordinate system
+			AffineTransformMatrix m;
+			m.SetEx((v1 - v0).Normal());
+			m.SetEz(v1.n.Normal());
+			m.CalculateEy();
+			Vector3 dv = v2 - v1;
+			double dx = dv.Dot(m.GetEx());
+			double dy = dv.Dot(m.GetEy());
+
+			debug->Insert(v1.u, idx1, 0);
+			debug->Insert(std::atan2(dy, dx), idx1, 1);
+		}
+		DEBUGOUT << "debug filled with " << outline.Size() << " values.\n";
+	}
+
 	out->MarkValid(true);
 	out->MarkNeeded(false);
 }

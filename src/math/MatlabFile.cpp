@@ -176,7 +176,7 @@ void MatlabFile::ReadMatrix(Matrix *M, const std::string &matrixname) {
 					|| M->GetVariableName().compare(matrixname) == 0) {
 				// Matrix lesen:
 				M->SetSize(S1, S2);
-				res = fread(M->Pointer(), sizeof(double), M->Numel(), fhd);
+				res = fread(M->data(), sizeof(double), M->size(), fhd);
 				if (res == 0)
 					ERROR(
 							"For matrix " << matrixname << " from file " << filename << ": the file is truncated.");
@@ -274,7 +274,7 @@ void MatlabFile::WriteMatrix(const Matrix &M) {
 			fwrite(M.GetVariableName().c_str(), sizeof(char), x, fhd);
 		}
 		// Matrix write out matrix:
-		fwrite(M.Pointer(), sizeof(double), M.Numel(), fhd);
+		fwrite(M.data(), sizeof(double), M.size(), fhd);
 
 	}
 		break;
@@ -349,7 +349,7 @@ void MatlabFile::WriteMatrix(const Matrix &M) {
 
 		fwrite(&miDOUBLE, sizeof(uint32_t), 1, fhd);
 		fwrite(&dataSize, sizeof(uint32_t), 1, fhd);
-		fwrite(M.Pointer(), sizeof(double), M.Numel(), fhd);
+		fwrite(M.data(), sizeof(double), M.size(), fhd);
 		// Padding not necessary if dataclass is double.
 		// for(size_t i = 0; i < nameSize; i++)
 		// fwrite(&zeros8, sizeof(uint8_t), 1, fhd);

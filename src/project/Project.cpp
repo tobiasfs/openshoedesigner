@@ -59,6 +59,8 @@ Project::Project() :
 	thread0 = nullptr;
 	thread1 = nullptr;
 
+	design = std::make_shared<Design>();
+
 	insoleFlatL = std::make_shared<Insole>();
 	insoleFlatR = std::make_shared<Insole>();
 	insoleL = std::make_shared<Insole>();

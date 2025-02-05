@@ -26,14 +26,14 @@
 
 #include "FrameMain.h"
 
-#include "DialogQuickInitFoot.h"
-#include "FrameDebugParser.h"
+#include "../languages.h"
 #include "DialogEditorFootModel.h"
+#include "DialogQuickInitFoot.h"
+#include "FrameCalculator.h"
+#include "FrameParent.h"
 #include "FrameSetupBackgroundImages.h"
-
-#include "../icons/FootMeasurements_small.xpm"
-#include "../icons/FootMeasurements.xpm"
-#include "../icons/Logo.xpm"
+#include "IDs.h"
+#include "SemaphoreTryLocker.h"
 
 #include "../project/command/CommandConfigSetEnum.h"
 #include "../project/command/CommandConfigSetParameter.h"
@@ -42,13 +42,10 @@
 #include "../project/command/CommandFootMeasurementSet.h"
 #include "../project/command/CommandFootModelSetParameter.h"
 
-#include "FrameParent.h"
+#include "../icons/FootMeasurements_small.xpm"
+#include "../icons/FootMeasurements.xpm"
+#include "../icons/Logo.xpm"
 
-#include "IDs.h"
-#include "../languages.h"
-#include "SemaphoreTryLocker.h"
-
-#include "FrameCalculator.h"
 #include <wx/cmdproc.h>
 #include <wx/dir.h>
 #include <wx/filedlg.h>
@@ -517,6 +514,9 @@ bool FrameMain::TransferDataToWindow() {
 
 // On page "Flattening"
 
+// On page "Analysis"
+	m_canvasGraph->values = project->builder.GetDebugMatrix();
+
 	return true;
 }
 
@@ -556,6 +556,11 @@ void FrameMain::TransferParameterToTextCtrl(
 				ctrl->SetValue(
 						units->SmallDistance.TextFromSIWithUnit(
 								parameter->ToDouble(), 1));
+				break;
+			case UnitType::LinearSpeed:
+				ctrl->SetValue(
+						units->Speed.TextFromSIWithUnit(parameter->ToDouble(),
+								1));
 				break;
 			case UnitType::Tolerance:
 				ctrl->SetValue(
@@ -712,7 +717,8 @@ void FrameMain::OnTimer(wxTimerEvent &event) {
 //	project->vol.CalcSurface();
 
 	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
-	wxString status = wxString::Format(_T("use_count=%ld"),parentframe->mididevice.use_count());
+	wxString status = wxString::Format(_T("use_count=%ld"),
+			parentframe->mididevice.use_count());
 	SetStatusText(status, 1);
 
 	this->Refresh();
@@ -967,6 +973,19 @@ void FrameMain::OnRadioButton(wxCommandEvent &event) {
 	TransferDataToWindow();
 }
 
+void FrameMain::OnScroll(wxScrollEvent &event) {
+	if (event.GetId() == ID_SPEED) {
+		const double speed = ((double) event.GetPosition()) / 1000.0;
+		std::string formula = std::to_string(speed) + " m/s";
+		m_canvasCycle->speed->SetString(formula);
+		m_canvasCycle->speed->Calculate();
+		TransferParameterToTextCtrl(m_canvasCycle->speed, m_textCtrlSpeed,
+				UnitType::LinearSpeed);
+	} else {
+		event.Skip();
+	}
+}
+
 void FrameMain::OnSetFocus(wxFocusEvent &event) {
 	const int id = event.GetId();
 	const Project *project = wxStaticCast(GetDocument(), Project);
@@ -1008,7 +1027,6 @@ void FrameMain::OnTextEnter(wxCommandEvent &event) {
 	case ID_MEASUREMENT_WAISTGIRTH:
 	case ID_MEASUREMENT_HEELGIRTH:
 	case ID_MEASUREMENT_HEELWIDTH:
-	case ID_MEASUREMENT_ANGLEMIXING:
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 		m_panelPageFoot->Navigate(
 				wxNavigationKeyEvent::FromTab
@@ -1254,10 +1272,6 @@ void FrameMain::OnModelChanged(wxCommandEvent &event) {
 	}
 	locker.UnLock();
 	TransferDataToWindow();
-}
-
-void FrameMain::OnParserDebug(wxCommandEvent &event) {
-	(new FrameDebugParser(this))->Show();
 }
 
 void FrameMain::OnPatternSelect(wxTreeListEvent &event) {

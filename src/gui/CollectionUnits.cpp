@@ -27,7 +27,6 @@
 #include "CollectionUnits.h"
 
 #include <algorithm>
-
 #include <cmath>
 
 CollectionUnits::CollectionUnits() {
@@ -46,7 +45,13 @@ CollectionUnits::CollectionUnits() {
 	unitsOfLength[4] = Unit("in", 25.4e-3, Unit::Base::m, 1);
 	unitsOfLength[5] = Unit("ft", 12 * 25.4e-3, Unit::Base::m, 1);
 	unitsOfLength[6] = Unit("m", 1, Unit::Base::m, 1);
-	
+
+	unitsOfSpeed[0] = Unit("m/s", 1, Unit::Base::m, 1, Unit::Base::s, -1);
+	unitsOfSpeed[1] = Unit("mm/s", 1e-3, Unit::Base::m, 1, Unit::Base::s, -1);
+	unitsOfSpeed[2] = Unit("km/h", 1.0 / 3.6, Unit::Base::m, 1, Unit::Base::s,
+			-1);
+	unitsOfSpeed[3] = Unit("mph", 0.44704, Unit::Base::m, 1, Unit::Base::s, -1);
+
 	unitsOfAngle[0] = Unit("rad", 1, "rad");
 	unitsOfAngle[1] = Unit("deg", M_PI / 180.0, "rad");
 	unitsOfAngle[2] = Unit("gon", M_PI / 200.0, "rad");
@@ -54,13 +59,14 @@ CollectionUnits::CollectionUnits() {
 	Time = unitsOfTime[1];
 	Distance = unitsOfLength[3];
 	SmallDistance = unitsOfLength[2];
+	Speed = unitsOfSpeed[2];
 	Tolerance = unitsOfLength[0];
 	Angle = unitsOfAngle[1];
 	Percentage = Unit("%", (double) 0.01, "-");
 }
 
-bool CollectionUnits::Load(wxConfig* config) {
-	wxASSERT(config!=nullptr);
+bool CollectionUnits::Load(wxConfig *config) {
+	wxASSERT(config != nullptr);
 	if (config == nullptr)
 		return false;
 
@@ -94,6 +100,13 @@ bool CollectionUnits::Load(wxConfig* config) {
 			Tolerance = *i;
 	}
 	{
+		config->Read(_T("UnitLinearSpeed"), &temp, _T("um"));
+		auto i = std::find(unitsOfSpeed.begin(), unitsOfSpeed.end(),
+				temp.ToStdString());
+		if (i != unitsOfSpeed.end())
+			Speed = *i;
+	}
+	{
 		config->Read(_T("UnitAngle"), &temp, _T("deg"));
 		auto i = std::find(unitsOfAngle.begin(), unitsOfAngle.end(),
 				temp.ToStdString());
@@ -104,8 +117,8 @@ bool CollectionUnits::Load(wxConfig* config) {
 	return true;
 }
 
-bool CollectionUnits::Save(wxConfig* config) {
-	wxASSERT(config!=nullptr);
+bool CollectionUnits::Save(wxConfig *config) {
+	wxASSERT(config != nullptr);
 	if (config == nullptr)
 		return false;
 
@@ -114,6 +127,7 @@ bool CollectionUnits::Save(wxConfig* config) {
 	config->Write(_T("UnitSmallDistance"),
 			wxString(SmallDistance.GetOtherName()));
 	config->Write(_T("UnitTolerance"), wxString(Tolerance.GetOtherName()));
+	config->Write(_T("UnitLinearSpeed"), wxString(Speed.GetOtherName()));
 	config->Write(_T("UnitAngle"), wxString(Angle.GetOtherName()));
 	// unitsOfPercentage is not loaded from config file.
 	return true;

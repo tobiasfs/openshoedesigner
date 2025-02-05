@@ -65,16 +65,15 @@
 #include "../3D/PointCloud.h"
 #include "../3D/Polygon3.h"
 #include "CoordinateSystem.h"
-//#include "../3D/Volume.h"
 
 #include "Builder.h"
 #include "Configuration.h"
+#include "design/Design.h"
 #include "foot/FootModel.h"
 #include "FootMeasurements.h"
 #include "object/Insole.h"
 #include "object/LastModel.h"
 #include "ParameterEvaluator.h"
-#include "pattern/Pattern.h"
 
 class WorkerThread;
 
@@ -116,6 +115,7 @@ public:
 	Configuration config;
 	FootMeasurements footL;
 	FootMeasurements footR;
+	std::shared_ptr<Design> design;
 
 	ParameterEvaluator evaluator;
 	Builder builder;

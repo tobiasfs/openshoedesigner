@@ -58,12 +58,12 @@ FrameCalculator::FrameCalculator(wxWindow *parent) :
 //	m_textCtrlCode->SetProperty(wxT("fold"), wxT("1"));
 
 		m_textCtrlCode->SetKeyWords(0,
-				"break continue do else false for if return switch true while ");
+				"break continue do else false for if return switch true while");
 		m_textCtrlCode->SetKeyWords(1,
-				"abs acos asin atan atan2 cbrt ceil cos exp exp2 floow limit log log10 log2 max min mod pow round sin sqrt tan");
-		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD, wxColour("BLUE"));
+				"abs acos asin atan atan2 cbrt ceil cos exp exp2 floor limit log log10 log2 max min mod pow round sin sqrt tan");
+		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD, wxColour("MIDNIGHT BLUE"));
 		m_textCtrlCode->StyleSetBold(wxSTC_C_WORD, true);
-		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD2, wxColour("CYAN"));
+		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD2, wxColour("VIOLET RED"));
 		m_textCtrlCode->StyleSetBold(wxSTC_C_WORD2, true);
 
 		m_textCtrlCode->StyleSetForeground(wxSTC_C_COMMENT, wxColour("GREY"));
@@ -94,9 +94,13 @@ FrameCalculator::FrameCalculator(wxWindow *parent) :
 
 	}
 	// Initial code
-	m_textCtrlCode->SetText(
-			"// A torus\n\nd = abs(sqrt(x^2+y^2)-0.5);\nreturn sqrt(d^2+z^2)-0.2;\n");
+//	m_textCtrlCode->SetText(
+//			"// A torus\n\nd = abs(sqrt(x^2+y^2)-0.5);\nreturn sqrt(d^2+z^2)-0.2;\n");
 //	m_textCtrlCode->SetText("d = abs(sqrt(x^2+y^2)-0.5);\nreturn sqrt(d^2+z^2+sqrt(abs(x))/20)-0.2;\n");
+	m_textCtrlCode->SetText("return sin(x), cos(x);");
+
+//	m_textCtrlCode->SetText(
+//			"// An U\n\nr = 0.5; // Diameter\nd = 0.4; // Radius\n\nif(y > 0.0){\n\t// Upper half\n\th = min(x, -x) + r;\n}else{\n\t// Lower half\n\th = sqrt(x^2 + y^2) - r;\n}\nreturn sqrt(h^2 + z^2) - d;\n");
 
 // Always present set of input variables
 	parser.vm.heap.Set("x", 0);
@@ -330,12 +334,9 @@ void FrameCalculator::OnThreadUpdate(wxThreadEvent &evt) {
 					zmin.ToDouble());
 			geo.Transform(m);
 
-			if(!geo.SelfCheckPassed(false))
-			{
+			if (!geo.SelfCheckPassed(false)) {
 				std::cout << "Problem.\n";
 			}
-
-
 
 			geo.Join();
 			geo.CalculateNormals();
@@ -345,6 +346,9 @@ void FrameCalculator::OnThreadUpdate(wxThreadEvent &evt) {
 		std::cout << ex.what() << "\n";
 	}
 	isUpdatingGraphs.Unlock();
+
+	m_canvasXY->backfaceCulling = false;
+	m_canvasXYZ->backfaceCulling = false;
 
 	m_canvasGraph->Refresh();
 	m_canvasXY->Refresh();

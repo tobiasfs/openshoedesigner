@@ -62,7 +62,7 @@ protected:
 public:
 
 	Unit unit; ///< Unit for gridlines (e.g. "1 cm", "1 in", "5 mm", ...)
-	int multiplier = 5; ///< Plot a darker line ever x units.
+	int multiplier = 5; ///< Plot a darker line every x units.
 
 protected:
 	AffineTransformMatrix projection;

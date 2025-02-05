@@ -33,9 +33,16 @@
  * ...
  */
 
-#include "CanvasGraph.h"
+#include "../3D/AffineTransformMatrix.h"
+#include "../project/ParameterFormula.h"
 
-class CanvasWalkcycle: public CanvasGraph {
+#include <wx/panel.h>
+#include <wx/timer.h>
+
+#include <mutex>
+#include <thread>
+
+class CanvasWalkcycle: public wxPanel {
 public:
 	CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
@@ -43,11 +50,31 @@ public:
 			const wxString &name = wxPanelNameStr);
 	virtual ~CanvasWalkcycle();
 
-protected:
+	std::shared_ptr<ParameterFormula> speed; ///< Walking/Running speed in m/s.
+	Unit unit;
+	int multiplier = 5;
+private:
+	wxTimer timer;
+	double t = 0.0;
+	double dt = 1.0 / 30.0;
+	double cycle = 0.0;
 
+	AffineTransformMatrix projection;
+	AffineTransformMatrix view;
+
+	AffineTransformMatrix s;
+	AffineTransformMatrix sRev;
+	AffineTransformMatrix g;
+	AffineTransformMatrix gRev;
+
+	std::mutex cyclelock;
+
+	void PaintGrid(wxDC &dc);
+
+protected:
 	void OnPaint(wxPaintEvent &event);
 	void OnSize(wxSizeEvent &event);
-
+	void OnTimer(wxTimerEvent &event);
 	void OnMotion(wxMouseEvent &event);
 	void OnLeftDown(wxMouseEvent &event);
 };

@@ -42,67 +42,63 @@
 		throw std::runtime_error(err.str()); \
 	}
 
-Matrix::Matrix(size_t S0, size_t S1, size_t S2, size_t S3) {
-	SetSize(S0, S1, S2, S3);
-}
-
-Matrix::Matrix(const std::string &name, size_t S0, size_t S1, size_t S2,
-		size_t S3) {
-	SetVariableName(name);
-	SetSize(S0, S1, S2, S3);
-}
-
 Matrix Matrix::Zeros(size_t S0, size_t S1, size_t S2, size_t S3) {
-	Matrix temp(S0, S1, S2, S3);
-	temp.values.assign(temp.values.size(), 0.0);
-	return temp;
+	return Zeros( { S0, S1, S2, S3 });
 }
 
-Matrix Matrix::Zeros(const Matrix &other) {
-	Matrix temp(other);
-	temp.values.assign(temp.values.size(), 0.0);
+Matrix Matrix::Zeros(const std::vector<size_t> &dims) {
+	Matrix temp(dims);
+	temp.assign(temp.size(), 0.0);
 	return temp;
 }
 
 Matrix Matrix::Ones(size_t S0, size_t S1, size_t S2, size_t S3) {
-	Matrix temp(S0, S1, S2, S3);
-	temp.values.assign(temp.values.size(), 1.0);
+	return Ones( { S0, S1, S2, S3 });
+}
+
+Matrix Matrix::Ones(const std::vector<size_t> &dims) {
+	Matrix temp(dims);
+	temp.assign(temp.size(), 1.0);
 	return temp;
 }
 
-Matrix Matrix::Ones(const Matrix &other) {
-	Matrix temp(other);
-	temp.values.assign(temp.values.size(), 1.0);
-	return temp;
+Matrix Matrix::Eye(size_t S0, size_t S1, size_t S2, size_t S3) {
+	return Eye( { S0, S1, S2, S3 });
 }
 
-Matrix Matrix::Eye(size_t S0, size_t S1) {
-	Matrix temp(S0, S1);
-	temp.values.assign(temp.values.size(), 0.0);
+Matrix Matrix::Eye(const std::vector<size_t> &dims) {
+
+// TODO Add this check
+//	const size_t N = other.counts[0] * other.counts[1];
+//		if (N != other.Numel())
+//			ERROR("The other matrix does not have only two dimensions.");
+//		return Eye( { other.counts[0], other.counts[1] });
+
+	Matrix temp(dims);
+	temp.assign(temp.size(), 0.0);
+	size_t S0 = temp.Size(0);
+	size_t S1 = temp.Size(1);
 	const size_t N = (S0 < S1) ? S0 : S1;
 	const size_t dn = S0 + 1;
 	for (size_t n = 0; n < (N * dn); n += dn)
-		temp.values[n] = 1.0;
+		temp[n] = 1.0;
 	return temp;
-}
-
-Matrix Matrix::Eye(const Matrix &other) {
-	const size_t N = other.dimensions[0] * other.dimensions[1];
-	if (N != other.values.size())
-		ERROR("The other matrix does not have only two dimensions.");
-	return Eye(other.dimensions[0], other.dimensions[1]);
 }
 
 Matrix Matrix::Value(double value, size_t S0, size_t S1, size_t S2, size_t S3) {
-	Matrix temp(S0, S1, S2, S3);
-	temp.values.assign(temp.values.size(), value);
+	return Value(value, { S0, S1, S2, S3 });
+}
+
+Matrix Matrix::Value(double value, const std::vector<size_t> &dims) {
+	Matrix temp(dims);
+	temp.assign(temp.size(), value);
 	return temp;
 }
 
-Matrix Matrix::Value(double value, const Matrix &other) {
-	Matrix temp(other);
-	temp.values.assign(temp.values.size(), value);
-	return temp;
+Matrix Matrix::Diag(const Matrix &other, const std::vector<size_t> &dims) {
+	const size_t S0 = (dims.size() > 0) ? dims[0] : 0;
+	const size_t S1 = (dims.size() > 1) ? dims[1] : 1;
+	return Diag(other, S0, S1);
 }
 
 Matrix Matrix::Diag(const Matrix &other) {
@@ -115,7 +111,7 @@ Matrix Matrix::Diag(const Matrix &other) {
 	const size_t P = (M < N) ? M : N;
 	Matrix temp(P, 1);
 	for (size_t i = 0; i < P; ++i)
-		temp.values[i] = other(i, i);
+		temp[i] = other(i, i);
 	return temp;
 }
 
@@ -124,7 +120,7 @@ Matrix Matrix::Diag(const Matrix &other, const size_t S0, const size_t S1) {
 	const size_t P = (S0 < S1) ? S0 : S1;
 	const size_t Q = (other.Numel() < P) ? other.Numel() : P;
 	for (size_t i = 0; i < Q; ++i)
-		temp(i, i) = other.values[i];
+		temp(i, i) = other[i];
 	return temp;
 }
 
@@ -132,7 +128,7 @@ Matrix Matrix::Vandermonde(const std::vector<double> &x, size_t order) {
 	const size_t N = x.size();
 	Matrix temp(N, order + 1);
 	for (size_t n = 0; n < N; ++n)
-		temp.values[n] = 1.0;
+		temp[n] = 1.0;
 	for (size_t m = 1; m <= order; ++m) {
 		for (size_t n = 0; n < N; ++n)
 			temp[n + m * N] = temp[n + (m - 1) * N] * x[n];
@@ -140,86 +136,93 @@ Matrix Matrix::Vandermonde(const std::vector<double> &x, size_t order) {
 	return temp;
 }
 
-void Matrix::SetVariableName(const std::string &name) {
-	this->variablename = name;
+Matrix::Matrix(size_t S0, size_t S1, size_t S2, size_t S3) {
+	SetSize(S0, S1, S2, S3);
 }
 
-std::string Matrix::GetVariableName() const {
-	return variablename;
+Matrix::Matrix(const std::string &name, size_t S0, size_t S1, size_t S2,
+		size_t S3) {
+	SetVariableName(name);
+	SetSize(S0, S1, S2, S3);
+}
+
+Matrix::Matrix(const std::vector<size_t> &dims) {
+	SetSize(dims);
+}
+
+Matrix::Matrix(const std::string &name, const std::vector<size_t> &dims) {
+	SetVariableName(name);
+	SetSize(dims);
 }
 
 void Matrix::Reset() {
-	dimensions.resize(4, 1);
-	dimensions[0] = 0;
-	values.clear();
+	counts.assign(4, 1);
+	counts[0] = 0;
+	strides.assign(4, 0);
+	clear();
 	bufferpos = 0;
 }
 
 bool Matrix::IsEmpty() const {
-	return (values.empty());
+	return (empty());
 }
 
 void Matrix::SetSize(const size_t S0, const size_t S1, const size_t S2,
 		const size_t S3) {
-	dimensions.resize(4);
-	dimensions[0] = S0;
-	dimensions[1] = S1;
-	dimensions[2] = S2;
-	dimensions[3] = S3;
-	const size_t N = S0 * S1 * S2 * S3;
-	values.resize(N, 0.0);
-	bufferpos = 0;
+	SetSize(std::vector<size_t> { S0, S1, S2, S3 });
 }
 
 void Matrix::SetSize(const Matrix &other) {
-	this->SetSize(other.Size(0), other.Size(1), other.Size(2), other.Size(3));
+	SetSize(other.Size(0), other.Size(1), other.Size(2), other.Size(3));
 }
 
 void Matrix::SetSize(const std::vector<size_t> &dims) {
 	size_t N = 1;
 	for (size_t n = 0; n < dims.size(); ++n)
 		N *= dims[n];
-	dimensions = dims;
-	values.resize(N, 0.0);
+	counts = dims;
+	strides.assign(N, 1);
+
+	resize(N, 0.0);
 	bufferpos = 0;
 }
 
 size_t Matrix::Numel() const {
-	return values.size();
+	return size();
 }
 
 size_t Matrix::Size(const size_t dim) const {
 	// Copy of the Octave/Matlab behavior, but 0-based
 	// If the dimensions are empty return 0 for dim=0 and dim=1 and 1 otherwise.
-	if (dimensions.empty())
+	if (counts.empty())
 		return (dim > 1) ? 1 : 0;
-	if (dim >= dimensions.size())
+	if (dim >= counts.size())
 		return 1;
-	return dimensions[dim];
+	return counts[dim];
 }
 
-std::vector<size_t> Matrix::Size() const {
-	size_t L = dimensions.size();
+const std::vector<size_t>& Matrix::Size() const {
+	return counts;
+}
+
+std::vector<size_t> Matrix::GetDimensions() const {
+	size_t L = counts.size();
 	for (; L-- > 0;)
-		if (dimensions[L] != 1)
+		if (counts[L] != 1)
 			break;
 	if (L == (size_t) -1)
 		++L;
 	std::vector<size_t> temp(L + 1);
-	std::copy_n(dimensions.begin(), L + 1, temp.begin());
+	std::copy_n(counts.begin(), L + 1, temp.begin());
 	return temp;
-}
-
-std::vector<size_t> Matrix::GetDimensions() const {
-	return dimensions;
 }
 
 std::vector<size_t> Matrix::GetMinDimensions() const {
 	std::vector<size_t> temp;
-	for (size_t m = 0; m < dimensions.size(); m++)
-		if (dimensions[m] != 1)
-			temp.push_back(dimensions[m]);
-	if (temp.empty() && !dimensions.empty())
+	for (size_t m = 0; m < counts.size(); m++)
+		if (counts[m] != 1)
+			temp.push_back(counts[m]);
+	if (temp.empty() && !counts.empty())
 		temp.push_back(1);
 	return temp;
 }
@@ -230,18 +233,18 @@ void Matrix::SetInsertPosition(const size_t p0, const size_t p1,
 }
 
 void Matrix::Insert(const double value) {
-	if (bufferpos >= values.size())
+	if (bufferpos >= size())
 		ERROR(
-				"Matrix full, " << bufferpos << " have already been written. Additional " << values.size() << " values do not fit.");
-	values[bufferpos++] = value;
+				"Matrix full, " << bufferpos << " have already been written. Additional " << size() << " values do not fit.");
+	operator[](bufferpos++) = value;
 }
 
-void Matrix::Insert(const std::initializer_list<double> values_) {
-	if (bufferpos + values_.size() > values.size())
+void Matrix::Insert(const std::vector<double> &values_) {
+	if (bufferpos + values_.size() > size())
 		ERROR(
-				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << values_.size() << " values cannot be written.");
+				"Matrix is full. The matrix can hold " << size() << " values. It already contains " << bufferpos << " values. Additional " << values_.size() << " values cannot be written.");
 	for (auto val = values_.begin(); val != values_.end(); ++val)
-		values[bufferpos++] = *val;
+		operator[](bufferpos++) = *val;
 }
 
 void Matrix::Insert(const double value, const size_t p0, const size_t p1) {
@@ -252,7 +255,7 @@ void Matrix::Insert(const double value, const size_t p0, const size_t p1) {
 		ERROR(
 				"Index p1 = " << p1 << " is larger than the dimension 1 of " << this->Size(1)<<".");
 	bufferpos = p0 + p1 * Size(0);
-	values[bufferpos++] = value;
+	operator[](bufferpos++) = value;
 }
 
 void Matrix::Insert(const double value, const size_t p0, const size_t p1,
@@ -270,66 +273,52 @@ void Matrix::Insert(const double value, const size_t p0, const size_t p1,
 		ERROR(
 				"Index p3 = " << p3 << " is larger than the dimension 3 of " << this->Size(3)<<".");
 	bufferpos = p0 + (p1 + (p2 + p3 * Size(2)) * Size(1)) * Size(0);
-	values[bufferpos++] = value;
+	operator[](bufferpos++) = value;
 }
 
 void Matrix::Insert(const double *value, const size_t count) {
-	if (bufferpos + count > values.size())
+	if (bufferpos + count > size())
 		ERROR(
-				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
+				"Matrix is full. The matrix can hold " << size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
 		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; ++i)
-		values[bufferpos++] = value[i];
+		operator[](bufferpos++) = value[i];
 }
 
 void Matrix::Insert(const double *value, const size_t count, const size_t p1) {
 	bufferpos = p1 * Size(0);
-	if (bufferpos + count > values.size())
+	if (bufferpos + count > size())
 		ERROR(
-				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
+				"Matrix is full. The matrix can hold " << size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
 		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; ++i)
-		values[bufferpos++] = value[i];
+		operator[](bufferpos++) = value[i];
 }
 
 void Matrix::Insert(const float *value, const size_t count) {
-	if (bufferpos + count > values.size())
+	if (bufferpos + count > size())
 		ERROR(
-				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
+				"Matrix is full. The matrix can hold " << size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
 		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; i++)
-		values[bufferpos++] = (double) value[i];
+		operator[](bufferpos++) = (double) value[i];
 }
 
 void Matrix::Insert(const bool *value, const size_t count) {
-	if (bufferpos + count > values.size())
+	if (bufferpos + count > size())
 		ERROR(
-				"Matrix is full. The matrix can hold " << values.size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
+				"Matrix is full. The matrix can hold " << size() << " values. It already contains " << bufferpos << " values. Additional " << count << " values cannot be written.");
 	if (value == nullptr)
 		ERROR("The *value is a nullptr.");
 	for (size_t i = 0; i < count; i++)
-		values[bufferpos++] = value[i] ? 1.0 : 0.0;
+		operator[](bufferpos++) = value[i] ? 1.0 : 0.0;
 }
 
 bool Matrix::IsFilled() const {
-	return bufferpos >= values.size();
-}
-
-double& Matrix::operator[](const size_t &index) {
-	if (index >= values.size())
-		ERROR(
-				"Access out of bounds: " << index << " >= " << values.size()<< ".");
-	return values[index];
-}
-
-double Matrix::operator[](const size_t &index) const {
-	if (index >= values.size())
-		ERROR(
-				"Access out of bounds: " << index << " >= " << values.size()<< ".");
-	return values[index];
+	return bufferpos >= size();
 }
 
 double& Matrix::operator ()(const size_t p0, const size_t p1, const size_t p2,
@@ -347,7 +336,7 @@ double& Matrix::operator ()(const size_t p0, const size_t p1, const size_t p2,
 		ERROR(
 				"Index p3 = " << p3 << " is larger than the dimension 3 of " << this->Size(3)<<".");
 	const size_t pos = p0 + (p1 + (p2 + p3 * Size(2)) * Size(1)) * Size(0);
-	return values[pos];
+	return operator[](pos);
 }
 
 double Matrix::operator ()(const size_t p0, const size_t p1, const size_t p2,
@@ -365,85 +354,45 @@ double Matrix::operator ()(const size_t p0, const size_t p1, const size_t p2,
 		ERROR(
 				"Index p3 = " << p3 << " is larger than the dimension 3 of " << this->Size(3)<<".");
 	const size_t pos = p0 + (p1 + (p2 + p3 * Size(2)) * Size(1)) * Size(0);
-	return values[pos];
-}
-
-double* Matrix::Pointer() {
-	return values.data();
-}
-
-const double* Matrix::Pointer() const {
-	return values.data();
+	return operator[](pos);
 }
 
 void Matrix::Squeeze() {
-	dimensions = GetMinDimensions();
+	SetSize(GetMinDimensions());
 }
 
 void Matrix::Reshape(const size_t S0, const size_t S1, const size_t S2,
 		const size_t S3) {
-	unsigned int nrCalculatedDimensions = 0;
-	size_t newNumel = 1;
-	if (S0 == (size_t) -1)
-		nrCalculatedDimensions++;
-	else
-		newNumel *= S0;
-	if (S1 == (size_t) -1)
-		nrCalculatedDimensions++;
-	else
-		newNumel *= S1;
-	if (S2 == (size_t) -1)
-		nrCalculatedDimensions++;
-	else
-		newNumel *= S2;
-	if (S3 == (size_t) -1)
-		nrCalculatedDimensions++;
-	else
-		newNumel *= S3;
-
-	if (nrCalculatedDimensions > 1)
-		ERROR(
-				"More than one dimension need to be calculated. " << nrCalculatedDimensions << " dimensions are set to -1.");
-	if (newNumel > values.size())
-		ERROR(
-				"The new dimensions describe a matrix with more values than before. Old count was " << values.size() << ", the new count would be " << newNumel << ".");
-	if (nrCalculatedDimensions == 0 && newNumel != values.size())
-		ERROR(
-				"The new dimensions describe a different number of values than contained in the matrix. Old count was " << values.size() << ", the new count would be " << newNumel << ".");
-	if (nrCalculatedDimensions > 0) {
-		if (values.size() % newNumel != 0)
-			ERROR(
-					"The new dimensions do not fit without a remainder. " << values.size() << " are not evenly divisible by " << newNumel<<".");
-	}
-	size_t calculatedDimension = values.size() / newNumel;
-	dimensions.resize(4);
-	if (S0 == 0)
-		dimensions[0] = calculatedDimension;
-	else
-		dimensions[0] = S0;
-	if (S1 == 0)
-		dimensions[1] = calculatedDimension;
-	else
-		dimensions[1] = S1;
-	if (S2 == 0)
-		dimensions[2] = calculatedDimension;
-	else
-		dimensions[2] = S2;
-	if (S3 == 0)
-		dimensions[3] = calculatedDimension;
-	else
-		dimensions[3] = S3;
+	std::vector<size_t> newdim = { S0, S1, S2, S3 };
+	Reshape(newdim);
 }
 
-void Matrix::Reshape(const std::vector<size_t> &dims) {
+void Matrix::Reshape(std::vector<size_t> dims) {
 	size_t N = 1;
-	for (size_t n = 0; n < dims.size(); n++)
-		N *= dims[n];
-	if (N != values.size())
+	size_t idx = (size_t) -1;
+	for (size_t n = 0; n < dims.size(); n++) {
+		if (dims[n] == (size_t) -1) {
+			if (idx != (size_t) -1)
+				ERROR(
+						"Only one dimension can be set to auto-calculate. The dimension " << idx << " is already selected, thus dimension " << n << " has to have a fixed value.");
+			idx = n;
+		} else {
+			N *= dims[n];
+		}
+	}
+	if (N > size())
 		ERROR(
-				"New shape has wrong number of elements. "<< values.size() << " elements cannot be shaped into " << N<< " elements.");
-
-	dimensions = dims;
+				"The fixed elements already have more element than the original matrix (Original: "<<size()<<", fixed: "<<N <<").");
+	if (idx == (size_t) -1 && N != size())
+		ERROR(
+				"New shape has wrong number of elements. "<< size() << " elements cannot be shaped into " << N<< " elements.");
+	if (idx >= 0) {
+		if (size() % N != 0)
+			ERROR(
+					"The new dimensions do not fit without a remainder. " << size() << " are not evenly divisible by " << N<<".");
+		dims[idx] = size() / N;
+	}
+	SetSize(dims);
 }
 
 void Matrix::Transpose() {
@@ -451,20 +400,21 @@ void Matrix::Transpose() {
 }
 
 Matrix Matrix::T() const {
-	if (dimensions.size() == 0)
+	if (counts.empty())
 		return *this;
 	Matrix temp;
-	temp.SetSize(*this);
-	if (temp.dimensions.size() == 1)
-		temp.dimensions.push_back(1);
+	std::vector<size_t> dims = Size();
+	if (dims.size() == 1)
+		dims.push_back(1);
+	temp.SetSize(dims);
 
-	if (values.size() > 0) {
+	if (size() > 0) {
 		const size_t D1 = Size(0);
 		const size_t D2 = Size(1);
 		const size_t D12 = D1 * D2;
 		size_t Dr = 1;
-		for (size_t n = 2; n < dimensions.size(); n++)
-			Dr *= dimensions[n];
+		for (size_t n = 2; n < counts.size(); n++)
+			Dr *= counts[n];
 
 		size_t pFrom = 0;
 		size_t pTo2 = 0;
@@ -472,7 +422,7 @@ Matrix Matrix::T() const {
 			size_t pTo = pTo2;
 			const size_t limit = pTo + D12;
 			for (size_t p2 = 0; p2 < D12; p2++) {
-				temp.values[pTo] = values[pFrom++];
+				temp[pTo] = operator[](pFrom++);
 				pTo += D2;
 				if (pTo >= limit)
 					pTo = pTo - D12 + 1;
@@ -480,20 +430,15 @@ Matrix Matrix::T() const {
 			pTo2 += D12;
 		}
 	}
-
-	size_t h1 = temp.Size(0);
-	size_t h2 = temp.Size(1);
-	if (temp.dimensions.size() < 2)
-		temp.dimensions.resize(2);
-	temp.dimensions[0] = h2;
-	temp.dimensions[1] = h1;
+	std::swap(dims[0], dims[1]);
+	temp.SetSize(dims);
 	return temp;
 }
 
 bool Matrix::Invert() {
 	const size_t N = Size(0);
 	const size_t M = Size(1);
-	if (N * M != values.size())
+	if (N * M != size())
 		ERROR("Only 2D-matrices can be inverted.");
 	if (N != M)
 		ERROR("Only square matrices can be inverted (maybe use PseudoInvert().");
@@ -503,8 +448,8 @@ bool Matrix::Invert() {
 		for (size_t i = k; i < N; ++i) {
 			double s = 0.0;
 			for (size_t j = k; j < N; ++j)
-				s += fabs(values[i + j * N]);
-			const double q = fabs(values[i + k * N]) / s;
+				s += fabs(operator[](i + j * N));
+			const double q = fabs(operator[](i + k * N)) / s;
 			if (q > max) {
 				max = q;
 				p[k] = i;
@@ -514,26 +459,26 @@ bool Matrix::Invert() {
 			return false;
 		if (p[k] != k) {
 			for (size_t j = 0; j < N; ++j)
-				std::swap(values[k + j * N], values[p[k] + j * N]);
+				std::swap(operator[](k + j * N), operator[](p[k] + j * N));
 		}
-		const double pivot = values[k + k * N];
+		const double pivot = operator[](k + k * N);
 		for (size_t j = 0; j < N; ++j) {
 			if (j != k) {
-				values[k + j * N] /= -pivot;
+				operator[](k + j * N) /= -pivot;
 				for (size_t i = 0; i < N; ++i)
 					if (i != k)
-						values[i + j * N] += values[i + k * N]
-								* values[k + j * N];
+						operator[](i + j * N) += operator[](i + k * N)
+								* operator[](k + j * N);
 			}
 		}
 		for (size_t i = 0; i < N; ++i)
-			values[i + k * N] /= pivot;
-		values[k + k * N] = 1.0 / pivot;
+			operator[](i + k * N) /= pivot;
+		operator[](k + k * N) = 1.0 / pivot;
 	}
 	for (size_t k = (N - 1); k-- > 0;) {
 		if (p[k] != k) {
 			for (size_t i = 0; i < N; ++i)
-				std::swap(values[i + k * N], values[i + p[k] * N]);
+				std::swap(operator[](i + k * N), operator[](i + p[k] * N));
 		}
 	}
 	return true;
@@ -542,31 +487,79 @@ bool Matrix::Invert() {
 void Matrix::PseudoInvert() {
 	const size_t N = Size(0);
 	const size_t M = Size(1);
-	if (N * M != values.size())
+	if (N * M != size())
 		ERROR("Only 2D-matrices can be (pseudo-)inverted.");
 	Matrix A = *this;
 	Matrix H(M, M);
-	H.values.assign(M * M, 0.0);
+	H.assign(M * M, 0.0);
 	for (size_t m1 = 0; m1 < M; ++m1)
 		for (size_t m0 = 0; m0 < M; ++m0)
 			for (size_t n = 0; n < N; ++n)
-				H.values[m0 + m1 * M] += values[n + m0 * N]
-						* values[n + m1 * N];
+				H[m0 + m1 * M] += operator[](n + m0 * N)
+						* operator[](n + m1 * N);
 	H.Invert();
-	dimensions[0] = M;
-	dimensions[1] = N;
-	values.assign(N * M, 0.0);
+	SetSize(M, N);
+	assign(N * M, 0.0);
 	for (size_t m1 = 0; m1 < M; ++m1)
 		for (size_t m0 = 0; m0 < M; ++m0)
 			for (size_t n = 0; n < N; ++n)
-				values[m0 + n * M] += H.values[m0 + m1 * M]
-						* A.values[n + m1 * N];
+				operator[](m0 + n * M) += H[m0 + m1 * M] * A[n + m1 * N];
 }
 
-double Matrix::Min() const {
+Matrix Matrix::Min(size_t dim) const {
+	Matrix ret;
+	std::vector<size_t> d = Size();
+	if (d.empty() || dim >= d.size())
+		return *this;
+	d[dim] = 1;
+	ret = Matrix::Value(DBL_MAX, d);
+
+	size_t idx = 0;
+	for (size_t n3 = 0; n3 < Size(3); ++n3)
+		for (size_t n2 = 0; n2 < Size(2); ++n2)
+			for (size_t n1 = 0; n1 < Size(1); ++n1)
+				for (size_t n0 = 0; n0 < Size(0); ++n0) {
+					const size_t m0 = (dim == 0) ? 0 : n0;
+					const size_t m1 = (dim == 1) ? 0 : n1;
+					const size_t m2 = (dim == 2) ? 0 : n2;
+					const size_t m3 = (dim == 3) ? 0 : n3;
+					const double v = std::fmin(ret(m0, m1, m2, m3),
+							operator[](idx));
+					ret.Insert(v, m0, m1, m2, m3);
+					idx++;
+				}
+	return ret;
+}
+
+Matrix Matrix::Max(size_t dim) const {
+	Matrix ret;
+	std::vector<size_t> d = Size();
+	if (d.empty() || dim >= d.size())
+		return *this;
+	d[dim] = 1;
+	ret = Matrix::Value(-DBL_MAX, d);
+
+	size_t idx = 0;
+	for (size_t n3 = 0; n3 < Size(3); ++n3)
+		for (size_t n2 = 0; n2 < Size(2); ++n2)
+			for (size_t n1 = 0; n1 < Size(1); ++n1)
+				for (size_t n0 = 0; n0 < Size(0); ++n0) {
+					const size_t m0 = (dim == 0) ? 0 : n0;
+					const size_t m1 = (dim == 1) ? 0 : n1;
+					const size_t m2 = (dim == 2) ? 0 : n2;
+					const size_t m3 = (dim == 3) ? 0 : n3;
+					const double v = std::fmax(ret(m0, m1, m2, m3),
+							operator[](idx));
+					ret.Insert(v, m0, m1, m2, m3);
+					idx++;
+				}
+	return ret;
+}
+
+double Matrix::AllMin() const {
 	double m = DBL_MAX;
-	for (size_t n = 0; n < values.size(); n++) {
-		const double v = values[n];
+	for (size_t n = 0; n < size(); n++) {
+		const double v = operator[](n);
 		if (v == DBL_MAX || v == -DBL_MAX)
 			continue;
 		m = fmin(m, v);
@@ -574,10 +567,10 @@ double Matrix::Min() const {
 	return m;
 }
 
-double Matrix::Max() const {
+double Matrix::AllMax() const {
 	double m = -DBL_MAX;
-	for (size_t n = 0; n < values.size(); n++) {
-		const double v = values[n];
+	for (size_t n = 0; n < size(); n++) {
+		const double v = operator[](n);
 		if (v == DBL_MAX || v == -DBL_MAX)
 			continue;
 		m = fmax(m, v);
@@ -585,40 +578,40 @@ double Matrix::Max() const {
 	return m;
 }
 
-double Matrix::MaxAbs() const {
+double Matrix::AllMaxAbs() const {
 	double v = -DBL_MAX;
-	for (size_t n = 0; n < values.size(); n++)
-		v = fmax(v, fabs(values[n]));
+	for (size_t n = 0; n < size(); n++)
+		v = fmax(v, fabs(operator[](n)));
 	return v;
 }
 
 void Matrix::AlignAtZero() {
-	const double m = this->Min();
-	for (size_t n = 0; n < values.size(); n++)
-		values[n] -= m;
+	const double m = this->AllMin();
+	for (size_t n = 0; n < size(); n++)
+		operator[](n) -= m;
 }
 
 void Matrix::Normalize(double max) {
-	double m = this->MaxAbs();
+	double m = this->AllMaxAbs();
 	if (fabs(m) <= DBL_EPSILON)
 		return;
 	m = max / m;
-	for (size_t n = 0; n < values.size(); n++)
-		values[n] *= m;
+	for (size_t n = 0; n < size(); n++)
+		operator[](n) *= m;
 }
 
 void Matrix::Normalize(double min, double max) {
 	if (max <= min) {
-		values.assign(values.size(), (min + max) / 2.0);
+		assign(size(), (min + max) / 2.0);
 		return;
 	}
 	this->AlignAtZero();
-	double m = this->Max();
+	double m = this->AllMax();
 	if (fabs(m) <= DBL_EPSILON)
 		return;
 	m = (max - min) / m;
-	for (size_t n = 0; n < values.size(); ++n)
-		values[n] = values[n] * m + min;
+	for (size_t n = 0; n < size(); ++n)
+		operator[](n) = operator[](n) * m + min;
 }
 
 void Matrix::Mirror(Axis a) {
@@ -633,7 +626,7 @@ void Matrix::Mirror(Axis a) {
 				for (size_t k = 0; k < Nz; k++) {
 					const size_t n = i + Nx * (j + Ny * k);
 					const size_t m = (Nx - i - 1) + Nx * (j + Ny * k);
-					std::swap(values[n], values[m]);
+					std::swap(operator[](n), operator[](m));
 				}
 			}
 		}
@@ -644,7 +637,7 @@ void Matrix::Mirror(Axis a) {
 				for (size_t k = 0; k < Nz; k++) {
 					const size_t n = i + Nx * (j + Ny * k);
 					const size_t m = i + Nx * ((Ny - j - 1) + Ny * k);
-					std::swap(values[n], values[m]);
+					std::swap(operator[](n), operator[](m));
 				}
 			}
 		}
@@ -655,7 +648,7 @@ void Matrix::Mirror(Axis a) {
 				for (size_t k = 0; k < (Nz / 2); k++) {
 					const size_t n = i + Nx * (j + Ny * k);
 					const size_t m = i + Nx * (j + Ny * (Nz - k - 1));
-					std::swap(values[n], values[m]);
+					std::swap(operator[](n), operator[](m));
 				}
 			}
 		}
@@ -677,21 +670,20 @@ void Matrix::Rotate(Axis a, int quarters) {
 		switch (a) {
 		case Axis::X:
 			for (size_t i = 0; i < Nx; i++) {
-				for (size_t n = i; n < (values.size() / 2); n += Nx) {
-					std::swap(values[n],
-							values[(values.size() - Nx) - n + 2 * i]);
+				for (size_t n = i; n < (size() / 2); n += Nx) {
+					std::swap(operator[](n),
+							operator[]((size() - Nx) - n + 2 * i));
 				}
 			}
 			break;
 		case Axis::Y:
 			for (size_t j = 0; j < Ny; j++) {
 				size_t n = j * Nx;
-				size_t m = values.size() - 1 - (Ny - 1) * Nx + j * Nx;
+				size_t m = size() - 1 - (Ny - 1) * Nx + j * Nx;
 				for (size_t k = 0; k < (Nx * Nz / 2); k++) {
-					std::swap(values[n], values[m]);
-					n = (n + Nx * Ny) % (values.size() - 1);
-					m = (m + (values.size() - Nx * Ny - 1))
-							% (values.size() - 1);
+					std::swap(operator[](n), operator[](m));
+					n = (n + Nx * Ny) % (size() - 1);
+					m = (m + (size() - Nx * Ny - 1)) % (size() - 1);
 				}
 			}
 			break;
@@ -699,8 +691,8 @@ void Matrix::Rotate(Axis a, int quarters) {
 			const size_t m = Nx * Ny;
 			for (size_t k = 0; k < Nz; k++) {
 				for (size_t n = 0; n < (m / 2); n++) {
-					std::swap(values[k * Nx * Ny + n],
-							values[k * Nx * Ny + (m - n - 1)]);
+					std::swap(operator[](k * Nx * Ny + n),
+							operator[](k * Nx * Ny + (m - n - 1)));
 				}
 			}
 			break;
@@ -710,28 +702,28 @@ void Matrix::Rotate(Axis a, int quarters) {
 	if (quarters != 1 && quarters != 3)
 		ERROR("Rotation in the wrong quadrant.");
 	std::vector<double> temp;
-	temp.resize(values.size());
+	temp.resize(size());
 
 	switch (a) {
 	case Axis::X: {
 		if (quarters == 1) {
-			const size_t mo = values.size() + Nx;
-			const size_t ad = values.size() - (Nx * (Ny - 1));
+			const size_t mo = size() + Nx;
+			const size_t ad = size() - (Nx * (Ny - 1));
 			for (size_t i = 0; i < Nx; i++) {
-				size_t m = values.size() - Ny * Nx + i;
+				size_t m = size() - Ny * Nx + i;
 				for (size_t n = 0; n < (Ny * Nz); n++) {
-					temp[n * Nx + i] = values[m];
+					temp[n * Nx + i] = operator[](m);
 					m = (m + ad) % mo;
 				}
 			}
 		}
 		if (quarters == 3) {
-			const size_t mo = values.size() + Nx;
+			const size_t mo = size() + Nx;
 			const size_t ad = Nx * Ny;
 			for (size_t i = 0; i < Nx; i++) {
 				size_t m = (Ny - 1) * Nx + i;
 				for (size_t n = 0; n < (Ny * Nz); n++) {
-					temp[n * Nx + i] = values[m];
+					temp[n * Nx + i] = operator[](m);
 					m = (m + ad) % mo;
 				}
 			}
@@ -746,32 +738,32 @@ void Matrix::Rotate(Axis a, int quarters) {
 //			Nx = 4;
 //			Ny = 5;
 //			Nz = 5;
-//			values.size() = Nx * Ny * Nz;
+//			size() = Nx * Ny * Nz;
 			size_t n = 0;
 			size_t m = Nx - 1;
 			for (size_t i = 0; i < Nx; i++) {
 				for (size_t j = 0; j < Ny; j++) {
 					for (size_t k = 0; k < Nz; k++) {
-						temp[n] = values[m];
+						temp[n] = operator[](m);
 						n++;
 						m += Nx * Ny;
 					}
-					m = m + Nx - values.size();
+					m = m + Nx - size();
 				}
 				m = m - Nx * Ny - 1;
 			}
 		}
 		if (quarters == 3) {
 			size_t n = 0;
-			size_t m = values.size();
+			size_t m = size();
 			for (size_t i = 0; i < Nx; i++) {
 				for (size_t j = 0; j < Ny; j++) {
 					for (size_t k = 0; k < Nz; k++) {
 						m -= Nx * Ny;
-						temp[n] = values[m];
+						temp[n] = operator[](m);
 						n++;
 					}
-					m = m + values.size() + Nx;
+					m = m + size() + Nx;
 				}
 				m = m - Nx * Ny + 1;
 			}
@@ -790,7 +782,7 @@ void Matrix::Rotate(Axis a, int quarters) {
 		for (size_t k = 0; k < Nz; k++) {
 			size_t n = 0;
 			for (size_t m = ad - 1; m != mo - 1; m = (m + ad) % mo) {
-				temp[n + k * Nx * Ny] = values[m + k * Nx * Ny];
+				temp[n + k * Nx * Ny] = operator[](m + k * Nx * Ny);
 				n++;
 			}
 		}
@@ -802,7 +794,7 @@ void Matrix::Rotate(Axis a, int quarters) {
 		// Nothing to do.
 		break;
 	}
-	values.swap(temp);
+	this->swap(temp);
 }
 
 Matrix& Matrix::operator +=(const Matrix &b) {
@@ -811,7 +803,7 @@ Matrix& Matrix::operator +=(const Matrix &b) {
 	if (D0 != D1)
 		ERROR("The dimensions of both matrices are not equal.");
 	for (size_t i = 0; i < Numel(); ++i)
-		values[i] += b.values[i];
+		operator[](i) += b[i];
 	return *this;
 }
 
@@ -821,7 +813,7 @@ Matrix& Matrix::operator -=(const Matrix &b) {
 	if (D0 != D1)
 		ERROR("The dimensions of both matrices are not equal.");
 	for (size_t i = 0; i < Numel(); ++i)
-		values[i] -= b.values[i];
+		operator[](i) -= b[i];
 	return *this;
 }
 
@@ -838,12 +830,36 @@ Matrix& Matrix::operator *=(const Matrix &b) {
 		ERROR("Only 2D-matrices can be multiplied.");
 	const Matrix A = *this;
 	this->SetSize(N, P);
-	this->values.assign(N * P, 0.0);
+	this->assign(N * P, 0.0);
 	for (size_t n = 0; n < N; ++n)
 		for (size_t m = 0; m < M; ++m)
 			for (size_t p = 0; p < P; ++p) {
-				values[n + p * N] += A.values[n + m * N] * b.values[m + p * M];
+				operator[](n + p * N) += A[n + m * N] * b[m + p * M];
 			}
+	return *this;
+}
+
+Matrix& Matrix::operator +=(const double b) {
+	for (size_t i = 0; i < Numel(); ++i)
+		operator[](i) += b;
+	return *this;
+}
+
+Matrix& Matrix::operator -=(const double b) {
+	for (size_t i = 0; i < Numel(); ++i)
+		operator[](i) -= b;
+	return *this;
+}
+
+Matrix& Matrix::operator *=(const double b) {
+	for (size_t i = 0; i < Numel(); ++i)
+		operator[](i) *= b;
+	return *this;
+}
+
+Matrix& Matrix::operator /=(const double b) {
+	for (size_t i = 0; i < Numel(); ++i)
+		operator[](i) /= b;
 	return *this;
 }
 
@@ -905,7 +921,7 @@ Matrix Matrix::XRay(Method method) const {
 
 double Matrix::Norm() const {
 	double res = 0.0;
-	for (const auto &v : values)
+	for (const auto &v : *this)
 		res += v * v;
 	return res;
 }
@@ -958,15 +974,15 @@ std::vector<size_t> Matrix::FillIndex(Mode mode, const std::vector<size_t> &x,
 void Matrix::MapRows(Mode mode, const std::vector<size_t> &rows) {
 	const size_t N = Size(0);
 	std::vector<size_t> idx = FillIndex(mode, rows, N);
-	std::vector<double> temp(values);
+	std::vector<double> temp(*this);
 	SetSize(idx.size(), Size(1));
 	size_t offs = 0;
-	for (size_t j = 0; j < dimensions[1]; ++j) {
-		for (size_t i = 0; i < dimensions[0]; ++i) {
+	for (size_t j = 0; j < counts[1]; ++j) {
+		for (size_t i = 0; i < counts[0]; ++i) {
 			if (idx[i] == (size_t) -1) {
-				values[offs] = 0;
+				operator[](offs) = 0;
 			} else {
-				values[offs] = temp[j * N + idx[i]];
+				operator[](offs) = temp[j * N + idx[i]];
 			}
 			++offs;
 		}
@@ -977,19 +993,26 @@ void Matrix::MapCols(Mode mode, const std::vector<size_t> &cols) {
 	const size_t M = Size(0);
 	const size_t N = Size(1);
 	std::vector<size_t> idx = FillIndex(mode, cols, N);
-	std::vector<double> temp(values);
+	std::vector<double> temp(*this);
 	SetSize(Size(0), idx.size());
 	size_t offsDst = 0;
-	for (size_t i = 0; i < dimensions[1]; ++i) {
+	for (size_t i = 0; i < counts[1]; ++i) {
 
 		if (idx[i] == (size_t) -1) {
-			std::memset(values.data() + offsDst, 0, M * sizeof(double));
+			std::memset(data() + offsDst, 0, M * sizeof(double));
 		} else {
 			const size_t offsSrc = idx[i] * M;
-			std::memcpy(values.data() + offsDst, temp.data() + offsSrc,
+			std::memcpy(data() + offsDst, temp.data() + offsSrc,
 					M * sizeof(double));
 		}
 		offsDst += M;
 	}
 }
 
+void Matrix::SetVariableName(const std::string &name) {
+	this->variablename = name;
+}
+
+std::string Matrix::GetVariableName() const {
+	return variablename;
+}

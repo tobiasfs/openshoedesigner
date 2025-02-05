@@ -41,16 +41,16 @@
 
 #include <array>
 
-enum class typeUnit {
-	unitNone,
-	unitTime,
-	unitDistance,
-	unitSmallDistance,
-	unitTolerance,
-	unitLinearSpeed,
-	unitRotationalSpeed,
-	unitAngle,
-	unitPercent
+enum class UnitType {
+	Without,
+	Time,
+	Distance,
+	SmallDistance,
+	Tolerance,
+	LinearSpeed,
+	RotationalSpeed,
+	Angle,
+	Percent
 };
 
 class CollectionUnits {
@@ -61,16 +61,18 @@ public:
 	Unit Time;
 	Unit Distance;
 	Unit SmallDistance;
+	Unit Speed;
 	Unit Tolerance;
 	Unit Angle;
 	Unit Percentage;
 
-	bool Load(wxConfig * config);
-	bool Save(wxConfig * config);
+	bool Load(wxConfig *config);
+	bool Save(wxConfig *config);
 
 protected:
 	std::array<Unit, 4> unitsOfTime;
 	std::array<Unit, 7> unitsOfLength;
+	std::array<Unit, 4> unitsOfSpeed;
 	std::array<Unit, 3> unitsOfAngle;
 };
 
