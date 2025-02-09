@@ -1081,8 +1081,43 @@ Polygon3::Result Polygon3::At(double L) const {
 	res.rel = (L - sL);
 	res.idx = n;
 	res.dir = (v[n + 1] - v[n]).Normal();
-	res.pos = v[n] + res.dir * res.rel;
-	res.normal = (v[n].n + (v[n + 1].n - v[n].n) * res.rel / dL);
+	res.pos = v[n].Interp(v[n + 1], res.rel / dL);
+	res.normal = v[n].n.Interp(v[n + 1].n, res.rel / dL);
+	return res;
+}
+
+Polygon3::Result Polygon3::AtU(double u) const {
+	const size_t N = v.size();
+	if (N <= 1)
+		return At(u);
+	Result res;
+	double L = v.back().u;
+	if (fabs(v.front().u) > DBL_EPSILON)
+		L = v.front().u;
+	while (u < 0.0)
+		u += L;
+	while (u > L)
+		u -= L;
+	size_t idx = 0;
+	while (u > v[e[idx].vb].u && (idx + 1) < N)
+		idx++;
+	if (idx >= N)
+		return res;
+	const Edge &ed = e[idx];
+	const Vertex &va = v[ed.va];
+	const Vertex &vb = v[ed.vb];
+
+	const double u0 = (ed.va == 0) ? 0.0 : va.u;
+	const double u1 = (ed.vb == 0) ? 0.0 : vb.u;
+	const double d = u1 - u0;
+	if (fabs(d) > DBL_EPSILON)
+		res.rel = u - u0;
+	else
+		res.rel = 0.0;
+	res.idx = idx;
+	res.dir = (vb - va).Normal();
+	res.pos = va.Interp(vb, res.rel / d);
+	res.normal = va.n.Interp(vb.n, res.rel / d);
 	return res;
 }
 

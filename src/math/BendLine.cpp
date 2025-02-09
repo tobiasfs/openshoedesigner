@@ -29,19 +29,21 @@
 #include <cmath>
 
 void BendLine::AngleToPos() {
-	const size_t N = Size();
-	X(0) = 0.0;
-	Y(0) = 0.0;
-	double dx = X(1) - X(0);
-	double a = (Y(1) + Y(0)) / 2.0;
+	const size_t N = Length();
+	auto x = X();
+	auto y = Y();
+	x[0] = 0.0;
+	y[0] = 0.0;
+	double dx = x[1] - x[0];
+	double a = (y[1] + y[0]) / 2.0;
 	for (size_t n = 2; n < N; ++n) {
-		double xn = X(n - 2) + cos(a) * dx;
-		double yn = Y(n - 2) + sin(a) * dx;
-		dx = X(n) - X(n - 1);
-		a = (Y(n) + Y(n - 1)) / 2.0;
-		X(n - 1) = xn;
-		Y(n - 1) = yn;
+		double xn = x[n - 2] + cos(a) * dx;
+		double yn = y[n - 2] + sin(a) * dx;
+		dx = x[n] - x[n - 1];
+		a = (y[n] + y[n - 1]) / 2.0;
+		x[n - 1] = xn;
+		y[n - 1] = yn;
 	}
-	X(N - 1) = X(N - 2) + cos(a) * dx;
-	Y(N - 1) = Y(N - 2) + sin(a) * dx;
+	x[N - 1] = x[N - 2] + cos(a) * dx;
+	y[N - 1] = y[N - 2] + sin(a) * dx;
 }

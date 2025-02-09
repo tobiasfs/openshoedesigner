@@ -316,7 +316,8 @@ public:
 	 */
 	Vector3 GetRotationalAxis() const;
 
-	Result At(double L) const;
+	Result At(double r) const;
+	Result AtU(double u) const;
 	std::tuple<size_t, size_t> ClosestPoint(const Vector3 &p) const;
 	size_t ClosestPoint(const Vector3 &p, size_t group) const; ///< Returns the closest index for the given point.
 

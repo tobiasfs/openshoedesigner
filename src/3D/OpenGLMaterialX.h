@@ -153,7 +153,9 @@ public:
 
 public:
 	OpenGLMaterialX() = default;
-	virtual ~OpenGLMaterialX() = default;
+	virtual ~OpenGLMaterialX() = default; //FIXME: ==47976== Jump to the invalid address stated on the next line
+						    // ==47976==    at 0x63B6F20: ???
+						    // ==47976==    by 0x13410D: std::pair<std::filesystem::__cxx11::path const, OpenGLMaterialX::Image>::~pair()
 
 public:
 	/**\brief Load a MATX file from a zipped archive.

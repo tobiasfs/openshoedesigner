@@ -14,7 +14,7 @@ This describes the parts that make up the data.
     bim [ label="Background Image" URL="\ref BackgroundImage"];
     fot [ label="Foot" ];
     las [ label="Last" ];
-    pat [ label="Pattern" URL="\ref Pattern"];
+    pat [ label="Pattern"];
     fla [ label="Flattening" ];
     bon [ label="Bone" URL="\ref Bone"];
     phu [ label="Poly Hull" ];
@@ -79,7 +79,7 @@ This describes the parts that make up the data.
     sol [ label="Sole" ];
     ins [ label="Insole" URL="\ref Insole"];
     
-    pat [ label="Pattern" URL="\ref Pattern"];
+    pat [ label="Pattern"];
     fla [ label="Flattening" ];
 	
 	{rank=same; mea;sca}

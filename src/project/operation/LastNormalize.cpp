@@ -236,7 +236,7 @@ void LastNormalize::ReorientSymmetry() {
 
 //	ex.Add(symmetry, "symmetry");
 
-	auto results = symmetry.FindPeaks(0.01);
+	auto results = symmetry.Y().FindPeaks(0.01);
 	if (results.empty()) {
 		std::ostringstream err;
 		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
@@ -259,7 +259,7 @@ void LastNormalize::ReorientSole() {
 	KernelDensityEstimator kde;
 	kde.Clear();
 	kde.XLinspace(0, 2 * M_PI, 360);
-	kde.XSetCyclic(2 * M_PI);
+	kde.SetCyclic(2 * M_PI);
 
 	AffineTransformMatrix bbc = out->BB.GetCoordinateSystem();
 	for (double cut = 0.2; cut < 0.81; cut += 0.2) {
@@ -284,7 +284,7 @@ void LastNormalize::ReorientSole() {
 	kde.Attenuate(0, Kernel::Cauchy, 0.75, 0.5);
 	kde.Attenuate(M_PI, Kernel::Cauchy, 0.75, 0.5);
 
-	auto results = kde.FindPeaks(0.1);
+	auto results = kde.Y().FindPeaks(0.1);
 	if (results.empty()) {
 		std::ostringstream err;
 		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";
@@ -416,8 +416,9 @@ void LastNormalize::ReorientLeftRight() {
 //		coordsys.CalculateEz();
 	KernelDensityEstimator kde;
 	kde.Clear();
-	kde.XLinspace(0, 2 * M_PI, 360);
-	kde.XSetCyclic(2 * M_PI);
+	kde.SetSize(360, 2);
+	kde.SetCyclic(2 * M_PI);
+	kde.X().Linspace(0, 2 * M_PI);
 
 	loop = out->IntersectPlane(Vector3(1, 0, 0), bbc.GlobalX(0.5));
 
@@ -440,11 +441,13 @@ void LastNormalize::ReorientLeftRight() {
 
 	double minRight = 1e9;
 	double minLeft = 1e9;
-	for (size_t n = 0; n < kde.Size(); ++n) {
-		if (kde.X(n) > M_PI && kde.X(n) < 3 * M_PI_2 && kde.Y(n) < minRight)
-			minRight = kde.Y(n);
-		if (kde.X(n) < 2 * M_PI && kde.X(n) > 3 * M_PI_2 && kde.Y(n) < minLeft)
-			minLeft = kde.Y(n);
+	for (size_t n = 0; n < kde.Length(); ++n) {
+		if (kde.X()[n] > M_PI && kde.X()[n] < 3 * M_PI_2
+				&& kde.Y()[n] < minRight)
+			minRight = kde.Y()[n];
+		if (kde.X()[n] < 2 * M_PI && kde.X()[n] > 3 * M_PI_2
+				&& kde.Y()[n] < minLeft)
+			minLeft = kde.Y()[n];
 
 	}
 

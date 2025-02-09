@@ -32,15 +32,14 @@
  *
  * This class contains a polynomial of arbitrary order.
  *
- * The coefficients are stored Octave/Matlab style: The first coefficient is
- * the one for the highest power.
+ * The coefficients are stored at the index of their power. 
  *
  * e.g. \f[
- * 	f(r) = c_3\cdot r^3 + c_2\cdot r^2 + c_1 \cdot r + c_0
+ * 	f(r) =  + c_0 + c_1 \cdot r + c_2\cdot r^2 + c_3\cdot r^3
  * \f]
  * The vector returned by the stream output << can be used directly in the
  * Octave/Matlab polyval command. Note that the order of coefficient is inverted
- * here.
+ * here for Octaves/Matlabs polyval, polyder, polyint, polyfit, ...
  *
  * \htmlonly
  * <svg width="300" height="200">
@@ -55,7 +54,7 @@
 #include <tuple>
 #include <vector>
 
-class Polynomial {
+class Polynomial: public std::vector<double> {
 public:
 
 	/**\name Static functions for constructions
@@ -160,7 +159,6 @@ public:
 	explicit Polynomial(size_t N = 0);
 	Polynomial(const std::initializer_list<double> coefficients);
 
-	size_t Size() const; ///< Number of coefficients
 	size_t Order() const; ///< Order of the polynomial (= number of coefficients - 1)
 
 	/*! \brief Change the number of coefficients
@@ -190,9 +188,6 @@ public:
 	 * \param b Upper-limit of the range to fit the polynomial
 	 */
 	Polynomial Reduce(size_t N, double a, double b) const;
-
-	double& operator[](size_t index); ///< Access the coefficients
-	double operator[](size_t index) const; ///< Const access the coefficients
 
 	double operator()(double x) const; ///< Evaluation of polygon
 
@@ -324,17 +319,14 @@ public:
 	 */
 	friend std::ostream& operator<<(std::ostream &os, const Polynomial &p) {
 		os << "[";
-		for (size_t n = 0; n < p.Size(); ++n) {
+		for (size_t n = p.size(); n-- > 0;) {
+			os << p[n];
 			if (n > 0)
 				os << ", ";
-			os << p[p.Size() - n - 1];
 		}
 		os << "]";
 		return os;
 	}
-
-private:
-	std::vector<double> c;
 };
 
 #endif /* MATH_POLYNOM_H */

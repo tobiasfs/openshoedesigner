@@ -26,52 +26,117 @@
 
 #include "DependentVector.h"
 
-#include "Matrix.h"
-
 #include <algorithm>
+#include <cfloat>
 #include <iterator>
+#include <numeric>
 #include <stdexcept>
 
 #include "../3D/OpenGL.h"
 
-void DependentVector::Clear() {
-	x.clear();
-	y.clear();
+DependentVector::DependentVector(size_t N, size_t NAxes) {
+	SetSize(N, NAxes);
 }
 
-void DependentVector::Resize(size_t N) {
-	x.resize(N, 0.0);
-	y.resize(N, 0.0);
+void DependentVector::Sync() {
+	const size_t N = size();
+	const size_t M = AxesCount();
+	if (units.size() != M)
+		units.resize(M);
+	if (N % M != 0)
+		throw std::runtime_error(
+				"DependentVector::Sync - Row or column is not completely filled.");
+	if (Size(0) != N / M)
+		SetSize(N / M, M);
 }
 
-void DependentVector::PushBack(double x, double y) {
-	this->x.push_back(x);
-	this->y.push_back(y);
+void DependentVector::Access(size_t idxChild) {
+	// When an algorithm needs more than max. size_t / 2 axes, this is the
+	// wrong class for that algorithm. It is more important to detect the
+	// error in the program-logic, than to run out of memory.
+	if (idxChild > ((size_t) -1) / 2)
+		throw std::runtime_error(
+				"DependentVector::Access - A negative index was requested for axis-access.");
+	ReorderDimensions(Order::NORMAL);
+	if (idxChild < AxesCount())
+		return;
+	auto dims = Size();
+	if (dims.size() < 2)
+		dims.resize(2, 1);
+	dims[1] = idxChild + 1;
+	SetSize(dims);
+	Sync();
 }
 
-size_t DependentVector::Size() const {
-	return x.size();
-}
-
-void DependentVector::XLinspace(double x0, double x1, size_t N) {
-	if (N == 0 || N == (size_t) -1) {
-		N = x.size();
-	} else {
-		x.assign(N, 0.0);
+DependentVector DependentVector::Linspace(double v0, double v1, size_t N) {
+	DependentVector ret;
+	if (N == 0) {
+		return ret;
 	}
-	y.resize(N, 0.0);
-	for (size_t n = 0; n < N; ++n)
-		x[n] = x0 + (double) n / (double) (N - 1) * (x1 - x0);
+	ret.SetSize(N);
+	const double d = (v1 - v0) / (double) (N - 1);
+	for (size_t n = 0; n < N; n++) {
+		ret[n] = v0;
+		v0 += d;
+	}
+	return ret;
 }
 
-void DependentVector::XSetCyclic(double cyclelength) {
+DependentVector DependentVector::Chebyshev(double v0, double v1, size_t N) {
+	DependentVector ret;
+	if (N == 0) {
+		return ret;
+	}
+	ret.SetSize(N);
+	const double c = (v1 + v0) / 2.0;
+	const double r = (v1 - v0) / 2.0;
+	for (size_t n = 0; n < N; n++)
+		ret[n] = c - r * cos(M_PI * (double) n / (double) (N - 1));
+	return ret;
+}
+
+void DependentVector::Clear() {
+	Matrix::Reset();
+	Sync();
+}
+
+void DependentVector::SetSize(size_t N, size_t NAxes) {
+	if (!empty() && N != 0 && NAxes != 0) {
+		throw std::runtime_error(
+				"Not implemented (implement in Matrix::SetSize()");
+	}
+	Matrix::SetSize(N, NAxes);
+	Sync();
+}
+
+void DependentVector::SetSize(const std::vector<size_t> &dims) {
+	Matrix::SetSize(dims);
+	Sync();
+}
+
+void DependentVector::SetSize(const DependentVector &other) {
+	Matrix::SetSize(other.Size());
+	Sync();
+}
+
+size_t DependentVector::Length() const {
+	return Size(0);
+}
+
+size_t DependentVector::AxesCount() const {
+	if (empty() || Size(0) == 0)
+		return 1; // There is always at least one empty axis.
+	return Numel() / Size(0);
+}
+
+void DependentVector::SetCyclic(double cycleLength) {
 	cyclic = true;
-	this->cyclelength = cyclelength;
+	this->cycleLength = cycleLength;
 }
 
-void DependentVector::XSetLinear() {
+void DependentVector::SetLinear() {
 	cyclic = false;
-	cyclelength = 0.0;
+	cycleLength = 0.0;
 }
 
 bool DependentVector::IsCyclic() const {
@@ -79,137 +144,825 @@ bool DependentVector::IsCyclic() const {
 }
 
 double DependentVector::CycleLength() const {
-	return cyclelength;
+	return cycleLength;
 }
 
-void DependentVector::YInit(double value) {
-	y.assign(x.size(), value);
-}
-
-void DependentVector::YLinspace(double y0, double y1) {
-	const size_t N = x.size();
-	y.resize(N);
-	for (size_t n = 0; n < N; ++n)
-		y[n] = y0 + (double) n / (double) (N - 1) * (y1 - y0);
-}
-
-void DependentVector::YFill(std::function<double(double)> func) {
-	const size_t N = x.size();
-	y.resize(N);
-	for (size_t n = 0; n < N; ++n)
-		y[n] = func(x[n]);
-}
-
-double& DependentVector::X(size_t index) {
-	return x[index];
-}
-
-const double& DependentVector::X(size_t index) const {
-	return x[index];
-}
-
-double& DependentVector::Y(size_t index) {
-	return y[index];
-}
-
-const double& DependentVector::Y(size_t index) const {
-	return y[index];
-}
-
-double& DependentVector::operator [](size_t index) {
-	return y[index];
-}
-
-double DependentVector::operator [](size_t index) const {
-	return y[index];
-}
-
-size_t DependentVector::IatX(const double xval) const {
-	if (x.size() == 0)
-		return (size_t) -1;
-	if (x.size() == 1)
-		return 0;
-	if (cyclic && (xval < x[0] || xval > x[x.size() - 1]))
-		throw(std::logic_error(
-		__FILE__" - IatX : Cyclic lookup not implemented!"));
-	if (x[0] > xval)
-		return 0;
-	if (searchspeedup >= x.size())
-		searchspeedup = 0;
-	if (x[searchspeedup] > xval)
-		searchspeedup = 0;
-	while ((searchspeedup + 1) < x.size() && x[searchspeedup + 1] <= xval)
-		searchspeedup++;
-	return searchspeedup;
-}
-
-double DependentVector::YatX(const double xval) const {
-	if (x.size() == 0)
-		return DBL_MAX;
-	if (x.size() == 1)
-		return y[0];
-	if (cyclic && (xval < x[0] || xval > x[x.size() - 1]))
-		throw(std::logic_error(
-		__FILE__" - YatX : Cyclic lookup not implemented!"));
-
-	size_t idx = IatX(xval);
-	if (idx == (size_t) -1)
-		return 0.0;
-	if (idx + 1 == x.size())
-		--idx;
-
-	const double den = x[idx + 1] - x[idx];
-	if (fabs(den) < 1e-9)
-		return (y[idx + 1] + y[idx]) / 2.0;
-	return ((xval - x[idx]) * y[idx + 1] - (xval - x[idx + 1]) * y[idx]) / den;
-}
-
-size_t DependentVector::IatY(const double yval, Direction direction,
-		size_t xstart, size_t xend) const {
-	const size_t N = x.size();
-	++xstart;
-	if (xend >= N)
-		xend = N;
-	else
-		++xend;
+DependentVector DependentVector::Range(size_t xstart, size_t xend) const {
+	if (xend >= Size(0))
+		xend = Size(0) - 1;
 	if (xstart > xend)
+		throw(std::runtime_error(
+		__FILE__"DependentVector::Range: idxStart > idxEnd"));
+
+	DependentVector temp;
+	const size_t N = xend + 1 - xstart;
+	const size_t M = AxesCount();
+	temp.SetSize(N, M);
+
+	if (order == Order::NORMAL) {
+		for (size_t n = 0; n < M; n++)
+			std::copy_n(begin() + n * Size(0) + xstart, N,
+					temp.begin() + N * n);
+	} else {
+		std::copy_n(begin() + xstart * AxesCount(), N * M, temp.begin());
+	}
+	return temp;
+}
+
+DependentVector& DependentVector::operator +=(const DependentVector &a) {
+	if (a.size() != size())
+		throw(std::range_error(
+				"DependentVector::operator += Both arrays have different sizes."));
+	std::transform(begin(), end(), a.begin(), begin(), std::plus<double>());
+	return *this;
+}
+
+DependentVector& DependentVector::operator -=(const DependentVector &a) {
+	if (a.size() != size())
+		throw(std::range_error(
+				"DependentVector::operator -= Both arrays have different sizes."));
+	std::transform(begin(), end(), a.begin(), begin(), std::minus<double>());
+	return *this;
+}
+
+DependentVector& DependentVector::operator *=(const DependentVector &a) {
+	if (a.size() != size())
+		throw(std::range_error(
+				"DependentVector::operator *= Both arrays have different sizes."));
+	std::transform(begin(), end(), a.begin(), begin(),
+			std::multiplies<double>());
+	return *this;
+}
+
+DependentVector& DependentVector::operator /=(const DependentVector &a) {
+	if (a.size() != size())
+		throw(std::range_error(
+				"DependentVector::operator /= Both arrays have different sizes."));
+	std::transform(begin(), end(), a.begin(), begin(), std::divides<double>());
+	return *this;
+}
+
+void DependentVector::PushBack(double x, double y) {
+	const size_t Nax = AxesCount();
+	if (Nax < 2)
+		Access(1);
+	ReorderDimensions(Order::TWO_REVERSED);
+	push_back(x);
+	push_back(y);
+	// Fill in the rest of the axes to keep the insertion point in sync.
+	for (size_t n = 2; n < Nax; n++)
+		push_back(0.0);
+	Sync();
+}
+
+DependentVector::AxisView::AxisView(DependentVector *const parent,
+		size_t axBegin, size_t axEnd, size_t rowBegin, size_t rowEnd) :
+		parent(parent), axBegin(axBegin), axEnd(axEnd), rowBegin(rowBegin), rowEnd(
+				rowEnd) {
+}
+
+size_t DependentVector::AxisView::GetRowStart() const {
+	return rowBegin;
+}
+
+size_t DependentVector::AxisView::GetRowEnd() const {
+	const size_t N = parent->Length();
+	if (rowEnd > N)
+		return N;
+	return rowEnd;
+}
+
+double& DependentVector::AxisView::operator[](size_t row) {
+	const size_t pos = axBegin * parent->Length() + row;
+	return parent->operator[](pos);
+}
+
+double DependentVector::AxisView::operator[](size_t row) const {
+	const size_t pos = axBegin * parent->Length() + row;
+	return parent->operator[](pos);
+}
+
+void DependentVector::AxisView::Init(double value) {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const size_t Nd = N1 - N0;
+	if (N0 == 0 && N1 == N) {
+		std::fill_n(parent->begin() + axBegin * N, (axEnd - axBegin) * N,
+				value);
+	} else {
+		for (size_t ax = axBegin; ax < axEnd; ax++) {
+			const size_t offs = ax * N + N0;
+			std::fill_n(parent->begin() + offs, Nd, value);
+		}
+	}
+}
+
+void DependentVector::AxisView::Linspace(double v0, double v1) {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const size_t Nd = N1 - N0;
+	size_t obo = (parent->cyclic && N1 == N) ? 0 : 1;
+	for (size_t ax = axBegin; ax < axEnd; ax++) {
+		const size_t offs = ax * N + N0;
+		for (size_t n = 0; n < Nd; n++)
+			parent->operator[](offs + n) = v0
+					+ (double) n / (double) (Nd - obo) * (v1 - v0);
+	}
+}
+
+void DependentVector::AxisView::Chebyshev(double v0, double v1) {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const size_t Nd = N1 - N0;
+	const double c = (v1 + v0) / 2.0;
+	const double r = (v1 - v0) / 2.0;
+	size_t obo = (parent->cyclic && N1 == N) ? 0 : 1;
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N + N0;
+		for (size_t n = 0; n < Nd; n++)
+			parent->operator[](offs + n) = c
+					- r * cos(M_PI * (double) n / (double) (Nd - obo));
+	}
+}
+
+void DependentVector::AxisView::Limit(double vMin, double vMax) {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t n = N0; n < N1; n++)
+			parent->operator[](offs + n) = fmin(
+					fmax(parent->operator[](offs + n), vMin), vMax);
+	}
+}
+
+void DependentVector::AxisView::Wrap(double v0, double v1) {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const double d = v1 - v0;
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		double shift = 0.0;
+		for (size_t n = N0; n < N1; n++) {
+			double v = parent->operator[](offs + n) + shift;
+			while (v > v1) {
+				shift -= d;
+				v -= d;
+			}
+			while (v < v0) {
+				shift += d;
+				v += d;
+			}
+			parent->operator[](offs + n) = v;
+		}
+	}
+}
+
+void DependentVector::AxisView::Unwrap(double tolerance) {
+	if (tolerance <= 0.0)
+		throw(std::domain_error(
+				__FILE__"DependentVector::AxisView::Unwrap: 'tolerance' should be a positive number."));
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const double d = 2.0 * tolerance;
+	const size_t Nstart = (N0 > 0) ? N0 : N0 + 1;
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		double shift = 0.0;
+		for (size_t n = Nstart; n < N1; n++) {
+			double v0 = parent->operator[](offs + n - 1);
+			double v = parent->operator[](offs + n) + shift;
+			while (v > v0 + tolerance) {
+				shift -= d;
+				v -= d;
+			}
+			while (v < v0 - tolerance) {
+				shift += d;
+				v += d;
+			}
+			parent->operator[](offs + n) = v;
+		}
+	}
+}
+
+void DependentVector::AxisView::Normalize() {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const AxisView row(parent, ax, ax + 1, N0, N1);
+		const double ymax = row.Max();
+		const double ymin = row.Min();
+		const double h = 1.0 / fmax(ymax - ymin, 1e-9);
+
+		const size_t offs = ax * N;
+		for (size_t n = N0; n < N1; n++) {
+			parent->operator[](offs + n) = (parent->operator[](offs + n) - ymin)
+					* h;
+		}
+	}
+}
+
+void DependentVector::AxisView::CumSum() {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const size_t Nstart = (N0 > 0) ? N0 : N0 + 1;
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t n = Nstart; n < N1; n++) {
+			parent->operator[](offs + n) += parent->operator[](offs + n - 1);
+		}
+	}
+}
+
+void DependentVector::AxisView::CumProd() {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const size_t Nstart = (N0 > 0) ? N0 : N0 + 1;
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t n = Nstart; n < N1; n++) {
+			parent->operator[](offs + n) *= parent->operator[](offs + n - 1);
+		}
+	}
+}
+
+void DependentVector::AxisView::Fill(std::function<double(double)> func) {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		if (ax == 0)
+			continue;
+		const size_t offs = ax * N;
+		for (size_t n = N0; n < N1; n++) {
+			parent->operator[](offs + n) = func(parent->operator[](n));
+		}
+	}
+	if (axBegin == 0) {
+		for (size_t n = N0; n < N1; n++)
+			parent->operator[](n) = func(parent->operator[](n));
+	}
+}
+
+void DependentVector::AxisView::Integrate() {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const size_t Nstart = (N0 > 0) ? N0 : N0 + 1;
+	std::vector<double> temp(N, 0.0);
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		if (N0 != 0)
+			temp[N0] = parent->operator[](offs + N0);
+		for (size_t n = Nstart; n < N1; n++) {
+			const double x0 = parent->operator[](n - 1);
+			const double x1 = parent->operator[](n);
+			const double y0 = parent->operator[](offs + n - 1);
+			const double y1 = parent->operator[](offs + n);
+			temp[n] = temp[n - 1] + (y1 + y0) * (x1 - x0) / 2.0;
+		}
+		for (size_t n = Nstart; n < N1; n++)
+			parent->operator[](n) = temp[n];
+	}
+}
+
+void DependentVector::AxisView::Derive() {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	const size_t Nstart = (N0 > 0) ? N0 : N0 + 1;
+	std::vector<double> temp(N, 0.0);
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t n = Nstart; n < N1; n++) {
+			const double x0 = parent->operator[](n - 1);
+			const double x1 = parent->operator[](n);
+			const double y0 = parent->operator[](offs + n - 1);
+			const double y1 = parent->operator[](offs + n);
+			temp[n] = (y1 - y0) / (x1 - x0);
+		}
+		for (size_t n = Nstart; n < N1; n++)
+			parent->operator[](n) = temp[n];
+	}
+}
+
+double DependentVector::AxisView::Mean() const {
+	const double mean = Area();
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	if (parent->cyclic && N0 == 0 && N1 == N) {
+		return mean / parent->cycleLength;
+	} else {
+		const double x0 = parent->operator[](N0);
+		const double x1 = parent->operator[](N1 - 1);
+		return mean / (x1 - x0);
+	}
+}
+
+double DependentVector::AxisView::Area() const {
+	double area = 0.0;
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t n = N0 + 1; n < N1; n++) {
+			const double x0 = parent->operator[](n - 1);
+			const double x1 = parent->operator[](n);
+			const double y0 = parent->operator[](offs + n - 1);
+			const double y1 = parent->operator[](offs + n);
+			area += (y1 + y0) * (x1 - x0) / 2.0;
+		}
+		if (parent->cyclic && N0 == 0 && N1 == N) {
+			const double x0 = parent->operator[](N1 - 1);
+			const double x1 = parent->operator[](N0);
+			const double y0 = parent->operator[](offs + N1 - 1);
+			const double y1 = parent->operator[](offs + N0);
+			area += (y1 + y0) * (x1 - x0) / 2.0;
+		}
+	}
+	return area;
+}
+
+double DependentVector::AxisView::Max() const {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	double ret = -DBL_MAX;
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t n = N0; n < N1; n++) {
+			const double v = parent->operator[](offs + n);
+			if (v > ret)
+				ret = v;
+		}
+	}
+	return ret;
+}
+
+double DependentVector::AxisView::Min() const {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	double ret = DBL_MAX;
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t n = N0; n < N1; n++) {
+			const double v = parent->operator[](offs + n);
+			if (v < ret)
+				ret = v;
+		}
+	}
+	return ret;
+}
+
+DependentVector::AxisView::Parabola::Parabola(double x0, double x1, double x2) {
+	// In Maxima:
+	// f(x):=c0+c1*x+c2*x^2;
+	// df(x):=diff(f(x), x);
+	// ddf(x):=diff(df(x), x);
+	// S:solve([f(x0)=v0,f(x1)=v1,f(x2)=v2],[c0,c1,c2]);
+	// solve(ev(df(x),S[1])=0, x);
+
+	div = (x0 - x2) * (x2 - x1) * (x1 - x0);
+	OK = fabs(div) > DBL_EPSILON;
+	if (!OK)
+		return;
+
+	const double f = 1.0 / div;
+	const double x02 = x0 * x0;
+	const double x12 = x1 * x1;
+	const double x22 = x2 * x2;
+	ec0v0 = (x12 * x2 - x1 * x22) * f;
+	ec0v1 = (x22 * x0 - x2 * x02) * f;
+	ec0v2 = (x02 * x1 - x0 * x12) * f;
+	ec1v0 = (x22 - x12) * f;
+	ec1v1 = (x02 - x22) * f;
+	ec1v2 = (x12 - x02) * f;
+	ec2v0 = (x1 - x2) * f;
+	ec2v1 = (x2 - x0) * f;
+	ec2v2 = (x0 - x1) * f;
+}
+
+bool DependentVector::AxisView::Parabola::IsOK() const {
+	return OK;
+}
+
+void DependentVector::AxisView::Parabola::Calc(double v0, double v1,
+		double v2) {
+	if (!OK)
+		return;
+	c0 = v0 * ec0v0 + v1 * ec0v1 + v2 * ec0v2;
+	c1 = v0 * ec1v0 + v1 * ec1v1 + v2 * ec1v2;
+	c2 = v0 * ec2v0 + v1 * ec2v1 + v2 * ec2v2;
+}
+
+bool DependentVector::AxisView::Parabola::IsMax() const {
+	if (!OK)
+		return false;
+	return c2 < (-DBL_EPSILON);
+}
+
+bool DependentVector::AxisView::Parabola::IsMin() const {
+	if (!OK)
+		return false;
+	return c2 > DBL_EPSILON;
+}
+
+double DependentVector::AxisView::Parabola::XExtremum() const {
+	if (!OK || fabs(c2) < DBL_EPSILON)
+		return 0.0;
+	return -c1 / (2.0 * c2);
+}
+
+double DependentVector::AxisView::Parabola::Y(double x) const {
+	return c0 + (c1 + c2 * x) * x;
+}
+
+DependentVector::Point DependentVector::AxisView::ExtremumP(bool useParabolas,
+		bool invert, bool immediatlyReturn) const {
+	const size_t N = parent->Length();
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	DependentVector::Point ret(parent->AxesCount() - 1);
+	double vm = invert ? (DBL_MAX) : (-DBL_MAX);
+	for (size_t ax = axBegin; ax <= axEnd; ax++) {
+		const size_t offs = ax * N;
+		for (size_t idx0 = N0; idx0 < N1; idx0++) {
+			const double v0 = parent->operator[](offs + idx0);
+			if (((v0 > vm && !invert) || (v0 < vm && invert))
+					&& !immediatlyReturn) {
+				ret.idx = idx0;
+				vm = v0;
+			}
+			if (useParabolas
+					&& ((idx0 + 2 < N1) || (N == N1 && parent->cyclic))) {
+				const size_t idx1 = (idx0 + 1) % N;
+				const size_t idx2 = (idx0 + 2) % N;
+				const double x0 = parent->operator[](idx1);
+				const double x1 = parent->operator[](idx1);
+				const double x2 = parent->operator[](idx2);
+				Parabola p(x0, x1, x2);
+				if (p.IsOK()) {
+					const double v1 = parent->operator[](offs + idx1);
+					const double v2 = parent->operator[](offs + idx2);
+					p.Calc(v0, v1, v2);
+					if ((p.IsMax() && !invert) || (p.IsMin() && invert)) {
+						const double x = p.XExtremum();
+						if (x >= x0 && x <= x2) {
+							const double y = p.Y(x);
+							if ((y > vm && !invert) || (y < vm && invert)) {
+								vm = y;
+								if (x >= x1) {
+									ret.idx = idx1;
+									ret.rel = (x - x1) / (x2 - x1);
+								} else {
+									ret.idx = idx0;
+									ret.rel = (x - x0) / (x1 - x0);
+								}
+								ret.x = x;
+								ret.y[ax - 1] = y;
+								for (size_t ax2 = 0; ax2 < ret.y.size();
+										ax2++) {
+									if (ax2 + 1 == ax)
+										continue;
+									const size_t offs2 = (ax2 + 1) * N;
+									const double w0 = parent->operator[](
+											offs2 + idx1);
+									const double w1 = parent->operator[](
+											offs2 + idx1);
+									const double w2 = parent->operator[](
+											offs2 + idx2);
+									p.Calc(w0, w1, w2);
+									ret.y[ax2] = p.Y(x);
+								}
+								if (immediatlyReturn)
+									return ret;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ret;
+}
+
+DependentVector::Point DependentVector::AxisView::MaxP(
+		bool useParabolas) const {
+	if (axBegin == 0 && useParabolas)
+		throw std::runtime_error(
+				"DependentVector::AxisView::MaxP - This function cannot be applied to the X axis whilst evaluating parabolas.");
+	return ExtremumP(useParabolas, false, false);
+}
+
+DependentVector::Point DependentVector::AxisView::MinP(
+		bool useParabolas) const {
+	if (axBegin == 0 && useParabolas)
+		throw std::runtime_error(
+				"DependentVector::AxisView::MaxP - This function cannot be applied to the X axis whilst evaluating parabolas.");
+	return ExtremumP(useParabolas, true, false);
+}
+
+std::vector<DependentVector::Point> DependentVector::AxisView::FindPeaks(
+		const double vMin) {
+	std::vector<Point> result;
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	size_t Nc = N0;
+	while (Nc < N1) {
+		AxisView view(parent, axBegin, axEnd, Nc, N1);
+		DependentVector::Point pt = view.ExtremumP(true, false, true);
+		if (pt.idx == (size_t) -1)
+			break;
+		if (axBegin > 0 && pt.y[axBegin - 1] > vMin)
+			result.push_back(pt);
+		Nc = pt.idx + 1;
+	}
+	auto ptlt = [&ax=axBegin](const DependentVector::Point &lhs,
+			const DependentVector::Point &rhs) {
+		return lhs.y[ax - 1] < rhs.y[ax - 1];
+	};
+	std::sort(result.begin(), result.end(), ptlt);
+	return result;
+}
+
+std::vector<DependentVector::Point> DependentVector::AxisView::FindValleys(
+		const double vMax) {
+	std::vector<Point> result;
+	const size_t N0 = GetRowStart();
+	const size_t N1 = GetRowEnd();
+	size_t Nc = N0;
+	while (Nc < N1) {
+		AxisView view(parent, axBegin, axEnd, Nc, N1);
+		DependentVector::Point pt = view.ExtremumP(true, true, true);
+		if (pt.idx == (size_t) -1)
+			break;
+		if (axBegin > 0 && pt.y[axBegin - 1] < vMax)
+			result.push_back(pt);
+		Nc = pt.idx + 1;
+	}
+	auto ptlt = [&ax=axBegin](const DependentVector::Point &lhs,
+			const DependentVector::Point &rhs) {
+		return lhs.y[ax - 1] < rhs.y[ax - 1];
+	};
+	std::sort(result.begin(), result.end(), ptlt);
+	return result;
+}
+
+DependentVector::AxisView DependentVector::All() {
+	Access(AxesCount() - 1);
+	return AxisView(this, 0, AxesCount());
+}
+
+DependentVector::AxisView DependentVector::AllY() {
+	Access(AxesCount() - 1);
+	return AxisView(this, 1, AxesCount());
+}
+
+DependentVector::AxisView DependentVector::Ax(size_t axis) {
+	Access(axis);
+	return AxisView(this, axis, axis + 1);
+}
+
+DependentVector::AxisView DependentVector::X() {
+	Access(0);
+	return AxisView(this, 0, 1);
+}
+
+DependentVector::AxisView DependentVector::Y() {
+	Access(1);
+	return AxisView(this, 1, 2);
+}
+
+//DependentVector::AxisView DependentVector::Y(size_t axis) {
+//	Access(axis + 1);
+//	return AxisView(this, axis + 1, axis + 2);
+//}
+
+void DependentVector::Sort(size_t axisIdx) {
+	Sync();
+	ReorderDimensions();
+	const size_t N = Length();
+	if (N <= 1)
+		return;
+
+	// Deferred sorting: First idx is sorted, then all vectors are remapped
+	// with idx.
+	std::vector<size_t> idx(N);
+	std::iota(idx.begin(), idx.end(), 0);
+
+	const size_t offs = axisIdx * N;
+	const double v0 = operator [](offs);
+	const double v1 = operator [](offs + N - 1);
+
+	// Shortcut, maybe the vectors are simply ordered in reverse.
+	if (v0 > v1)
+		std::reverse(idx.begin(), idx.end());
+
+	auto less_than = [&v = *this, &offs](size_t idx0, size_t idx1) {
+		return v[offs + idx0] < v[offs + idx1];
+	};
+	std::sort(idx.begin(), idx.end(), less_than);
+
+	Map(idx);
+}
+
+void DependentVector::Reverse() {
+	Sync();
+	ReorderDimensions();
+	const size_t N = Length();
+	for (size_t ax = 0; ax < AxesCount(); ax++)
+		std::reverse(begin() + ax * N, begin() + (ax + 1) * N);
+}
+
+void DependentVector::Resample(size_t Nnew) {
+	//TODO Test all edge-cases: linear, cyclic, cyclic with overlapping ends
+	Sync();
+	ReorderDimensions();
+	if (empty())
+		return;
+	std::vector<Point> pos;
+	if (Nnew == 0) {
+		SetSize(Nnew, AxesCount());
+		return;
+	}
+	if (Nnew == 1 && !cyclic) {
+		std::vector<size_t> idx = { 0 };
+		Map(idx);
+		return;
+	}
+	const double v0 = front();
+	const double v1 = cyclic ? (v0 + cycleLength) : (operator[](Size(0) - 1));
+	std::vector<double> x;
+	x.reserve(Nnew);
+	const double h = (double) Nnew - (cyclic ? 2 : 1);
+	for (size_t n = 0; n < Nnew; n++) {
+		x.push_back((double) n / h * (v1 - v0) + v0);
+	}
+	*this = Sample(x);
+}
+
+DependentVector DependentVector::Sample(const std::vector<double> &x) const {
+	std::vector<Point> pos;
+	pos.reserve(x.size());
+	size_t idx = 0;
+	const size_t N = Length();
+	const double x0 = front();
+	for (double s : x) {
+		if (cyclic) {
+			s = fmod(s - x0, cycleLength) + x0;
+			if ((s - x0) < 0.0)
+				s += cycleLength;
+		}
+		while (idx + 1 < N && operator[](idx) < s)
+			idx++;
+		while (idx > 0 && operator[](idx - 1) > s)
+			idx--;
+		size_t idx1 = idx + 1;
+		if (cyclic) {
+			idx1 %= N;
+		} else if (idx1 >= N) {
+			idx--;
+			idx1--;
+		}
+		const double x0 = operator[](idx);
+		const double x1 = operator[](idx1) + ((idx1 < idx) ? cycleLength : 0.0);
+		pos.emplace_back(idx, (s - x0) / (x1 - x0), s);
+	}
+	return Sample(pos);
+}
+
+DependentVector DependentVector::Sample(const std::vector<Point> &pos) const {
+	const size_t N = Length();
+	const size_t Ax = AxesCount();
+	DependentVector ret(pos.size(), Ax);
+	ret.units = units;
+	ret.cyclic = cyclic;
+	ret.cycleLength = cycleLength;
+	ret.clear();
+	ret.reserve(pos.size() * Ax);
+	for (size_t ax = 0; ax < Ax; ax++) {
+		size_t offs = ax * N;
+
+		for (Point p : pos) {
+			size_t idx0 = p.idx;
+			size_t idx1 = (p.idx + 1);
+			if (cyclic) {
+				idx1 %= N;
+			} else if (idx1 >= N) {
+				idx0--;
+				idx1--;
+			}
+			const double v0 = operator[](offs + idx0);
+			const double v1 = operator[](offs + idx1);
+			ret.push_back(v0 + (v1 - v0) * p.rel);
+		}
+	}
+	return ret;
+}
+
+void DependentVector::Map(const std::vector<size_t> &indices) {
+	Sync();
+	ReorderDimensions();
+	const size_t N = Length();
+	DependentVector temp = *this;
+	clear();
+	for (size_t ax = 0; ax < AxesCount(); ax++) {
+		size_t offs = ax * N;
+		for (size_t i : indices)
+			push_back(temp[offs + i]);
+	}
+	SetSize(indices.size(), AxesCount());
+}
+
+size_t DependentVector::IatV(double value, size_t axis, Direction direction,
+		size_t rowStart, size_t rowEnd) const {
+	const size_t N = Length();
+	if (N == 0)
+		return (size_t) -1;
+	if (N == 1)
+		return 0;
+
+	if (axis == 0 && direction == Direction::first_risingabove) {
+		// Special handling for the x-axis
+		if (cyclic && cycleLength > 0.0) {
+			while (value < front())
+				value += cycleLength;
+			value = fmod(value - front(), cycleLength) + front();
+		}
+		if (idxSearchSpeedup >= size())
+			idxSearchSpeedup = 0;
+		if (operator[](idxSearchSpeedup) > value)
+			idxSearchSpeedup = 0;
+		while ((idxSearchSpeedup + 1) < size()
+				&& operator[](idxSearchSpeedup + 1) < value)
+			idxSearchSpeedup++;
+		return idxSearchSpeedup;
+	}
+
+	const size_t offs = axis * N;
+	rowStart++;
+	if (rowEnd >= N)
+		rowEnd = N;
+	else
+		rowEnd++;
+	if (rowStart > rowEnd)
 		return (size_t) -1;
 	switch (direction) {
 	case Direction::first_risingabove: {
-		for (size_t n = xstart; n < xend; ++n)
-			if (y[n - 1] <= yval && y[n] > yval)
+		for (size_t n = rowStart; n < rowEnd; n++)
+			if (operator[](offs + n - 1) <= value
+					&& operator[](offs + n) > value)
 				return n;
 	}
 		break;
 	case Direction::first_fallingbelow: {
-		for (size_t n = xstart; n < xend; ++n)
-			if (y[n - 1] >= yval && y[n] < yval)
+		for (size_t n = rowStart; n < rowEnd; n++)
+			if (operator[](offs + n - 1) >= value
+					&& operator[](offs + n) < value)
 				return n;
 	}
 		break;
 	case Direction::first_passing: {
-		for (size_t n = xstart; n < xend; ++n)
-			if ((y[n - 1] >= yval && y[n] <= yval)
-					|| (y[n - 1] <= yval && y[n] >= yval))
+		for (size_t n = rowStart; n < rowEnd; n++)
+			if ((operator[](offs + n - 1) >= value
+					&& operator[](offs + n) <= value)
+					|| (operator[](offs + n - 1) <= value
+							&& operator[](offs + n) >= value))
 				return n;
 	}
 		break;
 	case Direction::last_risingabove: {
-		for (size_t n = xend; n-- > xstart;)
-			if (y[n - 1] <= yval && y[n] > yval)
+		for (size_t n = rowEnd; n-- > rowStart;)
+			if (operator[](offs + n - 1) <= value
+					&& operator[](offs + n) > value)
 				return n;
 	}
 		break;
 	case Direction::last_fallingbelow: {
-		for (size_t n = xend; n-- > xstart;)
-			if (y[n - 1] >= yval && y[n] < yval)
+		for (size_t n = rowEnd; n-- > rowStart;)
+			if (operator[](offs + n - 1) >= value
+					&& operator[](offs + n) < value)
 				return n;
 	}
 		break;
 	case Direction::last_passing: {
-		for (size_t n = xend; n-- > xstart;)
-			if ((y[n - 1] >= yval && y[n] <= yval)
-					|| (y[n - 1] <= yval && y[n] >= yval))
+		for (size_t n = rowEnd; n-- > rowStart;)
+			if ((operator[](offs + n - 1) >= value
+					&& operator[](offs + n) <= value)
+					|| (operator[](offs + n - 1) <= value
+							&& operator[](offs + n) >= value))
 				return n;
 	}
 		break;
@@ -217,503 +970,101 @@ size_t DependentVector::IatY(const double yval, Direction direction,
 	return (size_t) -1;
 }
 
-double DependentVector::XatY(const double yval, Direction direction,
-		size_t xstart, size_t xend) const {
-	size_t idx = IatY(yval, direction, xstart, xend);
-	if (idx > x.size()) {
-		if (direction == Direction::first_risingabove
-				|| direction == Direction::first_fallingbelow
-				|| direction == Direction::first_passing)
-			return DBL_MAX;
-		return -DBL_MAX;
-	}
-	const double den = y[idx - 1] - y[idx];
-	if (fabs(den) < 1e-9)
-		return (x[idx - 1] + x[idx]) / 2.0;
-	return ((x[idx - 1] - x[idx]) * yval - x[idx - 1] * y[idx]
-			+ x[idx] * y[idx - 1]) / den;
-}
-
-DependentVector DependentVector::operator -() const {
-	DependentVector temp = *this;
-	for (auto &v : temp.y)
-		v = -v;
-	return temp;
-}
-
-DependentVector& DependentVector::operator +=(const double val) {
-	for (auto &v : y)
-		v += val;
-	return (*this);
-}
-
-DependentVector& DependentVector::operator -=(const DependentVector &a) {
-	if (a.Size() != this->Size())
-		throw(std::range_error(
-				"DependentVector::operator -= Both arrays have different sizes."));
-	std::transform(this->y.begin(), this->y.end(), a.y.begin(), this->y.begin(),
-			std::minus<double>());
-	return *this;
-}
-
-DependentVector& DependentVector::operator -=(const double val) {
-	for (auto &v : y)
-		v -= val;
-	return (*this);
-}
-
-DependentVector& DependentVector::operator *=(const double val) {
-	for (auto &v : y)
-		v *= val;
-	return (*this);
-}
-
-DependentVector& DependentVector::operator /=(const double val) {
-	for (auto &v : y)
-		v /= val;
-	return (*this);
-}
-
-void DependentVector::YLimit(double ymin, double ymax) {
-	for (auto &v : y)
-		v = fmin(fmax(v, ymin), ymax);
-}
-
-void DependentVector::Normalize(size_t xstart, size_t xend) {
-	const auto ymax = Max(xstart, xend);
-	const auto ymin = Min(xstart, xend);
-	const double h = 1.0 / fmax(ymax.y - ymin.y, 1e-9);
-	for (auto &v : y)
-		v = (v - ymin.y) * h;
-}
-
-DependentVector::Point DependentVector::Max(size_t xstart, size_t xend) const {
-	if (xend >= x.size())
-		xend = x.size() - 1;
-	Point temp;
-	temp.idx = (size_t) -1;
-	temp.y = -DBL_MAX;
-	if (xstart > xend)
-		return temp;
-	for (size_t n = xstart; n <= xend; ++n) {
-		if (y[n] > temp.y) {
-			temp.idx = n;
-			temp.x = x[n];
-			temp.y = y[n];
-		}
-	}
-	return temp;
-}
-
-DependentVector::Point DependentVector::Min(size_t xstart, size_t xend) const {
-	if (xend >= x.size())
-		xend = x.size() - 1;
-	Point temp;
-	temp.idx = (size_t) -1;
-	temp.y = DBL_MAX;
-	if (xstart > xend)
-		return temp;
-	for (size_t n = xstart; n <= xend; ++n) {
-		if (y[n] < temp.y) {
-			temp.idx = n;
-			temp.x = x[n];
-			temp.y = y[n];
-		}
-	}
-	return temp;
-}
-
-double DependentVector::Mean() const {
-	const double mean = Area();
+DependentVector::Point DependentVector::PatV(double value, size_t axis,
+		Direction direction, size_t rowStart, size_t rowEnd) const {
+	const size_t N = Length();
+	const size_t Ax = AxesCount();
+	if (axis > Ax)
+		throw std::runtime_error("DependentVector::PatV - axis out of range.");
+	size_t idx0 = IatV(value, axis, direction, rowStart, rowEnd);
+	size_t idx1 = idx0 - 1;
 	if (cyclic) {
-		return mean / cyclelength;
+		idx1 %= N;
+	} else if (idx1 >= N) {
+		idx0--;
+		idx1--;
+	}
+	const double x0 = operator[](idx0);
+	const double x1 =
+			operator[](idx1) + (cyclic && idx1 < idx0) ? cycleLength : 0.0;
+	const size_t offs = axis * N;
+	const double y0 = operator[](offs + idx0);
+	const double y1 = operator[](offs + idx1);
+
+	Point ret(Ax - 1);
+	ret.idx = idx0;
+	if (axis == 0) {
+		ret.rel = (value - x0) / (x1 - x0);
 	} else {
-		double sumx = 0.0;
-		const size_t N = x.size();
-		for (size_t n = 1; n < N; ++n) {
-//			if(y[n - 1] == DBL_MAX || y[n - 1] == -DBL_MAX || y[n] == DBL_MAX
-//					|| y[n] == -DBL_MAX) continue;
-			sumx += x[n] - x[n - 1];
-		}
-		return mean / sumx;
+		if (fabs(y1 - y0) > DBL_EPSILON)
+			ret.rel = (value - y0) / (y1 - y0);
+		else
+			ret.rel = 0.0;
 	}
-}
-
-double DependentVector::Area() const {
-	const size_t N = x.size();
-	double area = 0.0;
-	for (size_t n = 1; n < N; ++n) {
-//		if(y[n - 1] == DBL_MAX || y[n - 1] == -DBL_MAX || y[n] == DBL_MAX
-//				|| y[n] == -DBL_MAX) continue;
-		area += (y[n] + y[n - 1]) * (x[n] - x[n - 1]) / 2.0;
-	}
-	if (cyclic) {
-		area += (y[0] + y[N - 1]) * (x[0] + cyclelength - x[N - 1]) / 2.0;
-	}
-	return area;
-}
-
-DependentVector DependentVector::Range(size_t xstart, size_t xend) const {
-	if (xend >= x.size())
-		xend = x.size() - 1;
-	if (xstart > xend)
-		throw(std::runtime_error(
-		__FILE__"DependentVector::Range: i0 > i1"));
-	DependentVector temp;
-	temp.Resize(xend - xstart + 1);
-	std::copy_n(x.begin() + xstart, xend - xstart + 1, temp.x.begin());
-	std::copy_n(y.begin() + xstart, xend - xstart + 1, temp.y.begin());
-	return temp;
-}
-
-void DependentVector::Sort() {
-	const size_t N = x.size();
-	if (N <= 1)
-		return;
-// Shortcut, maybe the x vector is simply ordered in reverse.
-	if (x[0] > x[N - 1])
-		Reverse();
-	bool flag = true;
-	while (flag) {
-		flag = false;
-		for (size_t n = 1; n < N; ++n) {
-			if (x[n - 1] > x[n]) {
-				flag = true;
-				std::swap(x[n - 1], x[n]);
-				std::swap(y[n - 1], y[n]);
-			}
-		}
-		if (!flag)
-			break;
-		flag = false;
-		for (size_t n = (N - 1); n > 0; --n) {
-			if (x[n - 1] > x[n]) {
-				flag = true;
-				std::swap(x[n - 1], x[n]);
-				std::swap(y[n - 1], y[n]);
-			}
-		}
-	}
-}
-
-void DependentVector::Unwrap(double tol) {
-	if (tol <= 0.0)
-		throw(std::domain_error(
-		__FILE__"DependentVector::Unwrap: 'tol' should be a positive number."));
-	for (size_t n = 1; n < y.size(); ++n) {
-		while (y[n] < y[n - 1] - tol)
-			y[n] += 2 * tol;
-		while (y[n] > y[n - 1] + tol)
-			y[n] -= 2 * tol;
-	}
-}
-
-void DependentVector::Reverse() {
-	if (x.size() <= 1)
-		return;
-	std::reverse(x.begin(), x.end());
-	std::reverse(y.begin(), y.end());
-}
-
-void DependentVector::Resample(size_t Nnew) {
-//TODO Test all edge-cases: linear, cyclic, cyclic with overlapping ends
-	if (Nnew < 2)
-		return;
-	size_t N = x.size();
-	bool overlappingends = false;
-	if (cyclic) {
-		if (x[N - 1] > x[0]) {
-			if (fabs(x[N - 1] - (x[0] + cyclelength)) < 1e-6) {
-				overlappingends = true;
-			} else {
-				// Let the ends overlap, while interpolating
-				x.push_back(x[0] + cyclelength);
-				y.push_back(y[0]);
-				N++;
-				Nnew++;
-			}
-		} else {
-			if (fabs(x[N - 1] - (x[0] - cyclelength)) < 1e-6) {
-				overlappingends = true;
-			} else {
-				// Let the ends overlap, while interpolating
-				x.push_back(x[0] - cyclelength);
-				y.push_back(y[0]);
-				N++;
-				Nnew++;
-			}
-		}
-	}
-	std::vector<double> xnew(Nnew);
-	std::vector<double> ynew(Nnew);
-// First and last point are fixed
-	xnew[0] = x[0];
-	ynew[0] = y[0];
-	xnew[Nnew - 1] = x[N - 1];
-	ynew[Nnew - 1] = y[N - 1];
-	{
-		// Linear x
-		double xinterp = x[0];
-		const double dxi = (x[N - 1] - x[0]) / (double) (Nnew - 1);
-		for (size_t n = 1; n < (Nnew - 1); ++n) {
-			xinterp += dxi;
-			xnew[n] = xinterp;
-		}
-	}
-	if (x[N - 1] > x[0]) {
-		// Interpolate y normally
-		size_t p = 0;
-		for (size_t n = 1; n < (Nnew - 1); ++n) {
-			while (x[p] < xnew[n])
-				++p;
-			ynew[n] = y[p - 1]
-					+ (y[p] - y[p - 1]) / (x[p] - x[p - 1])
-							* (xnew[n] - x[p - 1]);
-		}
-	} else {
-		// Interpolate y if x is reversed
-		size_t p = 0;
-		for (size_t n = 1; n < (Nnew - 1); ++n) {
-			while (x[p] > xnew[n])
-				++p;
-			ynew[n] = y[p - 1]
-					+ (y[p] - y[p - 1]) / (x[p] - x[p - 1])
-							* (xnew[n] - x[p - 1]);
-		}
-	}
-	if (cyclic && !overlappingends) {
-		// Remove extra points
-		xnew.pop_back();
-		ynew.pop_back();
-	}
-	x.swap(xnew);
-	y.swap(ynew);
-}
-
-void DependentVector::CumSum() {
-	const size_t N = y.size();
-	for (size_t n = 1; n < N; ++n)
-		y[n] += y[n - 1];
-}
-
-void DependentVector::CumProd() {
-	const size_t N = y.size();
-	for (size_t n = 1; n < N; ++n)
-		y[n] *= y[n - 1];
-}
-
-void DependentVector::Integrate() {
-	const size_t N = y.size();
-	std::vector<double> temp(N);
-	temp[0] = 0.0;
-	for (size_t n = 1; n < N; ++n)
-		temp[n] = temp[n - 1] + (y[n] + y[n - 1]) * (x[n] - x[n - 1]) / 2.0;
-	y.swap(temp);
-}
-
-void DependentVector::Derive() {
-	const size_t N = y.size();
-	std::vector<double> temp(N);
-	for (size_t n = 1; (n + 1) < N; ++n) {
-		const double den = x[n + 1] - x[n - 1];
-		if (fabs(den) < 1e-9) {
-			temp[n] = 0.0;
-		} else {
-			temp[n] = (y[n + 1] - y[n - 1]) / den;
-		}
-	}
-	{
-		const double den = x[1] - x[0];
-		if (fabs(den) < 1e-9) {
-			temp[0] = 0.0;
-		} else {
-			temp[0] = (y[1] - y[0]) / den;
-		}
-	}
-	{
-		const double den = x[N - 1] - x[N - 2];
-		if (fabs(den) < 1e-9) {
-			temp[N - 1] = 0.0;
-		} else {
-			temp[N - 1] = (y[N - 1] - y[N - 2]) / den;
-		}
-	}
-
-	y.swap(temp);
-}
-
-std::vector<DependentVector::Point> DependentVector::FindPeaks(
-		const double minvalue, size_t xstart, size_t xend) {
-	std::vector<Point> result;
-	size_t N = Size();
-	if (N < 2)
-		return result;
-
-	bool usecyclicevaluation = cyclic && xstart == 0 && xend == (size_t) -1;
-	if (usecyclicevaluation) {
-		// Prevent errors in cases, where the first and last x match up by
-		// removing the last sample.
-		if (fabs(x[N - 1] - x[0] - cyclelength) < 1e-6)
-			--N;
-		xend = N - 1;
-	} else {
-		if (N < 3)
-			return result;
-		if (xend > N - 3)
-			xend = N - 3;
-		if (xstart > xend)
-			return result;
-	}
-
-	for (size_t n = xstart; n <= xend; ++n) {
-		const double x0 = x[n];
-		const double x1 = (
-				(n + 1 >= N) ? (x[(n + 1) % N] + cyclelength) : x[n + 1]);
-		const double x2 = (
-				(n + 2 >= N) ? (x[(n + 2) % N] + cyclelength) : x[n + 2]);
-		const double y0 = y[n];
-		const double y1 = y[(n + 1) % N];
-		const double y2 = y[(n + 2) % N];
-		if (y1 < minvalue)
+	ret.x = x0 + (x1 - x0) * ret.rel;
+	if (axis > 0)
+		ret.y[axis - 1] = value;
+	for (size_t ax = 1; ax < Ax; ax++) {
+		if (ax == axis)
 			continue;
-		if (y0 >= y1 || y2 >= y1)
-			continue;
-
-		// Interpolate peaks with 2nd order polynoms to find the position and value of the maximum.
-		const double dx1 = x1 - x0;
-		const double dx2 = x2 - x0;
-		const double den1 = 2 * (dx1 * y2 - dx2 * y1 + (dx2 - dx1) * y0);
-		const double den2 = -2 * den1 * dx1 * dx2 * (dx2 - dx1);
-		if (fabs(den1) <= DBL_EPSILON || fabs(den2) <= DBL_EPSILON)
-			continue;
-		const double pos = (dx1 * (2 * x0 + dx1) * y2
-				- dx2 * (dx2 + 2 * x0) * y1
-				+ (dx2 - dx1) * (2 * x0 + dx2 + dx1) * y0) / den1;
-		const double value = (((dx2 - dx1) * (dx2 - dx1) * (dx2 - dx1)
-				* (dx2 - dx1) * y0 * y0)
-				- (2 * dx2 * dx2 * (dx2 - dx1) * (dx2 - dx1) * y0 * y1)
-				+ (dx2 * dx2 * dx2 * dx2 * y1 * y1)
-				+ (dx1 * dx1 * dx1 * dx1 * y2 * y2)
-				- (2 * dx1 * dx1
-						* (dx1 * dx1 * y0 - 2 * dx1 * dx2 * y0 + dx2 * dx2 * y0
-								+ dx2 * dx2 * y1) * y2)) / den2;
-
-		auto ptpos = result.begin();
-		while (ptpos != result.end() && ptpos->y > value) {
-			++ptpos;
-		}
-		if (ptpos == result.end()) {
-			result.push_back(Point((n + 1) % N, pos, value));
-		} else {
-			result.insert(ptpos, Point((n + 1) % N, pos, value));
-		}
+		const double v0 = operator[](ax * N + idx0);
+		const double v1 = operator[](ax * N + idx1);
+		ret.y[ax - 1] = v0 + (v1 - v0) * ret.rel;
 	}
-	return result;
+	return ret;
 }
 
-std::vector<DependentVector::Point> DependentVector::FindValleys(
-		const double maxvalue, size_t xstart, size_t xend) {
-	std::vector<Point> result;
-	size_t N = Size();
-	if (N < 2)
-		return result;
-	bool usecyclicevaluation = cyclic && xstart == 0 && xend == (size_t) -1;
-	if (usecyclicevaluation) {
-		// Prevent errors in cases, where the first and last x match up by
-		// removing the last sample.
-		if (fabs(x[N - 1] - x[0] - cyclelength) < 1e-6)
-			--N;
-		xend = N - 1;
-	} else {
-		if (N < 3)
-			return result;
-		if (xend > N - 3)
-			xend = N - 3;
-		if (xstart > xend)
-			return result;
-	}
-	for (size_t n = xstart; n <= xend; ++n) {
-		const double x0 = x[n];
-		const double x1 = (
-				(n + 1 >= N) ? (x[(n + 1) % N] + cyclelength) : x[n + 1]);
-		const double x2 = (
-				(n + 2 >= N) ? (x[(n + 2) % N] + cyclelength) : x[n + 2]);
-		const double y0 = y[n];
-		const double y1 = y[(n + 1) % N];
-		const double y2 = y[(n + 2) % N];
-		if (y1 >= maxvalue)
-			continue;
-		if (y0 <= y1 || y2 <= y1)
-			continue;
+double DependentVector::VatV(const double value, size_t axisFrom, size_t axisTo,
+		Direction direction, size_t idxStart, size_t idxEnd) const {
+	Point p = PatV(value, axisFrom, direction, idxStart, idxEnd);
+//	if (size() == 0)
+//		return DBL_MAX;
+//	if (size() == 1)
+//		return y[0];
+//	size_t idx = IatX(xval);
+//	if (idx == (size_t) -1)
+//		return 0.0;
+//	size_t idx = IatY(yval, direction, xstart, xend);
+//	if (idx > size()) {
+//		if (direction == Direction::first_risingabove
+//				|| direction == Direction::first_fallingbelow
+//				|| direction == Direction::first_passing)
+//			return DBL_MAX;
+//		return -DBL_MAX;
 
-		// Interpolate peaks with 2nd order polynoms to find the position and value of the maximum.
-		const double dx1 = x1 - x0;
-		const double dx2 = x2 - x0;
-		const double den1 = 2 * (dx1 * y2 - dx2 * y1 + (dx2 - dx1) * y0);
-		const double den2 = -2 * den1 * dx1 * dx2 * (dx2 - dx1);
-		if (fabs(den1) <= DBL_EPSILON || fabs(den2) <= DBL_EPSILON)
-			continue;
-		const double pos = (dx1 * (2 * x0 + dx1) * y2
-				- dx2 * (dx2 + 2 * x0) * y1
-				+ (dx2 - dx1) * (2 * x0 + dx2 + dx1) * y0) / den1;
-		const double value = (((dx2 - dx1) * (dx2 - dx1) * (dx2 - dx1)
-				* (dx2 - dx1) * y0 * y0)
-				- (2 * dx2 * dx2 * (dx2 - dx1) * (dx2 - dx1) * y0 * y1)
-				+ (dx2 * dx2 * dx2 * dx2 * y1 * y1)
-				+ (dx1 * dx1 * dx1 * dx1 * y2 * y2)
-				- (2 * dx1 * dx1
-						* (dx1 * dx1 * y0 - 2 * dx1 * dx2 * y0 + dx2 * dx2 * y0
-								+ dx2 * dx2 * y1) * y2)) / den2;
-
-		auto ptpos = result.begin();
-		while (ptpos != result.end() && ptpos->y < value) {
-			++ptpos;
-		}
-		if (ptpos == result.end()) {
-			result.push_back(Point((n + 1) % N, pos, value));
-		} else {
-			result.insert(ptpos, Point((n + 1) % N, pos, value));
-		}
-	}
-	return result;
+	if (axisTo == 0)
+		return p.x;
+	return p.y[axisTo - 1];
 }
 
 void DependentVector::Paint() const {
-	glBegin(GL_LINE_STRIP);
-	if (cyclic) {
-		for (size_t n = 0; n < x.size(); ++n) {
-			double co = cos(x[n]);
-			double si = sin(x[n]);
-			double d = y[n];
-			glVertex2d(co * d, si * d);
+	const size_t N = Length();
+	const size_t Ax = AxesCount();
+	for (size_t ax = 1; ax < Ax; ax++) {
+		const size_t offs = ax * N;
+		glBegin(GL_LINE_STRIP);
+		if (cyclic) {
+			for (size_t n = 0; n < N; n++) {
+				double co = cos(operator[](n));
+				double si = sin(operator[](n));
+				double d = operator[](offs + n);
+				glVertex2d(co * d, si * d);
+			}
+		} else {
+			for (size_t n = 0; n < N; n++)
+				glVertex2d(operator[](n), operator[](offs + n));
 		}
-	} else {
-		for (size_t n = 0; n < x.size(); ++n)
-			glVertex2d(x[n], y[n]);
+		glEnd();
 	}
-	glEnd();
 }
 
 void DependentVector::PaintCircle(double radius) {
 	glBegin(GL_LINE_LOOP);
-	for (size_t n = 0; n < 100; ++n) {
+	for (size_t n = 0; n < 100; n++) {
 		const float co = cos(2 * M_PI / 100 * n);
 		const float si = sin(2 * M_PI / 100 * n);
 		glNormal3f(co, si, 0);
 		glVertex2f(co * radius, si * radius);
 	}
 	glEnd();
-}
-
-Matrix DependentVector::ToMatrix() const {
-	const size_t N = Size();
-	if (y.size() != N)
-		throw std::logic_error(
-		__FILE__":ToMatrix(): x and y should have the same number of values.");
-	Matrix ret(N, 2);
-	for (const double &v : x)
-		ret.Insert(v);
-	for (const double &v : y)
-		ret.Insert(v);
-	return ret;
 }

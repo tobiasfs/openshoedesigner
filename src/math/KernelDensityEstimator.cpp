@@ -32,38 +32,39 @@
 #include <stdexcept>
 
 void KernelDensityEstimator::Clear() {
-	DependentVector::Clear();
+	DependentVector::SetSize(0, 2);
 	coverage.clear();
 	count = 0;
 	weightsum = 0.0;
 }
 
 void KernelDensityEstimator::Resize(size_t N) {
-	DependentVector::Resize(N);
-	coverage.assign(N, 0.0);
+	DependentVector::SetSize(N, 2);
+	coverage.assign(Length(), 0.0);
 	count = 0;
 	weightsum = 0.0;
 }
 
 void KernelDensityEstimator::XLinspace(double x0, double x1, size_t N) {
-	DependentVector::XLinspace(x0, x1, N);
-	coverage.assign(N, 0.0);
+	SetSize(N, 2);
+	X().Linspace(x0, x1);
+	coverage.assign(Length(), 0.0);
 	count = 0;
 	weightsum = 0.0;
 }
 
 void KernelDensityEstimator::YInit(double value) {
-	DependentVector::YInit(value);
-	coverage.assign(Size(), 0.0);
+	Y().Init(value);
+	coverage.assign(Length(), 0.0);
 	weightsum = 0.0;
 	count = 0;
 }
 
 void KernelDensityEstimator::Insert(double pos, double kernel(double),
 		double weight, double sigma) {
-	const size_t N = Size();
-	const double x0 = X(0);
-	const double x1 = X(N - 1);
+	const size_t N = Length();
+	const double x0 = X()[0];
+	const double x1 = X()[N - 1];
 
 	count++;
 	weightsum += weight;
@@ -89,21 +90,21 @@ void KernelDensityEstimator::Insert(double pos, double kernel(double),
 	for (size_t n = 0; n < N; ++n) {
 		double v;
 		if (IsCyclic()) {
-			v = X(n) - (p + ((X(n) >= px) ? CycleLength() : 0));
+			v = X()[n] - (p + ((X()[n] >= px) ? CycleLength() : 0));
 		} else {
-			v = X(n) - p;
+			v = X()[n] - p;
 		}
 		double f = kernel(v / sigma) / sigma;
 		coverage[n] += f;
-		Y(n) += f * weight;
+		Y()[n] += f * weight;
 	}
 }
 
 void KernelDensityEstimator::Attenuate(double pos, double kernel(double),
 		double weight, double sigma) {
-	const size_t N = Size();
-	const double x0 = X(0);
-	const double x1 = X(N - 1);
+	const size_t N = Length();
+	const double x0 = X()[0];
+	const double x1 = X()[N - 1];
 	double px = 0.0;
 	double p = pos;
 	if (IsCyclic()) {
@@ -125,17 +126,17 @@ void KernelDensityEstimator::Attenuate(double pos, double kernel(double),
 	for (size_t n = 0; n < N; ++n) {
 		double v;
 		if (IsCyclic()) {
-			v = X(n) - (p + ((X(n) >= px) ? CycleLength() : 0));
+			v = X()[n] - (p + ((X()[n] >= px) ? CycleLength() : 0));
 		} else {
-			v = X(n) - p;
+			v = X()[n] - p;
 		}
 
-		Y(n) *= 1.0 - (kernel(v / sigma) / kernel(0) * weight);
+		Y()[n] *= 1.0 - (kernel(v / sigma) / kernel(0) * weight);
 	}
 }
 
 void KernelDensityEstimator::Normalize() {
-	operator/=(Area());
+	operator/=(Y().Area());
 	count = 0;
 	weightsum = 1.0;
 }
@@ -147,10 +148,10 @@ void KernelDensityEstimator::NormalizeByCoverage() {
 		out << "Function called, before kernel were inserted.";
 		throw std::logic_error(out.str());
 	}
-	const size_t N = Size();
+	const size_t N = Length();
 	for (size_t n = 0; n < N; ++n)
 		if (coverage[n] > FLT_EPSILON)
-			Y(n) /= coverage[n];
+			Y()[n] /= coverage[n];
 	coverage.assign(N, 0.0);
 	count = 0;
 	weightsum = 1.0;

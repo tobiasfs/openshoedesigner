@@ -174,6 +174,15 @@ public:
 	static Matrix Diag(const Matrix &other, size_t S0, size_t S1);
 	static Matrix Diag(const Matrix &other, const std::vector<size_t> &dims);
 
+	/**\brief Create a Vandermode matrix for interpolating a Polynomial
+	 *
+	 * The matrix has to be (pseudo-)inverted and multiplied with the y values
+	 * to get the coefficients of the polynomial interpolating the given y.
+	 *
+	 * \param x Input vector to generate the will be verbatim in the 2nd column
+	 * \param polynomialOrder Order of the generated polynomial with order+1 coefficients
+	 * \return Matrix with order+1 columns and as many rows as x.size()
+	 */
 	static Matrix Vandermonde(const std::vector<double> &x,
 			size_t polynomialOrder);
 
@@ -229,10 +238,10 @@ public:
 
 	/**\brief Return a vector of dimensions
 	 *
+	 * Trailing dimensions of size 1 are cut off.
+	 *
 	 * The vector has at least one element. If the matrix is empty, the element
 	 * has the number 0.
-	 *
-	 * Trailing dimensions of size 1 are cut off.
 	 *
 	 * \return std::vector of size_t.
 	 */
@@ -246,6 +255,20 @@ public:
 	 * \return std::vector of size_t.
 	 */
 	std::vector<size_t> GetMinDimensions() const;
+
+	/**\brief Change the order of the underlying vector
+	 *
+	 * The matrix itself and the values accessed by e.g. operator() are not
+	 * changed. Only the linear vector underneath is reordered.
+	 *
+	 * \param newOrder (default: NORMAL) Order to bring the vector into
+	 */
+	void ReorderDimensions(Order newOrder = Order::NORMAL); //TODO Change name to reorder data.
+
+	size_t Sub2Ind(size_t p0, size_t p1 = 0, size_t p2 = 0,
+			size_t p3 = 0) const;
+	size_t Sub2Ind(const std::vector<size_t> &p) const;
+	std::vector<size_t> Ind2Sub(const size_t idx) const;
 
 	/** \}
 	 * \name Element access
@@ -306,6 +329,7 @@ public:
 	 * \{
 	 */
 
+	Matrix operator-() const;
 	Matrix& operator+=(const Matrix &b);
 	friend Matrix operator+(Matrix a, const Matrix &b) {
 		a += b;
@@ -346,6 +370,10 @@ public:
 			const size_t p2 = 0, const size_t p3 = 0); ///< Coordinate read/write access
 	double operator()(const size_t p0, const size_t p1 = 0, const size_t p2 = 0,
 			const size_t p3 = 0) const; ///< Coordinate read access
+	double& At(const size_t p0, const size_t p1 = 0, const size_t p2 = 0,
+			const size_t p3 = 0);
+	double At(const size_t p0, const size_t p1 = 0, const size_t p2 = 0,
+			const size_t p3 = 0) const;
 
 	void Squeeze();
 	void Reshape(const size_t S1 = (size_t) -1, const size_t S2 = 1,
@@ -389,6 +417,8 @@ public:
 private:
 	std::vector<size_t> FillIndex(Mode mode, const std::vector<size_t> &x,
 			size_t N) const;
+	std::vector<size_t> CalculateStrides(Order order_) const;
+
 public:
 
 	void AlignAtZero(); ///< Shift the offset of the values in the matrix to align the smallest element at zero
@@ -427,7 +457,7 @@ public:
 	 */
 
 	double Norm() const; ///< Square-norm of the matrix.
-	double Cond() const; ///< Conditional number for the matrix.
+	double Cond() const; ///< Conditional number for the matrix. (Expensive to calculate for bigger matrices.)
 	Matrix Min(size_t dim = 0) const;
 	Matrix Max(size_t dim = 0) const;
 	double AllMin() const; ///< Minimum value of all elements in the matrix

@@ -59,7 +59,7 @@ public:
 	void testDimensionSimplification() {
 		{
 			Matrix m(3, 5, 7, 1);
-			auto S = m.Size();
+			auto S = m.GetDimensions();
 			CPPUNIT_ASSERT_EQUAL((size_t ) 3, S.size());
 			CPPUNIT_ASSERT_EQUAL((size_t ) 3, S[0]);
 			CPPUNIT_ASSERT_EQUAL((size_t ) 5, S[1]);
@@ -68,7 +68,7 @@ public:
 		{
 			Matrix m(5, 1, 7, 1);
 			{
-				auto S = m.Size();
+				auto S = m.GetDimensions();
 				CPPUNIT_ASSERT_EQUAL((size_t ) 3, S.size());
 				CPPUNIT_ASSERT_EQUAL((size_t ) 5, S[0]);
 				CPPUNIT_ASSERT_EQUAL((size_t ) 1, S[1]);
@@ -76,7 +76,7 @@ public:
 			}
 			m.Squeeze();
 			{
-				auto S = m.Size();
+				auto S = m.GetDimensions();
 				CPPUNIT_ASSERT_EQUAL((size_t ) 2, S.size());
 				CPPUNIT_ASSERT_EQUAL((size_t ) 5, S[0]);
 				CPPUNIT_ASSERT_EQUAL((size_t ) 7, S[1]);
@@ -84,10 +84,10 @@ public:
 		}
 		{
 			Matrix m(1, 1, 1, 1);
-			auto S = m.Size();
+			auto S = m.GetDimensions();
 			CPPUNIT_ASSERT_EQUAL((size_t ) 1, S.size());
 			CPPUNIT_ASSERT_EQUAL((size_t ) 1, S[0]);
-			auto D = m.GetDimensions();
+			auto D = m.Size();
 			CPPUNIT_ASSERT_EQUAL((size_t ) 4, D.size());
 			CPPUNIT_ASSERT_EQUAL((size_t ) 1, D[0]);
 			CPPUNIT_ASSERT_EQUAL((size_t ) 1, D[1]);

@@ -137,42 +137,43 @@ double MEstimator::TukeysBiweight::W(double z) const {
 void MEstimator::EstimateY(const DependentVector &data,
 		const Estimator &estimator, const double sigma, size_t xstart,
 		size_t xend, std::function<double(double)> weighting) {
-	if (xstart >= data.Size())
+	if (xstart >= data.Length())
 		return;
-	if (xend >= data.Size())
-		xend = data.Size() - 1;
+	if (xend >= data.Length())
+		xend = data.Length() - 1;
 	if (xstart > xend)
 		return;
 	if (xend - xstart < 2)
 		return;
 	std::vector<double> width;
-	width.assign(data.Size(), 0.0);
+	width.assign(data.Length(), 0.0);
 	for (size_t m = xstart; m <= xend; ++m) {
 		if (m == 0) {
-			width[m] = data.X(m + 1) - data.X(0);
+			width[m] = data.At(m + 1) - data.At(0);
 		} else {
-			if (m + 1 == data.Size()) {
-				width[m] = data.X(m) - data.X(m - 1);
+			if (m + 1 == data.Length()) {
+				width[m] = data.At(m) - data.At(m - 1);
 			} else {
-				width[m] = (data.X(m + 1) - data.X(m - 1)) / 2.0;
+				width[m] = (data.At(m + 1) - data.At(m - 1)) / 2.0;
 			}
 		}
 	}
 	const double L0 = std::accumulate(width.begin(), width.end(), 1e-9);
 //	std::vector <double> weight;
-	weight.assign(data.Size(), 0.0);
+	weight.assign(data.Length(), 0.0);
 	double L = 0.0;
 	for (size_t m = xstart; m <= xend; ++m) {
 		weight[m] = width[m] * weighting(((2.0 * L + width[m]) / L0) - 1.0);
 		L += width[m];
 	}
-	for (size_t n = 0; n < Size(); ++n) {
+	for (size_t n = 0; n < Length(); ++n) {
 		double temp = 0.0;
 		for (size_t m = xstart; m <= xend; ++m) {
-			const double estimation = estimator.Rho((data.Y(m) - X(n)) / sigma);
+			const double estimation = estimator.Rho(
+					(data.At(m, 1) - At(n)) / sigma);
 			temp += estimation * weight[m];
 		}
-		Y(n) = temp;
+		Y()[n] = temp;
 	}
 	for (size_t m = xstart; m <= xend; ++m)
 		if (width[m] > 1e-9)
@@ -182,22 +183,22 @@ void MEstimator::EstimateY(const DependentVector &data,
 void MEstimator::EstimateX(const DependentVector &data,
 		const Estimator &estimator, const double sigma, const double yValue,
 		size_t xstart, size_t xend) {
-	if (xstart >= data.Size())
+	if (xstart >= data.Length())
 		return;
-	if (xend >= data.Size())
-		xend = data.Size() - 1;
+	if (xend >= data.Length())
+		xend = data.Length() - 1;
 	if (xstart > xend)
 		return;
 	if (xend - xstart < 2)
 		return;
 
 //	std::vector <double> width;
-//	width.resize(data.Size());
+//	width.resize(data.Length());
 //	for(size_t m = xstart; m <= xend; ++m){
 //		if(m == 0){
 //			width[m] = data.X(m + 1) - data.X(0);
 //		}else{
-//			if(m + 1 == data.Size()){
+//			if(m + 1 == data.Length()){
 //				width[m] = data.X(m) - data.X(m - 1);
 //			}else{
 //				width[m] = (data.X(m + 1) - data.X(m - 1)) / 2.0;
@@ -205,15 +206,15 @@ void MEstimator::EstimateX(const DependentVector &data,
 //		}
 //	}
 
-	const size_t N = data.Size();
-	Resize(N);
+	const size_t N = data.Length();
+	SetSize(N, 2);
 	for (size_t n = 0; n < N; ++n)
-		X(n) = data.X(n);
+		At(n) = data.At(n);
 
 	for (size_t m = 0; m < xstart; ++m)
-		Y(m) = estimator.Rho(-DBL_MAX);
+		Y()[m] = estimator.Rho(-DBL_MAX);
 	for (size_t m = xstart; m <= xend; ++m)
-		Y(m) = estimator.Rho((data.Y(m) - yValue) / sigma);
+		Y()[m] = estimator.Rho((data.At(m, 1) - yValue) / sigma);
 	for (size_t m = xend + 1; m < N; ++m)
-		Y(m) = estimator.Rho(DBL_MAX);
+		Y()[m] = estimator.Rho(DBL_MAX);
 }

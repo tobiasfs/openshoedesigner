@@ -71,6 +71,7 @@ void Dependencies::Calculate() {
 		if (max < DBL_EPSILON)
 			continue;
 		if (p != ki) {
+			// Swap rows
 			for (size_t j = 0; j < M; ++j)
 				std::swap(operator[](ki + j * N), operator[](p + j * N)); // @suppress("Invalid arguments")
 		}

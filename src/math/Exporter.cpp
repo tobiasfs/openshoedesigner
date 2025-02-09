@@ -63,12 +63,8 @@ void Exporter::Add(const Geometry &geo, const std::string &name) {
 }
 
 void Exporter::Add(const DependentVector &vector, const std::string &name) {
-
-	Matrix M(GenName(name), vector.Size(), 2);
-	for (size_t n = 0; n < vector.Size(); ++n)
-		M[n] = vector.X(n);
-	for (size_t n = 0; n < vector.Size(); ++n)
-		M[n] = vector.Y(n);
+	Matrix M = vector;
+	M.SetVariableName(GenName(name));
 	WriteMatrix(M);
 }
 

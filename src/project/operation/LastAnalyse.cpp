@@ -146,9 +146,9 @@ void LastAnalyse::AnalyseForm() {
 
 //	kde.Clear();
 //	kde.XLinspace(0, 2 * M_PI, 360);
-//	kde.XSetCyclic(2 * M_PI);
-//	for(size_t n = 0; n < center.Size(); ++n){
-//		const Vector3 temp = (center[(n + 1) % center.Size()] - center[n]);
+//	kde.SetCyclic(2 * M_PI);
+//	for(size_t n = 0; n < center.Length(); ++n){
+//		const Vector3 temp = (center[(n + 1) % center.Length()] - center[n]);
 //		const double a = atan2(-temp.x, temp.z);
 //		kde.Insert(a, Kernel::Picard, temp.Abs(), 0.3);
 //	}
@@ -156,7 +156,7 @@ void LastAnalyse::AnalyseForm() {
 //	kde.Attenuate(M_PI_2, Kernel::Uniform, 1.0, 1.6);
 //
 //	kde.Normalize();
-//	auto results = kde.FindPeaks();
+//	auto results = kde.Y().FindPeaks();
 
 	FindOutline();
 
@@ -176,8 +176,8 @@ void LastAnalyse::AnalyseForm() {
 
 //	{
 //		const double Lmax = shape2.GetLength();
-//		for(size_t n = 0; n < shape2.Size(); ++n){
-//			const Vector3 temp = (shape2[(n + 1) % shape2.Size()] - shape2[n]);
+//		for(size_t n = 0; n < shape2.Length(); ++n){
+//			const Vector3 temp = (shape2[(n + 1) % shape2.Length()] - shape2[n]);
 //			double a = atan2(temp.y, -temp.z);
 //			cde.Add(CoreDensityEstimator::Epanechnikov, 0.5, a,
 //					temp.Abs() / Lmax);
@@ -481,7 +481,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 	{
 		kde.Clear();
 		kde.XLinspace(0, 2 * M_PI, 360);
-		kde.XSetCyclic(2 * M_PI);
+		kde.SetCyclic(2 * M_PI);
 		for (size_t n = 0; n < out->planeXZ.EdgeCount(); ++n) {
 			const Vector3 v0 = out->planeXZ.GetEdgeVertex(n, 0);
 			const Vector3 v1 = out->planeXZ.GetEdgeVertex(n, 1);
@@ -494,7 +494,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 			kde.Insert(a, Kernel::Sigmoid, temp.Abs() * g, 0.2);
 		}
 		kde.Normalize();
-		auto results = kde.FindPeaks();
+		auto results = kde.Y().FindPeaks();
 		double topangle = results[0].x;
 
 		AffineTransformMatrix temp = AffineTransformMatrix::RotationXYZ(0,
@@ -521,7 +521,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 		}
 		if (out->angleXZ[0] > 0.0)
 			out->angleXZ[0] -= 2 * M_PI;
-		out->angleXZ.Unwrap(M_PI);
+		out->angleXZ.Y().Unwrap(M_PI);
 	}
 }
 
@@ -537,32 +537,33 @@ bool LastAnalyse::FindMarker() {
 
 // Temporary markerpoints for the top of the last
 	{
-		out->idxZero = out->angleXZ.IatY(toRad(-160),
+		out->idxZero = out->angleXZ.IatV(toRad(-160), 1,
 				DependentVector::Direction::first_risingabove);
 		if (out->idxZero >= N)
 			out->idxZero = 0;
-		out->idxTop = out->angleXZ.IatY(toRad(160),
+		out->idxTop = out->angleXZ.IatV(toRad(160), 1,
 				DependentVector::Direction::last_risingabove);
 	}
 
 // Temporary markerpoints for toes and heel
 	{
-		out->idxHeel = out->angleXZ.IatY(toRad(-90),
+		out->idxHeel = out->angleXZ.IatV(toRad(-90), 1,
 				DependentVector::Direction::first_risingabove);
-		out->idxHeelPoint = out->angleXZ.IatY(toRad(-70),
+		out->idxHeelPoint = out->angleXZ.IatV(toRad(-70), 1,
 				DependentVector::Direction::first_risingabove);
-		out->idxToeTip = out->angleXZ.IatY(toRad(+90),
+		out->idxToeTip = out->angleXZ.IatV(toRad(+90), 1,
 				DependentVector::Direction::first_risingabove);
-		if (out->idxHeelPoint > out->angleXZ.Size())
+		if (out->idxHeelPoint > out->angleXZ.Length())
 			return false;
-		if (out->idxToeTip > out->angleXZ.Size())
+		if (out->idxToeTip > out->angleXZ.Length())
 			return false;
 	}
 
 // Estimate the angles for the heel and ball area of the sole
 	{
 		MEstimator estheel;
-		estheel.XLinspace(toRad(-90), toRad(90), 301);
+		estheel.SetSize(310, 2);
+		estheel.X().Linspace(toRad(-90), toRad(90));
 		estheel.EstimateY(out->angleXZ, MEstimator::AndrewWave(), 0.03,
 				out->idxHeelPoint, out->idxToeTip,
 				Kernel::SubDiv(Kernel::Integrated::Triangular, 0.35 * 2.0 - 1.0,
@@ -572,7 +573,7 @@ bool LastAnalyse::FindMarker() {
 		std::function<double(double)> g = Kernel::SubDiv(f, 1.0, 0.3);
 
 		estheel.Normalize();
-		auto valleyheel = estheel.FindValleys();
+		auto valleyheel = estheel.Y().FindValleys();
 		if (valleyheel.empty())
 			return false;
 		out->heela = valleyheel[0].x;
@@ -584,13 +585,14 @@ bool LastAnalyse::FindMarker() {
 
 	{
 		MEstimator esttoes;
-		esttoes.XLinspace(toRad(-90), toRad(90), 301);
+		esttoes.SetSize(310, 2);
+		esttoes.X().Linspace(toRad(-90), toRad(90));
 		esttoes.EstimateY(out->angleXZ, MEstimator::AndrewWave(), 0.03,
 				out->idxHeelPoint, out->idxToeTip,
 				Kernel::SubDiv(Kernel::Integrated::Triangular, 0.65 * 2.0 - 1.0,
 						0.2));
 		esttoes.Normalize();
-		auto valleytoe = esttoes.FindValleys();
+		auto valleytoe = esttoes.Y().FindValleys();
 		if (valleytoe.empty())
 			return false;
 		out->toea = valleytoe[0].x;
@@ -601,24 +603,25 @@ bool LastAnalyse::FindMarker() {
 
 // Recalculate toe & heel and support points.
 	{
-		out->idxHeelPoint = out->angleXZ.IatY(out->heela - out->param_soleangle,
+		out->idxHeelPoint = out->angleXZ.IatV(out->heela - out->param_soleangle,
+				1, DependentVector::Direction::first_risingabove);
+		out->idxToeTip = out->angleXZ.IatV(out->toea + toRad(90), 1,
 				DependentVector::Direction::first_risingabove);
-		out->idxToeTip = out->angleXZ.IatY(out->toea + toRad(90),
-				DependentVector::Direction::first_risingabove);
-		out->idxToePoint = out->angleXZ.IatY(out->toea + out->param_soleangle,
-				DependentVector::Direction::first_risingabove);
+		out->idxToePoint = out->angleXZ.IatV(out->toea + out->param_soleangle,
+				1, DependentVector::Direction::first_risingabove);
 
-		const double xheel = out->angleXZ.X(out->idxHeelPoint);
-		const double xtoes = out->angleXZ.X(out->idxToeTip);
-		out->idxHeelCenter = out->angleXZ.IatX(xheel + (xtoes - xheel) / 6);
-		out->idxWaistBottom = out->angleXZ.IatX(xheel + (xtoes - xheel) * 0.4);
-		out->idxLittleToeBottom = out->angleXZ.IatX(
-				xheel + (xtoes - xheel) * 0.62);
-		out->idxBigToeBottom = out->angleXZ.IatX(
-				xheel + (xtoes - xheel) * 0.62);
-		const double xball = out->angleXZ.X(out->idxBigToeBottom);
-		out->idxToeCenter = out->angleXZ.IatX(xball + (xtoes - xball) * 0.5);
-		out->idxHeel = out->angleXZ.IatY(out->heela - toRad(90),
+		const double xheel = out->angleXZ.X()[out->idxHeelPoint];
+		const double xtoes = out->angleXZ.X()[out->idxToeTip];
+		out->idxHeelCenter = out->angleXZ.IatV(xheel + (xtoes - xheel) / 6, 0);
+		out->idxWaistBottom = out->angleXZ.IatV(xheel + (xtoes - xheel) * 0.4,
+				0);
+		out->idxLittleToeBottom = out->angleXZ.IatV(
+				xheel + (xtoes - xheel) * 0.62, 0);
+		out->idxBigToeBottom = out->angleXZ.IatV(xheel + (xtoes - xheel) * 0.62,
+				0);
+		const double xball = out->angleXZ.X()[out->idxBigToeBottom];
+		out->idxToeCenter = out->angleXZ.IatV(xball + (xtoes - xball) * 0.5, 0);
+		out->idxHeel = out->angleXZ.IatV(out->heela - toRad(90), 1,
 				DependentVector::Direction::last_risingabove, 0,
 				out->idxHeelCenter);
 	}
@@ -649,17 +652,17 @@ bool LastAnalyse::FindMarker() {
 		}
 		const double w = (a - b).Abs();
 		const double d = w * sin(toRad(10));
-		const double xBigToe = out->angleXZ.X(out->idxLittleToeBottom) + d;
-		out->idxBigToeBottom = out->angleXZ.IatX(xBigToe);
+		const double xBigToe = out->angleXZ.X()[out->idxLittleToeBottom] + d;
+		out->idxBigToeBottom = out->angleXZ.IatV(xBigToe, 0);
 	}
 
 // Recalculate heel point
 	{
-		const double xfront = out->angleXZ.X(out->idxTop);
-		const double xend = out->angleXZ.X(out->idxZero) + 1.0;
-		size_t idxTopMiddle = out->angleXZ.IatX((xend + xfront) / 2.0);
+		const double xfront = out->angleXZ.X()[out->idxTop];
+		const double xend = out->angleXZ.X()[out->idxZero] + 1.0;
+		size_t idxTopMiddle = out->angleXZ.IatV((xend + xfront) / 2.0, 0);
 		auto orth = OrthogonalPoint(out->planeXZ[idxTopMiddle]);
-		size_t temp = orth.IatY(0.0,
+		size_t temp = orth.IatV(0.0, 1,
 				DependentVector::Direction::last_risingabove, out->idxHeelPoint,
 				out->idxBigToeBottom);
 		if (temp < out->idxHeelCenter)
@@ -670,7 +673,7 @@ bool LastAnalyse::FindMarker() {
 // The markers are place so that a measurement tape wrapped around
 // the last would be shortest.
 	{
-		size_t idx0 = out->angleXZ.IatY(out->toea + toRad(135),
+		size_t idx0 = out->angleXZ.IatV(out->toea + toRad(135), 1,
 				DependentVector::Direction::first_risingabove);
 		out->idxBigToeTop = FindTopPoint(out->idxBigToeBottom, idx0,
 				out->idxTop);
@@ -689,14 +692,14 @@ bool LastAnalyse::FindMarker() {
 //				last->idxBigToeBottom, last->idxToeTip);
 //		est.Normalize();
 ////		debugB = est;
-////		DEBUGOUT << "y0 = " << est.Y(last->idxBallBottom) << "\n";
+////		DEBUGOUT << "y0 = " << est.Y()[last->idxBallBottom] << "\n";
 //		const double v0 = est.XatY(0.5,
 //				DependentVector::Direction::first_fallingbelow);
 //		const double v1 = est.XatY(0.5,
 //				DependentVector::Direction::last_risingabove);
 //		const double v = (v0 + v1) / 2.0;
-//		last->idxToeCenter = last->angleXZ.IatX(v);
-//		hasBallArea = (est.Y(last->idxBigToeBottom) > 0.5);
+//		last->idxToeCenter = last->angleXZ.IatV(v,0);
+//		hasBallArea = (est.Y()[last->idxBigToeBottom] > 0.5);
 //		debugA = est;
 //	}
 
@@ -705,9 +708,9 @@ bool LastAnalyse::FindMarker() {
 //	{
 //		auto valleys = last->angleXZ.FindValleys(M_PI, last->idxHeelCenter, last->idxToeCenter);
 //
-//		const double xheel = last->angleXZ.X(last->idxHeelCenter);
-//		const double xtoes = last->angleXZ.X(last->idxToeCenter);
-//		last->idxLittleToeBottom = last->angleXZ.IatX((xheel + xtoes) / 2.0);
+//		const double xheel = last->angleXZ.X()[last->idxHeelCenter];
+//		const double xtoes = last->angleXZ.X()[last->idxToeCenter];
+//		last->idxLittleToeBottom = last->angleXZ.IatV((xheel + xtoes) / 2.0,0);
 //		if(valleys.empty()){
 //			DEBUGOUT << "Very round last without arch. (MBT last?)\n";
 //		}else{
@@ -722,7 +725,7 @@ bool LastAnalyse::FindMarker() {
 //					const double ydelta = heela - valleys[0].y;
 //					DEBUGOUT << "Arch bow: " << toDeg(ydelta) << " deg\n";
 //				}
-//				last->idxWaistBottom = last->angleXZ.IatY(ymiddle,
+//				last->idxWaistBottom = last->angleXZ.IatV(ymiddle,1,
 //						DependentVector::Direction::first_fallingbelow,
 //						last->idxHeelCenter, last->idxLittleToeBottom);
 //			}
@@ -736,7 +739,7 @@ bool LastAnalyse::FindMarker() {
 //								const double ydelta = heela - valleys[0].y;
 //								DEBUGOUT << "Arch bow: " << toDeg(ydelta) << " deg\n";
 //							}
-//				last->idxBigToeBottom = last->angleXZ.IatY(ymiddle,
+//				last->idxBigToeBottom = last->angleXZ.IatV(ymiddle,1,
 //						DependentVector::Direction::first_risingabove,
 //						last->idxLittleToeBottom, last->idxToeTip);
 //			}
@@ -744,9 +747,9 @@ bool LastAnalyse::FindMarker() {
 //		}
 //	}
 //	if(!hasBallArea){
-//		const double x0 = test.X(last->idxBallBottom);
-//		const double x1 = test.X(last->idxToeCenter);
-//		markerindex[7] = test.IatX((x0 + x1) / 2.0);
+//		const double x0 = test.X()[last->idxBallBottom];
+//		const double x1 = test.X()[last->idxToeCenter];
+//		markerindex[7] = test.IatV((x0 + x1) / 2.0,0);
 //	}
 
 // Estimate the ball area
@@ -792,7 +795,7 @@ bool LastAnalyse::FindMarker() {
 //		double v1 = est.XatY(mean,
 //				DependentVector::Direction::last_risingabove);
 //		double v = (v0 + v1) / 2.0;
-//		last->idxHeelCenter = test.IatX(v);
+//		last->idxHeelCenter = test.IatV(v,0);
 //
 //		debug0 = est;
 //	}
@@ -814,36 +817,36 @@ bool LastAnalyse::FindMarker() {
 //		double v1 = est.XatY(mean,
 //				DependentVector::Direction::last_risingabove);
 //		double v = (v0 + v1) / 2.0;
-//		last->idxToeCenter = test.IatX(v);
+//		last->idxToeCenter = test.IatV(v,0);
 
 //		debug1 = est;
 //	}
 
 //	// Temorary place Markers at the top of the last
 //	{
-//		const double A0 = test.X(last->idxHeelPoint) - test.X(last->idxToeTip);
-//		const double A1 = test.X(last->idxHeelCenter) - test.X(last->idxToeTip);
-//		const double A2 = test.X(last->idxWaistBottom) - test.X(last->idxToeTip);
-//		const double A3 = test.X(last->idxBallBottom) - test.X(last->idxToeTip);
-//		const double B0 = test.X(last->idxTop) - test.X(last->idxToeTip);
-//		const double B1 = A1 / A0 * B0 + test.X(last->idxToeTip);
-//		const double B2 = A2 / A0 * B0 + test.X(last->idxToeTip);
-//		const double B3 = A3 / A0 * B0 + test.X(last->idxToeTip);
-//		last->idxInstepTop = test.IatX(B1);
-//		last->idxWaistTop = test.IatX(B2);
-//		last->idxBallTop = test.IatX(B3);
+//		const double A0 = test.X()[last->idxHeelPoint] - test.X()[last->idxToeTip];
+//		const double A1 = test.X()[last->idxHeelCenter] - test.X()[last->idxToeTip];
+//		const double A2 = test.X()[last->idxWaistBottom] - test.X()[last->idxToeTip];
+//		const double A3 = test.X()[last->idxBallBottom] - test.X()[last->idxToeTip];
+//		const double B0 = test.X()[last->idxTop] - test.X()[last->idxToeTip];
+//		const double B1 = A1 / A0 * B0 + test.X()[last->idxToeTip];
+//		const double B2 = A2 / A0 * B0 + test.X()[last->idxToeTip];
+//		const double B3 = A3 / A0 * B0 + test.X()[last->idxToeTip];
+//		last->idxInstepTop = test.IatV(B1,0);
+//		last->idxWaistTop = test.IatV(B2,0);
+//		last->idxBallTop = test.IatV(B3,0);
 //	}
 
 //	debug2.XLinspace(toRad(-90), toRad(90), 301);
 //	auto e = MEstimator::AndrewWave();
 //	for(size_t n = 0; n < debug2.Size(); ++n)
-//		debug2.Y(n) = e.Rho(debug2.X(n) / 0.05);
+//		debug2.Y()[n] = e.Rho(debug2.X()[n] / 0.05);
 
 // Statistics for magic numbers
 //	{
-//		const double A0 = test.X(last->idxToeTip) - test.X(last->idxHeelPoint);
+//		const double A0 = test.X()[last->idxToeTip] - test.X()[last->idxHeelPoint];
 //		for(size_t n = 3; n < 9; ++n){
-//			const double A1 = test.X(markerindex[n]) - test.X(last->idxHeelPoint);
+//			const double A1 = test.X()[markerindex[n]] - test.X()[last->idxHeelPoint];
 //			DEBUGOUT << (char) ('@' + n) << " - " << 100 * A1 / A0 << "%\n";
 //		}
 //	}
@@ -988,9 +991,9 @@ void LastAnalyse::FindOutline() {
 size_t LastAnalyse::FindTopPoint(size_t idxBottom, size_t idxStart,
 		size_t idxEnd) const {
 	auto orth = OrthogonalPoint(out->planeXZ[idxBottom]);
-	for (size_t n = 0; n < orth.Size(); ++n)
-		orth.X(n) = out->angleXZ.X(n);
-	size_t idx = orth.IatY(0, DependentVector::Direction::first_risingabove,
+	for (size_t n = 0; n < orth.Length(); ++n)
+		orth.X()[n] = out->angleXZ.X()[n];
+	size_t idx = orth.IatV(0, 1, DependentVector::Direction::first_risingabove,
 			idxStart, idxEnd);
 	if (idx > idxEnd) {
 		return idxEnd;
@@ -1001,13 +1004,12 @@ size_t LastAnalyse::FindTopPoint(size_t idxBottom, size_t idxStart,
 
 DependentVector LastAnalyse::OrthogonalPoint(const Vector3 &p) const {
 	const size_t N = out->planeXZ.Size();
-	DependentVector temp;
-	temp.XLinspace(0, 1, N);
+	DependentVector temp = DependentVector::Linspace(0, 1, N);
 	for (size_t n = 0; n < N; ++n) {
 		const Vector3 d =
 				(out->planeXZ[(n + 1) % N] - out->planeXZ[n]).Normal();
 		const Vector3 c = (out->planeXZ[n] - p).Normal();
-		temp.Y(n) = d.Dot(c);
+		temp.Y()[n] = d.Dot(c);
 	}
 	return temp;
 }
@@ -1015,8 +1017,8 @@ DependentVector LastAnalyse::OrthogonalPoint(const Vector3 &p) const {
 double LastAnalyse::RelValAt(const DependentVector &est, double x) {
 	auto vmin = est.Min();
 	auto vmax = est.Max();
-	double v = est.YatX(x);
-	return (v - vmax.y) / (vmin.y - vmax.y);
+	double v = est.VatV(x, 0, 1);
+	return (v - vmax[1]) / (vmin[1] - vmax[1]);
 }
 
 LastAnalyse::Cut LastAnalyse::CalculateCut(const Geometry &hull,

@@ -26,6 +26,10 @@
 #include "HeelNormalize.h"
 
 #include "../../3D/Polygon3.h"
+#include "../../math/DependentVector.h"
+#include "../../math/Exporter.h"
+#include "../../math/Polynomial.h"
+
 #include <stdexcept>
 #include <sstream>
 
@@ -112,7 +116,34 @@ void HeelNormalize::Run() {
 		insole.UpdateNormals(true, true, false);
 		Polygon3 outline;
 		outline.ExtractOutline(insole);
-		const double L = outline.MapU(true);
+		const double L = outline.MapU(false);
+
+		DependentVector sample = DependentVector::Chebyshev(-1, 1, 11);
+		Matrix A = Matrix::Vandermonde(sample, 3);
+		A.PseudoInvert();
+
+		const size_t Nsample = 10;
+		Polynomial poss = Polynomial::ByValue(0, 0, Nsample, L);
+
+		Matrix Y(sample.Length(), 3 * Nsample);
+		for (size_t n = 0; n < Nsample; n++) {
+			const double pos = poss(n);
+			for (size_t m = 0; m < sample.Length(); m++) {
+				const auto &res = outline.AtU(pos + sample.X()[m] * L / 8);
+				Y.Insert(res.pos.x, m, n * 3 + 0);
+				Y.Insert(res.pos.y, m, n * 3 + 1);
+				Y.Insert(res.pos.z, m, n * 3 + 2);
+			}
+		}
+		Matrix X = A * Y;
+
+		{
+			Exporter ex("/tmp/van_inv.mat");
+			ex.Add(A, "Ainv");
+			ex.Add(Y, "Y");
+			ex.Add(X, "X");
+		}
+
 		*debug = Matrix::Zeros(outline.Size(), 2);
 		for (size_t idx1 = 0; idx1 < outline.Size(); idx1++) {
 			size_t idx0 = (idx1 + outline.Size() - 6) % outline.Size();

@@ -40,7 +40,7 @@ Symmetry::Symmetry() {
 
 void Symmetry::Init(size_t N) {
 	XLinspace(0, M_PI, N);
-	XSetCyclic(M_PI);
+	SetCyclic(M_PI); // Half a circle
 	YInit();
 }
 

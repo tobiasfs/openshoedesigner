@@ -36,14 +36,14 @@ public:
 
 	bool isRowOrthonormal(const Matrix &m) {
 		Matrix temp = m * m.T();
-		temp = temp - Matrix::Eye(temp);
-		return temp.MaxAbs() < epsilon;
+		temp = temp - Matrix::Eye(temp.Size());
+		return temp.AllMaxAbs() < epsilon;
 	}
 
 	bool isColumnOrthonormal(const Matrix &m) {
 		Matrix temp = m.T() * m;
-		temp = temp - Matrix::Eye(temp);
-		return temp.MaxAbs() < epsilon;
+		temp = temp - Matrix::Eye(temp.Size());
+		return temp.AllMaxAbs() < epsilon;
 	}
 
 	bool isOrthogonal(const Matrix &m) {
@@ -77,13 +77,13 @@ public:
 				isOrthogonal(V));
 
 		Matrix T = A2 - A;
-		CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+		CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 		CPPUNIT_ASSERT_LESS(1.0, sw.GetSecondsCPU());
 
 //		std::cout << "\nDecomposition of " << A.Numel() << " values took "
 //				<< sw.GetSecondsCPU() << " s.\n";
 //		std::cout << "Conditional number = " << svd.Cond() << "\n";
-//		std::cout << "Reconstruction error = " << T.MaxAbs() << "\n";
+//		std::cout << "Reconstruction error = " << T.AllMaxAbs() << "\n";
 	}
 
 	void testSparse() {
@@ -132,12 +132,12 @@ public:
 				isOrthogonal(V));
 
 		Matrix T = A2 - A;
-		CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+		CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 
 //		std::cout << "\nDecomposition of " << A.Numel() << " values took "
 //				<< sw.GetSecondsCPU() << " s.\n";
 //		std::cout << "Conditional number = " << svd.Cond() << "\n";
-//		std::cout << "Reconstruction error = " << T.MaxAbs() << "\n";
+//		std::cout << "Reconstruction error = " << T.AllMaxAbs() << "\n";
 	}
 
 	void testMissing() {
@@ -179,9 +179,9 @@ public:
 //		std::cout << "\nDecomposition of " << A.Numel() << " values took "
 //				<< sw.GetSecondsCPU() << " s.\n";
 //		std::cout << "Conditional number = " << svd.Cond() << "\n";
-//		std::cout << "Reconstruction error = " << T.MaxAbs() << "\n";
+//		std::cout << "Reconstruction error = " << T.AllMaxAbs() << "\n";
 
-		CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+		CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 	}
 
 	void testBroken() {
@@ -238,9 +238,9 @@ public:
 //		std::cout << "\nDecomposition of " << A.Numel() << " values took "
 //				<< sw.GetSecondsCPU() << " s.\n";
 //		std::cout << "Conditional number = " << svd.Cond() << "\n";
-//		std::cout << "Reconstruction error = " << T.MaxAbs() << "\n";
+//		std::cout << "Reconstruction error = " << T.AllMaxAbs() << "\n";
 
-		CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+		CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 	}
 
 	void testEmpty() {
@@ -265,7 +265,7 @@ public:
 					isOrthogonal(V));
 
 			Matrix T = A2 - A;
-			CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+			CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 		}
 		{
 			// Empty column
@@ -285,7 +285,7 @@ public:
 					isOrthogonal(V));
 
 			Matrix T = A2 - A;
-			CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+			CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 		}
 
 		{
@@ -306,7 +306,7 @@ public:
 					isOrthogonal(V));
 
 			Matrix T = A2 - A;
-			CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+			CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 		}
 
 	}
@@ -329,7 +329,7 @@ public:
 					isOrthogonal(V));
 
 			Matrix T = A2 - A;
-			CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+			CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 		}
 		{
 			Matrix A(4, 3);
@@ -352,7 +352,7 @@ public:
 					isOrthogonal(V));
 
 			Matrix T = A2 - A;
-			CPPUNIT_ASSERT_LESS(epsilon, T.MaxAbs());
+			CPPUNIT_ASSERT_LESS(epsilon, T.AllMaxAbs());
 		}
 
 	}
