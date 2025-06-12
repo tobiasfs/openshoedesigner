@@ -28,7 +28,7 @@
 
 /** \class ParameterString
  * 	\code #include "ParameterString.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup project
  *  \brief Description
  *
  * Text

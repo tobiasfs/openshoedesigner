@@ -83,6 +83,8 @@ private:
 			wxTextCtrl *ctrl, UnitType type);
 	wxTextCtrl* GetTextCtrlByID(int id);
 
+	void OnDestroy(wxWindowDestroyEvent &event);
+
 protected:
 	void OnClose(wxCloseEvent &event) override;
 	void OnMouseWheel(wxMouseEvent &event) override;

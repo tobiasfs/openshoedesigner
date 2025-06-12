@@ -106,12 +106,54 @@
  */
 
 #include <ostream>
-#include <stddef.h>
 #include <string>
 #include <vector>
 
 class Matrix: public std::vector<double> {
+public:
+	/**\brief The ordering of the dimensions
+	 *
+	 * The strides of the matrix can be ordered in arbitrary ways. This
+	 * order influences how the values are organized in memory not how the data
+	 * is accessed through the matrix interface. The memory representation is
+	 * a linear vector of double values. The order describes how the strides
+	 * are calculated from the dimensions.
+	 *
+	 * Normal order: This ordering is follows the ordering of the dimensions.
+	 * The first dimension - the column - runs from to to bottom, followed by
+	 * the second dimension along the rows. For a NxM matrix with N rows and
+	 * M columns the values in two neighboring rows are also next to each
+	 * other in memory.
+	 *
+	 * Two-reversed order: The strides for the first two dimensions are
+	 * swapped. A NxM matrix still has N rows and M columns, but in memory the
+	 * values in one row are neighboring. This ordering is beneficial, if data
+	 * is inserted into a matrix row-wise.
+	 *
+	 * `````
+	 * Matrix matrix("some_points", Matrix::Order::TWO_REVERSED);
+	 * for(const Point &p : points){
+	 *   matrix.push_back(p.x);
+	 *   matrix.push_back(p.y);
+	 *   matrix.push_back(p.z);
+	 * }
+	 * matrix.Reshape(-1, 3); // Reshape the matrix to 3 columns and as
+	 *                        // many rows as needed.
+	 * `````
+	 *
+	 * Reversed order: All strides are reversed from back to front. This is the
+	 * data organization as used by Torch/pyTorch. Two points next to each
+	 * other in the highest dimension are next to each other in the memory.
+	 */
+	enum class Order {
+		NORMAL, ///< (default) Data is ordered column-wise. Order used in Octave/Matlab.
+		TWO_REVERSED, ///< Data is ordered row-wise. Order with the first two strides reversed, useful for adding new rows in a table without sorting.
+		REVERSED ///< Data is ordered highest to lowest dimension. Data points next to each other in the highest dimension are next to each other in the vector. Order used in e.g. Torch.
+	};
+
 protected:
+	Order order = Order::NORMAL;
+
 	/**\brief Size of each dimension
 	 *
 	 * For each dimension of the matrix the number of elements in this
@@ -134,19 +176,6 @@ protected:
 	 * or updating the dimensions.
 	 */
 	std::vector<size_t> strides;
-
-	/**\brief The ordering of the dimensions
-	 *
-	 * The dimensions of the matrix can be ordered in arbitrary ways. This
-	 * order influences how the values are organized in memory. The memory
-	 * representation is always a linear vector of double values. The order
-	 * describes how the strides are calculated from the dimensions.
-	 */
-	enum class Order {
-		NORMAL, ///< (default) Order used in Mathematics, Octave/Matlab
-		TWO_REVERSED, ///< Normal order with first two dimensions reversed, useful for adding new rows in a table without sorting.
-		REVERSED ///< Order used in e.g. Torch
-	} order = Order::NORMAL;
 
 	/**
 	 * When inserting values linearly, this is the next position to add a
@@ -176,7 +205,7 @@ public:
 
 	/**\brief Create a Vandermode matrix for interpolating a Polynomial
 	 *
-	 * The matrix has to be (pseudo-)inverted and multiplied with the y values
+	 * This matrix has to be (pseudo-)inverted and multiplied with the y values
 	 * to get the coefficients of the polynomial interpolating the given y.
 	 *
 	 * \param x Input vector to generate the will be verbatim in the 2nd column
@@ -197,6 +226,9 @@ public:
 			size_t S2 = 1, size_t S3 = 1);
 	explicit Matrix(const std::vector<size_t> &dims);
 	explicit Matrix(const std::string &name, const std::vector<size_t> &dims);
+	explicit Matrix(const std::string &name, const std::vector<size_t> &dims,
+			Order order);
+	explicit Matrix(const std::string &name, Order order);
 
 	void Reset();
 	bool IsEmpty() const;
@@ -222,7 +254,7 @@ public:
 	 */
 	size_t Size(const size_t dim) const;
 
-	/**\brief Return a copy of the internal dimension vector
+	/**\brief Return a reference to the internal dimension vector
 	 *
 	 * This vector might be empty.
 	 *
@@ -263,7 +295,7 @@ public:
 	 *
 	 * \param newOrder (default: NORMAL) Order to bring the vector into
 	 */
-	void ReorderDimensions(Order newOrder = Order::NORMAL); //TODO Change name to reorder data.
+	void ReorderDimensions(Order newOrder = Order::NORMAL); //TODO Change name to hint reordering the underlying data.
 
 	size_t Sub2Ind(size_t p0, size_t p1 = 0, size_t p2 = 0,
 			size_t p3 = 0) const;
@@ -284,7 +316,9 @@ public:
 	 *
 	 * To access the underlying data the .data() function can be used to get a
 	 * pointer to the data. This should be rarely necessary as the operator []
-	 * is exposed.
+	 * is exposed. Use Sub2Ind() and Ind2Sub() to convert from the linear data
+	 * space to the matrix coordinates and back.
+	 *
 	 * \{
 	 */
 
@@ -393,9 +427,9 @@ public:
 	 * A matrix with independent columns and over or under determined rows
 	 * can be inverted by this form of the Moore-Penrose Pseudoinverse.
 	 *
-	 * This is the form where every row contains a sample that need
-	 * interpolation. The entries in the matrix are e.g. x*x, x, 1 to
-	 * interpolate a parabel through a set of samples.
+	 * This is the form where every row contains a sample that needs to be
+	 * interpolated. The entries in the matrix are e.g. x*x, x, 1 to
+	 * interpolate a parabula through a set of samples.
 	 *
 	 * There is a second form for the Pseudoinverse:
 	 * transpose(A)*inv(A*transpose(A))

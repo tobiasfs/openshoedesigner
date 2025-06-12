@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Volume.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -715,11 +715,11 @@ void Volume::CalcSurface() {
 //					}
 
 						if (n % 3 == 2) {
-							const size_t idx0 = geometry.VertexCount();
+							const size_t idx0 = geometry.CountVertices();
 							geometry.AddVertex(t.p[0]);
-							const size_t idx1 = geometry.VertexCount();
+							const size_t idx1 = geometry.CountVertices();
 							geometry.AddVertex(t.p[1]);
-							const size_t idx2 = geometry.VertexCount();
+							const size_t idx2 = geometry.CountVertices();
 							geometry.AddVertex(t.p[2]);
 							geometry.AddTriangle(idx0, idx1, idx2);
 						}

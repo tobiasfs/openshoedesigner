@@ -2671,7 +2671,6 @@ GUIDialogMidiSetup::GUIDialogMidiSetup( wxWindow* parent, wxWindowID id, const w
 	this->Layout();
 
 	// Connect Events
-	m_choice->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIDialogMidiSetup::OnChoice ), NULL, this );
 	m_buttonConnectDisconnect->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialogMidiSetup::OnConnectDisconnect ), NULL, this );
 	m_buttonClose->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialogMidiSetup::OnClose ), NULL, this );
 }
@@ -2679,7 +2678,6 @@ GUIDialogMidiSetup::GUIDialogMidiSetup( wxWindow* parent, wxWindowID id, const w
 GUIDialogMidiSetup::~GUIDialogMidiSetup()
 {
 	// Disconnect Events
-	m_choice->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( GUIDialogMidiSetup::OnChoice ), NULL, this );
 	m_buttonConnectDisconnect->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialogMidiSetup::OnConnectDisconnect ), NULL, this );
 	m_buttonClose->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialogMidiSetup::OnClose ), NULL, this );
 

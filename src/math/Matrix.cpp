@@ -30,10 +30,10 @@
 #include <cfloat>
 #include <cmath>
 #include <cstring>
-#include <sstream>
+#include <exception>
 #include <iterator>
-#include <stddef.h>
-#include <stdexcept>
+#include <sstream>
+#include <utility>
 
 #define ERROR(errortxt) { \
 		std::ostringstream err; \
@@ -154,6 +154,18 @@ Matrix::Matrix(const std::vector<size_t> &dims) {
 Matrix::Matrix(const std::string &name, const std::vector<size_t> &dims) {
 	SetVariableName(name);
 	SetSize(dims);
+}
+
+Matrix::Matrix(const std::string &name, const std::vector<size_t> &dims,
+		Order order_) {
+	SetVariableName(name);
+	order = order_;
+	SetSize(dims);
+}
+
+Matrix::Matrix(const std::string &name, Order order_) {
+	SetVariableName(name);
+	order = order_;
 }
 
 void Matrix::Reset() {
@@ -438,9 +450,9 @@ void Matrix::Reshape(std::vector<size_t> dims) {
 			N *= dims[n];
 		}
 	}
-	if (N > size())
+	if (size() % N != 0)
 		ERROR(
-				"The fixed elements already have more element than the original matrix (Original: "<<size()<<", fixed: "<<N <<").");
+				"The number of elements is not evenly divisible by the number of fixed elements (No of elements: " << size() << ", fixed dimensions: "<< N <<").");
 	if (idx == (size_t) -1 && N != size())
 		ERROR(
 				"New shape has wrong number of elements. "<< size() << " elements cannot be shaped into " << N<< " elements.");

@@ -215,7 +215,7 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 				else
 					geo.ResetAddColor();
 				geo.AddVertex(v[idx[0]]);
-				size_t idx0 = geo.VertexCount() - 1;
+				size_t idx0 = geo.CountVertices() - 1;
 				if (hasNormals)
 					geo.SetAddNormal(vn[idx[1]]);
 				else
@@ -225,7 +225,7 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 				else
 					geo.ResetAddColor();
 				geo.AddVertex(v[idx[1]]);
-				size_t idx1 = geo.VertexCount() - 1;
+				size_t idx1 = geo.CountVertices() - 1;
 				for (int j = 2; j < N; ++j) {
 					if (hasNormals)
 						geo.SetAddNormal(vn[idx[j]]);
@@ -237,7 +237,7 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 						geo.ResetAddColor();
 					geo.AddVertex(v[idx[j]]);
 					geo.ResetAddNormal();
-					size_t idx2 = geo.VertexCount() - 1;
+					size_t idx2 = geo.CountVertices() - 1;
 					geo.AddTriangle(idx0, idx1, idx2);
 
 					idx1 = idx2;
@@ -261,7 +261,7 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 			}
 			geo.Finish();
 			geo.Sort();
-			if (!geo.SelfCheckPassed(true)) {
+			if (!geo.PassedSelfCheck(true)) {
 				std::cerr << __FILE__ << " (" << __LINE__ << "): "
 						<< "The file seems to contain data that breaks the Finish() method.\n";
 			}
@@ -384,7 +384,7 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 				else
 					geo.ResetAddColor();
 				geo.AddVertex(v[idx[0]]);
-				size_t idx0 = geo.VertexCount() - 1;
+				size_t idx0 = geo.CountVertices() - 1;
 				if (hasNormals)
 					geo.SetAddNormal(vn[idx[1]]);
 				else
@@ -394,7 +394,7 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 				else
 					geo.ResetAddColor();
 				geo.AddVertex(v[idx[1]]);
-				size_t idx1 = geo.VertexCount() - 1;
+				size_t idx1 = geo.CountVertices() - 1;
 				for (int j = 2; j < N; ++j) {
 					if (hasNormals)
 						geo.SetAddNormal(vn[idx[j]]);
@@ -406,7 +406,7 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 						geo.ResetAddColor();
 					geo.AddVertex(v[idx[j]]);
 					geo.ResetAddNormal();
-					size_t idx2 = geo.VertexCount() - 1;
+					size_t idx2 = geo.CountVertices() - 1;
 					geo.AddTriangle(idx0, idx1, idx2);
 					idx1 = idx2;
 
@@ -429,7 +429,7 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 			}
 			geo.Finish();
 			geo.Sort();
-			if (!geo.SelfCheckPassed(true)) {
+			if (!geo.PassedSelfCheck(true)) {
 				std::cerr << __FILE__ << " (" << __LINE__ << "): "
 						<< "The file seems to contain data that breaks the Finish() method.\n";
 			}

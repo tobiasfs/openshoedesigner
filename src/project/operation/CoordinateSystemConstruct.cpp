@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CoordinateSystemConstruct.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -246,7 +246,7 @@ void CoordinateSystemConstruct::Run() {
 		Vector3 side(0, 1, 0);
 		Vector3 ra = outline0.GetRotationalAxis();
 
-		for (size_t n = 0; n < outline0.EdgeCount(); ++n) {
+		for (size_t n = 0; n < outline0.CountEdges(); ++n) {
 			Geometry::Edge &ed = outline0.GetEdge(n);
 			Vector3 nv = ed.n.Normal();
 
@@ -269,7 +269,7 @@ void CoordinateSystemConstruct::Run() {
 	auto inter = outline0.Intersect( { 0, 1, 0 }, 0);
 	if (!inter.positive.empty())
 		m.ShiftX(inter.positive[0].u);
-	for (size_t n = 0; n < outline0.VertexCount(); ++n) {
+	for (size_t n = 0; n < outline0.CountVertices(); ++n) {
 		auto &vert = outline0.GetVertex(n);
 		vert.u = m(vert.u);
 		while (vert.u > M_PI)
@@ -300,7 +300,7 @@ void CoordinateSystemConstruct::Run() {
 			out->AddPolynomial(mapu(n), mapu(n + 1), 1, 1, elb.GetSegment(n));
 		out->SoftBoundaries();
 	}
-	for (size_t n = 0; n < outline0.VertexCount(); ++n)
+	for (size_t n = 0; n < outline0.CountVertices(); ++n)
 		out->Add(outline0.GetVertex(n), 0.05);
 	out->Calculate();
 	out->Update();

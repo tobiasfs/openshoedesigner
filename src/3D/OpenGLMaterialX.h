@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLMaterialX.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -153,9 +153,18 @@ public:
 
 public:
 	OpenGLMaterialX() = default;
-	virtual ~OpenGLMaterialX() = default; //FIXME: ==47976== Jump to the invalid address stated on the next line
-						    // ==47976==    at 0x63B6F20: ???
-						    // ==47976==    by 0x13410D: std::pair<std::filesystem::__cxx11::path const, OpenGLMaterialX::Image>::~pair()
+	virtual ~OpenGLMaterialX() = default;
+
+	/**\brief Delete the loaded images and the shader itself from the context
+	 *
+	 * This function is necessary for the correct destruction of an OpenGL
+	 * shader, if the lifetime of the shader object extends the lifetime of
+	 * the OpenGL context.
+	 *
+	 * This would results in a seg-fault, because the OpenGL-functions might
+	 * not be available after the destruction of the context.
+	 */
+	void Delete() override;
 
 public:
 	/**\brief Load a MATX file from a zipped archive.
@@ -174,7 +183,13 @@ public:
 	 *
 	 * \return Boolean if the shader could start (i.e. no compilation errors)
 	 */
-	virtual bool Start();
+	bool Start() override;
+
+	/**\brief Write the shader code.
+	 *
+	 * \return std::string with shader code.
+	 */
+	std::string GenerateVertexShader();
 
 	/**\brief Write the shader code.
 	 *
@@ -182,10 +197,11 @@ public:
 	 */
 	std::string GenerateFragmentShader();
 
+	std::string FieldString() override;
+
 private:
 	static std::string ToGlslType(const std::string &type);
 
-public:
 	std::vector<Node> nodes;
 	std::set<Variable> globals;
 	std::map<std::filesystem::path, Image> images;

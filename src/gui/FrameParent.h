@@ -46,8 +46,8 @@
 #ifdef USE_6DOFCONTROLLER
 #include "../controller/Control3D.h"
 #endif
-#ifdef USE_PORTMIDI
 #include "../system/MidiPort.h"
+#ifdef USE_PORTMIDI
 #include "DialogSetupMidi.h"
 #endif
 #include "CollectionFilepaths.h"
@@ -97,9 +97,9 @@ public:
 #ifdef USE_6DOFCONTROLLER
 	Control3D control;
 #endif
-#ifdef USE_PORTMIDI
 	std::shared_ptr<MidiPort> midiport;
 	std::shared_ptr<MidiDevice> mididevice;
+#ifdef USE_PORTMIDI
 	DialogSetupMidi *dialogSetupMidi;
 #endif
 

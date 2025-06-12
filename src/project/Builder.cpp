@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Builder.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   :
@@ -97,6 +97,10 @@ void Builder::Setup(Project &project) {
 			opFootScanLoad->filename = config.filenameScan;
 			operations.push_back(opFootScanLoad);
 		}
+		if (!opHeelCenter) {
+			opHeelCenter = std::make_shared<HeelCenter>();
+			operations.push_back(opHeelCenter);
+		}
 		if (!opHeelConstruct) {
 			opHeelConstruct = std::make_shared<HeelConstruct>();
 			opHeelConstruct->heelCode = config.heelCode;
@@ -142,6 +146,14 @@ void Builder::Setup(Project &project) {
 		}
 		if (!opInsoleFlatten) {
 			opInsoleFlatten = std::make_shared<InsoleFlatten>();
+			opInsoleFlatten->debugMIDI_48 = config.debugMIDI_48;
+			opInsoleFlatten->debugMIDI_49 = config.debugMIDI_49;
+			opInsoleFlatten->debugMIDI_50 = config.debugMIDI_50;
+			opInsoleFlatten->debugMIDI_51 = config.debugMIDI_51;
+			opInsoleFlatten->debugMIDI_52 = config.debugMIDI_52;
+			opInsoleFlatten->debugMIDI_53 = config.debugMIDI_53;
+			opInsoleFlatten->debugMIDI_54 = config.debugMIDI_54;
+			opInsoleFlatten->debugMIDI_55 = config.debugMIDI_55;
 			operations.push_back(opInsoleFlatten);
 		}
 		if (!opInsoleTransform) {
@@ -190,6 +202,7 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 
 	out << "digraph{\n";
 	out << "rankdir=TB;\n";
+
 	out
 			<< "opCoordinateSystemConstruct [shape=record,label=\"{ <i1> in }| opCoordinateSystemConstruct | { <o1> out }\"];\n";
 	out << "\"" << opCoordinateSystemConstruct->in
@@ -206,6 +219,12 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out
 			<< "opFootScanLoad [shape=record,label=\"{  }| opFootScanLoad | { <o1> out }\"];\n";
 	out << "opFootScanLoad:o1 -> \"" << opFootScanLoad->out << "\";\n";
+	out
+			<< "opHeelCenter [shape=record,label=\"{ <i1> heel_in | <i2> insole_in }| opHeelCenter | { <o1> heel_out | <o2> insole_out }\"];\n";
+	out << "\"" << opHeelCenter->heel_in << "\" -> opHeelCenter:i1;\n";
+	out << "\"" << opHeelCenter->insole_in << "\" -> opHeelCenter:i2;\n";
+	out << "opHeelCenter:o1 -> \"" << opHeelCenter->heel_out << "\";\n";
+	out << "opHeelCenter:o2 -> \"" << opHeelCenter->insole_out << "\";\n";
 	out
 			<< "opHeelConstruct [shape=record,label=\"{ <i1> in }| opHeelConstruct | { <o1> out }\"];\n";
 	out << "\"" << opHeelConstruct->in << "\" -> opHeelConstruct:i1;\n";
@@ -282,10 +301,12 @@ void Builder::Connect(Project &project) {
 	opLastUpdate->in = opLastAnalyse->out;
 
 	opHeelNormalize->in = opHeelLoad->out;
-	project.heelL = opHeelNormalize->out;
 	opHeelExtractInsole->in = opHeelNormalize->out;
-	opInsoleAnalyze->in = opHeelExtractInsole->out;
-	opInsoleFlatten->in = opInsoleAnalyze->out;
+	opInsoleFlatten->in = opHeelExtractInsole->out;
+	opInsoleAnalyze->in = opInsoleFlatten->out;
+	opHeelCenter->heel_in = opHeelNormalize->out;
+	opHeelCenter->insole_in = opInsoleAnalyze->out;
+	project.heelL = opHeelCenter->heel_out;
 
 	if (config.heelConstructionType->IsSelection("construct")) {
 		opInsoleTransform->in = opInsoleConstruct->out;
@@ -300,8 +321,8 @@ void Builder::Connect(Project &project) {
 	}
 
 	if (config.heelConstructionType->IsSelection("loadFromFile")) {
-		project.insoleL = opInsoleAnalyze->out;
-		project.insoleFlatL = opInsoleFlatten->out;
+		project.insoleL = opHeelCenter->insole_out;
+		project.insoleFlatL = opInsoleAnalyze->out;
 
 		project.insoleFlatR = project.insoleFlatL;
 		project.insoleR = project.insoleL;

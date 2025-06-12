@@ -103,20 +103,6 @@ public:
 	public:
 		Edge() = default;
 
-	private:
-		/**\brief Attach a triangle to the Edge.
-		 *
-		 * The returned parameter if true if the edge is not closed yet. This
-		 * means, that the edge is on the fringe of the object. Another triangle
-		 * should be attached to close the edge.
-		 *
-		 * \param index of a triangle to attach to the edge.
-		 * \return true if there is one more free slot for a triangle.
-		 */
-		//TODO Check if anybody outside of Geometry is using this function. (Made private for that reason.)
-		bool AttachTriangle(size_t index);
-
-	public:
 		/**\brief Invert the order of vertices for this edge, if necessary
 		 *
 		 * This function only changes the order of the vertices. The order of
@@ -137,7 +123,7 @@ public:
 		 * \param index of one of the triangles. to the other end of the edge given the vertex.
 		 * \return The index of the other triangle of the index of the first triangle.
 		 */
-		size_t OtherVertex(size_t index) const;
+		size_t GetOtherVertex(size_t index) const;
 
 		/**\brief Return the index of the other triangle connected
 		 *
@@ -146,9 +132,9 @@ public:
 		 * \param index Index to one of the vertices connected to the edge.
 		 * \return The index of the other vertex.
 		 */
-		size_t OtherTriangle(size_t index) const;
+		size_t GetOtherTriangle(size_t index) const;
 
-		size_t VertexIndex(uint_fast8_t index) const;
+		size_t GetVertexIndex(uint_fast8_t index) const;
 
 		/** \brief Check if an edge is collapsed
 		 *
@@ -208,12 +194,12 @@ public:
 		 * 	       negative, and 0 if one or both vertices do not belong to
 		 * 	       the triangle.
 		 */
-		int Direction(size_t index0, size_t index1) const;
+		int GetDirection(size_t index0, size_t index1) const;
 
-		size_t VertexIndex(uint_fast8_t index) const;
-		size_t EdgeIndex(uint_fast8_t index) const;
-		uint_fast8_t PositionVertex(size_t idx) const;
-		uint_fast8_t PositionEdge(size_t idx) const;
+		size_t GetVertexIndex(uint_fast8_t index) const;
+		size_t GetEdgeIndex(uint_fast8_t index) const;
+		uint_fast8_t GetVertexPosition(size_t idx) const;
+		uint_fast8_t GetEdgePosition(size_t idx) const;
 
 		/** \brief Check if a triangle is collapsed
 		 *
@@ -387,7 +373,8 @@ public:
 	 * edges and triangles.
 	 *
 	 * For triangles only the vertex-indices are ordered. The edge-indices are
-	 * not ordered, because for this the edges need to be sorted.
+	 * not ordered, because for this the edges need to be sorted in a way that
+	 * is not possible because one edge can belong to two triangles.
 	 *
 	 * The actual direction of the edges/triangles is indicated by the .flip
 	 * member variable.
@@ -454,7 +441,7 @@ public:
 	 * Usage:
 	 *
 	 * ~~~~~{.cpp}
-	 * if(obj.SelfCheckPassed()){
+	 * if(obj.PassedSelfCheck()){
 	 *   std::cout << "Object is correct.\n";
 	 * }else{
 	 *   std::cout << "Object has not passed the self-check.\n";
@@ -468,7 +455,7 @@ public:
 	 *                          turned off for checking some polygon structures.
 	 * \return True, if there are no errors in the geometry.
 	 */
-	bool SelfCheckPassed(bool checkWellOrdering = false,
+	bool PassedSelfCheck(bool checkWellOrdering = false,
 			size_t maxErrorsPerType = 10) const;
 
 	/**\}
@@ -505,6 +492,15 @@ public:
 	 */
 	void FlipNormals();
 
+	void FlagUV(bool inVertices, bool inTriangles);
+
+	void CalculateUVFromBox();
+	void CalculateUVFromAxis(const Vector3 &n, bool symmetric = false);
+	void CalculateUVFromCylinder(const Vector3 &n);
+	void CalculateUVFromSphere(const Vector3 &n);
+
+	void TransformUV(const AffineTransformMatrix &matrix);
+
 	/**\brief Calculate the UV coordinate system with normal, tangent and
 	 * bi-tangent.
 	 *
@@ -513,9 +509,17 @@ public:
 	 */
 	void CalculateUVCoordinateSystems();
 
-	void FlipInsideOutside(); ///< Flip all edges and all triangles, normals are not changed.
+	/**\brief Flip all edges and all triangles, normals are not changed
+	 *
+	 * Inverts the drawing order of the vertices in the triangles. This affects the
+	 * backface-culling operation of OpenGL.
+	 */
+	void FlipInsideOutside();
 
-	void CalcSharpEdges(double angle); ///< For each edge decide, if sharp, given an max angle.
+	/**\brief For each edge decide, if sharp, given an max angle.
+	 *
+	 */
+	void CalculateSharpEdges(double angle);
 
 	/**\brief Reset group indices
 	 *
@@ -535,7 +539,7 @@ public:
 	 *
 	 *  \param angle The angle of an edge above which the edge is considered "sharp".
 	 */
-	void CalcGroups(double angle);
+	void CalculateGroups(double angle);
 
 	/**\brief Group triangles into objects
 	 *
@@ -545,15 +549,15 @@ public:
 	 *
 	 * \return Number of groups assigned.
 	 */
-	size_t CalcObjects();
+	size_t CalculateObjects();
 
 	/**\name Accessing vectors and triangles
 	 * \{
 	 */
 
-	size_t VertexCount() const; ///< Size of the vector with the vertices.
-	size_t EdgeCount() const; ///< Size of the vector with the vertices.
-	size_t TriangleCount() const; ///< Size of the vector with the vertices.
+	size_t CountVertices() const; ///< Size of the vector with the vertices.
+	size_t CountEdges() const; ///< Size of the vector with the vertices.
+	size_t CountTriangles() const; ///< Size of the vector with the vertices.
 
 	const Vertex& operator[](size_t index) const; ///< Overloaded operator to view the vertices
 	Vertex& operator[](size_t index); ///< Overloaded operator to manipulate the vertices
@@ -652,8 +656,8 @@ public:
 
 	double GetTetraederVolume(size_t idx) const;
 
-	Vector3 GetCenter() const; // Center of all vertices.
-	Vector3 GetCentroid() const; // Center of gravity of geometry.
+	Vector3 GetCenterOfVertices() const; // Center of all vertices.
+	Vector3 GetCenterOfMass() const; // Center of gravity of geometry.
 	double GetArea() const;
 	double GetVolume() const;
 
@@ -715,6 +719,7 @@ public:
 	void PaintSelected() const;
 
 	void SendToGLVertexArray(const std::string fields);
+	void DeleteGLVertexArray();
 	void Bind();
 
 	/**\}

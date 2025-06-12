@@ -31,6 +31,7 @@
  *
  */
 
+#include "../3D/AffineTransformMatrix.h"
 #include "../3D/Vector3.h"
 
 #include <stddef.h>
@@ -47,6 +48,8 @@ public:
 
 	void Calculate(); //!< Calculate the PCA and store the values.
 	void Paint() const;
+
+	AffineTransformMatrix GetMatrix() const;
 
 	double maxError = 1e-6;
 	size_t maxIterations = 100;

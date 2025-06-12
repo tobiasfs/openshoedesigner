@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : LastConstruct.h
+// Name               : HeelCenter.h
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 12.01.2025
+// Created            : 17.03.2025
 // Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,28 +23,29 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
-#define SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
+#ifndef SRC_PROJECT_OPERATION_HEELCENTER_H_
+#define SRC_PROJECT_OPERATION_HEELCENTER_H_
 
-/** \class LastConstruct
- * 	\code #include "LastConstruct.h"\endcode
+/** \class HeelCenter
+ * 	\code #include "HeelCenter.h"\endcode
  * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
  */
 
+#include "../../math/Matrix.h"
+#include "../object/ObjectGeometry.h"
 #include "Operation.h"
 
-#include "../CoordinateSystem.h"
 #include "../object/Insole.h"
-#include "../object/ObjectGeometry.h"
-
 #include <memory>
-class LastConstruct: public Operation {
+#include <string>
+
+class HeelCenter: public Operation {
 public:
-	LastConstruct();
-	virtual ~LastConstruct() = default;
+	HeelCenter();
+	virtual ~HeelCenter() = default;
 
 	virtual std::string GetName() const override;
 	virtual bool CanRun() override;
@@ -53,9 +54,12 @@ public:
 	virtual void Run() override;
 
 public:
-	std::shared_ptr<Insole> insole;
-	std::shared_ptr<CoordinateSystem> cs;
-	std::shared_ptr<ObjectGeometry> out;
+	std::shared_ptr<ObjectGeometry> heel_in;
+	std::shared_ptr<ObjectGeometry> heel_out;
+	std::shared_ptr<Insole> insole_in;
+	std::shared_ptr<Insole> insole_out;
+
+//	std::shared_ptr<Matrix> debug;
 };
 
-#endif /* SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_ */
+#endif /* SRC_PROJECT_OPERATION_HEELCENTER_H_ */

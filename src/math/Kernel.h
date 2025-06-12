@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Kernel.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -78,7 +78,7 @@
  *
  * 		Kernel::Integrated2::Epanechnikov
  *
- * \note Unbounded kernel have an 2nd integral -> infinity. There seems to be no
+ * \note Unbounded kernel have a 2nd integral -> infinity. There seems to be no
  * sensible integration constant to use. Maybe the function -> f(x) = x for
  * x > 0 or something similar.
  *

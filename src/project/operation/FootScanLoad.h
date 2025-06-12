@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FootScanLoad.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -28,7 +28,7 @@
 
 /** \class FootScanLoad
  * 	\code #include "FootScanLoad.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text

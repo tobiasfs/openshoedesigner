@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : MidiPort.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -183,8 +183,7 @@ inline bool operator==(const std::shared_ptr<MidiDevice> &device,
 
 std::shared_ptr<MidiDevice> MidiPort::Open(const std::string &name,
 		Direction direction) {
-	std::shared_ptr<MidiDevice> temp(nullptr);
-#ifdef USE_PORTMIDI
+	std::shared_ptr<MidiDevice> temp;
 	auto it = std::find(devices.begin(), devices.end(), name);
 	if (it == devices.end()) {
 		temp = std::make_shared<MidiDevice>(name);
@@ -193,6 +192,7 @@ std::shared_ptr<MidiDevice> MidiPort::Open(const std::string &name,
 		temp = *it;
 	}
 
+#ifdef USE_PORTMIDI
 	PmDeviceID id = 0;
 	const PmDeviceInfo *info = Pm_GetDeviceInfo(id);
 	while (info != nullptr) {

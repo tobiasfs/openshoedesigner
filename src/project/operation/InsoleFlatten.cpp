@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : InsoleFlatten.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -25,10 +25,23 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "InsoleFlatten.h"
 
+#include "../../math/EnergyRelease.h"
+#include "../../math/Exporter.h"
+#include "../../math/PCA.h"
+#ifdef USE_EIGEN
+#include <Eigen/Dense>
+#else
+#include "../math/SVD.h"
+#endif
+
+#include <algorithm>
 #include <cfloat>
+#include <cmath>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <iostream>
+
+using std::min;
 
 InsoleFlatten::InsoleFlatten() {
 	out = std::make_shared<Insole>();
@@ -45,6 +58,22 @@ bool InsoleFlatten::CanRun() {
 		missing += missing.empty() ? "\"in\"" : ", \"in\"";
 	if (!out)
 		missing += missing.empty() ? "\"out\"" : ", \"out\"";
+	if (!debugMIDI_48)
+		missing += missing.empty() ? "\"debugMIDI_48\"" : ", \"debugMIDI_48\"";
+	if (!debugMIDI_49)
+		missing += missing.empty() ? "\"debugMIDI_49\"" : ", \"debugMIDI_49\"";
+	if (!debugMIDI_50)
+		missing += missing.empty() ? "\"debugMIDI_50\"" : ", \"debugMIDI_50\"";
+	if (!debugMIDI_51)
+		missing += missing.empty() ? "\"debugMIDI_51\"" : ", \"debugMIDI_51\"";
+	if (!debugMIDI_52)
+		missing += missing.empty() ? "\"debugMIDI_52\"" : ", \"debugMIDI_52\"";
+	if (!debugMIDI_53)
+		missing += missing.empty() ? "\"debugMIDI_53\"" : ", \"debugMIDI_53\"";
+	if (!debugMIDI_54)
+		missing += missing.empty() ? "\"debugMIDI_54\"" : ", \"debugMIDI_54\"";
+	if (!debugMIDI_55)
+		missing += missing.empty() ? "\"debugMIDI_55\"" : ", \"debugMIDI_55\"";
 
 	if (!missing.empty()) {
 		std::ostringstream err;
@@ -57,16 +86,53 @@ bool InsoleFlatten::CanRun() {
 
 	error.clear();
 
+	if (debugMIDI_48->GetString().empty()) {
+		error += " Input \"debugMIDI_48\" for InsoleFlatten is empty.";
+	}
+	if (debugMIDI_49->GetString().empty()) {
+		error += " Input \"debugMIDI_49\" for InsoleFlatten is empty.";
+	}
+	if (debugMIDI_50->GetString().empty()) {
+		error += " Input \"debugMIDI_50\" for InsoleFlatten is empty.";
+	}
+	if (debugMIDI_51->GetString().empty()) {
+		error += " Input \"debugMIDI_51\" for InsoleFlatten is empty.";
+	}
+	if (debugMIDI_52->GetString().empty()) {
+		error += " Input \"debugMIDI_52\" for InsoleFlatten is empty.";
+	}
+	if (debugMIDI_53->GetString().empty()) {
+		error += " Input \"debugMIDI_53\" for InsoleFlatten is empty.";
+	}
+	if (debugMIDI_54->GetString().empty()) {
+		error += " Input \"debugMIDI_54\" for InsoleFlatten is empty.";
+	}
+	if (debugMIDI_55->GetString().empty()) {
+		error += " Input \"debugMIDI_55\" for InsoleFlatten is empty.";
+	}
+
 	return error.empty();
 }
 
 bool InsoleFlatten::Propagate() {
-	if (!in || !out)
+	if (!in || !out || !debugMIDI_48 || !debugMIDI_49 || !debugMIDI_50
+			|| !debugMIDI_51 || !debugMIDI_52 || !debugMIDI_53 || !debugMIDI_54
+			|| !debugMIDI_55)
 		return false;
 
 	bool modify = false;
+	bool parameterModified = false;
+	parameterModified |= !in->IsValid();
+	parameterModified |= debugMIDI_48->IsModified();
+	parameterModified |= debugMIDI_49->IsModified();
+	parameterModified |= debugMIDI_50->IsModified();
+	parameterModified |= debugMIDI_51->IsModified();
+	parameterModified |= debugMIDI_52->IsModified();
+	parameterModified |= debugMIDI_53->IsModified();
+	parameterModified |= debugMIDI_54->IsModified();
+	parameterModified |= debugMIDI_55->IsModified();
 
-	if (!in->IsValid()) {
+	if (parameterModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
@@ -83,118 +149,75 @@ bool InsoleFlatten::HasToRun() {
 
 void InsoleFlatten::Run() {
 	*out = *in;
+	out->Geometry::CalculateNormals();
 
-	out->MarkValid(true);
-	out->MarkNeeded(false);
-	return;
+#ifdef USE_EIGEN
 
-	//TODO Bugfix and activate below
+	Eigen::MatrixXd M;
+	M.resize(out->CountTriangles(), 3);
 
-	// Find the start triangle closest to the origin.
-	size_t n;
-	for (n = 0; n < out->TriangleCount(); ++n) {
-		const auto &v0 = out->GetTriangleVertex(n, 0);
-		const auto &v1 = out->GetTriangleVertex(n, 1);
-		const auto &v2 = out->GetTriangleVertex(n, 2);
-		if (v0.x < 0.0 && v1.x < 0.0 && v2.x < 0.0)
-			continue;
-		if (v0.x > 0.0 && v1.x > 0.0 && v2.x > 0.0)
-			continue;
-		break;
-	}
-	if (n >= out->TriangleCount()) {
-		out->MarkNeeded(false);
-		error += GetName() + ": The Insole does not reach to the origin.";
-		return;
+	// Transpose and map to Eigen matrices.
+	size_t p = 0;
+	for (size_t i = 0; i < out->CountTriangles(); i++) {
+		const Geometry::Triangle &t = out->GetTriangle(i);
+		const double a = out->GetTriangleArea(i);
+		M(i, 0) = t.n.x * a;
+		M(i, 1) = t.n.y * a;
+		M(i, 2) = t.n.z * a;
 	}
 
-	// UV-Map the insole starting from the start triangle
-	// Reset UV Map
-	for (n = 0; n < out->VertexCount(); ++n) {
-		auto &v = out->GetVertex(n);
-		v.u = -DBL_MAX;
-		v.v = -DBL_MAX;
-	}
+	Eigen::BDCSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeThinV);
+	Eigen::MatrixXd S = svd.singularValues();
+	Eigen::MatrixXd V = svd.matrixV();
 
-	// Map the start triangle.
+//	Eigen::MatrixXd pinvM = M.completeOrthogonalDecomposition().pseudoInverse();
+//	Eigen::MatrixXd S = Eigen::MatrixXd::Identity(3, 3) - pinvM * M;
+
+	std::cout << "Eigenvalues:\n" << S << '\n';
+	std::cout << "V - Matrix:\n" << V << '\n';
+
+	//TODO: Use the result above to calculate the uniform dimension.
+	EnergyRelease::InitByUniformDimension(*out, { 0, 1, 0 });
+#else
 	{
-		const auto &t0 = out->GetTriangle(n);
-		Geometry::Vertex &v0 = out->GetVertex(t0.va);
-		Geometry::Vertex &v1 = out->GetVertex(t0.vb);
-		Geometry::Vertex &v2 = out->GetVertex(t0.vc);
-
-		AffineTransformMatrix m;
-		m.SetEz(t0.n);
-		m.CalculateEx();
-		m.CalculateEy();
-		m.SetOrigin(
-				{ 0, 0, v0.z + v0.x * t0.n.x / t0.n.z + v0.y * t0.n.y / t0.n.z });
-
-		v0.u = m.LocalX(v0);
-		v1.u = m.LocalX(v1);
-		v2.u = m.LocalX(v2);
-		v0.v = m.LocalY(v0);
-		v1.v = m.LocalY(v1);
-		v2.v = m.LocalY(v2);
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
+				<< __FUNCTION__ << " - ";
+		err << "Uniform axis detection not implemented without using Eigen3.";
+		error = err.str();
+		throw std::logic_error(err.str());
 	}
+#endif
+	out->outline.Clear();
+	out->outline.ExtractOutline(*out);
+	out->CalculateUVCoordinateSystems();
 
-	bool again = true;
-
-	while (again) {
-
-		for (size_t m2 = 0; m2 < out->TriangleCount(); ++m2) {
-			again = false;
-			const auto &t = out->GetTriangle(m2);
-			Geometry::Vertex &v0 = out->GetVertex(t.va);
-			Geometry::Vertex &v1 = out->GetVertex(t.vb);
-			Geometry::Vertex &v2 = out->GetVertex(t.vc);
-
-			if (v0.u < -FLT_MAX && v0.v < -FLT_MAX && v1.u < -FLT_MAX
-					&& v1.v < -FLT_MAX && v2.u < -FLT_MAX && v2.v < -FLT_MAX)
-				continue;
-			if (v0.u >= -FLT_MAX && v0.v >= -FLT_MAX && v1.u >= -FLT_MAX
-					&& v1.v >= -FLT_MAX && v2.u >= -FLT_MAX && v2.v >= -FLT_MAX)
-				continue;
-
-			again = true;
-			AffineTransformMatrix m;
-			m.SetEz(t.n);
-			m.CalculateEx();
-			m.CalculateEy();
-
-			if (v0.u > -FLT_MAX && v0.v > -FLT_MAX) {
-				Vector3 c = m.Transform(v0.u, v0.v);
-				m.SetOrigin(-c);
-			}
-			if (v1.u > -FLT_MAX && v1.v > -FLT_MAX) {
-				Vector3 c = m.Transform(v1.u, v1.v);
-				m.SetOrigin(-c);
-			}
-			if (v2.u > -FLT_MAX && v2.v > -FLT_MAX) {
-				Vector3 c = m.Transform(v2.u, v2.v);
-				m.SetOrigin(-c);
-			}
-			if (v0.u < -FLT_MAX || v0.v < -FLT_MAX) {
-				v0.u = m.LocalX(v0);
-				v0.v = m.LocalY(v0);
-			}
-			if (v1.u < -FLT_MAX || v1.v < -FLT_MAX) {
-				v1.u = m.LocalX(v1);
-				v1.v = m.LocalY(v1);
-			}
-			if (v2.u < -FLT_MAX || v2.v < -FLT_MAX) {
-				v2.u = m.LocalX(v2);
-				v2.v = m.LocalY(v2);
-			}
+#ifdef DEBUG
+	{
+		Matrix M1("out", out->CountVertices(), 5);
+		for (size_t idx = 0; idx < out->CountVertices(); idx++) {
+			const auto &v = out->GetVertex(idx);
+			M1.Insert(v.x, idx, 0);
+			M1.Insert(v.y, idx, 1);
+			M1.Insert(v.z, idx, 2);
+			M1.Insert(v.u, idx, 3);
+			M1.Insert(v.v, idx, 4);
 		}
-	}
+		Matrix M2("outline", out->outline.CountVertices(), 5);
+		for (size_t idx = 0; idx < out->outline.CountVertices(); idx++) {
+			const auto &v = out->outline.GetVertex(idx);
+			M2.Insert(v.x, idx, 0);
+			M2.Insert(v.y, idx, 1);
+			M2.Insert(v.z, idx, 2);
+			M2.Insert(v.u, idx, 3);
+			M2.Insert(v.v, idx, 4);
+		}
 
-	for (n = 0; n < out->VertexCount(); ++n) {
-		auto &v = out->GetVertex(n);
-		v.x = v.u;
-		v.y = v.v;
-		v.z = 0.0;
+		Exporter ex("/tmp/insoleflatten.mat");
+		ex.WriteMatrix(M1);
+		ex.WriteMatrix(M2);
 	}
+#endif
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

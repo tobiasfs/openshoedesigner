@@ -137,14 +137,24 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 	timer.SetOwner(this);
 	this->Connect(wxEVT_TIMER, wxTimerEventHandler(FrameMain::OnTimer), nullptr,
 			this);
-	timer.Start(500);
+	timer.Start(100);
+
+	this->Connect(wxEVT_DESTROY,
+			wxWindowDestroyEventHandler(FrameMain::OnDestroy), nullptr, this);
 
 //	Project *project = wxStaticCast(doc, Project);
 //	project->Update();
 }
 
 FrameMain::~FrameMain() {
+
+	timer.Stop();
+
 	DEBUGOUT << "FrameMain: Destructor called.\n";
+
+	this->Disconnect(wxEVT_DESTROY,
+			wxWindowDestroyEventHandler(FrameMain::OnDestroy), nullptr, this);
+
 	this->Disconnect(ID_UPDATEPROJECT, wxEVT_COMMAND_MENU_SELECTED,
 			wxCommandEventHandler(FrameMain::UpdateProject));
 	this->Disconnect(ID_REFRESHVIEW, wxEVT_COMMAND_MENU_SELECTED,
@@ -156,6 +166,13 @@ FrameMain::~FrameMain() {
 			nullptr, this);
 
 	filepaths.Save(config);
+}
+
+void FrameMain::OnDestroy(wxWindowDestroyEvent &event) {
+	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " ) called.\n";
+
+	timer.Stop();
 }
 
 bool FrameMain::TransferDataFromWindow() {
@@ -658,6 +675,7 @@ wxTextCtrl* FrameMain::GetTextCtrlByID(int id) {
 }
 
 void FrameMain::OnClose(wxCloseEvent &event) {
+	timer.Stop();
 	wxDocument *doc = this->GetDocument();
 	wxList tempDocs = doc->GetDocumentManager()->GetDocuments();
 	wxList tempViews = doc->GetViews();
@@ -699,34 +717,34 @@ void FrameMain::OnSize(wxSizeEvent &event) {
 
 void FrameMain::OnTimer(wxTimerEvent &event) {
 #ifdef USE_PORTMIDI
-	Project *project = wxStaticCast(GetDocument(), Project);
-//	midi.Poll();
-//	if(project->vol.Numel() == 8){
-//		for(size_t n = 0; n < 8; n++)
-//			project->vol[n] = ((double) midi.cc[n + 1] - 64.0) / 64.0;
-//	}else{
-//		project->vol.At(1, 1, 1) = ((double) midi.cc[1] - 64.0) / 64.0;
-//		project->vol.At(2, 1, 1) = ((double) midi.cc[2] - 64.0) / 64.0;
-//		project->vol.At(1, 2, 1) = ((double) midi.cc[3] - 64.0) / 64.0;
-//		project->vol.At(2, 2, 1) = ((double) midi.cc[4] - 64.0) / 64.0;
-//		project->vol.At(1, 1, 2) = ((double) midi.cc[5] - 64.0) / 64.0;
-//		project->vol.At(2, 1, 2) = ((double) midi.cc[6] - 64.0) / 64.0;
-//		project->vol.At(1, 2, 2) = ((double) midi.cc[7] - 64.0) / 64.0;
-//		project->vol.At(2, 2, 2) = ((double) midi.cc[8] - 64.0) / 64.0;
-//	}
-//	project->vol.CalcSurface();
+	wxDocument *doc = GetDocument();
+	if (!doc || !doc->GetClassInfo()->IsKindOf(&Project::ms_classInfo))
+		return;
+	Project *project = wxStaticCast(doc, Project);
 
 	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
-	wxString status = wxString::Format(_T("use_count=%ld"),
-			parentframe->mididevice.use_count());
-	SetStatusText(status, 1);
+	if (parentframe->mididevice && parentframe->mididevice->Poll()) {
+		project->config.debugMIDI_48->SetValue(parentframe->mididevice->cc[48]);
+		project->config.debugMIDI_49->SetValue(parentframe->mididevice->cc[49]);
+		project->config.debugMIDI_50->SetValue(parentframe->mididevice->cc[50]);
+		project->config.debugMIDI_51->SetValue(parentframe->mididevice->cc[51]);
+		project->config.debugMIDI_52->SetValue(parentframe->mididevice->cc[52]);
+		project->config.debugMIDI_53->SetValue(parentframe->mididevice->cc[53]);
+		project->config.debugMIDI_54->SetValue(parentframe->mididevice->cc[54]);
+		project->config.debugMIDI_55->SetValue(parentframe->mididevice->cc[55]);
+		project->Update();
+	}
+
+//	wxString status = wxString::Format(_T("use_count=%ld"),
+//			parentframe->mididevice.use_count());
+//	SetStatusText(status, 1);
 
 	this->Refresh();
 #endif
 
-	const auto x = m_canvas3D->unitAtOrigin;
-	wxString stat = wxString::Format(_T("unitAtOrigin = %f"), x);
-	SetStatusText(stat, 0);
+//	const auto x = m_canvas3D->unitAtOrigin;
+//	wxString stat = wxString::Format(_T("unitAtOrigin = %f"), x);
+//	SetStatusText(stat, 0);
 }
 
 void FrameMain::RefreshCanvas(wxCommandEvent&WXUNUSED(event)) {

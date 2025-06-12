@@ -26,8 +26,8 @@
 
 #include "OpenGLLight.h"
 
-OpenGLLight::OpenGLLight(GLenum _lightsource_) :
-		lightsource(_lightsource_) {
+OpenGLLight::OpenGLLight(GLenum lightsource_) :
+		lightsource(lightsource_) {
 	moveWithCamera = false;
 }
 

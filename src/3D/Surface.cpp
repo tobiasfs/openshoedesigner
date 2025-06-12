@@ -30,12 +30,13 @@
 #include "../math/Exporter.h"
 #include "../math/MatlabFile.h"
 #include "../math/Matrix.h"
-#include "../math/SVD.h"
 
 #include <stdexcept>
 //#include "../system/StopWatch.h"
 #ifdef USE_EIGEN
 #include <Eigen/Dense>
+#else
+#include "../math/SVD.h"
 #endif
 
 #include <cmath>
@@ -181,7 +182,7 @@ void Surface::Patch::Update(Geometry &geo) {
 	const size_t Cv = 20; // Resolution in V
 
 	// Starting vertex
-	const size_t vert0 = geo.VertexCount();
+	const size_t vert0 = geo.CountVertices();
 
 //	Polynomial U0 = Polynomial::ByValue(0, 0.0, Cu, 1.0);
 //	Polynomial V0 = Polynomial::ByValue(0, 0.0, Cv, 1.0);
@@ -752,7 +753,7 @@ void Surface::Calculate() {
 #endif
 
 	// Note that the classes Matrix and Eigen::MatrixXd have the same interface
-	// In both cases c is of a different type but can be accesed the same way.
+	// In both cases c is of a different type but can be accessed the same way.
 
 	// Map the solution into the patches.
 	size_t offs = 0;
@@ -790,7 +791,7 @@ Geometry::Vertex Surface::operator ()(double u, double v) const {
 }
 
 void Surface::Apply(Geometry &geo) {
-	const size_t vc = geo.VertexCount();
+	const size_t vc = geo.CountVertices();
 	for (size_t n = 0; n < vc; ++n) {
 		auto vert = geo[n];
 		auto addi = this->operator ()(vert.u, vert.v);

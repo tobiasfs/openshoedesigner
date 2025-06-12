@@ -49,6 +49,7 @@
 #include "ParameterFormula.h"
 #include "ParameterString.h"
 
+#include "ParameterValue.h"
 #include <memory>
 
 class Configuration {
@@ -121,6 +122,15 @@ public:
 
 	std::shared_ptr<ParameterString> heelCode;
 	std::vector<std::shared_ptr<ParameterString>> heelParameter;
+
+	std::shared_ptr<ParameterValue> debugMIDI_48;
+	std::shared_ptr<ParameterValue> debugMIDI_49;
+	std::shared_ptr<ParameterValue> debugMIDI_50;
+	std::shared_ptr<ParameterValue> debugMIDI_51;
+	std::shared_ptr<ParameterValue> debugMIDI_52;
+	std::shared_ptr<ParameterValue> debugMIDI_53;
+	std::shared_ptr<ParameterValue> debugMIDI_54;
+	std::shared_ptr<ParameterValue> debugMIDI_55;
 
 };
 

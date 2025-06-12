@@ -753,7 +753,6 @@ class GUIDialogMidiSetup : public wxDialog
 		wxButton* m_buttonClose;
 
 		// Virtual event handlers, override them in your derived class
-		virtual void OnChoice( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnConnectDisconnect( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnClose( wxCommandEvent& event ) { event.Skip(); }
 

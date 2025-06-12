@@ -111,9 +111,22 @@ FrameParent::FrameParent(wxDocManager *manager, wxConfig *config,
 
 	dialogSetupStereo3D = new DialogSetupStereo3D(this, &settingsStereo3D,
 			&units);
-#ifdef USE_PORTMIDI
 	midiport = std::make_shared<MidiPort>();
+#ifdef USE_PORTMIDI
 	dialogSetupMidi = new DialogSetupMidi(this);
+	dialogSetupMidi->UpdateDevices();
+	dialogSetupMidi->Load(config);
+	if (mididevice) {
+		mididevice->cc[48] = 5;
+		mididevice->cc[49] = 64;
+		mididevice->cc[50] = 64;
+		mididevice->cc[51] = 64;
+		mididevice->cc[52] = 64;
+		mididevice->cc[53] = 64;
+		mididevice->cc[54] = 0;
+		mididevice->cc[55] = 0;
+		mididevice->Send(48, 55);
+	}
 #endif
 
 	// Logging is disable here, because the SESSION_MANAGER variable is not defined since Ubuntu 16.04.
@@ -140,6 +153,9 @@ FrameParent::~FrameParent() {
 #ifdef USE_6DOFCONTROLLER
 	// Save the configuration of the 6DOF controller
 	control.Save(config);
+#endif
+#ifdef USE_PORTMIDI
+	dialogSetupMidi->Save(config);
 #endif
 	units.Save(config);
 	filepaths.Save(config);

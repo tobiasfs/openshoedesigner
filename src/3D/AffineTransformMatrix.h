@@ -237,9 +237,11 @@ public:
 	 *
 	 * This matrix has element #11 set to -1 for perspective distortion.
 	 * This matrix cannot be used with most operations in this class as
-	 * the lowest row of the matrix is not [0, 0, 0, 1] but [0, 0, -1, 1].
+	 * the lowest row of the matrix is not [0, 0, 0, 1] but [0, 0, -1, 0].
 	 *
 	 * [Matrices - projection, view, model](https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/)
+	 *
+	 * [Computer Graphics Projection](https://cg.informatik.uni-freiburg.de/course_notes/graphics_04_projection.pdf)
 	 */
 	static AffineTransformMatrix Perspective(double fovy, double aspect,
 			double znear, double zfar);

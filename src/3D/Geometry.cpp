@@ -36,8 +36,11 @@
 #include <numeric>
 #include <regex>
 #include <utility>
+#include <string>
 
 #include "OpenGL.h"
+
+using std::swap;
 
 #ifdef NDEBUG
 #define RANGE_CHECK(ary,idx)
@@ -47,8 +50,6 @@
 			std::to_string(__LINE__) + std::string(": ") + \
 			std::string("The index "#idx" is larger than the size of the array "#ary"."))
 #endif
-
-using std::swap;
 
 static const size_t nothing = (size_t) -1;
 
@@ -101,22 +102,6 @@ Geometry::Vertex Geometry::Vertex::Interp(const Vertex &b,
 	return temp;
 }
 
-bool Geometry::Edge::AttachTriangle(size_t index) {
-	if (trianglecount == 0) {
-		ta = index;
-		trianglecount++;
-		return true;
-	}
-	if (trianglecount == 1) {
-		tb = index;
-		trianglecount++;
-		return false;
-	}
-	if (trianglecount < 255)
-		trianglecount++;
-	return false;
-}
-
 void Geometry::Edge::Fix() {
 	if (ta == nothing) {
 		if (tb == nothing) {
@@ -150,19 +135,19 @@ void Geometry::Edge::FlipNormal() {
 
 }
 
-size_t Geometry::Edge::OtherVertex(size_t index) const {
+size_t Geometry::Edge::GetOtherVertex(size_t index) const {
 	if (va == index)
 		return vb;
 	return va;
 }
 
-size_t Geometry::Edge::OtherTriangle(size_t index) const {
+size_t Geometry::Edge::GetOtherTriangle(size_t index) const {
 	if (ta == index)
 		return tb;
 	return ta;
 }
 
-size_t Geometry::Edge::VertexIndex(uint_fast8_t index) const {
+size_t Geometry::Edge::GetVertexIndex(uint_fast8_t index) const {
 	if (flip) {
 		switch (index) {
 		case 0:
@@ -259,7 +244,7 @@ void Geometry::Triangle::FlipNormal() {
 	flip = !flip;
 }
 
-int Geometry::Triangle::Direction(size_t idx0, size_t idx1) const {
+int Geometry::Triangle::GetDirection(size_t idx0, size_t idx1) const {
 	if ((idx0 == va && idx1 == vb) || (idx0 == vb && idx1 == vc)
 			|| (idx0 == vc && idx1 == va))
 		return (flip ? -1 : 1);
@@ -269,7 +254,7 @@ int Geometry::Triangle::Direction(size_t idx0, size_t idx1) const {
 	return 0;
 }
 
-size_t Geometry::Triangle::VertexIndex(uint_fast8_t index) const {
+size_t Geometry::Triangle::GetVertexIndex(uint_fast8_t index) const {
 	if (flip) {
 		switch (index) {
 		case 0:
@@ -297,7 +282,7 @@ size_t Geometry::Triangle::VertexIndex(uint_fast8_t index) const {
 	}
 }
 
-size_t Geometry::Triangle::EdgeIndex(uint_fast8_t index) const {
+size_t Geometry::Triangle::GetEdgeIndex(uint_fast8_t index) const {
 	if (flip) {
 		switch (index) {
 		case 0:
@@ -325,7 +310,7 @@ size_t Geometry::Triangle::EdgeIndex(uint_fast8_t index) const {
 	}
 }
 
-uint_fast8_t Geometry::Triangle::PositionVertex(size_t idx) const {
+uint_fast8_t Geometry::Triangle::GetVertexPosition(size_t idx) const {
 	if (idx == va)
 		return 0;
 	if (idx == vb)
@@ -335,7 +320,7 @@ uint_fast8_t Geometry::Triangle::PositionVertex(size_t idx) const {
 	return (uint_fast8_t) -1;
 }
 
-uint_fast8_t Geometry::Triangle::PositionEdge(size_t idx) const {
+uint_fast8_t Geometry::Triangle::GetEdgePosition(size_t idx) const {
 	if (idx == ea)
 		return 0;
 	if (idx == eb)
@@ -350,19 +335,7 @@ bool Geometry::Triangle::IsCollapsed() const {
 }
 
 Geometry::~Geometry() {
-	if (vertexArrayObject > 0) {
-		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &vertexArrayObject);
-		vertexArrayObject = 0;
-	}
-	if (elementBufferObject > 0) {
-		glDeleteBuffers(1, &elementBufferObject);
-		elementBufferObject = 0;
-	}
-	if (vertexBufferObject > 0) {
-		glDeleteBuffers(1, &vertexBufferObject);
-		vertexBufferObject = 0;
-	}
+	DeleteGLVertexArray();
 }
 
 void Geometry::SetEpsilon(double newEpsilon) {
@@ -400,6 +373,7 @@ void Geometry::Clear() {
 	openvertices.clear();
 	openedges.clear();
 	selected.clear();
+	ResetPresets();
 	matrix.SetIdentity();
 	verticesHaveNormal = false;
 	verticesHaveColor = false;
@@ -745,6 +719,14 @@ void Geometry::AddSelectedFrom(const Geometry &other) {
 
 	// Update the references
 	Remap(vfirst, efirst, tfirst);
+
+	// Cleanup references
+	for (Edge &ed : e) {
+		if (ed.ta == nothing && ed.tb != nothing) {
+			ed.ta = ed.tb;
+			ed.tb = nothing;
+		}
+	}
 }
 
 void Geometry::InitMap() {
@@ -1053,7 +1035,9 @@ void Geometry::Join() {
 
 	// Remove duplicate edges
 
+	bool reassignEdges = false;
 	if (!e.empty()) {
+		// emap has to have the free space before erasing edges
 		emap.assign(e.size(), nothing);
 
 		// Remove collapsed edges
@@ -1069,18 +1053,18 @@ void Geometry::Join() {
 		std::vector<size_t> ecount;
 		ecount.assign(e.size(), 1);
 		size_t j = 0;
+
 		emap[e[j].group] = j;
 		for (size_t i = 1; i < e.size(); ++i) {
 			if (edge_equal(e[j], e[i])) {
 				emap[e[i].group] = j;
-				if (e[j].trianglecount == 1)
-					e[j].tb = e[i].ta;
+				if (e[i].trianglecount > 0)
+					reassignEdges = true;
 				e[j].n += e[i].n;
 				e[j].c.r += e[i].c.r;
 				e[j].c.g += e[i].c.g;
 				e[j].c.b += e[i].c.b;
 				e[j].c.a += e[i].c.a;
-				e[j].trianglecount++;
 				ecount[j]++;
 			} else {
 				++j;
@@ -1099,31 +1083,54 @@ void Geometry::Join() {
 		Remap(0, 0, 0);
 	}
 
-	// Remove duplicate triangles
+	// Remove duplicated and collapsed triangles
 
 	if (!t.empty()) {
-		tmap.assign(t.size(), nothing);
-
-		//TODO: Remove collapsed triangles.
 		for (Triangle &tri : t)
 			tri.Fix();
 		std::sort(t.begin(), t.end(), triangle_less);
-
 		size_t j = 0;
-		tmap[t[j].group] = j;
-		for (size_t i = 1; i < t.size(); ++i) {
-			if (triangle_equal(t[j], t[i])) {
-				tmap[t[i].group] = j;
-			} else {
-				++j;
-				t[j] = t[i];
-				tmap[t[j].group] = j;
+		for (size_t i = 0; i < t.size(); ++i) {
+			if (t[i].IsCollapsed()) {
+				reassignEdges = true;
+				continue;
 			}
+			if (j > 0 && triangle_equal(t[j - 1], t[i])) {
+				reassignEdges = true;
+				continue;
+			}
+			t[j] = t[i];
+			j++;
 		}
-		t.erase(t.begin() + (int) j + 1, t.end());
+		t.erase(t.begin() + (int) j, t.end());
+	}
 
-		// Map edges
-		Remap(0, 0, 0);
+	if (reassignEdges && !e.empty()) {
+		// Assuming that the connection vertex -> edge -> triangle is OK.
+		// Zero all edge connections.
+		for (Edge &ed : e)
+			ed.trianglecount = 0;
+		// Add all triangles anew
+		for (size_t i = 0; i < t.size(); ++i) {
+			const Triangle &tri = t[i];
+			if (e[tri.ea].trianglecount == 0)
+				e[tri.ea].ta = i;
+			if (e[tri.ea].trianglecount == 1)
+				e[tri.ea].tb = i;
+			e[tri.ea].trianglecount++;
+			if (e[tri.eb].trianglecount == 0)
+				e[tri.eb].ta = i;
+			if (e[tri.eb].trianglecount == 1)
+				e[tri.eb].tb = i;
+			e[tri.eb].trianglecount++;
+			if (e[tri.ec].trianglecount == 0)
+				e[tri.ec].ta = i;
+			if (e[tri.ec].trianglecount == 1)
+				e[tri.ec].tb = i;
+			e[tri.ec].trianglecount++;
+		}
+		for (Edge &ed : e)
+			ed.Fix();
 	}
 }
 
@@ -1190,7 +1197,7 @@ void Geometry::Finish() {
 	<< t[idxb].ea << ", " << t[idxb].eb << ", and " << t[idxb].ec << ".\n"; \
 	++errorCount; passed = false;}
 
-bool Geometry::SelfCheckPassed(bool checkWellOrdering,
+bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 		size_t maxErrorsPerType) const {
 
 	// All checks are done on the data in the objects (vertex, edge, triangle).
@@ -1333,9 +1340,18 @@ bool Geometry::SelfCheckPassed(bool checkWellOrdering,
 				SELFCHECK_LESS_THAN(idx, t[idx].ea, t[idx].eb, "triangle",
 						"edge");
 				// Note, that this check is inverted, because of the way the
-				// vertices are ordered in a triangle.
+				// vertices are ordered in a triangle:
+				// All vertices are sorted ascending and all edges are sorted
+				// by the vertices ascending.
+				// Therefor the va of ec is smaller then va of eb and ec is
+				// smaller than eb.
 				SELFCHECK_LESS_THAN(idx, t[idx].ec, t[idx].eb, "triangle",
 						"edge");
+				// Because vb of ec is greater than vb of ea: ec is greater
+				// than ea.
+				SELFCHECK_LESS_THAN(idx, t[idx].ea, t[idx].ec, "triangle",
+						"edge");
+
 				if (errorCount >= maxErrorsPerType) {
 					std::cerr << "...\n";
 					break;
@@ -1581,6 +1597,197 @@ void Geometry::FlipInsideOutside() {
 		tri.flip = !tri.flip;
 }
 
+void Geometry::FlagUV(bool inVertices, bool inTriangles) {
+	verticesHaveTextur = inVertices;
+	trianglesHaveTexture = inTriangles;
+}
+
+void Geometry::CalculateUVFromBox() {
+	for (Triangle &tri : t) {
+		const Vector3 &n = tri.n;
+		const Vertex &va = v[tri.va];
+		const Vertex &vb = v[tri.vb];
+		const Vertex &vc = v[tri.vc];
+
+		if (fabs(n.x) > fabs(n.y) && fabs(n.x) > fabs(n.z)) {
+			if (n.x < 0) {
+				tri.tua = -va.y;
+				tri.tva = va.z;
+				tri.tub = -vb.y;
+				tri.tvb = vb.z;
+				tri.tuc = -vc.y;
+				tri.tvc = vc.z;
+			} else {
+				tri.tua = va.y;
+				tri.tva = va.z;
+				tri.tub = vb.y;
+				tri.tvb = vb.z;
+				tri.tuc = vc.y;
+				tri.tvc = vc.z;
+			}
+		} else if (fabs(n.y) > fabs(n.z) && fabs(n.y) > fabs(n.x)) {
+			if (n.y < 0) {
+				tri.tua = va.x;
+				tri.tva = va.z;
+				tri.tub = vb.x;
+				tri.tvb = vb.z;
+				tri.tuc = vc.x;
+				tri.tvc = vc.z;
+			} else {
+				tri.tua = -va.x;
+				tri.tva = va.z;
+				tri.tub = -vb.x;
+				tri.tvb = vb.z;
+				tri.tuc = -vc.x;
+				tri.tvc = vc.z;
+			}
+		} else {
+			if (n.z < 0) {
+				tri.tua = va.x;
+				tri.tva = -va.y;
+				tri.tub = vb.x;
+				tri.tvb = -vb.y;
+				tri.tuc = vc.x;
+				tri.tvc = -vc.y;
+			} else {
+				tri.tua = va.x;
+				tri.tva = va.y;
+				tri.tub = vb.x;
+				tri.tvb = vb.y;
+				tri.tuc = vc.x;
+				tri.tvc = vc.y;
+			}
+		}
+	}
+	trianglesHaveTexture = true;
+}
+
+void Geometry::CalculateUVFromAxis(const Vector3 &n, bool symmetric) {
+	AffineTransformMatrix uv;
+	uv.SetEz(n);
+	uv.SetEy(n.Orthogonal());
+	uv.CalculateEx();
+	uv.Normalize();
+	for (Triangle &tri : t) {
+		const Vertex &va = v[tri.va];
+		const Vertex &vb = v[tri.vb];
+		const Vertex &vc = v[tri.vc];
+		if (symmetric || tri.n.Dot(n) > 0.0) {
+			tri.tua = uv.LocalX(va);
+			tri.tub = uv.LocalX(vb);
+			tri.tuc = uv.LocalX(vc);
+		} else {
+			tri.tua = -uv.LocalX(va);
+			tri.tub = -uv.LocalX(vb);
+			tri.tuc = -uv.LocalX(vc);
+		}
+		tri.tva = uv.LocalY(va);
+		tri.tvb = uv.LocalY(vb);
+		tri.tvc = uv.LocalY(vc);
+	}
+	trianglesHaveTexture = true;
+}
+
+void Geometry::CalculateUVFromCylinder(const Vector3 &n) {
+	AffineTransformMatrix uv;
+	uv.SetEz(n);
+	uv.SetEy(n.Orthogonal());
+	uv.CalculateEx();
+	uv.Normalize();
+	for (Triangle &tri : t) {
+		const Vertex &va = v[tri.va];
+		const Vertex &vb = v[tri.vb];
+		const Vertex &vc = v[tri.vc];
+		tri.tua = atan2(uv.LocalY(va), uv.LocalX(va)) / M_PI / 2.0;
+		tri.tva = uv.LocalZ(va);
+		tri.tub = atan2(uv.LocalY(vb), uv.LocalX(vb)) / M_PI / 2.0;
+		tri.tvb = uv.LocalZ(vb);
+		tri.tuc = atan2(uv.LocalY(vc), uv.LocalX(vc)) / M_PI / 2.0;
+		tri.tvc = uv.LocalZ(vc);
+
+		while (tri.tua > 0.25 && tri.tub > 0.25 && tri.tuc < -0.25)
+			tri.tuc += 1.0;
+		while (tri.tua > 0.25 && tri.tub < -0.25 && tri.tuc > 0.25)
+			tri.tub += 1.0;
+		while (tri.tua < -0.25 && tri.tub > 0.25 && tri.tuc > 0.25)
+			tri.tua += 1.0;
+		while (tri.tua < -0.25 && tri.tub < -0.25 && tri.tuc > 0.25)
+			tri.tuc -= 1.0;
+		while (tri.tua < -0.25 && tri.tub > 0.25 && tri.tuc < -0.25)
+			tri.tub -= 1.0;
+		while (tri.tua > 0.25 && tri.tub < -0.25 && tri.tuc < -0.25)
+			tri.tua -= 1.0;
+	}
+	trianglesHaveTexture = true;
+}
+
+void Geometry::CalculateUVFromSphere(const Vector3 &n) {
+	AffineTransformMatrix uv;
+	uv.SetEz(n);
+	uv.SetEy(n.Orthogonal());
+	uv.CalculateEx();
+	uv.Normalize();
+	for (Triangle &tri : t) {
+		const Vector3 &n = tri.n;
+		const Vertex &va = v[tri.va];
+		const Vertex &vb = v[tri.vb];
+		const Vertex &vc = v[tri.vc];
+		{
+			const double x = uv.LocalX(va);
+			const double y = uv.LocalY(va);
+			const double z = uv.LocalZ(va);
+			tri.tua = atan2(y, x) / M_PI;
+			tri.tva = atan2(z, sqrt(x * x + y * y)) / M_PI_2;
+		}
+		{
+			const double x = uv.LocalX(vb);
+			const double y = uv.LocalY(vb);
+			const double z = uv.LocalZ(vb);
+			tri.tub = atan2(y, x) / M_PI;
+			tri.tvb = atan2(z, sqrt(x * x + y * y)) / M_PI_2;
+		}
+		{
+			const double x = uv.LocalX(vc);
+			const double y = uv.LocalY(vc);
+			const double z = uv.LocalZ(vc);
+			tri.tuc = atan2(y, x) / M_PI;
+			tri.tvc = atan2(z, sqrt(x * x + y * y)) / M_PI_2;
+		}
+		while (tri.tua > 0.25 && tri.tub > 0.25 && tri.tuc < -0.25)
+			tri.tuc += 1.0;
+		while (tri.tua > 0.25 && tri.tub < -0.25 && tri.tuc > 0.25)
+			tri.tub += 1.0;
+		while (tri.tua < -0.25 && tri.tub > 0.25 && tri.tuc > 0.25)
+			tri.tua += 1.0;
+		while (tri.tua < -0.25 && tri.tub < -0.25 && tri.tuc > 0.25)
+			tri.tuc -= 1.0;
+		while (tri.tua < -0.25 && tri.tub > 0.25 && tri.tuc < -0.25)
+			tri.tub -= 1.0;
+		while (tri.tua > 0.25 && tri.tub < -0.25 && tri.tuc < -0.25)
+			tri.tua -= 1.0;
+	}
+	trianglesHaveTexture = true;
+}
+
+void Geometry::TransformUV(const AffineTransformMatrix &matrix) {
+	for (Vertex &vert : v) {
+		Vector3 temp = matrix.Transform(vert.u, vert.v);
+		vert.u = temp.x;
+		vert.v = temp.y;
+	}
+	for (Triangle &tri : t) {
+		Vector3 tempa = matrix.Transform(tri.tua, tri.tva);
+		Vector3 tempb = matrix.Transform(tri.tub, tri.tvb);
+		Vector3 tempc = matrix.Transform(tri.tuc, tri.tvc);
+		tri.tua = tempa.x;
+		tri.tva = tempa.y;
+		tri.tub = tempb.x;
+		tri.tvb = tempb.y;
+		tri.tuc = tempc.x;
+		tri.tvc = tempc.y;
+	}
+}
+
 void Geometry::CalculateUVCoordinateSystems() {
 	if (verticesHaveTextur && !trianglesHaveTexture) {
 		for (Triangle &tri : t) {
@@ -1597,10 +1804,11 @@ void Geometry::CalculateUVCoordinateSystems() {
 		bool texturesFlat = true;
 		// Calculate 't' and 'b' of the TBN-matrix.
 		for (Triangle &tri : t) {
-			const double dU1 = tri.tub - tri.tua;
-			const double dV1 = tri.tvb - tri.tva;
-			const double dU2 = tri.tuc - tri.tua;
-			const double dV2 = tri.tvc - tri.tva;
+
+			const double dU1 = (tri.flip ? tri.tuc : tri.tub) - tri.tua;
+			const double dV1 = (tri.flip ? tri.tvc : tri.tvb) - tri.tva;
+			const double dU2 = (tri.flip ? tri.tub : tri.tuc) - tri.tua;
+			const double dV2 = (tri.flip ? tri.tvb : tri.tvc) - tri.tva;
 			const double det = dU1 * dV2 - dU2 * dV1;
 			if (fabs(det) < FLT_EPSILON) {
 				tri.t.Zero();
@@ -1610,8 +1818,8 @@ void Geometry::CalculateUVCoordinateSystems() {
 			texturesFlat = false;
 			const double f = 1.0 / det;
 
-			const Vector3 dE1 = v[tri.vb] - v[tri.va];
-			const Vector3 dE2 = v[tri.vc] - v[tri.va];
+			const Vector3 dE1 = (tri.flip ? v[tri.vc] : v[tri.vb]) - v[tri.va];
+			const Vector3 dE2 = (tri.flip ? v[tri.vb] : v[tri.vc]) - v[tri.va];
 
 			tri.b.x = f * (-dU2 * dE1.x + dU1 * dE2.x);
 			tri.b.y = f * (-dU2 * dE1.y + dU1 * dE2.y);
@@ -1637,7 +1845,7 @@ void Geometry::CalculateUVCoordinateSystems() {
 	}
 }
 
-void Geometry::CalcSharpEdges(double angle) {
+void Geometry::CalculateSharpEdges(double angle) {
 	// Every edge that connects two triangles that are oriented
 	// more than alpha radians relative to each other is considered
 	// a sharp edge.
@@ -1672,9 +1880,9 @@ void Geometry::ResetGroups() {
 		vert.group = nothing;
 }
 
-void Geometry::CalcGroups(double angle) {
+void Geometry::CalculateGroups(double angle) {
 
-	CalcSharpEdges(angle);
+	CalculateSharpEdges(angle);
 
 	ResetGroups();
 	size_t currentGroup = nothing;
@@ -1691,7 +1899,7 @@ void Geometry::CalcGroups(double angle) {
 			{
 				const size_t k = t[j].ea;
 				if (!e[k].sharp && e[k].trianglecount >= 2) {
-					size_t p = e[k].OtherTriangle(j);
+					size_t p = e[k].GetOtherTriangle(j);
 					if (t[p].group == nothing)
 						checklist.insert(p);
 				}
@@ -1699,7 +1907,7 @@ void Geometry::CalcGroups(double angle) {
 			{
 				const size_t k = t[j].eb;
 				if (!e[k].sharp && e[k].trianglecount >= 2) {
-					size_t p = e[k].OtherTriangle(j);
+					size_t p = e[k].GetOtherTriangle(j);
 					if (t[p].group == nothing)
 						checklist.insert(p);
 				}
@@ -1707,7 +1915,7 @@ void Geometry::CalcGroups(double angle) {
 			{
 				const size_t k = t[j].ec;
 				if (!e[k].sharp && e[k].trianglecount >= 2) {
-					size_t p = e[k].OtherTriangle(j);
+					size_t p = e[k].GetOtherTriangle(j);
 					if (t[p].group == nothing)
 						checklist.insert(p);
 				}
@@ -1762,7 +1970,7 @@ void Geometry::CalcGroups(double angle) {
 				}
 				if (e[m].group != nothing)
 					break;
-				i = e[m].OtherVertex(i);
+				i = e[m].GetOtherVertex(i);
 				e[m].group = currentGroup;
 			}
 		}
@@ -1778,14 +1986,14 @@ void Geometry::CalcGroups(double angle) {
 				}
 				if (e[m].group != nothing)
 					break;
-				i = e[m].OtherVertex(i);
+				i = e[m].GetOtherVertex(i);
 				e[m].group = currentGroup;
 			}
 		}
 	}
 }
 
-size_t Geometry::CalcObjects() {
+size_t Geometry::CalculateObjects() {
 
 	// If the Finish() method was called and everything is sorted, this group
 	// assignment should work with optimal speed. It always converges.
@@ -1835,15 +2043,15 @@ size_t Geometry::CalcObjects() {
 	return groupcount;
 }
 
-size_t Geometry::VertexCount() const {
+size_t Geometry::CountVertices() const {
 	return v.size();
 }
 
-size_t Geometry::EdgeCount() const {
+size_t Geometry::CountEdges() const {
 	return e.size();
 }
 
-size_t Geometry::TriangleCount() const {
+size_t Geometry::CountTriangles() const {
 	return t.size();
 }
 
@@ -1866,7 +2074,7 @@ Geometry::Vertex& Geometry::GetVertex(size_t index) {
 const Geometry::Vertex& Geometry::GetEdgeVertex(const size_t indexEdge,
 		uint_fast8_t indexVertex) const {
 	const auto ed = e[indexEdge];
-	const size_t vidx = ed.VertexIndex(indexVertex);
+	const size_t vidx = ed.GetVertexIndex(indexVertex);
 	if (vidx >= v.size())
 		throw std::range_error(
 				std::string(__FUNCTION__)
@@ -1893,7 +2101,7 @@ Geometry::Triangle& Geometry::GetTriangle(const size_t index) {
 const Geometry::Vertex& Geometry::GetTriangleVertex(const size_t indexTriangle,
 		uint_fast8_t indexVertex) const {
 	const auto &tri = t[indexTriangle];
-	const size_t vidx = tri.VertexIndex(indexVertex);
+	const size_t vidx = tri.GetVertexIndex(indexVertex);
 	if (vidx >= v.size())
 		throw std::range_error(
 				std::string(__FUNCTION__)
@@ -1957,9 +2165,9 @@ Vector3 Geometry::GetTetraederCenter(size_t idx) const {
 
 double Geometry::GetTetraederVolume(size_t idx) const {
 	const Triangle &tri = t[idx];
-	const Vertex &v0 = v[tri.VertexIndex(0)];
-	const Vertex &v1 = v[tri.VertexIndex(1)];
-	const Vertex &v2 = v[tri.VertexIndex(2)];
+	const Vertex &v0 = v[tri.GetVertexIndex(0)];
+	const Vertex &v1 = v[tri.GetVertexIndex(1)];
+	const Vertex &v2 = v[tri.GetVertexIndex(2)];
 	double Vt = (v0.x * v1.y - v0.y * v1.x) * v2.z
 			+ (-v0.x * v1.z + v0.z * v1.x) * v2.y
 			+ (v0.y * v1.z - v0.z * v1.y) * v2.x;
@@ -1968,16 +2176,16 @@ double Geometry::GetTetraederVolume(size_t idx) const {
 
 double Geometry::GetTriangleArea(size_t idx) const {
 	const Triangle &tri = t[idx];
-	const Vertex &v0 = v[tri.VertexIndex(0)];
-	const Vertex &v1 = v[tri.VertexIndex(1)];
-	const Vertex &v2 = v[tri.VertexIndex(2)];
+	const Vertex &v0 = v[tri.va];
+	const Vertex &v1 = v[tri.vb];
+	const Vertex &v2 = v[tri.vc];
 	const Vector3 d1 = v1 - v0;
 	const Vector3 d2 = v2 - v0;
 	const Vector3 x = d1 * d2;
 	return x.Abs() / 2.0;
 }
 
-Vector3 Geometry::GetCenter() const {
+Vector3 Geometry::GetCenterOfVertices() const {
 	Vector3 center;
 	double V = 0.0;
 	for (const Vertex &vert : v) {
@@ -1987,13 +2195,13 @@ Vector3 Geometry::GetCenter() const {
 	return center / V;
 }
 
-Vector3 Geometry::GetCentroid() const {
+Vector3 Geometry::GetCenterOfMass() const {
 	Vector3 center;
 	double V = 0.0;
 	for (const Triangle &tri : t) {
-		const Vertex &v0 = v[tri.VertexIndex(0)];
-		const Vertex &v1 = v[tri.VertexIndex(1)];
-		const Vertex &v2 = v[tri.VertexIndex(2)];
+		const Vertex &v0 = v[tri.GetVertexIndex(0)];
+		const Vertex &v1 = v[tri.GetVertexIndex(1)];
+		const Vertex &v2 = v[tri.GetVertexIndex(2)];
 		double Vt = (v0.x * v1.y - v0.y * v1.x) * v2.z
 				+ (-v0.x * v1.z + v0.z * v1.x) * v2.y
 				+ (v0.y * v1.z - v0.z * v1.y) * v2.x;
@@ -2008,9 +2216,9 @@ Vector3 Geometry::GetCentroid() const {
 double Geometry::GetArea() const {
 	double A = 0.0;
 	for (const Triangle &tri : t) {
-		const Vertex &v0 = v[tri.VertexIndex(0)];
-		const Vertex &v1 = v[tri.VertexIndex(1)];
-		const Vertex &v2 = v[tri.VertexIndex(2)];
+		const Vertex &v0 = v[tri.GetVertexIndex(0)];
+		const Vertex &v1 = v[tri.GetVertexIndex(1)];
+		const Vertex &v2 = v[tri.GetVertexIndex(2)];
 		const Vector3 d1 = v1 - v0;
 		const Vector3 d2 = v2 - v0;
 		const Vector3 x = d1 * d2;
@@ -2022,9 +2230,9 @@ double Geometry::GetArea() const {
 double Geometry::GetVolume() const {
 	double V = 0.0;
 	for (const Triangle &tri : t) {
-		const Vertex &v0 = v[tri.VertexIndex(0)];
-		const Vertex &v1 = v[tri.VertexIndex(1)];
-		const Vertex &v2 = v[tri.VertexIndex(2)];
+		const Vertex &v0 = v[tri.GetVertexIndex(0)];
+		const Vertex &v1 = v[tri.GetVertexIndex(1)];
+		const Vertex &v2 = v[tri.GetVertexIndex(2)];
 		// Fricas code:
 		// )set fortran optlevel 2
 		// )set output fortran on
@@ -2618,18 +2826,29 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 
 			if (trianglesHaveNormal)
 				GLNormal(n);
-			if (verticesHaveTextur)
+			if (verticesHaveTextur && !trianglesHaveTexture)
 				glTexCoord2d(va.u, va.v);
+			if (trianglesHaveTexture)
+				glTexCoord2d(tri.tua, tri.tva);
 			if (verticesHaveColor)
 				GLColor(ca);
 			GLVertex(va);
-			if (verticesHaveTextur)
+			if (verticesHaveTextur && !trianglesHaveTexture)
 				glTexCoord2d(vb.u, vb.v);
+			if (trianglesHaveTexture)
+				if (tri.flip)
+					glTexCoord2d(tri.tuc, tri.tvc);
+				else
+					glTexCoord2d(tri.tub, tri.tvb);
 			if (verticesHaveColor)
 				GLColor(cb);
 			GLVertex(vb);
-			if (verticesHaveTextur)
+			if (verticesHaveTextur && !trianglesHaveTexture)
 				glTexCoord2d(vc.u, vc.v);
+			if (tri.flip)
+				glTexCoord2d(tri.tub, tri.tvb);
+			else
+				glTexCoord2d(tri.tuc, tri.tvc);
 			if (verticesHaveColor)
 				GLColor(cc);
 			GLVertex(vc);
@@ -2655,7 +2874,7 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 }
 
 void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
-	const double normalscale = 0.1;
+	const double normalscale = 1.0;
 	glPushMatrix();
 	matrix.GLMultMatrix();
 	GLuint group = 0;
@@ -2678,9 +2897,14 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 				continue;
 			if (!ed.sharp)
 				continue;
-
+			if (edgesHaveColor && !verticesHaveColor)
+				GLColor(ed.c);
+			if (verticesHaveColor)
+				GLColor(v[ed.va].c);
 			GLNormal(v[ed.va].n);
 			GLVertex(v[ed.va]);
+			if (verticesHaveColor)
+				GLColor(v[ed.vb].c);
 			GLNormal(v[ed.vb].n);
 			GLVertex(v[ed.vb]);
 			//			glNormal3f(v[ed.va].n.x, v[ed.va].n.y, v[ed.va].n.z);
@@ -2709,7 +2933,8 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 //			glColor3f(0.5 + cos(a) * 0.5, 0.5 + cos(a + M_PI * 2.0 / 3.0) * 0.5,
 //					0.5 + cos(a + M_PI * 4.0 / 3.0) * 0.5);
 //			glColor3f(0.8, 0.8, 0.8);
-
+			if (edgesHaveColor)
+				GLColor(ed.c);
 			GLNormal(ed.n);
 			GLVertex(v[ed.va]);
 			GLVertex(v[ed.vb]);
@@ -2720,8 +2945,8 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 
 	if (paintDirection) {
 		for (const auto &ed : e) {
-			size_t idx0 = ed.VertexIndex(0);
-			size_t idx1 = ed.VertexIndex(1);
+			size_t idx0 = ed.GetVertexIndex(0);
+			size_t idx1 = ed.GetVertexIndex(1);
 			Vertex v0 = v[idx0];
 			Vertex v1 = v[idx1];
 			Vector3 d = v1 - v0;
@@ -2732,6 +2957,8 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 			t.SetEy(d.Orthogonal());
 			t.CalculateEz();
 			t.ScaleLocal(s, s, s);
+			if (edgesHaveColor)
+				GLColor(ed.c);
 			glBegin(GL_TRIANGLE_FAN);
 			GLNormal(t.TransformWithoutShift(1, 0, 0).Normal());
 			GLVertex(t(0.7, 0, 0));
@@ -2747,6 +2974,8 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 	if (paintNormals) {
 		glBegin(GL_LINES);
 		for (const auto &ed : e) {
+			if (edgesHaveColor)
+				GLColor(ed.c);
 			GLNormal(ed.n);
 			const Vector3 center = (v[ed.va] + v[ed.vb]) / 2.0;
 			GLVertex(center);
@@ -2763,17 +2992,18 @@ void Geometry::PaintVertices() const {
 	glPushMatrix();
 	matrix.GLMultMatrix();
 	int name = 0;
+	glPushName(0);
 	for (const auto &vert : v) {
-		glPushName(name);
+		glLoadName(name);
 		glBegin(GL_POINTS);
 		if (verticesHaveColor)
 			GLColor(vert.c);
 		GLNormal(vert.n);
 		GLVertex(vert);
 		glEnd();
-		glPopName();
-		++name;
+		name++;
 	}
+	glPopName();
 
 	if (paintNormals) {
 		glBegin(GL_LINES);
@@ -2818,6 +3048,10 @@ inline void Geometry::GLColor(const Color &c) {
 }
 
 void Geometry::SendToGLVertexArray(const std::string fields) {
+
+#ifndef USE_GLAD
+	return;
+#endif
 
 	// Note: A glVertexAttributePointer can only handle up to 4 floats.
 
@@ -2877,7 +3111,7 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 	GLuint vidx = 0;
 	for (const Triangle &tri : t) {
 		for (uint_fast8_t idx = 0; idx < 3; ++idx) {
-			const Vertex &vert = v[tri.VertexIndex(idx)];
+			const Vertex &vert = v[tri.GetVertexIndex(idx)];
 			for (const Op op : ops) {
 				switch (op) {
 				case Op::X:
@@ -2919,11 +3153,21 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 						vbo.push_back(tri.tua);
 						vbo.push_back(tri.tva);
 					} else if (idx == 1) {
-						vbo.push_back(tri.tub);
-						vbo.push_back(tri.tvb);
+						if (tri.flip) {
+							vbo.push_back(tri.tuc);
+							vbo.push_back(tri.tvc);
+						} else {
+							vbo.push_back(tri.tub);
+							vbo.push_back(tri.tvb);
+						}
 					} else {
-						vbo.push_back(tri.tuc);
-						vbo.push_back(tri.tvc);
+						if (tri.flip) {
+							vbo.push_back(tri.tub);
+							vbo.push_back(tri.tvb);
+						} else {
+							vbo.push_back(tri.tuc);
+							vbo.push_back(tri.tvc);
+						}
 					}
 					break;
 				case Op::T:
@@ -2969,7 +3213,8 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * ebo.size(),
-			ebo.data(), GL_STATIC_DRAW);
+			ebo.data(),
+			GL_STATIC_DRAW);
 
 	const unsigned int width = std::accumulate(widths.begin(), widths.end(),
 			(unsigned int) 0);
@@ -2979,6 +3224,22 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 				width * sizeof(GLfloat), (void*) (offs * sizeof(GLfloat)));
 		glEnableVertexAttribArray(i);
 		offs += widths[i];
+	}
+}
+
+void Geometry::DeleteGLVertexArray() {
+	if (vertexArrayObject > 0) {
+		glBindVertexArray(0);
+		glDeleteVertexArrays(1, &vertexArrayObject);
+		vertexArrayObject = 0;
+	}
+	if (elementBufferObject > 0) {
+		glDeleteBuffers(1, &elementBufferObject);
+		elementBufferObject = 0;
+	}
+	if (vertexBufferObject > 0) {
+		glDeleteBuffers(1, &vertexBufferObject);
+		vertexBufferObject = 0;
 	}
 }
 

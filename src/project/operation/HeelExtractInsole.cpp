@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : HeelExtractInsole.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -26,12 +26,15 @@
 #include "HeelExtractInsole.h"
 
 #include "../../3D/FileSTL.h"
+#include "../../math/DependentVector.h"
+#include "../../math/Exporter.h"
 
 #include <sstream>
 #include <stdexcept>
 
 HeelExtractInsole::HeelExtractInsole() {
 	out = std::make_shared<Insole>();
+	debug = std::make_shared<Matrix>();
 }
 
 std::string HeelExtractInsole::GetName() const {
@@ -83,13 +86,78 @@ bool HeelExtractInsole::HasToRun() {
 
 void HeelExtractInsole::Run() {
 
-	in->CalcGroups(22.5 / 180.0 * M_PI);
+	if (in->PassedSelfCheck()) {
+		DEBUGOUT << "in is OK\n";
+	} else {
+		DEBUGOUT << "in is NOK\n";
+	}
+
+	in->CalculateGroups(22.5 / 180.0 * M_PI);
 	in->SelectFacesCloseTo( { 1, 0, 1 });
+
 	out->Clear();
 	out->AddSelectedFrom(*in);
+	if (out->PassedSelfCheck()) {
+		DEBUGOUT << "out is OK\n";
+	} else {
+		DEBUGOUT << "out is NOK\n";
+	}
+	out->UpdateNormals(true, true, false);
+	out->outline.Clear();
+	out->outline.ExtractOutline(*out);
+	const double L = out->outline.MapU(false);
 
 #ifdef DEBUG
 	{
+
+//		DependentVector sample = DependentVector::Chebyshev(-1, 1, 11);
+//		Matrix A = Matrix::Vandermonde(sample, 3);
+//		A.PseudoInvert();
+//
+//		const size_t Nsample = 10;
+//		Polynomial poss = Polynomial::ByValue(0, 0, Nsample, L);
+//
+//		Matrix Y(sample.Length(), 3 * Nsample);
+//		for (size_t n = 0; n < Nsample; n++) {
+//			const double pos = poss(n);
+//			for (size_t m = 0; m < sample.Length(); m++) {
+//				const auto &res = outline.AtU(pos + sample.X()[m] * L / 8);
+//				Y.Insert(res.pos.x, m, n * 3 + 0);
+//				Y.Insert(res.pos.y, m, n * 3 + 1);
+//				Y.Insert(res.pos.z, m, n * 3 + 2);
+//			}
+//		}
+//		Matrix X = A * Y;
+//
+//		{
+//			Exporter ex("/tmp/van_inv.mat");
+//			ex.Add(A, "Ainv");
+//			ex.Add(Y, "Y");
+//			ex.Add(X, "X");
+//		}
+//
+//		*debug = Matrix::Zeros(outline.Size(), 2);
+//		for (size_t idx1 = 0; idx1 < outline.Size(); idx1++) {
+//			size_t idx0 = (idx1 + outline.Size() - 6) % outline.Size();
+//			size_t idx2 = (idx1 + 6) % outline.Size();
+//
+//			const auto v0 = outline[idx0];
+//			const auto v1 = outline[idx1];
+//			const auto v2 = outline[idx2];
+//			// Local coordinate system
+//			AffineTransformMatrix m;
+//			m.SetEx((v1 - v0).Normal());
+//			m.SetEz(v1.n.Normal());
+//			m.CalculateEy();
+//			Vector3 dv = v2 - v1;
+//			double dx = dv.Dot(m.GetEx());
+//			double dy = dv.Dot(m.GetEy());
+//
+//			debug->Insert(v1.u, idx1, 0);
+//			debug->Insert(std::atan2(dy, dx), idx1, 1);
+//		}
+//		DEBUGOUT << "debug filled with " << outline.Size() << " values.\n";
+
 //		FileSTL stl("/tmp/insole.stl");
 //		stl.Write(*out);
 	}

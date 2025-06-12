@@ -624,12 +624,14 @@ AffineTransformMatrix AffineTransformMatrix::Perspective(double fovy,
 
 	ret[0] = 2 * znear / (right - left);
 	ret[5] = 2 * znear / (top - bottom);
+	// 8-11 are negativ for OpenGL, because z towards viewer
+	// (RHS coordinate system)
 	ret[8] = (right + left) / (right - left);
 	ret[9] = (top + bottom) / (top - bottom);
 	ret[10] = -(zfar + znear) / (zfar - znear);
 	ret[11] = -1;
 	ret[14] = -2 * zfar * znear / (zfar - znear);
-	ret[15] = 1.0;
+	ret[15] = 0.0; // 0 for perspective, 1 for orthogonal
 	return ret;
 }
 
@@ -638,7 +640,7 @@ AffineTransformMatrix AffineTransformMatrix::Orthogonal(double left,
 	AffineTransformMatrix ret;
 	ret[0] = 2.0 / (right - left);
 	ret[5] = 2.0 / (top - bottom);
-	ret[10] = -2.0 / (zfar - znear);
+	ret[10] = -2.0 / (zfar - znear); // negativ for OpenGL
 
 	ret[12] = -(right + left) / (right - left);
 	ret[13] = -(top + bottom) / (top - bottom);
@@ -648,30 +650,30 @@ AffineTransformMatrix AffineTransformMatrix::Orthogonal(double left,
 }
 
 void AffineTransformMatrix::TranslateGlobal(double x, double y, double z) {
-// Fricas code:
-// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
-// T:=matrix([[1,0,0,x],[0,1,0,y],[0,0,1,z],[0,0,0,1]]);
-// T*this
+	// Fricas code:
+	// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
+	// T:=matrix([[1,0,0,x],[0,1,0,y],[0,0,1,z],[0,0,0,1]]);
+	// T*this
 	a[12] += x;
 	a[13] += y;
 	a[14] += z;
 }
 
 void AffineTransformMatrix::TranslateLocal(double x, double y, double z) {
-// Fricas code:
-// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
-// T:=matrix([[1,0,0,x],[0,1,0,y],[0,0,1,z],[0,0,0,1]]);
-// this*T
+	// Fricas code:
+	// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
+	// T:=matrix([[1,0,0,x],[0,1,0,y],[0,0,1,z],[0,0,0,1]]);
+	// this*T
 	a[12] += x * a[0] + y * a[4] + z * a[8];
 	a[13] += x * a[1] + y * a[5] + z * a[9];
 	a[14] += x * a[2] + y * a[6] + z * a[10];
 }
 
 void AffineTransformMatrix::ScaleGlobal(double x, double y, double z) {
-// Fricas code:
-// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
-// S:=matrix([[x,0,0,0],[0,y,0,0],[0,0,z,0],[0,0,0,1]]);
-// S*this
+	// Fricas code:
+	// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
+	// S:=matrix([[x,0,0,0],[0,y,0,0],[0,0,z,0],[0,0,0,1]]);
+	// S*this
 
 	a[0] *= x;
 	a[1] *= y;
@@ -688,10 +690,10 @@ void AffineTransformMatrix::ScaleGlobal(double x, double y, double z) {
 }
 
 void AffineTransformMatrix::ScaleLocal(double x, double y, double z) {
-// Fricas code:
-// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
-// S:=matrix([[x,0,0,0],[0,y,0,0],[0,0,z,0],[0,0,0,1]]);
-// this*S
+	// Fricas code:
+	// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
+	// S:=matrix([[x,0,0,0],[0,y,0,0],[0,0,z,0],[0,0,0,1]]);
+	// this*S
 
 	a[0] *= x;
 	a[1] *= x;
@@ -705,11 +707,11 @@ void AffineTransformMatrix::ScaleLocal(double x, double y, double z) {
 }
 
 void AffineTransformMatrix::ShiftTransformPosition(const Vector3 &p) {
-// Fricas code:
-// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
-// T:=matrix([[1,0,0,x],[0,1,0,y],[0,0,1,z],[0,0,0,1]]);
-// U:=matrix([[1,0,0,-x],[0,1,0,-y],[0,0,1,-z],[0,0,0,1]]);
-// T*this*U
+	// Fricas code:
+	// this:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]]);
+	// T:=matrix([[1,0,0,x],[0,1,0,y],[0,0,1,z],[0,0,0,1]]);
+	// U:=matrix([[1,0,0,-x],[0,1,0,-y],[0,0,1,-z],[0,0,0,1]]);
+	// T*this*U
 
 	a[12] = (-a[8] * p.z) + (-a[4] * p.y) + (-a[0] + 1.0) * p.x + a[12];
 	a[13] = (-a[9] * p.z) + (-a[5] + 1.0) * p.y + (-a[1] * p.x) + a[13];
@@ -717,10 +719,10 @@ void AffineTransformMatrix::ShiftTransformPosition(const Vector3 &p) {
 }
 
 Vector3 AffineTransformMatrix::Transform(const Vector3 &v) const {
-//Fricas code:
-// R:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]])
-// V:=matrix([[x],[y],[z],[1]])
-// R*V
+	//Fricas code:
+	// R:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]])
+	// V:=matrix([[x],[y],[z],[1]])
+	// R*V
 
 	Vector3 temp;
 	temp.x = a[0] * v.x + a[4] * v.y + a[8] * v.z + a[12];
@@ -739,10 +741,10 @@ Vector3 AffineTransformMatrix::Transform(const double x, const double y,
 }
 
 Vector3 AffineTransformMatrix::TransformWithoutShift(const Vector3 &v) const {
-//Fricas code:
-// R:=matrix([[a[0],a[4],a[8],0],[a[1],a[5],a[9],0],[a[2],a[6],a[10],0],[0,0,0,1]])
-// V:=matrix([[x],[y],[z],[1]])
-// R*V
+	//Fricas code:
+	// R:=matrix([[a[0],a[4],a[8],0],[a[1],a[5],a[9],0],[a[2],a[6],a[10],0],[0,0,0,1]])
+	// V:=matrix([[x],[y],[z],[1]])
+	// R*V
 
 	Vector3 temp;
 	temp.x = a[0] * v.x + a[4] * v.y + a[8] * v.z;
@@ -810,17 +812,17 @@ double AffineTransformMatrix::Distance(
 		temp += (a[n] - other.a[n]) * (a[n] - other.a[n]);
 	return sqrt(temp);
 
-// For future reference (did not work as expected):
-// If two matrices are identical, the matrix times the inverse of the other
-// matrix should result in the identity matrix.
+	// For future reference (did not work as expected):
+	// If two matrices are identical, the matrix times the inverse of the other
+	// matrix should result in the identity matrix.
 
-// A:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]])
-// B:=matrix([[b[0],b[4],b[8],b[12]],[b[1],b[5],b[9],b[13]],[b[2],b[6],b[10],b[14]],[0,0,0,1]])
-// I:=matrix([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
-// R:=A*inverse(B)-I
-// trace(R*transpose(R))
+	// A:=matrix([[a[0],a[4],a[8],a[12]],[a[1],a[5],a[9],a[13]],[a[2],a[6],a[10],a[14]],[0,0,0,1]])
+	// B:=matrix([[b[0],b[4],b[8],b[12]],[b[1],b[5],b[9],b[13]],[b[2],b[6],b[10],b[14]],[0,0,0,1]])
+	// I:=matrix([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+	// R:=A*inverse(B)-I
+	// trace(R*transpose(R))
 
-// Result: No improvements (speedup) when used in Inverse Kinematics. -> Kicked out
+	// Result: No improvements (speedup) when used in Inverse Kinematics. -> Kicked out
 }
 
 std::string AffineTransformMatrix::ToString() {
@@ -1003,7 +1005,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glBegin(GL_TRIANGLE_FAN);
 			GLNormal(n0);
 			GLVertex(c(0, 0, 0));
-			for (uint_fast8_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; ++j) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -1011,7 +1013,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			}
 			glEnd();
 			glBegin(GL_QUAD_STRIP);
-			for (uint_fast8_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; ++j) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -1022,7 +1024,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glEnd();
 			GLNormal(n0);
 			glBegin(GL_QUAD_STRIP);
-			for (uint_fast8_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; ++j) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -1033,7 +1035,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glBegin(GL_TRIANGLE_FAN);
 			GLNormal(c(1, 0, 0));
 			GLVertex(c(1, 0, 0));
-			for (uint_fast8_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; ++j) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);

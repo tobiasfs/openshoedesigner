@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : InsoleAnalyze.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -26,12 +26,15 @@
 #ifndef SRC_PROJECT_OPERATION_INSOLEANALYZE_H_
 #define SRC_PROJECT_OPERATION_INSOLEANALYZE_H_
 
-/** \class InsoleAnalyze
- * 	\code #include "InsoleAnalyze.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
+/**\class InsoleAnalyze
+ * \code #include "InsoleAnalyze.h"\endcode
+ * \ingroup ObjectOperations
+ * \brief Analyze the outline an determine the construction-points
  *
- * Text
+ * Determine the construction points A-Z from a given insole.
+ *
+ * All insole points, except M and H have the correct x, y, and z coordinates.
+ * (For interpolation reasons these are zero for M and H.)
  */
 
 #include "Operation.h"
@@ -51,6 +54,20 @@ public:
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
+private:
+	/**\{
+	 * \name Function for UV based operations.
+	 */
+	Geometry::Vertex Diff(Geometry::Vertex a, const Geometry::Vertex &b) const;
+	double Dist(const Geometry::Vertex &a, const Geometry::Vertex &b) const;
+	Geometry::Vertex Normal(Geometry::Vertex a) const;
+	Polygon3::Intersections Intersect(const Geometry &geo,
+			const Geometry::Vertex &a, const Geometry::Vertex &b,
+			double relDistance) const;
+	void UpdateXYZfromUV(const Geometry &geo, Geometry::Vertex &V);
+
+	/**\}
+	 */
 public:
 	std::shared_ptr<ParameterFormula> footLength;
 	std::shared_ptr<ParameterFormula> ballMeasurementAngle;

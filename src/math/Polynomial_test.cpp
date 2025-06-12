@@ -377,7 +377,7 @@ public:
 
 	void testIntegral() {
 		Polynomial a { 1, 2 };
-		CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0, a.Integral(1.0, 3.0), 1e-9);
+		CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0, a.Integrate(1.0, 3.0), 1e-9);
 
 		Polynomial b = a.Integral(2);
 		CPPUNIT_ASSERT(b.size() == 4);

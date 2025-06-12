@@ -36,14 +36,14 @@ TestGrid::TestGrid(const Vector3 &v1, const Vector3 &v2) :
 }
 
 void TestGrid::SetCellSize(double d_) {
-	U = GetSizeX() / d + 1;
-	V = GetSizeY() / d + 1;
-	W = GetSizeZ() / d + 1;
-	xmax = xmin + d * (double) (U - 1);
-	ymax = ymin + d * (double) (V - 1);
-	zmax = zmin + d * (double) (W - 1);
+	U = GetSizeX() / d_ + 1;
+	V = GetSizeY() / d_ + 1;
+	W = GetSizeZ() / d_ + 1;
+	xmax = xmin + d_ * (double) (U - 1);
+	ymax = ymin + d_ * (double) (V - 1);
+	zmax = zmin + d_ * (double) (W - 1);
 	p.resize(U * V * W);
-	this->d = d;
+	this->d = d_;
 	Reset();
 }
 

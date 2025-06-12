@@ -110,7 +110,7 @@ void PCA::Calculate() {
 		iter++;
 	}
 
-	// After around a hand full iterations, Q contains in its columns the eigenvectors of the matrix A.
+	// After around a hand full of iterations, Q contains in its columns the eigenvectors of the matrix A.
 	// The diagonal of R contains the (approximate) eigenvalues.
 	if (R1.x > R2.y && R1.x > R3.z) {
 		X = Q1;
@@ -184,4 +184,14 @@ void PCA::Paint() const {
 
 	glEnd();
 	glPopMatrix();
+}
+
+AffineTransformMatrix PCA::GetMatrix() const {
+	AffineTransformMatrix ret;
+	ret.SetEx(X);
+	ret.SetEy(Y);
+	ret.SetEz(Z);
+	ret.SetOrigin(center);
+	ret.UpdateOrientation();
+	return ret;
 }

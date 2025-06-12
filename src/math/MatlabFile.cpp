@@ -267,7 +267,7 @@ void MatlabFile::WriteMatrix(const Matrix &M) {
 		if (M.GetVariableName().empty()) {
 			x = 1;
 			fwrite(&x, sizeof(uint32_t), 1, fhd);
-			fwrite((char*) &zero, sizeof(char), x, fhd);
+			fwrite((const char*) &zero, sizeof(zero), x, fhd);
 		} else {
 			x = M.GetVariableName().length() + 1;
 			fwrite(&x, sizeof(uint32_t), 1, fhd);

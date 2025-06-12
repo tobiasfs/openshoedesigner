@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastAnalyse.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   :
@@ -166,7 +166,7 @@ void LastAnalyse::AnalyseForm() {
 //				AffineTransformMatrix::RotationAroundVector(Vector3(0, 0, 1),
 //				M_PI));
 //		bb.Clear();
-//		for(size_t i = 0; i < hull.GetVertexCount(); ++i)
+//		for(size_t i = 0; i < hull.CountVertices(); ++i)
 //			bb.Insert(hull.GetVertex(i));
 //	}
 
@@ -409,7 +409,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 
 //	kde.XLinspace(-M_PI_2, M_PI_2, 81);
 //
-//	for (size_t n = 0; n < section.VertexCount(); ++n) {
+//	for (size_t n = 0; n < section.CountVertices(); ++n) {
 //		const Vector3 v = section[n].n;
 //		double a = atan2(v.z, v.y);
 //		double weight = section[n].y;
@@ -482,7 +482,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 		kde.Clear();
 		kde.XLinspace(0, 2 * M_PI, 360);
 		kde.SetCyclic(2 * M_PI);
-		for (size_t n = 0; n < out->planeXZ.EdgeCount(); ++n) {
+		for (size_t n = 0; n < out->planeXZ.CountEdges(); ++n) {
 			const Vector3 v0 = out->planeXZ.GetEdgeVertex(n, 0);
 			const Vector3 v1 = out->planeXZ.GetEdgeVertex(n, 1);
 			const Vector3 temp = v1 - v0;
@@ -509,7 +509,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 	// Calculate the angles on the the shape
 	{
 		out->planeXZ.Filter(11);
-		const size_t N = out->planeXZ.EdgeCount();
+		const size_t N = out->planeXZ.CountEdges();
 		out->angleXZ.Clear();
 		const double Lmax = 1;		//last->planeXZ.GetLength();
 		double L = 0.0;

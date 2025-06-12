@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLMaterialX.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -31,6 +31,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <cstring>
 
 #ifdef USE_LIBZIP
 #include <zip.h>
@@ -61,6 +62,16 @@ static const std::regex regexXmlTokenizer(
 static const auto iterEnd = std::sregex_iterator();
 
 #define NextToken() ++xml_it; if(xml_it == iterEnd) return; token = (*xml_it)[1]
+
+void OpenGLMaterialX::Delete() {
+	OpenGLShader::Delete();
+	for (auto &image : images) {
+		const GLuint id = image.second.textureID;
+		if (id >= 1)
+			glDeleteTextures(1, &id);
+		image.second.textureID = 0;
+	}
+}
 
 void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 #ifdef USE_LIBZIP
@@ -408,7 +419,7 @@ void OpenGLMaterialX::Image::LoadFromString(std::string &imagedata) {
 #ifdef USE_LIBPNG
 		png_image pngimage;
 
-		memset(&pngimage, 0, (sizeof pngimage));
+		std::memset(&pngimage, 0, (sizeof pngimage));
 		pngimage.version = PNG_IMAGE_VERSION;
 		if (png_image_begin_read_from_memory(&pngimage, imagedata.data(),
 				imagedata.size()) == 0)
@@ -479,7 +490,6 @@ void OpenGLMaterialX::Image::BindToTextureUnit() const {
 		return;
 	glActiveTexture(GL_TEXTURE0 + textureUnit);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-
 }
 
 GLuint OpenGLMaterialX::Image::LoadIntoGPU() {
@@ -816,7 +826,7 @@ void OpenGLMaterialX::Node::GenerateCode(std::ostream &out,
 		out << "\t" << "if(" << local_coord() << "){\n";
 //		out << "\t\t" << normal() << " = vec3(0,0,1);\n";
 		Variable heightScale(Variable::UNIFORM, "float", "height_scale");
-		out << "\n\t" << normal() << " = normalize(vec3(vec2(" << normalmap()
+		out << "\t\t" << normal() << " = normalize(vec3(vec2(" << normalmap()
 				<< ".x, " << normalmap() << ".y) * 1.0" << ", " << normalmap()
 				<< ".z));\n";
 //		out << "\t" << normal()
@@ -973,9 +983,9 @@ void OpenGLMaterialX::Node::GenerateCode(std::ostream &out,
 			out << '\t' << modified.type << " " << modified();
 			out << " = " << in_tex_pos() << " * (1 - " << displacementstrength()
 					<< ") + " << shift() << ";\n";
-			out << "\t" << "if(" << modified() << ".x > 1.0 || " << modified()
-					<< ".y > 1.0 || " << modified() << ".x < 0.0 || "
-					<< modified() << ".y < 0.0 ) discard;\n";
+//			out << "\t" << "if(" << modified() << ".x > 1.0 || " << modified()
+//					<< ".y > 1.0 || " << modified() << ".x < 0.0 || "
+//					<< modified() << ".y < 0.0 ) discard;\n";
 
 			out << '\t' << var_out.ToDefinition() << " = " << ref.ref_name;
 			out << "(" << modified() << ");\n";
@@ -1031,6 +1041,74 @@ std::string OpenGLMaterialX::ToGlslType(const std::string &type) {
 		throw std::runtime_error(err.str());
 #endif
 	}
+}
+
+std::string OpenGLMaterialX::FieldString() {
+	return "XYZTBNUV";
+}
+
+std::string OpenGLMaterialX::GenerateVertexShader() {
+
+	std::ostringstream code;
+	code << "#version 330 core \n\n";
+	code << "\n";
+
+	code << "layout (location = 0) in vec3 aPos;\n";
+	code << "layout (location = 1) in vec3 aTangent;\n";
+	code << "layout (location = 2) in vec3 aBitangent;\n";
+	code << "layout (location = 3) in vec3 aNormal;\n";
+	code << "layout (location = 4) in vec2 aTexCoords;\n";
+	code << "\n";
+	code << "out vec3 in_frag_pos;\n";
+	code << "out vec3 in_light_pos;\n";
+	code << "out vec2 in_tex_pos;\n";
+	code << "out vec3 in_view_pos;\n";
+	code << "\n";
+	code << "out vec3 in_normal;\n";
+	code << "\n";
+	code << "uniform mat4 Projection;\n";
+	code << "uniform mat4 View;\n";
+	code << "uniform mat4 Model;\n";
+	code << "uniform mat3 ModelNormal;\n";
+	code << "\n";
+	code << "uniform vec3 uni_light_pos;\n";
+	code << "uniform vec3 uni_view_pos;\n";
+	code << "uniform bool uni_local;\n";
+	code << "\n";
+	code << "void main()\n";
+	code << "{\n";
+	code << "gl_Position =  Projection * View * Model * vec4(aPos, 1.0);\n";
+	code << "\n";
+	code << "vec3 tangent = normalize(ModelNormal * aTangent);\n";
+	code << "vec3 bitangent = normalize(ModelNormal * aBitangent);\n";
+	code << "vec3 normal = normalize(ModelNormal * aNormal);\n";
+	code << "\n";
+	code << "in_normal = normal;\n";
+	code << "\n";
+	code << "if(uni_local){\n";
+	code << "mat3 iTBN = transpose(mat3(tangent, bitangent, normal));\n";
+	code << "\n";
+	code << "in_view_pos = iTBN * uni_view_pos;\n";
+	code << "in_light_pos = iTBN * uni_light_pos;\n";
+	code << "in_frag_pos = iTBN * vec3(Model * vec4(aPos, 1.0));\n";
+	code << "}else{\n";
+	code << "in_view_pos = uni_view_pos;\n";
+	code << "in_light_pos = uni_light_pos;\n";
+	code << "in_frag_pos = vec3(Model * vec4(aPos, 1.0));\n";
+	code << "}\n";
+	code << "\n";
+	code << "in_tex_pos = aTexCoords;\n";
+	code << "}\n";
+
+//		std::vector<Variable> temp(globals.begin(), globals.end());
+//		std::sort(temp.begin(), temp.end());
+//		for (const auto &g : temp) {
+//			code << g.ToDeclaration() << '\n';
+//		}
+//		code << out.str();
+
+	return code.str();
+
 }
 
 std::string OpenGLMaterialX::GenerateFragmentShader() {

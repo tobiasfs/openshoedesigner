@@ -113,7 +113,7 @@ JSON& JSON::operator [](size_t index) {
 		auto it = valueObject.begin();
 		for (size_t n = 0; n < index; ++n)
 			++it;
-		return it->second;
+		return (it->second);
 	}
 	throw(std::logic_error("Not an array or object."));
 }
@@ -125,7 +125,7 @@ const JSON& JSON::operator [](size_t index) const {
 		auto it = valueObject.cbegin();
 		for (size_t n = 0; n < index; ++n)
 			++it;
-		return it->second;
+		return (it->second);
 	}
 	throw(std::logic_error("Not an array or object."));
 }

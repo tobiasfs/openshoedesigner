@@ -40,7 +40,7 @@
 #include <vector>
 
 class FilePLY: public FileGeometry {
-public:
+private:
 	enum class DataType {
 		NONE, ///< No type selected.
 		INT8, ///< char in PLY, int8_t in C++
@@ -68,7 +68,7 @@ public:
 		std::vector<Property> properties;
 		bool IsEmpty() const;
 	};
-
+public:
 	explicit FilePLY(const std::string &filename_);
 	explicit FilePLY(std::istream *stream);
 	explicit FilePLY(std::ostream *stream);

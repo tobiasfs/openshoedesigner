@@ -27,8 +27,9 @@
 #include "Vector3.h"
 
 #include <cfloat>
-#include <sstream>
+#include <cstdint>
 #include <regex>
+#include <sstream>
 
 Vector3::Vector3(const std::string &string) {
 	this->FromString(string);
@@ -57,12 +58,11 @@ Vector3 Vector3::Orthogonal() const {
 	const double ax = fabs(x);
 	const double ay = fabs(y);
 	const double az = fabs(z);
-	if (ax <= ay && ax <= az)
-		temp.Set(x, z, -y);
-	if (ay <= az && ay <= ax)
-		temp.Set(-z, y, x);
-	if (az <= ax && az <= ay)
-		temp.Set(y, -x, z);
+
+	if (az >= ax && az >= ay)
+		temp.Set(-z, 0, x);
+	else
+		temp.Set(y, -x, 0);
 	temp *= (*this);
 	return temp.Normal();
 }

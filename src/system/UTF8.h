@@ -32,6 +32,7 @@
  *
  * Functions to work with std::string%s that contain UTF-8 encoded characters.
  */
+
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -42,7 +43,7 @@ public:
 	/**\brief Split a string into UTF-8 code-points
 	 *
 	 * \param str std::string to process
-	 * \return std::vector of unsigned int 32 numbers with the code points
+	 * \return std::vector of unsigned int32 numbers with the code points
 	 */
 	static std::vector<uint32_t> GetCodepoints(const std::string &str);
 

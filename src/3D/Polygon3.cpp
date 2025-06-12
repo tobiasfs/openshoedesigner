@@ -26,10 +26,14 @@
 
 #include "Polygon3.h"
 
+#include "../math/MatlabFile.h"
+
 #include <algorithm>
 #include <float.h>
-#include <sstream>
+#include <iostream>
 #include <list>
+#include <queue>
+#include <sstream>
 
 #include "OpenGL.h"
 
@@ -90,20 +94,24 @@ void Polygon3::CloseLoopNextGroup() {
 }
 
 void Polygon3::ExtractOutline(const Geometry &other) {
-	const Vector3 center = other.GetCenter();
-	for (size_t n = 0; n < other.EdgeCount(); ++n) {
+	const Vector3 center = other.GetCenterOfVertices();
+	ResetAddNormal();
+	for (size_t n = 0; n < other.CountEdges(); ++n) {
 		const auto &ed = other.GetEdge(n);
 		if (ed.trianglecount >= 2)
 			continue;
-		const auto &v0 = other.GetEdgeVertex(n, 0);
-		const auto &v1 = other.GetEdgeVertex(n, 1);
-		SetAddNormal(ed.n);
+		const Geometry::Vertex &v0 = other.GetEdgeVertex(n, 0);
+		const Geometry::Vertex &v1 = other.GetEdgeVertex(n, 1);
 		Vector3 rot = (v0 - center) * (v1 - v0);
 		if (rot.z > 0.0)
 			AddEdge(v0, v1);
 		else
 			AddEdge(v1, v0);
+		e.back().n = ed.n;
+		e.back().c = ed.c;
 	}
+	CopyPropertiesFrom(other);
+	paintEdges = true;
 	Join();
 	SortLoop();
 }
@@ -127,9 +135,11 @@ void Polygon3::SortLoop() {
 	};
 	std::sort(e.begin(), e.end(), edge_less);
 
-	std::vector<size_t> connections(e.size(), 0);
+	// Count how many edges connect to a vertex.
+	std::vector<size_t> connections(v.size(), 0);
 	for (const Edge &ed : e)
 		connections[ed.vb]++;
+	// Vertices without connections to them are starting points.
 	std::list<size_t> starting_points;
 	for (size_t idx = 0; idx < connections.size(); ++idx)
 		if (connections[idx] == 0)
@@ -273,8 +283,8 @@ Vector3 Polygon3::Direction(size_t index) const {
 			checkEdge);
 	if (it == e.end())
 		return Vector3();
-	const Vector3 p0 = v[it->VertexIndex(0)];
-	const Vector3 p1 = v[it->VertexIndex(1)];
+	const Vector3 p0 = v[it->GetVertexIndex(0)];
+	const Vector3 p1 = v[it->GetVertexIndex(1)];
 	return p0 - p1;
 }
 
@@ -363,8 +373,8 @@ void Polygon3::CalculateNormalsAroundVector(const Vector3 &planenormal) {
 		vect.n = Vector3(0, 0, 0);
 
 	for (auto &ed : e) {
-		size_t idx0 = ed.VertexIndex(0);
-		size_t idx1 = ed.VertexIndex(1);
+		size_t idx0 = ed.GetVertexIndex(0);
+		size_t idx1 = ed.GetVertexIndex(1);
 		Vector3 n = (v[idx1] - v[idx0]) * planenormal;
 		n.Normalize();
 		ed.n = n;
@@ -848,10 +858,6 @@ void Polygon3::Triangulate() {
 	Finish(); // Sort the triangles into a consistent order
 }
 
-void Polygon3::Filter(unsigned int width) {
-	//TODO Implement this.
-}
-
 void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 
 	Geometry::Triangle tri;
@@ -956,6 +962,807 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 	finished = false;
 }
 
+Polygon3 Polygon3::Voronoi() const {
+	// https://archive.org/details/computational-geometry-algorithms-and-applications-mark-de-berg-otfried-cheong-marc-van-kreveld-etc./page/151/mode/2up
+	// https://www.cs.princeton.edu/courses/archive/spring12/cos423/bib/fortune.pdf
+	// https://www2.cs.sfu.ca/~binay/813.2011/Fortune.pdf
+	// https://www.cs.hmc.edu/~mbrubeck/voronoi.html
+
+	Polygon3 ret;
+	if (v.size() < 2)
+		return ret; // Nothing to do. At least 2 points are needed to generate a single line.
+
+	// Sort all vertices by y, x (and z).
+	Polygon3 Q;
+	Q.v = v;
+	size_t count = 0;
+	for (auto &p : Q.v) {
+		p.z = 0.0;
+		p.c = { 1, 1, 1 };
+		p.group = count++;
+	}
+	Q.Join();
+
+	auto vertex_less = [eps=epsilon](const Geometry::Vertex &a,
+			const Geometry::Vertex &b) {
+		if (a.y < (b.y - eps))
+			return true;
+		if (a.y >= (b.y + eps))
+			return false;
+		if (a.x < (b.x - eps))
+			return true;
+		if (a.x >= (b.x + eps))
+			return false;
+		if (a.z < b.z)
+			return true;
+		return false;
+	};
+	std::sort(Q.v.begin(), Q.v.end(), vertex_less);
+
+	class Event;
+	class Arc {
+	public:
+		double x;
+		double y;
+		double x1; // Arc end
+		size_t vidx_remove;
+		std::list<Event>::iterator ev;
+		Vertex he;
+		size_t eidx = nothing;
+		void Update(const Arc &pk, const Arc &pj, double by) {
+			const double T2 = pk.y - pj.y;
+			if (fabs(T2) < DBL_EPSILON) {
+				// L'Hôpital's rule applied to the formula below
+				x1 = (pk.x + pj.x) / 2.0;
+				return;
+			}
+			const double T0 = pk.y - by;
+			const double T1 = pj.y - by;
+			const double T3 = pk.x - pj.x;
+			const double T4 = pj.x * pk.y - pj.y * pk.x;
+			const double T5 = T0 * T1 * (T2 * T2 + T3 * T3);
+			const double T6 = sqrt(T5);
+			const double T7 = T4 + T3 * by;
+			x1 = (T6 + T7) / T2;
+		}
+	};
+	std::list<Arc> T; ///< Beachline
+
+	class Event {
+	public:
+		double x;
+		double y;
+		double y0;
+		std::list<Arc>::iterator arc;
+	};
+	auto event_cmp = [](const Event &lhs, const Event &rhs) {
+		return lhs.y0 < rhs.y0;
+	};
+//	std::priority_queue<Event, std::list<Event>, decltype(event_cmp)> Qe {
+//			event_cmp };
+	std::list<Event> Qe;
+
+	// 1.) If T is empty, insert pi into it (so that T consists of
+	// a single leaf storing pi) and return.
+	std::vector<size_t> topEdges;
+	// Pre-fill T with all arcs on the first line
+	auto Qs = Q.v.begin();
+	T.push_back( { Qs->x, Qs->y, DBL_MAX, Qs->group, Qe.end() });
+	Qs++;
+	while (fabs(Qs->y - T.back().y) < DBL_EPSILON) {
+		Arc &pi = T.back();
+		T.push_back( { Qs->x, Qs->y, DBL_MAX, Qs->group, Qe.end() });
+		Arc &pj = T.back();
+		pi.he.x = (pj.x + pi.x) / 2.0;
+		pi.he.y = (pj.y + pi.y) / 2.0;
+		pi.he.z = 0.0;
+		pi.he.n.x = -(pj.y - pi.y);
+		pi.he.n.y = (pj.x - pi.x);
+		pi.he.n.z = 0.0;
+
+		ret.e.emplace_back();
+		ret.e.back().va = nothing;
+		ret.e.back().vb = nothing;
+		ret.e.back().n = pi.he.n;
+		ret.e.back().trianglecount = 0;
+		pi.eidx = ret.e.size() - 1;
+		topEdges.push_back(ret.e.size() - 1);
+		Qs++;
+	}
+
+	// Main loop
+	while (Qs != Q.v.end() || !Qe.empty()) {
+		// Horizon
+		double hy = 0.0;
+//		if (Qs != Q.v.end())
+		if (Qs != Q.v.end() && (Qe.empty() || Qs->y < Qe.front().y0))
+			hy = Qs->y;
+		else
+			hy = Qe.front().y0;
+//		if (!Qe.empty() && Qs->y > Qe.front().y)
+//			hy = Qs->y + 0.1;
+
+		// Calculate all arc-splits for the horizon at hy
+		std::list<Arc>::iterator it1 = T.begin();
+		std::list<Arc>::iterator it0 = it1++;
+		for (; it1 != T.end(); ++it0, ++it1) {
+			if (fabs(it0->y - it1->y) < DBL_EPSILON) {
+				it0->x1 = (it0->x + it1->x) / 2.0;
+				continue;
+			}
+			const double T1 = hy - it0->y;
+			const double T2 = hy - it1->y;
+			const double T3 = it1->x - it0->x;
+			const double T4 = it1->y - it0->y;
+			const double T5 = T3 * T3 + T4 * T4;
+			const double T6 = T1 * T2 * T5;
+			const double T7 = sqrt(T6) / T4; // :W
+			const double T8 = (T1 * it1->x - T2 * it0->x) / T4;
+//			std::cout << T8 << " + " << T7 << " = " << T8 + T7 << "\n";
+//			std::cout << T8 << " - " << T7 << " = " << T8 - T7 << "\n";
+			it0->x1 = T8 - T7;
+//			std::cout << "---\n";
+		}
+		it0->x1 = DBL_MAX;
+
+#ifdef DEBUG
+//		{
+//			std::cout << "Beachline (y=" << hy << "):\n";
+//			std::cout << "x0 = " << -DBL_MAX << "\n";
+//			for (const auto &b : T) {
+//				std::cout << "\tSite: (" << b.x << ", " << b.y << ") \n";
+//				std::cout << "x1 = " << b.x1;
+//				std::cout << "\t\tHalf-edge: (" << b.he.x << ", " << b.he.y;
+//				std::cout << " : " << b.he.n.x << ", " << b.he.n.y << ")\n";
+//			}
+//		}
+//		std::cout << "-------------------------------------------\n";
+//		{
+//			std::cout << "Lines:\n";
+//			size_t c = 0;
+//			for (const auto &ed : ret.e) {
+//				std::cout << "\t" << c++ << "\t[";
+//				if (ed.va == nothing)
+//					std::cout << " -";
+//				else
+//					std::cout << " " << ed.va;
+//				std::cout << ",";
+//				if (ed.vb == nothing)
+//					std::cout << " -";
+//				else
+//					std::cout << " " << ed.vb;
+//				std::cout << "]";
+//				if (ed.trianglecount == 0)
+//					std::cout << " = line";
+//				else if (ed.trianglecount == 1)
+//					std::cout << " = half-edge";
+//				else if (ed.trianglecount == 2)
+//					std::cout << " = edge";
+//				else
+//					std::cout << " = ? (" << ed.trianglecount << ")";
+//				std::cout << '\n';
+//			}
+//		}
+//		{
+//			std::cout << "Arcs:\n";
+//			for (const auto &a : T) {
+//				std::cout << "\teidx = " << a.eidx;
+//				std::cout << '\n';
+//			}
+//		}
+//
+//		{
+//			MatlabFile mf("/tmp/voronoi.mat");
+//			Matrix m_hy("hy", 1);
+//			Matrix m_points("points", Matrix::Order::TWO_REVERSED);
+//			Matrix m_lines("lines", Matrix::Order::TWO_REVERSED);
+//			Matrix m_voronoi("voronoi", Matrix::Order::TWO_REVERSED);
+//			Matrix m_arcs("arcs", Matrix::Order::TWO_REVERSED);
+//			Matrix m_events("events", Matrix::Order::TWO_REVERSED);
+//			m_hy.Insert(hy);
+//
+//			for (const auto &a : T) {
+//
+//				const double c2 = 1.0 / (2.0 * (a.y - hy));
+//				const double c1 = (-2.0 * a.x) * c2;
+//				const double c0 = (a.x * a.x + a.y * a.y - hy * hy) * c2;
+//
+//				m_arcs.push_back(a.x);
+//				m_arcs.push_back(a.y);
+//				m_arcs.push_back(a.x1);
+//				m_arcs.push_back(c2);
+//				m_arcs.push_back(c1);
+//				m_arcs.push_back(c0);
+//			}
+//			m_arcs.Reshape(-1, 6);
+//
+//			for (const auto &q : Qe) {
+//				m_events.push_back(q.x);
+//				m_events.push_back(q.y);
+//			}
+//			m_events.Reshape(-1, 2);
+//			for (auto it = Q.v.begin(); it != Qs; it++) {
+//				m_points.push_back(it->x);
+//				m_points.push_back(it->y);
+//			}
+//			m_points.Reshape(-1, 2);
+//			for (const auto &ed : ret.e) {
+//				const size_t idxa = ed.va;
+//				const size_t idxb = ed.vb;
+//				if (idxa == nothing || idxb == nothing)
+//					continue;
+//				const Vertex &va = ret.v[idxa];
+//				const Vertex &vb = ret.v[idxb];
+//				m_lines.push_back(va.x);
+//				m_lines.push_back(va.y);
+//				m_lines.push_back(vb.x);
+//				m_lines.push_back(vb.y);
+//			}
+//			m_lines.Reshape(-1, 4);
+//			for (const auto &vert : ret.v) {
+//				m_voronoi.push_back(vert.x);
+//				m_voronoi.push_back(vert.y);
+//			}
+//			m_voronoi.Reshape(-1, 2);
+//
+//			mf.WriteMatrix(m_hy);
+//			m_points.ReorderDimensions();
+//			mf.WriteMatrix(m_points);
+//			m_lines.ReorderDimensions();
+//			mf.WriteMatrix(m_lines);
+//			m_voronoi.ReorderDimensions();
+//			mf.WriteMatrix(m_voronoi);
+//			m_arcs.ReorderDimensions();
+//			mf.WriteMatrix(m_arcs);
+//			m_events.ReorderDimensions();
+//			mf.WriteMatrix(m_events);
+//		}
+#endif
+		std::list<Arc>::iterator p0;
+		std::list<Arc>::iterator pi;
+		std::list<Arc>::iterator pj;
+		std::list<Arc>::iterator pk;
+		std::list<Arc>::iterator p1;
+
+		bool dosort = false;
+		if (Qs != Q.v.end() && (Qe.empty() || Qs->y < Qe.front().y0)) {
+			// Handle Site Event
+
+			// 2.) Search in T for the arc α vertically above pi . If the leaf
+			// representing α has a pointer to a circle event in Q, then this
+			// circle event is a false alarm and it must be deleted from Q.
+			pk = std::find_if(T.begin(), T.end(), [&pt = *Qs](const Arc &arc) {
+				return arc.x1 > pt.x;
+			});
+			if (pk == T.end())
+				throw std::logic_error("Implementation error.");
+			if (fabs(pk->y - Qs->y) < DBL_EPSILON) {
+				throw std::logic_error("Implementation error.");
+			}
+
+			if (pk->ev != Qe.end()) {
+				Qe.erase(pk->ev);
+				pk->ev = Qe.end();
+			}
+
+			// 3.) Replace the leaf of T that represents α with a subtree
+			// having three leaves. The middle leaf stores the new site pi
+			// and the other two leaves store the site pj that was originally
+			// stored with α. Store the tuples <pj, pi> and <pi, pj>
+			// representing the new breakpoints at the two new internal nodes.
+			Arc arcsplit = *pk;
+			pj = T.insert(pk, { Qs->x, Qs->y, Qs->x, Qs->group, Qe.end() });
+			pi = T.insert(pj, arcsplit);
+			pi->x1 = Qs->x;
+			// pi -> pj -> pk    (pj is new)
+
+			// 4.) Create new half-edge records in the Voronoi diagram
+			// structure for the edge separating V(pi) and V(pj), which will
+			// be traced out by the two new breakpoints.
+			{
+				pi->he.x = (pj->x + pi->x) / 2.0;
+				pi->he.y = (pj->y + pi->y) / 2.0;
+				pi->he.z = 0.0;
+				pi->he.n.x = -(pj->y - pi->y);
+				pi->he.n.y = (pj->x - pi->x);
+				pi->he.n.z = 0.0;
+				pj->he.x = (pk->x + pj->x) / 2.0;
+				pj->he.y = (pk->y + pj->y) / 2.0;
+				pj->he.z = 0.0;
+				pj->he.n.x = -(pk->y - pj->y);
+				pj->he.n.y = (pk->x - pj->x);
+				pj->he.n.z = 0.0;
+
+				// FIXME pi as the leftmost arc keeps the already available line
+				// FIXME pj and pk are assigned a new line.
+				ret.e.emplace_back();
+				ret.e.back().va = nothing;
+				ret.e.back().vb = nothing;
+				ret.e.back().trianglecount = 0;
+				pi->eidx = ret.e.size() - 1;
+//				ret.e.emplace_back();
+//				ret.e.back().va = nothing;
+//				ret.e.back().vb = nothing;
+//				ret.e.back().trianglecount = 0;
+				pj->eidx = ret.e.size() - 1;
+			}
+
+			Qs++;
+
+			p1 = pk;
+			if (p1 != T.end())
+				p1++;
+			if (p1 != T.end()) {
+				// Right arc pj -> pk -> p1
+				const double div = pj->he.n.x * pk->he.n.y
+						- pj->he.n.y * pk->he.n.x;
+				if (div > DBL_EPSILON) {
+
+					const double T1 = pj->he.y - pk->he.y;
+					const double T2 = pk->he.x - pj->he.x;
+					const double g = (T1 * pk->he.n.x + T2 * pk->he.n.y) / div;
+					const double h = (T1 * pj->he.n.x + T2 * pj->he.n.y) / div;
+					const double xe = pj->he.x + pj->he.n.x * g;
+					const double ye = pj->he.y + pj->he.n.y * g;
+					const double r = sqrt(
+							(xe - pk->x) * (xe - pk->x)
+									+ (ye - pk->y) * (ye - pk->y));
+					const double yr = ye + r;
+					{
+						Qe.push_front( { xe, ye, yr, pk });
+						pk->ev = Qe.begin();
+						dosort = true;
+					}
+				}
+			}
+
+		} else {
+			// Handle Circle event
+#ifdef DEBUG
+//			std::cout << "Circle Event\n";
+#endif
+			// 1.) Delete the leaf γ that represents the disappearing arc α
+			// from T. Update the tuples representing the breakpoints at the
+			// internal nodes. Perform rebalancing operations on T if
+			// necessary. Delete all circle events involving α from Q; these
+			// can be found using the pointers from the predecessor and the
+			// successor of γ in T. (The circle event where α is the middle
+			// arc is currently being handled, and has already been deleted
+			// from Q.)
+			Event E = Qe.front();
+			Qe.pop_front();
+			std::list<Arc>::iterator a1 = E.arc;
+			std::list<Arc>::iterator a0 = a1;
+			std::list<Arc>::iterator a2 = a1;
+			if (a0 != T.begin()) {
+				a0--;
+				for (std::list<Event>::iterator e = Qe.begin(); e != Qe.end();
+						e++) {
+					if (e->arc == a0) {
+						a0->ev = Qe.end();
+						Qe.erase(e);
+						break;
+					}
+				}
+//				Qe.remove_if([&a0](const Event &e) {
+//					return e.arc == a0;
+//				});
+			}
+			a2++;
+			if (a2 != T.end()) {
+				for (std::list<Event>::iterator e = Qe.begin(); e != Qe.end();
+						e++) {
+					if (e->arc == a2) {
+						a2->ev = Qe.end();
+						Qe.erase(e);
+						break;
+					}
+				}
+
+//				Qe.remove_if([&a2](const Event &e) {
+//					return e.arc == a2;
+//				});
+			}
+			const size_t eidx = E.arc->eidx;
+			pj = T.erase(E.arc);
+			if (pj == T.begin())
+				throw std::logic_error("Implementation error.");
+
+			// 2.) Add the center of the circle causing the event as a vertex
+			// record to the doubly-connected edge list D storing the Voronoi
+			// diagram under construction. Create two half-edge records
+			// corresponding to the new breakpoint of the beach line. Set the
+			// pointers between them appropriately. Attach the three new
+			// records to the half-edge records that end at the vertex.
+			const size_t vidx = ret.v.size();
+			ret.v.push_back(Vertex(E.x, E.y));
+			{
+				auto &ed = ret.e[eidx];
+				if (ed.trianglecount == 0) {
+					ed.va = vidx;
+				} else {
+					ed.vb = vidx;
+				}
+				ed.trianglecount++;
+			}
+			pi = pj;
+			pi--;
+			{
+				auto &ed = ret.e[pi->eidx];
+				if (ed.trianglecount == 0) {
+					ed.va = vidx;
+				} else {
+					ed.vb = vidx;
+				}
+				ed.trianglecount++;
+			}
+
+			pi->he.x = (pj->x + pi->x) / 2.0;
+			pi->he.y = (pj->y + pi->y) / 2.0;
+			pi->he.z = 0.0;
+			pi->he.n.x = -(pj->y - pi->y);
+			pi->he.n.y = (pj->x - pi->x);
+			pi->he.n.z = 0.0;
+
+			// pj is assigned a new line.
+			ret.e.emplace_back();
+			ret.e.back().va = vidx;
+			ret.e.back().vb = nothing;
+			ret.e.back().trianglecount = 1;
+			pi->eidx = ret.e.size() - 1;
+
+			// 3.) Check the new triple of consecutive arcs that has the
+			// former left neighbor of α as its middle arc to see if the two
+			// breakpoints of the triple converge. If so, insert the
+			// corresponding circle event into Q. and set pointers between
+			// the new circle event in Q and the corresponding leaf of T. Do
+			// the same for the triple where the former right neighbor is
+			// the middle arc.
+			// p0 -> pi -> pj -> pk
+			pk = pj;
+			if (pk != T.end())
+				pk++;
+
+			if (pk != T.end()) {
+				// Right arc pi -> pj -> pk
+
+				const double div = pi->he.n.x * pj->he.n.y
+						- pi->he.n.y * pj->he.n.x;
+				if (div > DBL_EPSILON) {
+
+					const double T1 = pi->he.y - pj->he.y;
+					const double T2 = pj->he.x - pi->he.x;
+					const double g = (T1 * pj->he.n.x + T2 * pj->he.n.y) / div;
+					const double h = (T1 * pi->he.n.x + T2 * pi->he.n.y) / div;
+					const double xe = pi->he.x + pi->he.n.x * g;
+					const double ye = pi->he.y + pi->he.n.y * g;
+					const double r = sqrt(
+							(xe - pj->x) * (xe - pj->x)
+									+ (ye - pj->y) * (ye - pj->y));
+					const double yr = ye + r;
+					{
+						Qe.push_front( { xe, ye, yr, pj });
+						pj->ev = Qe.begin();
+						dosort = true;
+					}
+				}
+			}
+
+		}
+
+		// 3. & 5.) Check the triple of consecutive arcs where the new arc
+		// for pi is the left arc to see if the breakpoints converge. If
+		// so, insert the circle event into Q and add pointers between the
+		// node in T and the node in Q. Do the same for the triple where
+		// the new arc is the right arc.
+
+		if (pi != T.begin()) {
+			p0 = pi;
+			p0--;
+			// Left arc p0 -> pi -> pj
+			const double div = p0->he.n.x * pi->he.n.y
+					- p0->he.n.y * pi->he.n.x;
+			if (div > DBL_EPSILON) {
+				const double T1 = p0->he.y - pi->he.y;
+				const double T2 = pi->he.x - p0->he.x;
+				const double g = (T1 * pi->he.n.x + T2 * pi->he.n.y) / div;
+				const double h = (T1 * p0->he.n.x + T2 * p0->he.n.y) / div;
+				const double xe = p0->he.x + p0->he.n.x * g;
+				const double ye = p0->he.y + p0->he.n.y * g;
+				const double r = sqrt(
+						(xe - pi->x) * (xe - pi->x)
+								+ (ye - pi->y) * (ye - pi->y));
+				const double yr = ye + r;
+				{
+					Qe.push_front( { xe, ye, yr, pi });
+					pi->ev = Qe.begin();
+					dosort = true;
+				}
+			}
+		}
+
+		if (dosort)
+			Qe.sort(event_cmp);
+	}
+
+	// Bounding box for not converging edges.
+
+	double xmin = DBL_MAX;
+	double xmax = -DBL_MIN;
+	double ymin = DBL_MAX;
+	double ymax = -DBL_MIN;
+	for (Vertex &vert : Q.v) {
+		if (vert.x < xmin)
+			xmin = vert.x;
+		if (vert.x > xmax)
+			xmax = vert.x;
+		if (vert.y < ymin)
+			ymin = vert.y;
+		if (vert.y > ymax)
+			ymax = vert.y;
+	}
+	for (Vertex &vert : ret.v) {
+		if (vert.x < xmin)
+			xmin = vert.x;
+		if (vert.x > xmax)
+			xmax = vert.x;
+		if (vert.y < ymin)
+			ymin = vert.y;
+		if (vert.y > ymax)
+			ymax = vert.y;
+	}
+
+	const double sx = fmax(FLT_EPSILON, xmax - xmin);
+	const double sy = fmax(FLT_EPSILON, ymax - ymin);
+	xmin -= sx;
+	xmax += sx;
+	ymin -= sy;
+	ymax += sy;
+
+	// Connect the remaining edges to the bounding box.
+
+	size_t vstart = nothing;
+	size_t v0idx = nothing;
+	for (size_t eidx : topEdges) {
+		Edge &ed = ret.e[eidx];
+		if (ed.trianglecount >= 2)
+			throw std::logic_error("Implementation error.");
+		const Vertex &v0 = ret.v[ed.va];
+		if (ed.trianglecount == 0) {
+			ret.v.emplace_back(v0.x, ymax, v0.z);
+			ed.va = ret.v.size() - 1;
+			ed.trianglecount++;
+		}
+		ret.v.emplace_back(v0.x, ymin, v0.z);
+		const size_t vidx = ret.v.size() - 1;
+		ed.vb = vidx;
+		ed.trianglecount++;
+		if (v0idx == nothing)
+			v0idx = vidx;
+		vstart = vidx;
+	}
+	int quad = 0;
+	for (const auto &a : T) {
+		const size_t eidx = a.eidx;
+		if (eidx == nothing)
+			continue;
+		const auto &he = a.he;
+		Vertex v;
+		int newquad = 0;
+		if (fabs(he.n.x) < DBL_EPSILON) {
+			if (he.n.y < 0.0) {
+				newquad = 0;
+				v.Set(he.x, ymin, he.z);
+			} else {
+				newquad = 2;
+				v.Set(he.x, ymax, he.z);
+			}
+		} else if (fabs(he.n.y) < DBL_EPSILON) {
+			if (he.n.x < 0.0) {
+				newquad = 1;
+				v.Set(xmin, he.y, he.z);
+			} else {
+				newquad = 3;
+				v.Set(xmax, he.y, he.z);
+			}
+		} else {
+			Vertex vx;
+			if (he.n.x > 0.0) {
+				vx.Set(xmax, he.y + (xmax - he.x) * he.n.y / he.n.x, he.z);
+			} else {
+				vx.Set(xmin, he.y + (xmin - he.x) * he.n.y / he.n.x, he.z);
+			}
+			Vertex vy;
+			if (he.n.y > 0.0) {
+				vy.Set(he.x + (ymax - he.y) * he.n.x / he.n.y, ymax, he.z);
+			} else {
+				vy.Set(he.x + (ymin - he.y) * he.n.x / he.n.y, ymin, he.z);
+			}
+			if (vx.y >= ymin && vx.y <= ymax) {
+				v = vx;
+				newquad = (vx.x > 0.0) ? 3 : 1;
+			} else {
+				v = vy;
+				newquad = (vx.y > 0.0) ? 2 : 0;
+			}
+		}
+		if (newquad < quad)
+			newquad += 4;
+		while (newquad > quad) {
+			quad++;
+			switch (quad) {
+			default:
+				ret.v.emplace_back(xmax, ymin, 0);
+				break;
+			case 1:
+				ret.v.emplace_back(xmin, ymin, 0);
+				break;
+			case 2:
+				ret.v.emplace_back(xmin, ymax, 0);
+				break;
+			case 3:
+				ret.v.emplace_back(xmax, ymax, 0);
+				break;
+			}
+			if (v0idx != nothing)
+				ret.AddEdge(v0idx, ret.v.size() - 1);
+			v0idx = ret.v.size() - 1;
+			if (vstart == nothing)
+				vstart = ret.v.size() - 1;
+		}
+		ret.v.push_back(v);
+		ret.e[eidx].vb = ret.v.size() - 1;
+
+		if (v0idx != nothing)
+			ret.AddEdge(v0idx, ret.v.size() - 1);
+		v0idx = ret.v.size() - 1;
+		if (vstart == nothing)
+			vstart = ret.v.size() - 1;
+	}
+
+	while (4 > quad) {
+		quad++;
+		switch (quad) {
+		default:
+			ret.v.emplace_back(xmax, ymin, 0);
+			break;
+		case 1:
+			ret.v.emplace_back(xmin, ymin, 0);
+			break;
+		case 2:
+			ret.v.emplace_back(xmin, ymax, 0);
+			break;
+		case 3:
+			ret.v.emplace_back(xmax, ymax, 0);
+			break;
+		}
+		if (v0idx != nothing)
+			ret.AddEdge(v0idx, ret.v.size() - 1);
+		v0idx = ret.v.size() - 1;
+		if (vstart == nothing)
+			vstart = ret.v.size() - 1;
+	}
+	if (v0idx != nothing)
+		ret.AddEdge(v0idx, vstart);
+
+#ifdef DEBUG
+//	double hy = 6.0;
+//	std::cout << "-------------------------------------------\n";
+//	{
+//		std::cout << "Lines:\n";
+//		size_t c = 0;
+//		for (const auto &ed : ret.e) {
+//			std::cout << "\t" << c++ << "\t[";
+//			if (ed.va == nothing)
+//				std::cout << " -";
+//			else
+//				std::cout << " " << ed.va;
+//			std::cout << ",";
+//			if (ed.vb == nothing)
+//				std::cout << " -";
+//			else
+//				std::cout << " " << ed.vb;
+//			std::cout << "]";
+//			if (ed.trianglecount == 0)
+//				std::cout << " = line";
+//			else if (ed.trianglecount == 1)
+//				std::cout << " = half-edge";
+//			else if (ed.trianglecount == 2)
+//				std::cout << " = edge";
+//			else
+//				std::cout << " = ? (" << ed.trianglecount << ")";
+//			std::cout << '\n';
+//		}
+//	}
+//	{
+//		std::cout << "Arcs:\n";
+//		for (const auto &a : T) {
+//			std::cout << "\teidx = " << a.eidx;
+//			std::cout << " n = {" << a.he.n.x << ", " << a.he.n.y << "}";
+//
+//			std::cout << '\n';
+//		}
+//	}
+//
+//	{
+//		MatlabFile mf("/tmp/voronoi.mat");
+//		Matrix m_hy("hy", 1);
+//		Matrix m_points("points", Matrix::Order::TWO_REVERSED);
+//		Matrix m_lines("lines", Matrix::Order::TWO_REVERSED);
+//		Matrix m_voronoi("voronoi", Matrix::Order::TWO_REVERSED);
+//		Matrix m_arcs("arcs", Matrix::Order::TWO_REVERSED);
+//		Matrix m_events("events", Matrix::Order::TWO_REVERSED);
+//		m_hy.Insert(hy);
+//
+//		for (const auto &a : T) {
+//
+//			const double c2 = 1.0 / (2.0 * (a.y - hy));
+//			const double c1 = (-2.0 * a.x) * c2;
+//			const double c0 = (a.x * a.x + a.y * a.y - hy * hy) * c2;
+//
+//			m_arcs.push_back(a.x);
+//			m_arcs.push_back(a.y);
+//			m_arcs.push_back(a.x1);
+//			m_arcs.push_back(c2);
+//			m_arcs.push_back(c1);
+//			m_arcs.push_back(c0);
+//		}
+//		m_arcs.Reshape(-1, 6);
+//
+//		for (const auto &q : Qe) {
+//			m_events.push_back(q.x);
+//			m_events.push_back(q.y);
+//		}
+//		m_events.Reshape(-1, 2);
+//		for (auto it = Q.v.begin(); it != Qs; it++) {
+//			m_points.push_back(it->x);
+//			m_points.push_back(it->y);
+//		}
+//		m_points.Reshape(-1, 2);
+//		for (const auto &ed : ret.e) {
+//			const size_t idxa = ed.va;
+//			const size_t idxb = ed.vb;
+//			if (idxa == nothing || idxb == nothing)
+//				continue;
+//			const Vertex &va = ret.v[idxa];
+//			const Vertex &vb = ret.v[idxb];
+//			m_lines.push_back(va.x);
+//			m_lines.push_back(va.y);
+//			m_lines.push_back(vb.x);
+//			m_lines.push_back(vb.y);
+//		}
+//		m_lines.Reshape(-1, 4);
+//		for (const auto &vert : ret.v) {
+//			m_voronoi.push_back(vert.x);
+//			m_voronoi.push_back(vert.y);
+//		}
+//		m_voronoi.Reshape(-1, 2);
+//
+//		mf.WriteMatrix(m_hy);
+//		m_points.ReorderDimensions();
+//		mf.WriteMatrix(m_points);
+//		m_lines.ReorderDimensions();
+//		mf.WriteMatrix(m_lines);
+//		m_voronoi.ReorderDimensions();
+//		mf.WriteMatrix(m_voronoi);
+//		m_arcs.ReorderDimensions();
+//		mf.WriteMatrix(m_arcs);
+//		m_events.ReorderDimensions();
+//		mf.WriteMatrix(m_events);
+//	}
+#endif
+
+	ret.verticesHaveColor = true;
+	ret.paintVertices = true;
+	ret.paintNormals = true;
+	ret.dotSize = 2;
+	return ret;
+}
+
+void Polygon3::Filter(unsigned int width) {
+//TODO Implement this.
+}
+
 double Polygon3::GetLength() const {
 	double d = 0.0;
 	for (const Edge &edge : e) {
@@ -1039,8 +1846,8 @@ Vector3 Polygon3::GetCenter(size_t group) const {
 double Polygon3::GetArea() const {
 	Vector3 temp;
 	for (const auto &edge : e) {
-		const auto &v0 = v[edge.VertexIndex(0)];
-		const auto &v1 = v[edge.VertexIndex(1)];
+		const auto &v0 = v[edge.GetVertexIndex(0)];
+		const auto &v1 = v[edge.GetVertexIndex(1)];
 		temp += (v0 * v1);
 	}
 	return temp.Abs() / 2.0;
@@ -1052,8 +1859,8 @@ Vector3 Polygon3::GetRotationalAxis() const {
 	const Vector3 center = GetCenter();
 	Vector3 temp;
 	for (const auto &edge : e) {
-		const auto &v0 = v[edge.VertexIndex(0)];
-		const auto &v1 = v[edge.VertexIndex(1)];
+		const auto &v0 = v[edge.GetVertexIndex(0)];
+		const auto &v1 = v[edge.GetVertexIndex(1)];
 		temp += (v0 - center) * (v1 - v0);
 	}
 	temp.Normalize();

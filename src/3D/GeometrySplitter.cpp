@@ -27,7 +27,7 @@
 
 void GeometrySplitter::Split() {
 	// Find all parts in the geometry
-	size_t groupCount = CalcObjects();
+	size_t groupCount = CalculateObjects();
 
 	objects.assign(groupCount, Geometry());
 	for (auto &obj : objects)
@@ -72,7 +72,7 @@ void GeometrySplitter::Split() {
 	bbs.assign(groupCount, BoundingBox());
 	size_t n = 0;
 	for (const auto &obj : objects) {
-		for (size_t m = 0; m < obj.VertexCount(); ++m) {
+		for (size_t m = 0; m < obj.CountVertices(); ++m) {
 			bbs[n].Insert( { obj[m].x, obj[m].y, obj[m].z });
 		}
 		++n;

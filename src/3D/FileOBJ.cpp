@@ -198,15 +198,15 @@ void FileOBJ::ReadStream(Geometry &geo) {
 					geo.SetAddNormal(na);
 					geo.SetAddColor(ca);
 					geo.AddVertex(a);
-					size_t idx0 = geo.VertexCount() - 1;
+					size_t idx0 = geo.CountVertices() - 1;
 					geo.SetAddNormal(nb);
 					geo.SetAddColor(cb);
 					geo.AddVertex(b);
-					size_t idx1 = geo.VertexCount() - 1;
+					size_t idx1 = geo.CountVertices() - 1;
 					geo.SetAddNormal(nc);
 					geo.SetAddColor(cc);
 					geo.AddVertex(c);
-					size_t idx2 = geo.VertexCount() - 1;
+					size_t idx2 = geo.CountVertices() - 1;
 
 					geo.ResetPresets();
 					geo.AddTriangle(idx0, idx1, idx2);
@@ -229,13 +229,13 @@ void FileOBJ::ReadStream(Geometry &geo) {
 
 					geo.SetAddNormal(na);
 					geo.AddVertex(a);
-					size_t idx0 = geo.VertexCount() - 1;
+					size_t idx0 = geo.CountVertices() - 1;
 					geo.SetAddNormal(nb);
 					geo.AddVertex(b);
-					size_t idx1 = geo.VertexCount() - 1;
+					size_t idx1 = geo.CountVertices() - 1;
 					geo.SetAddNormal(nc);
 					geo.AddVertex(c);
-					size_t idx2 = geo.VertexCount() - 1;
+					size_t idx2 = geo.CountVertices() - 1;
 
 					geo.ResetPresets();
 					geo.AddTriangle(idx0, idx1, idx2);

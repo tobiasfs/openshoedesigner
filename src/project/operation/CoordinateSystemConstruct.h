@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CoordinateSystemConstruct.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -28,7 +28,7 @@
 
 /** \class CoordinateSystemConstruct
  * 	\code #include "CoordinateSystemConstruct.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text

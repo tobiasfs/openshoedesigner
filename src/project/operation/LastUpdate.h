@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastUpdate.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -28,7 +28,7 @@
 
 /** \class LastUpdate
  * 	\code #include "LastUpdate.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text

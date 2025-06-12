@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Insole.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -47,19 +47,36 @@
 #include "../../math/Polynomial.h"
 #include "Object.h"
 
-class Insole: public Polygon3, public Object {
+class Insole: public Geometry, public Object {
 	friend class InsoleConstruct;
 	friend class InsoleTransform;
+	friend class InsoleAnalyze;
 
 protected:
-	struct Point:Vector3 {
+	class Point: public Geometry::Vertex {
 	public:
 		Point() = default;
-		Point(Vector3 p, double r = 0.0);
-		Vector3 n;
-		double rx = 0.0;
+		Point(const Geometry::Vertex &other);
+		static Point FromUV(double u, double v) {
+			return Point(Geometry::Vertex(u, v, 0.0, u, v));
+		}
+
+//		double rx = 0.0;
+		Vector3 dir;
 		void SetNormal(const Point &p0, const Point &p1);
 		void Transform(std::function<Vector3(Vector3)> func);
+
+		Point& operator+=(const Point &rhs);
+		friend Point operator+(Point lhs, const Point &rhs) {
+			lhs += rhs;
+			return lhs;
+		}
+		Point& operator-=(const Point &rhs);
+		friend Point operator-(Point lhs, const Point &rhs) {
+			lhs -= rhs;
+			return lhs;
+		}
+
 	};
 
 	class Line: public Polynomial3 {
@@ -76,9 +93,12 @@ public:
 	void Paint() const;
 
 public:
+
 	std::vector<Line> lines;
-	Polygon3 inside;
-	Polygon3 outside;
+
+	Polygon3 outline;
+//	Polygon3 inside;
+//	Polygon3 outside;
 
 	Insole::Point A; ///< Heel
 	Insole::Point B; ///< Shoe tip
@@ -91,7 +111,9 @@ public:
 	Insole::Point J; ///< Center point (below os tibia)
 	Insole::Point K; ///< Heel half circle inside
 	Insole::Point L; ///< Heel half circle outside
+	Insole::Point M; ///< Middle of heel half-circle
 	Insole::Point N; ///< Middle of heel half-circle
+	Insole::Point P; ///< Middle of heel
 	Insole::Point Z; ///< Little toe tip
 };
 

@@ -482,7 +482,6 @@ Polynomial Polynomial::Bernstein(const size_t N, const size_t index) {
 }
 
 Polynomial Polynomial::Lagrange(const size_t N, const size_t index) {
-	// TODO Already converted.
 	if (index >= N)
 		throw std::runtime_error(
 				"Polynomial::Lagrange - the index has to be in the range [0, N[");
@@ -742,11 +741,6 @@ void Polynomial::Derive(size_t order) {
 	*this = Derivative(order);
 }
 
-double Polynomial::Integral(double a, double b) const {
-	Polynomial temp = this->Integral();
-	return temp(b) - temp(a);
-}
-
 Polynomial Polynomial::Integral(size_t order) const {
 	Polynomial temp = *this;
 	if (order == 0)
@@ -764,6 +758,11 @@ Polynomial Polynomial::Integral(size_t order) const {
 
 void Polynomial::Integrate(size_t order) {
 	*this = Integral(order);
+}
+
+double Polynomial::Integrate(double a, double b) const {
+	Polynomial temp = this->Integral();
+	return temp(b) - temp(a);
 }
 
 Polynomial Polynomial::Inverse(double a, double b, size_t N) const {

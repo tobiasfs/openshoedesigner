@@ -29,7 +29,7 @@
 /** \class Bezier3
  * 	\code #include "Bezier3.h"\endcode
  * 	\ingroup Base3D
- *  \brief Bezier polynomial chain in 3D
+ *  \brief Bezier polynomial chains in 3D
  *
  * For defining Bezier shapes in up to 3 dimensions.
  *
@@ -55,7 +55,7 @@
  *  * __Auto_DRBS__ - Automatic handles using a symmetric modification of DeRose and Barsky algorithm for C2 continuity
  *
  * The modified DeRose/Barsky algorithm is used because the original one is not
- * C2 this might be needed for some applications. (It also looks better than
+ * C2. This might be needed for some applications. (It also looks better than
  * Kochanek/Bartels.)
  *
  * Note: The spline editing buttons in the software _Inkscape_ are
@@ -73,7 +73,7 @@ public:
 	enum Continuity {
 		Free = 0, ///< No handles (C0)
 		Handles = 1, ///< Independent handles (C0)
-		Linear = 2, ///< Handles one the same line (G1)
+		Linear = 2, ///< Handles on the same line (G1)
 		Symmetric = 3, ///< Symmetric handles on the same line (C1)
 		Auto_KB = 4, ///< Automatic curvature continuity (Kochanek and Bartels) (C2)
 		Auto_DRB = 5, ///< Automatic curvature continuity (DeRose and Barsky) (G2)

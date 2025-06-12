@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : LastConstruct.h
-// Purpose            :
+// Name               : ParameterValue.h
+// Purpose            : 
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 12.01.2025
+// Created            : 29.03.2025
 // Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
@@ -23,39 +23,32 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
-#define SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
+#ifndef SRC_PROJECT_PARAMETERVALUE_H_
+#define SRC_PROJECT_PARAMETERVALUE_H_
 
-/** \class LastConstruct
- * 	\code #include "LastConstruct.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Description
+/** \class ParameterValue
+ * 	\code #include "ParameterValue.h"\endcode
+ * 	\ingroup project
+ *  \brief Parameter for storing debug values
  *
- * Text
+ * This is only for passing the MIDI values around. For everything else the
+ * ParameterFormula should be used.
  */
 
-#include "Operation.h"
+#include "Parameter.h"
 
-#include "../CoordinateSystem.h"
-#include "../object/Insole.h"
-#include "../object/ObjectGeometry.h"
-
-#include <memory>
-class LastConstruct: public Operation {
+class ParameterValue: public Parameter {
 public:
-	LastConstruct();
-	virtual ~LastConstruct() = default;
+	ParameterValue() = delete;
+	explicit ParameterValue(const std::string &name, double value,
+			const std::string &description = std::string(""), const size_t id =
+					(size_t) -1, const size_t group = (size_t) -1);
+	virtual ~ParameterValue() = default;
 
-	virtual std::string GetName() const override;
-	virtual bool CanRun() override;
-	virtual bool Propagate() override;
-	virtual bool HasToRun() override;
-	virtual void Run() override;
+	void SetValue(double newValue);
 
-public:
-	std::shared_ptr<Insole> insole;
-	std::shared_ptr<CoordinateSystem> cs;
-	std::shared_ptr<ObjectGeometry> out;
+	void SetString(const std::string &newString_) override;
+	std::string GetString() const override;
 };
 
-#endif /* SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_ */
+#endif /* SRC_PROJECT_PARAMETERVALUE_H_ */

@@ -219,6 +219,7 @@ public:
 	void RotateOrigin(const Vector3 &p, size_t group); ///< Rotate the first point of the polygon close to the given point.
 
 	void Triangulate();
+	Polygon3 Voronoi() const;
 
 //	/** \brief Resample the point in the polygon.
 //	 *

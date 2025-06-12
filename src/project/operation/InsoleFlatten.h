@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : InsoleFlatten.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -28,7 +28,7 @@
 
 /** \class InsoleFlatten
  * 	\code #include "InsoleFlatten.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Flatten an insole extracted from geometry.
  *
  * Text
@@ -36,6 +36,7 @@
 
 #include "Operation.h"
 #include "../object/Insole.h"
+#include "../ParameterValue.h"
 
 #include <memory>
 
@@ -53,6 +54,15 @@ public:
 public:
 	std::shared_ptr<Insole> in;
 	std::shared_ptr<Insole> out;
+
+	std::shared_ptr<ParameterValue> debugMIDI_48;
+	std::shared_ptr<ParameterValue> debugMIDI_49;
+	std::shared_ptr<ParameterValue> debugMIDI_50;
+	std::shared_ptr<ParameterValue> debugMIDI_51;
+	std::shared_ptr<ParameterValue> debugMIDI_52;
+	std::shared_ptr<ParameterValue> debugMIDI_53;
+	std::shared_ptr<ParameterValue> debugMIDI_54;
+	std::shared_ptr<ParameterValue> debugMIDI_55;
 
 };
 

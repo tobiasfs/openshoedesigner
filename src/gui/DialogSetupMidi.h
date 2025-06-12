@@ -28,13 +28,19 @@
 #define DIALOGSETUPMIDI_H
 
 /*!\class DialogSetupMidi
- * \brief ...
+ * \brief Setup Dialog for the MIDI Controller selection
  *
- * ...
+ * Simple drop down control with all found MIDI devices and a big "Connect"
+ * button.
+ *
+ * The loading and saving of the midi choices to the config is also handled by
+ * this class.
  */
 
 #include "gui.h"
-#include "../system/MidiPort.h"
+
+#include <wx/config.h>
+#include <wx/event.h>
 
 class DialogSetupMidi: public GUIDialogMidiSetup {
 public:
@@ -45,8 +51,8 @@ public:
 	void OnConnectDisconnect(wxCommandEvent &event) override;
 	void OnClose(wxCommandEvent &event) override;
 
-protected:
-	virtual void OnChoice(wxCommandEvent &event);
+	void Load(wxConfig *config);
+	void Save(wxConfig *config);
 };
 
 #endif /* DIALOGSETUPMIDI_H */

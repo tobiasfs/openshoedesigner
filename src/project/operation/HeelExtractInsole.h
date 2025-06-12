@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : HeelExtractInsole.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -28,7 +28,7 @@
 
 /** \class HeelExtractInsole
  * 	\code #include "HeelExtractInsole.h"\endcode
- * 	\ingroup GroupName
+ * 	\ingroup ObjectOperations
  *  \brief Description
  *
  * Text
@@ -38,6 +38,7 @@
 #include "../object/ObjectGeometry.h"
 #include "Operation.h"
 
+#include "../../math/Matrix.h"
 #include "../ParameterFormula.h"
 #include <memory>
 
@@ -54,11 +55,10 @@ public:
 
 public:
 
-
-
 	std::shared_ptr<ObjectGeometry> in;
 	std::shared_ptr<Insole> out;
 
+	std::shared_ptr<Matrix> debug;
 };
 
 #endif /* SRC_PROJECT_OPERATION_HEELEXTRACTINSOLE_H_ */

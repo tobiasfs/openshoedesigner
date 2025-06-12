@@ -27,7 +27,24 @@
 #ifndef STDINC_H
 #define STDINC_H
 
-// For compilers that support precompilation, includes "wx/wx.h".
+#pragma GCC system_header
+
+// check if to use precompiled headers: do it for most Windows compilers unless
+// explicitly disabled by defining NOPCH
+#if ( defined(__WXMSW__) && \
+        ( defined(__BORLANDC__)    || \
+          defined(__VISUALC__)     || \
+          defined(__DIGITALMARS__) || \
+          defined(__WATCOMC__) ) ) || \
+       defined(__VISAGECPP__) || \
+       defined(__MWERKS__)
+
+     // If user did not request NOPCH and we're not building using configure
+     // then assume user wants precompiled headers.
+     #if !defined(NOPCH) && !defined(__WX_SETUP_H__)
+         #define WX_PRECOMP
+     #endif
+ #endif
 
 #include <wx/wxprec.h>
 
@@ -35,6 +52,7 @@
 #pragma hdrstop
 #endif
 
+// For compilers that support precompilation, includes "wx/wx.h".
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif

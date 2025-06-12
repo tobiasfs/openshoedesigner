@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLShader.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -34,12 +34,13 @@
 #include <sstream>
 
 OpenGLShader::~OpenGLShader() {
-	Reset();
+	Delete();
 }
 
-void OpenGLShader::Reset() {
+void OpenGLShader::Delete() {
 	Stop();
-	glDeleteProgram(program);
+	if (program > 0)
+		glDeleteProgram(program);
 	program = 0;
 	for (auto &it : shader)
 		glDeleteShader(it.second);
@@ -126,7 +127,8 @@ void OpenGLShader::AddShaderFromFile(GLenum type,
 }
 
 void OpenGLShader::Stop() {
-	glUseProgram(0);
+	if (program >= 1)
+		glUseProgram(0);
 }
 
 bool OpenGLShader::SetUniformBool(const std::string &name,
@@ -231,3 +233,6 @@ GLint OpenGLShader::GetUniformLocation(const std::string &name) const {
 	return glGetUniformLocation(program, name.c_str());
 }
 
+std::string OpenGLShader::FieldString() {
+	return "XYZRGB";
+}

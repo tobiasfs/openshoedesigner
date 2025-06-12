@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : InsoleConstruct.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -151,58 +151,61 @@ void InsoleConstruct::Construct() {
 
 	// A and B have to be on the axis y = 0.0
 	out->J.Set(0, 0, 0);
-	out->A = out->J - Vector3(footLength->ToDouble() / 6.0, 0, 0);
-	out->C = out->A + Vector3(footLength->ToDouble() * 0.62, 0, 0);
-	out->D = out->A + Vector3(footLength->ToDouble(), 0, 0);
+	out->A = out->J - Insole::Point::FromUV(footLength->ToDouble() / 6.0, 0.0);
+	out->C = out->A + Insole::Point::FromUV(footLength->ToDouble() * 0.62, 0.0);
+	out->D = out->A + Insole::Point::FromUV(footLength->ToDouble(), 0.0);
 	out->B = out->A
-			+ Vector3(footLength->ToDouble() + extraLength->ToDouble(), 0, 0);
+			+ Insole::Point::FromUV(
+					footLength->ToDouble() + extraLength->ToDouble(), 0.0);
 
 	{
 		const double s = sin(ballMeasurementAngle->ToDouble());
 		const double c = cos(ballMeasurementAngle->ToDouble());
 
 		out->E = out->C
-				+ Vector3(s * ballWidth->ToDouble() / 2,
-						-c * ballWidth->ToDouble() / 2, 0);
+				+ Insole::Point::FromUV(s * ballWidth->ToDouble() / 2,
+						-c * ballWidth->ToDouble() / 2);
 		out->F = out->C
-				- Vector3(s * ballWidth->ToDouble() / 2 * 1.24,
-						-c * ballWidth->ToDouble() / 2 * 1.24, 0);
+				- Insole::Point::FromUV(s * ballWidth->ToDouble() / 2 * 1.24,
+						-c * ballWidth->ToDouble() / 2 * 1.24);
 	}
 	{
 		const double s = sin(heelDirectionAngle->ToDouble());
 		const double c = cos(heelDirectionAngle->ToDouble());
 		out->K = out->J
-				+ Vector3(s * heelWidth->ToDouble() / 2,
-						-c * heelWidth->ToDouble() / 2, 0);
+				+ Insole::Point::FromUV(s * heelWidth->ToDouble() / 2,
+						-c * heelWidth->ToDouble() / 2);
 		out->L = out->J
-				- Vector3(s * heelWidth->ToDouble() / 2,
-						-c * heelWidth->ToDouble() / 2, 0);
-		out->N.x = out->A.x * c;
-		out->N.y = out->A.x * s;
-		out->N.z = out->A.z;
+				- Insole::Point::FromUV(s * heelWidth->ToDouble() / 2,
+						-c * heelWidth->ToDouble() / 2);
+		out->P.u = out->A.u * c;
+		out->P.v = out->A.u * s;
+		out->P.x = out->P.u;
+		out->P.y = out->P.v;
+		out->P.z = 0.0;
 	}
 	{
 		const double s = sin(bigToeAngle->ToDouble());
 		const double c = cos(bigToeAngle->ToDouble());
 		const double r = out->D.x - out->E.x;
-		out->G = out->E + Vector3(r, s * r / c, 0);
+		out->G = out->E + Insole::Point::FromUV(r, s * r / c);
 	}
 	{
 		const double s = sin(littleToeAngle->ToDouble());
 		const double c = cos(littleToeAngle->ToDouble());
-		const double r = out->D.x - out->F.x;
+		const double r = out->D.u - out->F.u;
 		const double f = footLength->ToDouble() / 5;
-		out->H = out->F + Vector3(r, -s * r / c, 0);
-		out->Z = out->H - Vector3(f, -s * f / c, 0);
+		out->H = out->F + Insole::Point::FromUV(r, -s * r / c);
+		out->Z = out->H - Insole::Point::FromUV(f, -s * f / c);
 	}
 
 	// Normals
-	out->N.SetNormal(out->K, out->L);
+	out->P.SetNormal(out->K, out->L);
 	{
 		const double s = sin(heelDirectionAngle->ToDouble());
 		const double c = cos(heelDirectionAngle->ToDouble());
-		out->K.n.Set(-c, -s, 0);
-		out->L.n.Set(c, s, 0);
+		out->K.dir.Set(-c, -s, 0);
+		out->L.dir.Set(c, s, 0);
 	}
 	out->E.SetNormal(out->E, out->J);
 	out->F.SetNormal(out->J, out->H);
@@ -221,9 +224,9 @@ void InsoleConstruct::Construct() {
 	out->lines.push_back(temp);
 	temp.Setup(out->E, out->K, 0.39, 0.7);
 	out->lines.push_back(temp);
-	temp.Setup(out->K, out->N);
+	temp.Setup(out->K, out->P);
 	out->lines.push_back(temp);
-	temp.Setup(out->N, out->L);
+	temp.Setup(out->P, out->L);
 	out->lines.push_back(temp);
 	temp.Setup(out->L, out->F, 0.3, 0.39);
 	out->lines.push_back(temp);
@@ -288,7 +291,7 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 
 	// Sample the lines
 	{
-		out->Clear();
+		out->outline.Clear();
 		Polynomial rs = Polynomial::ByValue(0.0, 0.0, (double) N, 2 * M_PI);
 		size_t m = 0;
 		for (size_t n = 0; n < N; ++n) {
@@ -296,39 +299,39 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 			while ((m + 1) < out->lines.size() && out->lines[m].r1 < r)
 				++m;
 			const double r2 = (r > M_PI) ? (r - 2 * M_PI) : r;
-			out->AddEdgeToVertex(out->lines[m](r));
+			out->outline.AddEdgeToVertex(out->lines[m](r));
 		}
-		out->CloseLoopNextGroup();
+		out->outline.CloseLoopNextGroup();
 	}
 
-	// Interpolate the polygons on the inside and the outside of the last.
-	out->inside.Clear();
-	out->outside.Clear();
-
-	const Polynomial px = Polynomial::ByValue(-0.2, out->A.x,
-			(double) N - 1 + 0.2, out->B.x);
-	for (size_t n = 0; n < N; ++n) {
-		const double x = px(n);
-		double y0 = DBL_MAX;
-		double y1 = -DBL_MAX;
-		for (const auto &line : out->lines) {
-			const double r = (line.x - x).FindZero((line.r0 + line.r1) / 2.0);
-			if (r < line.r0 || r > line.r1)
-				continue;
-			const double y = line.y(r);
-			if (y < y0)
-				y0 = y;
-			if (y > y1)
-				y1 = y;
-		}
-		Vector3 vert0(x, y0, 0);
-		out->inside.AddEdgeToVertex(vert0);
-
-		Vector3 vert1(x, y1, 0);
-		out->outside.AddEdgeToVertex(vert1);
-	}
-	out->inside.CalculateNormals(Polygon3::CalculateNormalMethod::InPlaneZX);
-	out->outside.CalculateNormals(Polygon3::CalculateNormalMethod::InPlaneZX);
+//	// Interpolate the polygons on the inside and the outside of the last.
+//	out->inside.Clear();
+//	out->outside.Clear();
+//
+//	const Polynomial px = Polynomial::ByValue(-0.2, out->A.x,
+//			(double) N - 1 + 0.2, out->B.x);
+//	for (size_t n = 0; n < N; ++n) {
+//		const double x = px(n);
+//		double y0 = DBL_MAX;
+//		double y1 = -DBL_MAX;
+//		for (const auto &line : out->lines) {
+//			const double r = (line.x - x).FindZero((line.r0 + line.r1) / 2.0);
+//			if (r < line.r0 || r > line.r1)
+//				continue;
+//			const double y = line.y(r);
+//			if (y < y0)
+//				y0 = y;
+//			if (y > y1)
+//				y1 = y;
+//		}
+//		Vector3 vert0(x, y0, 0);
+//		out->inside.AddEdgeToVertex(vert0);
+//
+//		Vector3 vert1(x, y1, 0);
+//		out->outside.AddEdgeToVertex(vert1);
+//	}
+//	out->inside.CalculateNormals(Polygon3::CalculateNormalMethod::InPlaneZX);
+//	out->outside.CalculateNormals(Polygon3::CalculateNormalMethod::InPlaneZX);
 }
 
 double InsoleConstruct::RatX(const double x, const bool yPositive) const {

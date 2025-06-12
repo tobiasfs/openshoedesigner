@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : HeelNormalize.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -26,16 +26,12 @@
 #include "HeelNormalize.h"
 
 #include "../../3D/Polygon3.h"
-#include "../../math/DependentVector.h"
-#include "../../math/Exporter.h"
-#include "../../math/Polynomial.h"
 
 #include <stdexcept>
 #include <sstream>
 
 HeelNormalize::HeelNormalize() {
 	out = std::make_shared<ObjectGeometry>();
-	debug = std::make_shared<Matrix>();
 }
 
 std::string HeelNormalize::GetName() const {
@@ -90,6 +86,12 @@ bool HeelNormalize::HasToRun() {
 void HeelNormalize::Run() {
 	*out = *in;
 
+	if (in->PassedSelfCheck()) {
+		DEBUGOUT << "in is OK\n";
+	} else {
+		DEBUGOUT << "in is NOK\n";
+	}
+
 	if (heelReorient->GetSelectionIdx() == 1) {
 		AffineTransformMatrix mo;
 		mo.ScaleGlobal(-1, -1, 1); //TODO Automate flipping and rotation
@@ -103,68 +105,8 @@ void HeelNormalize::Run() {
 		AffineTransformMatrix m;
 		m.TranslateGlobal(-out->BB.xmin, -(out->BB.ymin + out->BB.ymax) / 2.0,
 				-out->BB.zmin);
-		m.TranslateGlobal(-out->BB.GetSizeX() / 5, 0, 0);
+//		m.TranslateGlobal(-out->BB.GetSizeX() / 5, 0, 0);
 		out->Transform(m);
-	}
-
-	// Extract the insole
-	{
-		out->CalcGroups(22.5 / 180.0 * M_PI);
-		out->SelectFacesCloseTo( { 1, 0, 1 });
-		Geometry insole;
-		insole.AddSelectedFrom(*out);
-		insole.UpdateNormals(true, true, false);
-		Polygon3 outline;
-		outline.ExtractOutline(insole);
-		const double L = outline.MapU(false);
-
-		DependentVector sample = DependentVector::Chebyshev(-1, 1, 11);
-		Matrix A = Matrix::Vandermonde(sample, 3);
-		A.PseudoInvert();
-
-		const size_t Nsample = 10;
-		Polynomial poss = Polynomial::ByValue(0, 0, Nsample, L);
-
-		Matrix Y(sample.Length(), 3 * Nsample);
-		for (size_t n = 0; n < Nsample; n++) {
-			const double pos = poss(n);
-			for (size_t m = 0; m < sample.Length(); m++) {
-				const auto &res = outline.AtU(pos + sample.X()[m] * L / 8);
-				Y.Insert(res.pos.x, m, n * 3 + 0);
-				Y.Insert(res.pos.y, m, n * 3 + 1);
-				Y.Insert(res.pos.z, m, n * 3 + 2);
-			}
-		}
-		Matrix X = A * Y;
-
-		{
-			Exporter ex("/tmp/van_inv.mat");
-			ex.Add(A, "Ainv");
-			ex.Add(Y, "Y");
-			ex.Add(X, "X");
-		}
-
-		*debug = Matrix::Zeros(outline.Size(), 2);
-		for (size_t idx1 = 0; idx1 < outline.Size(); idx1++) {
-			size_t idx0 = (idx1 + outline.Size() - 6) % outline.Size();
-			size_t idx2 = (idx1 + 6) % outline.Size();
-
-			const auto v0 = outline[idx0];
-			const auto v1 = outline[idx1];
-			const auto v2 = outline[idx2];
-			// Local coordinate system
-			AffineTransformMatrix m;
-			m.SetEx((v1 - v0).Normal());
-			m.SetEz(v1.n.Normal());
-			m.CalculateEy();
-			Vector3 dv = v2 - v1;
-			double dx = dv.Dot(m.GetEx());
-			double dy = dv.Dot(m.GetEy());
-
-			debug->Insert(v1.u, idx1, 0);
-			debug->Insert(std::atan2(dy, dx), idx1, 1);
-		}
-		DEBUGOUT << "debug filled with " << outline.Size() << " values.\n";
 	}
 
 	out->MarkValid(true);

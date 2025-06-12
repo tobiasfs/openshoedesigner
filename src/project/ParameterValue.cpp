@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : Measurement.cpp
+// Name               : ParameterValue.cpp
 // Purpose            : 
-// Thread Safe        : Yes
+// Thread Safe        : No
 // Platform dependent : No
-// Compiler Options   :
+// Compiler Options   : -lm
 // Author             : Tobias Schaefer
-// Created            : 27.05.2019
-// Copyright          : (C) 2019 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 29.03.2025
+// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,5 +23,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#include "ParameterValue.h"
 
-#include "Measurement.h"
+#include <cmath>
+
+ParameterValue::ParameterValue(const std::string &name, double value_,
+		const std::string &description, const size_t id, const size_t group) :
+		Parameter(name, description, id, group) {
+	this->value = value_;
+}
+
+void ParameterValue::SetString(const std::string &newString_) {
+}
+
+void ParameterValue::SetValue(double newValue) {
+	modified |= fabs(newValue - value) > FLT_EPSILON;
+	value = newValue;
+}
+
+std::string ParameterValue::GetString() const {
+	return std::to_string(value);
+}

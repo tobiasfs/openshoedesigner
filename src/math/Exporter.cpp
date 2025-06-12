@@ -48,18 +48,26 @@ void Exporter::Add(const Geometry &geo, const std::string &name) {
 	std::string nameX = name_ + "x";
 	std::string nameY = name_ + "y";
 	std::string nameZ = name_ + "z";
+	std::string nameU = name_ + "u";
+	std::string nameV = name_ + "v";
 
-	Matrix Mx(nameX, geo.VertexCount(), 1);
-	Matrix My(nameY, geo.VertexCount(), 1);
-	Matrix Mz(nameZ, geo.VertexCount(), 1);
-	for (size_t n = 0; n < geo.VertexCount(); ++n) {
+	Matrix Mx(nameX, geo.CountVertices(), 1);
+	Matrix My(nameY, geo.CountVertices(), 1);
+	Matrix Mz(nameZ, geo.CountVertices(), 1);
+	Matrix Mu(nameU, geo.CountVertices(), 1);
+	Matrix Mv(nameV, geo.CountVertices(), 1);
+	for (size_t n = 0; n < geo.CountVertices(); ++n) {
 		Mx[n] = geo[n].x;
 		My[n] = geo[n].y;
 		Mz[n] = geo[n].z;
+		Mu[n] = geo[n].u;
+		Mv[n] = geo[n].v;
 	}
 	WriteMatrix(Mx);
 	WriteMatrix(My);
 	WriteMatrix(Mz);
+	WriteMatrix(Mu);
+	WriteMatrix(Mv);
 }
 
 void Exporter::Add(const DependentVector &vector, const std::string &name) {
@@ -106,6 +114,23 @@ void Exporter::Add(const std::initializer_list<double> &values0,
 	WriteMatrix(m);
 }
 
+void Exporter::Add(const std::vector<double> &values, const std::string &name) {
+	Matrix m(GenName(name), values.size());
+	for (const double &i : values)
+		m.Insert(i);
+	WriteMatrix(m);
+}
+
+void Exporter::Add(const std::vector<double> &values0,
+		const std::vector<double> &values1, const std::string &name) {
+	Matrix m(GenName(name), values0.size());
+	for (const double &i : values0)
+		m.Insert(i);
+	for (const double &i : values1)
+		m.Insert(i);
+	WriteMatrix(m);
+}
+
 std::string Exporter::GenName(const std::string &name) {
 	if (name.empty()) {
 		if (prefix.empty())
@@ -118,4 +143,3 @@ std::string Exporter::GenName(const std::string &name) {
 	prefix = name;
 	return name;
 }
-

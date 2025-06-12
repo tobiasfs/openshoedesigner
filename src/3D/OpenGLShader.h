@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLShader.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -46,11 +46,25 @@ public:
 	OpenGLShader() = default;
 	virtual ~OpenGLShader();
 
-	void Reset();
+	/**\brief Delete a shader
+	 *
+	 * This function is necessary for the correct destruction of an OpenGL
+	 * shader, if the lifetime of the shader object extends the lifetime of
+	 * the OpenGL context. This would results in a seg-fault, because the
+	 * OpenGL-functions might not be available after the destruction of the
+	 * context.
+	 */
+	virtual void Delete();
+
 	void AddShader(GLenum type, const std::string &program_);
 	void AddShaderFromFile(GLenum type, const std::string &filename_);
 
 	bool LinkShader();
+
+	virtual bool Start();
+	void Stop();
+
+	GLint GetUniformLocation(const std::string &name) const;
 
 	bool SetUniformBool(const std::string &name, const GLboolean x) const;
 	bool SetUniformInt(const std::string &name, const GLint x) const;
@@ -63,15 +77,12 @@ public:
 	bool SetUniform(const std::string &name, const GLfloat x, const GLfloat y,
 			const GLfloat z, const GLfloat w) const;
 
-	bool SetUniformMatrix4(const std::string &name,
-			const AffineTransformMatrix &M) const;
 	bool SetUniformMatrix3(const std::string &name,
 			const AffineTransformMatrix &M) const;
+	bool SetUniformMatrix4(const std::string &name,
+			const AffineTransformMatrix &M) const;
 
-	GLint GetUniformLocation(const std::string &name) const;
-
-	virtual bool Start();
-	static void Stop();
+	virtual std::string FieldString();
 
 private:
 	std::map<GLenum, GLuint> shader;

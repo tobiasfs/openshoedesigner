@@ -62,6 +62,9 @@ public:
 	void Add(const std::initializer_list<double> &values0,
 			const std::initializer_list<double> &values1,
 			const std::string &name);
+	void Add(const std::vector<double> &values, const std::string &name);
+	void Add(const std::vector<double> &values0,
+			const std::vector<double> &values1, const std::string &name);
 
 protected:
 

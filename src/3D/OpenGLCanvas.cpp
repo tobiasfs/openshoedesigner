@@ -440,9 +440,10 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 
 	{
 		// Determine unit length at origin
-		// Note that the reference implementation is off by one.
+		// Note that the reference implementation makes some assumtions on
+		// the form of the projection matrix, that do not work with all
+		// projection matrices.
 		// https://www.khronos.org/opengl/wiki/GluProject_and_gluUnProject_code
-		// It should be fTempo[7]=1.0-fTempo[2];
 
 		GLint vp[4];
 		GLdouble mv[16];
@@ -452,8 +453,12 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 		glGetIntegerv( GL_VIEWPORT, vp);
 
 		double sc = std::sqrt(mv[0] * mv[0] + mv[1] * mv[1] + mv[2] * mv[2]);
-		unitAtOrigin = sc * vp[2] * (mv[3] * pr[12] + pr[0])
-				/ (2.0 * (1.0 - mv[14]));
+		double T1 = 2.0 * (pr[11] * mv[14] + mv[15] * pr[15]);
+		double T2 = mv[3] * pr[15];
+		double T3 = pr[8] * mv[14] + pr[4] * mv[13] - pr[0] * mv[12];
+		double T4 = (pr[0] * mv[15] - mv[3] * T3) * pr[15];
+		T4 += pr[11] * (mv[3] * pr[12] + pr[0]) * mv[14];
+		unitAtOrigin = sc * 2.0 * vp[2] * T4 / ((T1 - T2) * (T1 + T2));
 	}
 
 	//	if(m_gllist == 0){

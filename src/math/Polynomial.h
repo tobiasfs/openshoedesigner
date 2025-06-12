@@ -35,7 +35,7 @@
  * The coefficients are stored at the index of their power. 
  *
  * e.g. \f[
- * 	f(r) =  + c_0 + c_1 \cdot r + c_2\cdot r^2 + c_3\cdot r^3
+ * 	f(r) =  c_0 + c_1 \cdot r + c_2\cdot r^2 + c_3\cdot r^3
  * \f]
  * The vector returned by the stream output << can be used directly in the
  * Octave/Matlab polyval command. Note that the order of coefficient is inverted
@@ -271,9 +271,9 @@ public:
 	Polynomial Derivative(size_t order = 1) const; ///< Return the derivative without changing the polynomial
 	void Derive(size_t order = 1); ///< Derive the polynomial itself
 
-	double Integral(double a, double b) const; ///< Evaluate the integral of the polynomial between a and b
 	Polynomial Integral(size_t order = 1) const; ///< Return the integral of the polynomial without changing it itself
 	void Integrate(size_t order = 1); ///< Integrate the polynomial. (The integration-constant has to be added using the operator '+' afterwards.)
+	double Integrate(double a, double b) const; ///< Evaluate the integral of the polynomial between a and b
 
 	/**\brief Invert a polynomial in a given range
 	 *

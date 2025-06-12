@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastNormalize.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -159,13 +159,13 @@ void LastNormalize::ReorientPCA() {
 	// Find orientation of mesh
 	PCA pca;
 //	Vector3 center = out->GetCentroid();
-	Vector3 center = out->GetCenter();
+	Vector3 center = out->GetCenterOfVertices();
 
 	pca.SetCenter(center);
 
-//	for (size_t i = 0; i < out->TriangleCount(); ++i)
+//	for (size_t i = 0; i < out->CountTriangles(); ++i)
 //		pca.Add(out->GetTetraederCenter(i), out->GetTetraederVolume(i));
-	for (size_t i = 0; i < out->VertexCount(); ++i)
+	for (size_t i = 0; i < out->CountVertices(); ++i)
 		pca.Add(out->GetVertex(i));
 	pca.Calculate();
 	// Make coordinate system right handed
@@ -271,7 +271,7 @@ void LastNormalize::ReorientSole() {
 			section.Reverse();
 
 		const double Lmax = section.GetLength();
-		for (size_t n = 0; n < section.EdgeCount(); ++n) {
+		for (size_t n = 0; n < section.CountEdges(); ++n) {
 			const Vector3 temp = section.GetEdgeVertex(n, 1)
 					- section.GetEdgeVertex(n, 0);
 			double a = atan2(temp.y, -temp.z);

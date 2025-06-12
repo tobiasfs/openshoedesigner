@@ -209,6 +209,7 @@
 #include "operation/FootModelLoad.h"
 #include "operation/FootModelUpdate.h"
 #include "operation/FootScanLoad.h"
+#include "operation/HeelCenter.h"
 #include "operation/HeelConstruct.h"
 #include "operation/HeelExtractInsole.h"
 #include "operation/HeelNormalize.h"
@@ -243,7 +244,7 @@ public:
 	void ToDot(std::ostream &out, const Project &project) const;
 
 	std::shared_ptr<const Matrix> GetDebugMatrix() const {
-		return opHeelNormalize->debug;
+		return opHeelExtractInsole->debug;
 	}
 
 private:
@@ -259,6 +260,7 @@ private:
 	std::shared_ptr<FootModelLoad> opFootModelLoad;
 	std::shared_ptr<FootModelUpdate> opFootModelUpdate;
 	std::shared_ptr<FootScanLoad> opFootScanLoad;
+	std::shared_ptr<HeelCenter> opHeelCenter;
 	std::shared_ptr<HeelConstruct> opHeelConstruct;
 	std::shared_ptr<HeelExtractInsole> opHeelExtractInsole;
 	std::shared_ptr<ObjectLoad> opHeelLoad;

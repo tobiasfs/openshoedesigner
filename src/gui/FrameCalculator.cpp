@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameCalculator.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -61,9 +61,11 @@ FrameCalculator::FrameCalculator(wxWindow *parent) :
 				"break continue do else false for if return switch true while");
 		m_textCtrlCode->SetKeyWords(1,
 				"abs acos asin atan atan2 cbrt ceil cos exp exp2 floor limit log log10 log2 max min mod pow round sin sqrt tan");
-		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD, wxColour("MIDNIGHT BLUE"));
+		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD,
+				wxColour("MIDNIGHT BLUE"));
 		m_textCtrlCode->StyleSetBold(wxSTC_C_WORD, true);
-		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD2, wxColour("VIOLET RED"));
+		m_textCtrlCode->StyleSetForeground(wxSTC_C_WORD2,
+				wxColour("VIOLET RED"));
 		m_textCtrlCode->StyleSetBold(wxSTC_C_WORD2, true);
 
 		m_textCtrlCode->StyleSetForeground(wxSTC_C_COMMENT, wxColour("GREY"));
@@ -299,7 +301,7 @@ void FrameCalculator::OnThreadUpdate(wxThreadEvent &evt) {
 					verts[n].y = values2D->operator()(n, 1);
 					verts[n].z = values2D->operator()(n, m + 2);
 				}
-				const size_t offset = geo.VertexCount();
+				const size_t offset = geo.CountVertices();
 				geo.AddVertex(verts);
 				for (size_t nx = 1; nx < Nx; ++nx)
 					for (size_t ny = 1; ny < Ny; ++ny) {
@@ -334,7 +336,7 @@ void FrameCalculator::OnThreadUpdate(wxThreadEvent &evt) {
 					zmin.ToDouble());
 			geo.Transform(m);
 
-			if (!geo.SelfCheckPassed(false)) {
+			if (!geo.PassedSelfCheck(false)) {
 				std::cout << "Problem.\n";
 			}
 
@@ -458,7 +460,7 @@ void FrameCalculator::OnPropertyGridChanging(wxPropertyGridEvent &event) {
 		return;
 
 	const std::string &label =
-			wxStaticCast(event.GetProperty(),wxStringProperty)->GetLabel().ToStdString();
+			wxStaticCast(event.GetProperty(),wxStringProperty) ->GetLabel().ToStdString();
 	const std::string &value = event.GetValue().GetString().ToStdString();
 
 	MathParser mp;
@@ -751,7 +753,7 @@ void FrameCalculator::UpdateInstructionPointer() {
 		const int p1 = m_textCtrlAsm->GetLineEndPosition(
 				lastInstructionPointer);
 		if (p0 < p1) {
-			m_textCtrlAsm->StartStyling(p0, 0xffff);
+			m_textCtrlAsm->StartStyling(p0);	//, 0xffff);
 			m_textCtrlAsm->SetStyling(p1 - p0, 0);
 		}
 	}
@@ -761,7 +763,7 @@ void FrameCalculator::UpdateInstructionPointer() {
 		const int p1 = m_textCtrlAsm->GetLineEndPosition(
 				lastInstructionPointer);
 		if (p0 < p1) {
-			m_textCtrlAsm->StartStyling(p0, 0xffff);
+			m_textCtrlAsm->StartStyling(p0);	//, 0xffff);
 			m_textCtrlAsm->SetStyling(p1 - p0, styleInstructionHighlight);
 			m_textCtrlAsm->ShowPosition(p0);
 		}

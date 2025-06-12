@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastModel.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -300,7 +300,11 @@ void LastModel::UpdateForm(const Insole &insole,
 	Polygon3 lastPlane = planeXZ;
 	Polygon3 lastLeft = bottomleft;
 	Polygon3 lastRight = bottomright;
-	Polygon3 insoleCenter = insole.inside;
+	Polygon3 insoleCenter;	// = insole.inside;
+
+	throw std::runtime_error(
+			__FILE__ " - inside and outside not part of insole anymore. Modify algorithm!");
+
 	for (size_t n = 0; n < insoleCenter.Size(); ++n)
 		insoleCenter[n].y = 0.0;
 	Polygon3 lastCenter;
@@ -513,8 +517,8 @@ void LastModel::UpdateForm(const Insole &insole,
 			size_t idx = I0.idx;
 			if (I0.rel > 0.5)
 				++idx;
-			Vector3 insoleR = insole.inside[idx];
-			Vector3 insoleL = insole.outside[idx];
+			Vector3 insoleR; // = insole.inside[idx];
+			Vector3 insoleL; // = insole.outside[idx];
 
 			auto A0 = lastCenter.At(L0);
 			auto [lastIdx, lastGroup] = sideCenter.ClosestPoint(A0.pos);
@@ -722,7 +726,7 @@ void LastModel::UpdateForm(const Insole &insole,
 	 return;
 
 	 BoundingBox bb;
-	 for(size_t i = 0; i < hull.GetVertexCount(); ++i)
+	 for(size_t i = 0; i < hull.GetCountVertices(); ++i)
 	 bb.Insert(hull.GetVertex(i));
 	 AffineTransformMatrix bbc = bb.GetCoordinateSystem();
 
@@ -898,7 +902,6 @@ void LastModel::UpdateForm(const Insole &insole,
 //	}
 }
 
-
 LastModel::LastModel(const Geometry &geo) :
 		ObjectGeometry(geo) {
 }
@@ -907,7 +910,7 @@ void LastModel::Transform(std::function<Vector3(Vector3)> func) {
 	for (auto &p : tg.p)
 		p = func(p);
 
-	for (size_t n = 0; n < VertexCount(); ++n)
+	for (size_t n = 0; n < CountVertices(); ++n)
 		v[n] = func(v[n]);
 }
 

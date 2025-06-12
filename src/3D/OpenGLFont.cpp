@@ -45,7 +45,7 @@ std::vector<OpenGLFont> OpenGLFont::ParseGeometry(GeometrySplitter &geometry,
 	size_t groupCount = geometry.objects.size();
 
 	for (size_t n = 0; n < groupCount; ++n) {
-		if (!geometry.objects[n].SelfCheckPassed()) {
+		if (!geometry.objects[n].PassedSelfCheck()) {
 			std::cerr << "The glyphe in object " << n << " is broken.\n";
 		}
 	}

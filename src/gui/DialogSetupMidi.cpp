@@ -28,6 +28,14 @@
 
 #include "FrameParent.h"
 
+#include "../Config.h"
+#include "../system/MidiPort.h"
+
+#include <iostream>
+#include <memory>
+#include <set>
+#include <string>
+
 DialogSetupMidi::DialogSetupMidi(wxWindow *parent) :
 		GUIDialogMidiSetup(parent) {
 }
@@ -80,8 +88,47 @@ void DialogSetupMidi::OnConnectDisconnect(wxCommandEvent &event) {
 	}
 }
 
-void DialogSetupMidi::OnChoice(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
-			<< event.GetId() << " )\n";
+void DialogSetupMidi::Load(wxConfig *config) {
+	if (config == nullptr)
+		return;
+	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
+	std::shared_ptr<MidiDevice> &mididevice = parentframe->mididevice;
+	if (!midiport)
+		return;
+
+	const bool connect = config->ReadBool("MidiConnected", false);
+	const std::string device = config->Read("MidiName", "").ToStdString();
+
+	if (connect) {
+		mididevice = midiport->Open(device, MidiPort::Direction::Bidirectional);
+		mididevice->Poll();
+		m_buttonConnectDisconnect->SetLabel(_T("Disconnect"));
+		m_choice->Enable(false);
+	} else {
+		mididevice.reset();
+		midiport->CloseAll();
+		m_buttonConnectDisconnect->SetLabel(_T("Connect"));
+		m_choice->Enable(true);
+	}
 }
 
+void DialogSetupMidi::Save(wxConfig *config) {
+	if (config == nullptr)
+		return;
+
+	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
+	std::shared_ptr<MidiDevice> &mididevice = parentframe->mididevice;
+	if (!midiport) {
+		config->Write(_T("MidiConnected"), (bool) false);
+		return;
+	}
+	if (mididevice) {
+		config->Write(_T("MidiConnected"), (bool) true);
+		config->Write(_T("MidiName"), wxString(mididevice->GetName()));
+	} else {
+		config->Write(_T("MidiConnected"), (bool) false);
+		config->Write(_T("MidiName"), m_choice->GetStringSelection());
+	}
+}

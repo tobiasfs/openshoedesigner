@@ -45,7 +45,7 @@
 struct Vector3 {
 public:
 	Vector3() = default;
-	Vector3(double x_, double y_, double z_) :
+	Vector3(double x_, double y_, double z_ = 0.0) :
 			x(x_), y(y_), z(z_) {
 	}
 	Vector3(std::initializer_list<double> list) {
@@ -72,7 +72,9 @@ public:
 
 	//! Zeros the vector.
 	void Zero() {
-		x = y = z = 0.0;
+		x = 0.0;
+		y = 0.0;
+		z = 0.0;
 	}
 
 	//! Normalizes the length of a vector.

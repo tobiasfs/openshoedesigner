@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Insole.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -37,14 +37,17 @@
 #include "../../3D/OpenGL.h"
 
 void Insole::Point::SetNormal(const Point &p0, const Point &p1) {
-	n = (p1 - p0).Normal();
+	dir = (Vector3(p1.u, p1.v) - Vector3(p0.u, p0.v)).Normal();
 }
 
-Insole::Point::Point(Vector3 p, double r) {
-	x = p.x;
-	y = p.y;
-	z = p.z;
-	rx = r;
+Insole::Point::Point(const Geometry::Vertex &other) {
+	x = other.x;
+	y = other.y;
+	z = other.z;
+	u = other.u;
+	v = other.v;
+	n = other.n;
+	c = other.c;
 }
 
 void Insole::Point::Transform(std::function<Vector3(Vector3)> func) {
@@ -60,15 +63,32 @@ void Insole::Point::Transform(std::function<Vector3(Vector3)> func) {
 	n = (h - temp).Normal();
 }
 
+Insole::Point& Insole::Point::operator +=(const Point &rhs) {
+	this->x += rhs.x;
+	this->y += rhs.y;
+	this->z += rhs.z;
+	this->u += rhs.u;
+	this->v += rhs.v;
+	return *this;
+}
+
+Insole::Point& Insole::Point::operator -=(const Point &rhs) {
+	this->x -= rhs.x;
+	this->y -= rhs.y;
+	this->z -= rhs.z;
+	this->u -= rhs.u;
+	this->v -= rhs.v;
+	return *this;
+}
 void Insole::Line::Setup(const Point &p0, const Point &p1, double f0,
 		double f1) {
 	const double d = (p1 - p0).Abs();
-	x = Polynomial::ByBezier(p0.x, p0.x + d * f0 * p0.n.x,
-			p1.x - d * f1 * p1.n.x, p1.x);
-	y = Polynomial::ByBezier(p0.y, p0.y + d * f0 * p0.n.y,
-			p1.y - d * f1 * p1.n.y, p1.y);
-	z = Polynomial::ByBezier(p0.z, p0.z + d * f0 * p0.n.z,
-			p1.z - d * f1 * p1.n.z, p1.z);
+	x = Polynomial::ByBezier(p0.x, p0.x + d * f0 * p0.dir.x,
+			p1.x - d * f1 * p1.dir.x, p1.x);
+	y = Polynomial::ByBezier(p0.y, p0.y + d * f0 * p0.dir.y,
+			p1.y - d * f1 * p1.dir.y, p1.y);
+	z = Polynomial::ByBezier(p0.z, p0.z + d * f0 * p0.dir.z,
+			p1.z - d * f1 * p1.dir.z, p1.z);
 	r0 = 0.0;
 	r1 = 1.0;
 }
@@ -87,10 +107,10 @@ void Insole::Line::Paint() const {
 }
 
 void Insole::Transform(std::function<Vector3(Vector3)> func) {
-	inside.Transform(func);
-	inside.CalculateNormals();
-	outside.Transform(func);
-	outside.CalculateNormals();
+//	inside.Transform(func);
+//	inside.CalculateNormals();
+//	outside.Transform(func);
+//	outside.CalculateNormals();
 	A.Transform(func);
 	B.Transform(func);
 	C.Transform(func);
@@ -102,9 +122,12 @@ void Insole::Transform(std::function<Vector3(Vector3)> func) {
 	J.Transform(func);
 	K.Transform(func);
 	L.Transform(func);
+	M.Transform(func);
 	N.Transform(func);
+	P.Transform(func);
 	Z.Transform(func);
-	Polygon3::Transform(func);
+	Geometry::Transform(func);
+	outline.Transform(func);
 	this->CalculateNormals();
 	for (auto &line : lines)
 		line.Transform(func);
@@ -114,25 +137,27 @@ void Insole::Paint() const {
 //	for(auto & line : lines)
 //		line.Paint();
 
-	size_t count = std::min(inside.Size(), outside.Size());
+	outline.Paint();
 
-	glBegin(GL_QUAD_STRIP);
-	for (size_t n = 0; n < count; ++n) {
-//		if (leftside) {
-		glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
-		glVertex3f(inside[n].x, inside[n].y, inside[n].z);
-		glNormal3f(outside.Normal(n).x, outside.Normal(n).y,
-				outside.Normal(n).z);
-		glVertex3f(outside[n].x, outside[n].y, outside[n].z);
-//		} else {
-//			glNormal3f(outside.Normal(n).x, outside.Normal(n).y, outside.Normal(n).z);
-//			glVertex3f(outside[n].x, outside[n].y, outside[n].z);
-//			glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
-//			glVertex3f(inside[n].x, inside[n].y, inside[n].z);
-//		}
-	}
-	glEnd();
-	inside.Paint();
-	outside.Paint();
+//	size_t count = std::min(inside.Size(), outside.Size());
+//
+//	glBegin(GL_QUAD_STRIP);
+//	for (size_t n = 0; n < count; ++n) {
+////		if (leftside) {
+//		glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
+//		glVertex3f(inside[n].x, inside[n].y, inside[n].z);
+//		glNormal3f(outside.Normal(n).x, outside.Normal(n).y,
+//				outside.Normal(n).z);
+//		glVertex3f(outside[n].x, outside[n].y, outside[n].z);
+////		} else {
+////			glNormal3f(outside.Normal(n).x, outside.Normal(n).y, outside.Normal(n).z);
+////			glVertex3f(outside[n].x, outside[n].y, outside[n].z);
+////			glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
+////			glVertex3f(inside[n].x, inside[n].y, inside[n].z);
+////		}
+//	}
+//	glEnd();
+//	inside.Paint();
+//	outside.Paint();
 }
 
