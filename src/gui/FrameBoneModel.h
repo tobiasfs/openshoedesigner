@@ -28,9 +28,8 @@
 #define GUI_FRAMEBONEMODEL_H
 
 /*!\class FrameBoneModel
- * \brief ...
+ * \brief Frame to display and edit the bone model of the foot.
  *
- * ...
  */
 
 #include "gui.h"

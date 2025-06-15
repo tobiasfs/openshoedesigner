@@ -26,21 +26,23 @@
 #ifndef SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
 #define SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
 
-/** \class LastConstruct
- * 	\code #include "LastConstruct.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Description
+/**\class LastConstruct
+ * \brief Construct last
+ * \ingroup ObjectOperations
+ * \code #include "LastConstruct.h"\endcode
  *
- * Text
+ * In the current implementation, the last is constructed from the coordinate
+ * system and the insole as the lower cap of the coordinate system. The last
+ * is cut off at the ankle.
  */
-
-#include "Operation.h"
 
 #include "../CoordinateSystem.h"
 #include "../object/Insole.h"
 #include "../object/ObjectGeometry.h"
+#include "Operation.h"
 
 #include <memory>
+
 class LastConstruct: public Operation {
 public:
 	LastConstruct();

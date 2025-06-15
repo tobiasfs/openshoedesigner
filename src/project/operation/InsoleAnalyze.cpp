@@ -29,7 +29,8 @@
 #include <stdexcept>
 
 InsoleAnalyze::InsoleAnalyze() {
-	out = std::make_shared<Insole>();
+	insole_out = std::make_shared<Insole>();
+	insoleFlat_out = std::make_shared<Insole>();
 }
 
 std::string InsoleAnalyze::GetName() const {
@@ -57,10 +58,16 @@ bool InsoleAnalyze::CanRun() {
 		missing += missing.empty() ? "\"bigToeAngle\"" : ", \"bigToeAngle\"";
 	if (!extraLength)
 		missing += missing.empty() ? "\"extraLength\"" : ", \"extraLength\"";
-	if (!in)
-		missing += missing.empty() ? "\"in\"" : ", \"in\"";
-	if (!out)
-		missing += missing.empty() ? "\"out\"" : ", \"out\"";
+	if (!insole_in)
+		missing += missing.empty() ? "\"insole_in\"" : ", \"insole_in\"";
+	if (!insoleFlat_in)
+		missing +=
+				missing.empty() ? "\"insoleFlat_in\"" : ", \"insoleFlat_in\"";
+	if (!insole_out)
+		missing += missing.empty() ? "\"insole_out\"" : ", \"insole_out\"";
+	if (!insoleFlat_out)
+		missing +=
+				missing.empty() ? "\"insoleFlat_out\"" : ", \"insoleFlat_out\"";
 
 	if (!missing.empty()) {
 		std::ostringstream err;
@@ -97,12 +104,14 @@ bool InsoleAnalyze::CanRun() {
 
 bool InsoleAnalyze::Propagate() {
 	if (!footLength || !ballMeasurementAngle || !heelDirectionAngle
-			|| !littleToeAngle || !bigToeAngle || !extraLength || !in || !out)
+			|| !littleToeAngle || !bigToeAngle || !extraLength || !insole_in
+			|| !insoleFlat_in || !insole_out || !insoleFlat_out)
 		return false;
 
 	bool modify = false;
 	bool parameterModified = false;
-	parameterModified |= !in->IsValid();
+	parameterModified |= !insole_in->IsValid();
+	parameterModified |= !insoleFlat_in->IsValid();
 	parameterModified |= footLength->IsModified();
 	parameterModified |= ballMeasurementAngle->IsModified();
 	parameterModified |= heelDirectionAngle->IsModified();
@@ -111,48 +120,61 @@ bool InsoleAnalyze::Propagate() {
 	parameterModified |= extraLength->IsModified();
 
 	if (parameterModified) {
-		modify |= out->IsValid();
-		out->MarkValid(false);
+		modify |= insole_out->IsValid();
+		modify |= insoleFlat_out->IsValid();
+		insole_out->MarkValid(false);
+		insoleFlat_out->MarkValid(false);
 	}
-	if (out->IsNeeded()) {
-		modify |= !in->IsNeeded();
-		in->MarkNeeded(true);
+	if (insole_out->IsNeeded() || insoleFlat_out->IsNeeded()) {
+		modify |= !insole_in->IsNeeded();
+		modify |= !insoleFlat_in->IsNeeded();
+		insole_in->MarkNeeded(true);
+		insoleFlat_in->MarkNeeded(true);
 	}
 	return modify;
 }
 
 bool InsoleAnalyze::HasToRun() {
-	return in && in->IsValid() && out && !out->IsValid() && out->IsNeeded();
+	return insole_in && insole_in->IsValid() && insoleFlat_in
+			&& insoleFlat_in->IsValid() && insole_out && !insole_out->IsValid()
+			&& insole_out->IsNeeded() && insoleFlat_out
+			&& !insoleFlat_out->IsValid() && insoleFlat_out->IsNeeded();
 }
 
 void InsoleAnalyze::Run() {
-	*out = *in;
+	*insole_out = *insole_in;
+	*insoleFlat_out = *insoleFlat_in;
+
+	// For all calculations below, the insole is assumed to be flat, i.e. Z=0
+	// for all vertices.
 
 	auto dist = [](double a, double b) {
 		return sqrt(a * a + b * b);
 	};
 
-	// Find longest distance in insole
+	// Find longest distance in insole outline.
 	double LLast = 0;
 	size_t idx0 = 0;
 	size_t idx1 = 0;
 	bool hasImproved = true;
 	while (hasImproved) {
 		hasImproved = false;
-		const Geometry::Vertex &v0 = out->GetVertex(idx0);
-		for (size_t idx = 0; idx < out->CountVertices(); idx++) {
-			const Geometry::Vertex &v1 = out->GetVertex(idx);
-			const double d1 = dist(v0.u - v1.u, v0.v - v1.v);
+		const Geometry::Vertex &v0 = insoleFlat_out->outline.GetVertex(idx0);
+		for (size_t idx = 0; idx < insoleFlat_out->outline.CountVertices();
+				idx++) {
+			const Geometry::Vertex &v1 = insoleFlat_out->outline.GetVertex(idx);
+			const double d1 = dist(v0.x - v1.x, v0.y - v1.y);
 			if (d1 > LLast + FLT_EPSILON) {
 				idx1 = idx;
 				LLast = d1;
 				hasImproved = true;
 			}
 		}
-		const Geometry::Vertex &v2 = out->GetVertex(idx1);
-		for (size_t idx = 0; idx < out->CountVertices(); idx++) {
-			const Geometry::Vertex &v1 = out->GetVertex(idx);
-			const double d1 = dist(v2.u - v1.u, v2.v - v1.v);
+		const Geometry::Vertex &v2 = insoleFlat_out->outline.GetVertex(idx1);
+		for (size_t idx = 0; idx < insoleFlat_out->outline.CountVertices();
+				idx++) {
+			const Geometry::Vertex &v1 = insoleFlat_out->outline.GetVertex(idx);
+			const double d1 = dist(v2.x - v1.x, v2.y - v1.y);
 			if (d1 > LLast + FLT_EPSILON) {
 				idx0 = idx;
 				LLast = d1;
@@ -166,18 +188,23 @@ void InsoleAnalyze::Run() {
 	std::cout << "Insole length: " << LLast * 100 << " cm\n";
 	std::cout << "Mapped foot length: " << LFoot * 100 << " cm\n";
 
-	const Geometry::Vertex &v0 = out->GetVertex(idx0);
-	const Geometry::Vertex &v1 = out->GetVertex(idx1);
-	Geometry::Vertex dir = Normal(Diff(v1, v0));
+	const Geometry::Vertex &v0 = insoleFlat_out->outline.GetVertex(idx0);
+	const Geometry::Vertex &v1 = insoleFlat_out->outline.GetVertex(idx1);
+	const Geometry::Vertex dir = Normal(Diff(v1, v0));
 
-	// Find the orientation and the exact positioning of the insole by sampling
-	// at 0.2, 0.4, 0.5, 0.6, 0.8 of the distance between v0 and v1.
+// Find the orientation and the exact positioning of the insole by sampling
+// at 0.2, 0.4, 0.5, 0.6, 0.8 of the distance between v0 and v1.
 
-	const Polygon3::Intersections r2 = Intersect(out->outline, v0, v1, 0.2);
-	const Polygon3::Intersections r4 = Intersect(out->outline, v0, v1, 0.4);
-	const Polygon3::Intersections r5 = Intersect(out->outline, v0, v1, 0.5);
-	const Polygon3::Intersections r6 = Intersect(out->outline, v0, v1, 0.6);
-	const Polygon3::Intersections r8 = Intersect(out->outline, v0, v1, 0.8);
+	const Polygon3::Intersections r2 = Intersect(insoleFlat_out->outline, v0,
+			v1, 0.2);
+	const Polygon3::Intersections r4 = Intersect(insoleFlat_out->outline, v0,
+			v1, 0.4);
+	const Polygon3::Intersections r5 = Intersect(insoleFlat_out->outline, v0,
+			v1, 0.5);
+	const Polygon3::Intersections r6 = Intersect(insoleFlat_out->outline, v0,
+			v1, 0.6);
+	const Polygon3::Intersections r8 = Intersect(insoleFlat_out->outline, v0,
+			v1, 0.8);
 
 	if (r2.positive.empty() || r2.negative.empty() || r4.positive.empty()
 			|| r4.negative.empty() || r5.positive.empty() || r5.negative.empty()
@@ -198,7 +225,7 @@ void InsoleAnalyze::Run() {
 			|| r8.positive.size() > 1 || r8.negative.size() > 1) {
 		std::ostringstream err;
 		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
-				<< __FUNCTION__ << " -";
+				<< __FUNCTION__ << " - ";
 		err
 				<< "For the insole extracted, the outline is not clean and there are some inconsistencies, that make the analysis difficult.";
 		std::cout << err.str() << '\n';
@@ -210,236 +237,257 @@ void InsoleAnalyze::Run() {
 	const double L6 = Dist(r6.positive[0], r6.negative[0]);
 	const double L8 = Dist(r8.positive[0], r8.negative[0]);
 
+// Check where the middle of r4.pos, r4.neg, r6.pos, r6.neg projects
+// onto the line from r5.pos to r5.neg. This indicates if the
+// insole is a left (positive values) or a right side (negative values).
+	double sideIndicator = 0.0;
+	{
+		Vector3 center = (r2.positive[0] + r2.negative[0] + r8.positive[0]
+				+ r8.negative[0]) / 4.0;
+		const double L = Dist(r5.positive[0], r5.negative[0]);
+		const Vector3 LDir = Diff(r5.positive[0], r5.negative[0]);
+		const double R = (center.x - r5.negative[0].x) * LDir.y
+				+ (center.y - r5.negative[0].y) * LDir.y;
+		sideIndicator = 2.0 * R / (L * L) - 1.0;
+	}
+
 	if (L2 + L4 > L6 + L8) {
 		// The middle of L2 is close to D and the middle of L8 is close to J
-		out->J = r8.negative[0].Interp(r8.positive[0], 0.5);
+		insoleFlat_out->J = r8.negative[0].Interp(r8.positive[0], 0.5);
 		// Temporary calculation of A, B, and M
-		out->A = v1;
-		out->B = v0;
-		out->M = r6.negative[0].Interp(r6.positive[0], 0.5);
+		insoleFlat_out->A = v1;
+		insoleFlat_out->B = v0;
+		insoleFlat_out->M = r6.negative[0].Interp(r6.positive[0], 0.5);
+		sideIndicator = -sideIndicator;
 	} else {
 		// The middle of L2 is close to J and the middle of L8 is close to D
-		out->J = r2.negative[0].Interp(r2.positive[0], 0.5);
+		insoleFlat_out->J = r2.negative[0].Interp(r2.positive[0], 0.5);
 		// Temporary calculation of A, B, and M
-		out->A = v0;
-		out->B = v1;
-		out->M = r4.negative[0].Interp(r4.positive[0], 0.5);
+		insoleFlat_out->A = v0;
+		insoleFlat_out->B = v1;
+		insoleFlat_out->M = r4.negative[0].Interp(r4.positive[0], 0.5);
 	}
-	// Temporary C
-	out->C = out->A.Interp(out->B, 0.62);
-	// Find P
+// Temporary C
+	insoleFlat_out->C = insoleFlat_out->A.Interp(insoleFlat_out->B, 0.62);
+
+// Find P
 	{
-		Geometry::Vertex ntemp(0, 0, 0, out->J.u + (out->M.v - out->J.v),
-				out->J.v - (out->M.u - out->J.u));
-		const Polygon3::Intersections Ip = Intersect(out->outline, out->J,
-				ntemp, 0.0);
+		Geometry::Vertex ntemp(
+				insoleFlat_out->J.x
+						- (insoleFlat_out->M.y - insoleFlat_out->J.y),
+				insoleFlat_out->J.y
+						+ (insoleFlat_out->M.x - insoleFlat_out->J.x));
+		const Polygon3::Intersections Ip = Intersect(insoleFlat_out->outline,
+				insoleFlat_out->J, ntemp, 0.0);
 
-		out->P = Ip.negative[0];
-
-		std::cout << 'x' << '\n';
-
+		insoleFlat_out->P = Ip.negative[0];
 	}
-	// Find E-F from C
+
+// Find E-F from C
 	{
-		const Polygon3::Intersections Ic = Intersect(out->outline, out->C,
-				out->C + out->M - out->J, 0.0);
-		out->E = Ic.positive[0];
-		out->F = Ic.negative[0];
+		const Polygon3::Intersections Ic = Intersect(insoleFlat_out->outline,
+				insoleFlat_out->C,
+				insoleFlat_out->C + insoleFlat_out->M - insoleFlat_out->J, 0.0);
+		if (sideIndicator < 0.0) {
+			insoleFlat_out->E = Ic.negative[0];
+			insoleFlat_out->F = Ic.positive[0];
+		} else {
+			insoleFlat_out->E = Ic.positive[0];
+			insoleFlat_out->F = Ic.negative[0];
+		}
 	}
-	// Find correct C
+
+// Find correct C
 	{
 		// Formula from page 167, Alexander Besching, "Handbuch der
 		// Schuhindustrie", 1990
 		const double mix = 1.0 / 6.0 / (1.0 / 6.0 + 1.0 / 6.0 * 1.24);
-		out->C = out->E.Interp(out->F, mix);
+		insoleFlat_out->C = insoleFlat_out->E.Interp(insoleFlat_out->F, mix);
 	}
-	// Find correct J, also K and L
+// Find correct J, also K and L
 	{
-		double r = Dist(out->P, out->M);
-		out->J = out->P.Interp(out->M, LFoot / 5.0 / r);
-		const Polygon3::Intersections Ic = Intersect(out->outline, out->J,
-				out->M, 0.0);
-		out->K = Ic.positive[0];
-		out->L = Ic.negative[0];
+		double r = Dist(insoleFlat_out->P, insoleFlat_out->M);
+		insoleFlat_out->J = insoleFlat_out->P.Interp(insoleFlat_out->M,
+				LFoot / 5.0 / r);
+		const Polygon3::Intersections Ic = Intersect(insoleFlat_out->outline,
+				insoleFlat_out->J, insoleFlat_out->M, 0.0);
+		if (sideIndicator < 0.0) {
+			insoleFlat_out->K = Ic.negative[0];
+			insoleFlat_out->L = Ic.positive[0];
+		} else {
+			insoleFlat_out->K = Ic.positive[0];
+			insoleFlat_out->L = Ic.negative[0];
+		}
 	}
-	// Find correct A and B, also D and N.
+// Find correct A and B, also D and N.
 	{
-		const Polygon3::Intersections Iab = Intersect(out->outline, out->J,
-				out->J
-						+ Insole::Point::FromUV(out->C.v - out->J.v,
-								-(out->C.u - out->J.u)), 0.0);
-		out->A = Iab.negative[0];
-		out->B = Iab.positive[0];
-		double r = Dist(out->A, out->B);
-		out->D = out->B.Interp(out->A, extraLength->ToDouble() / r);
-		double w = Dist(out->K, out->L);
-		out->N = out->A.Interp(out->B, w / 2.0 / r);
-	}
-
-	// Find G
-	{
-		const Polygon3::Intersections Ig = Intersect(out->outline, out->A,
-				out->D, 1.0);
-		out->G = Ig.positive[0];
-	}
-	//Find Z
-	{
-		double r = Dist(out->D, out->C);
-		const Polygon3::Intersections Iz = Intersect(out->outline, out->D,
-				out->C, footLength->ToDouble() / 5.0 / r);
-		out->Z = Iz.positive[0];
+		const Polygon3::Intersections Iab = Intersect(insoleFlat_out->outline,
+				insoleFlat_out->J,
+				insoleFlat_out->J
+						+ Insole::Point::FromXY(
+								-(insoleFlat_out->C.v - insoleFlat_out->J.v),
+								(insoleFlat_out->C.u - insoleFlat_out->J.u)),
+				0.0);
+		insoleFlat_out->A = Iab.negative[0];
+		insoleFlat_out->B = Iab.positive[0];
+		double r = Dist(insoleFlat_out->A, insoleFlat_out->B);
+		insoleFlat_out->D = insoleFlat_out->B.Interp(insoleFlat_out->A,
+				extraLength->ToDouble() / r);
+		double w = Dist(insoleFlat_out->K, insoleFlat_out->L);
+		insoleFlat_out->N = insoleFlat_out->A.Interp(insoleFlat_out->B,
+				w / 2.0 / r);
 	}
 
-	// Position M correctly
+// Find G
 	{
-		Geometry::Vertex n = Normal(Diff(out->M, out->P));
-		Geometry::Vertex rC = Diff(out->C, out->P);
-		Geometry::Vertex rM = Diff(out->M, out->P);
-		double extra = (rC.u * n.u + rC.v * n.v) - (rM.u * n.u + rM.v * n.v);
-		out->M += Insole::Point::FromUV(n.u * extra, n.v * extra);
+		const Polygon3::Intersections Ig = Intersect(insoleFlat_out->outline,
+				insoleFlat_out->A, insoleFlat_out->D, 1.0);
+		if (sideIndicator < 0.0)
+			insoleFlat_out->G = Ig.negative[0];
+		else
+			insoleFlat_out->G = Ig.positive[0];
+	}
+//Find Z
+	{
+		double r = Dist(insoleFlat_out->D, insoleFlat_out->C);
+		const Polygon3::Intersections Iz = Intersect(insoleFlat_out->outline,
+				insoleFlat_out->D, insoleFlat_out->C,
+				footLength->ToDouble() / 5.0 / r);
+		if (sideIndicator < 0.0)
+			insoleFlat_out->Z = Iz.negative[0];
+		else
+			insoleFlat_out->Z = Iz.positive[0];
 	}
 
-	// Find H
+// Position M correctly
 	{
-		Geometry::Vertex n = Normal(Diff(out->B, out->A));
-		Geometry::Vertex n2 = Normal(Diff(out->Z, out->F));
+		Geometry::Vertex n = Normal(Diff(insoleFlat_out->M, insoleFlat_out->P));
+		Geometry::Vertex rC = Diff(insoleFlat_out->C, insoleFlat_out->P);
+		Geometry::Vertex rM = Diff(insoleFlat_out->M, insoleFlat_out->P);
+		double extra = (rC.x * n.x + rC.y * n.y) - (rM.x * n.x + rM.y * n.y);
+		insoleFlat_out->M += Insole::Point::FromXY(n.x * extra, n.y * extra);
+	}
 
-		Geometry::Vertex rD = Diff(out->D, out->A);
-		Geometry::Vertex rF = Diff(out->F, out->A);
-		Geometry::Vertex rZ = Diff(out->Z, out->A);
-		double m0 = Dist(out->Z, out->F);
+// Find H
+	{
+		Geometry::Vertex n = Normal(Diff(insoleFlat_out->B, insoleFlat_out->A));
+		Geometry::Vertex n2 = Normal(
+				Diff(insoleFlat_out->Z, insoleFlat_out->F));
 
-		double mD = rD.u * n.u + rD.v * n.v;
-		double mF = rF.u * n.u + rF.v * n.v;
-		double mZ = rZ.u * n.u + rZ.v * n.v;
+		Geometry::Vertex rD = Diff(insoleFlat_out->D, insoleFlat_out->A);
+		Geometry::Vertex rF = Diff(insoleFlat_out->F, insoleFlat_out->A);
+		Geometry::Vertex rZ = Diff(insoleFlat_out->Z, insoleFlat_out->A);
+		double m0 = Dist(insoleFlat_out->Z, insoleFlat_out->F);
+
+		double mD = rD.x * n.x + rD.y * n.y;
+		double mF = rF.x * n.x + rF.y * n.y;
+		double mZ = rZ.x * n.x + rZ.y * n.y;
 
 		double m = m0 / (mZ - mF) * (mD - mF);
 
-		out->H = out->F + Insole::Point::FromUV(n2.u * m, n2.v * m);
-
+		insoleFlat_out->H = insoleFlat_out->F
+				+ Insole::Point::FromXY(n2.x * m, n2.y * m);
 	}
 
-	out->MarkValid(true);
-	out->MarkNeeded(false);
-	return;
+	// Calculate the U coordinate of the outline used for the last coordinate
+	// system. (V is always 0.0.)
 
-	const Vector3 side = { 0, 1, 0 };
+	insoleFlat_out->outline.SortLoop();
 
-	// Extract the outline of the sole
-//	Polygon3 outline;
-////	outline.ExtractOutline(*in);
-//	out->inside.Clear();
-//	out->outside.Clear();
-//	const Vector3 center = out->GetCenter();
-//	for (size_t n = 0; n < out->CountEdges(); ++n) {
-//		const auto &e = out->GetEdge(n);
-//		if (e.trianglecount >= 2)
-//			continue;
-//		const auto &v0 = out->GetEdgeVertex(n, 0);
-//		const auto &v1 = out->GetEdgeVertex(n, 1);
-//		Vector3 rot = (v0 - center) * (v1 - v0);
-//		if (rot.z > 0.0)
-//			outline.AddEdge(v0, v1);
-//		else
-//			outline.AddEdge(v1, v0);
-//
-//		double d0 = v0.Dot(side);
-//		double d1 = v1.Dot(side);
-//
-//		if (d0 >= 0.0 && d1 >= 0.0) {
-//			if (rot.z > 0.0)
-//				out->outside.AddEdge(v0, v1);
-//			else
-//				out->outside.AddEdge(v1, v0);
-//		}
-//		if (d0 <= 0.0 && d1 <= 0.0) {
-//			if (rot.z > 0.0)
-//				out->inside.AddEdge(v1, v0);
-//			else
-//				out->inside.AddEdge(v0, v1);
-//		}
-//	}
-//	outline.Join();
-//	outline.SortLoop();
-//
-//	out->inside.Join();
-//	out->inside.SortLoop();
-//	out->outside.Join();
-//	out->outside.SortLoop();
+	MapLinear(insoleFlat_out->outline, insoleFlat_out->B, insoleFlat_out->A, 0,
+	M_PI);
+	MapLinear(insoleFlat_out->outline, insoleFlat_out->A, insoleFlat_out->B,
+			-M_PI, 0);
 
-// Find the center line A-B
+	// MapLinear sets the U values. V is set to 0.0.
+	for (size_t idx = 0; idx < insoleFlat_out->outline.CountVertices(); idx++) {
+		Geometry::Vertex &v = insoleFlat_out->outline.GetVertex(idx);
+		v.v = 0.0;
+	}
 
-	auto intersect = out->outline.Intersect(side, 0);
-	if (!intersect.negative.empty())
-		out->A = intersect.negative[0];
-	if (!intersect.positive.empty())
-		out->B = intersect.positive[0];
+	MapPointToOutline(insoleFlat_out->A, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->B, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->C, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->D, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->E, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->F, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->G, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->H, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->J, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->K, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->L, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->M, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->N, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->P, insoleFlat_out->outline);
+	MapPointToOutline(insoleFlat_out->Z, insoleFlat_out->outline);
 
-	out->C = out->A.Interp(out->B, 0.62);
-	Vector3 n = (out->B - out->A).Normal();
-	Vector3 rot = n * side;
-	n = AffineTransformMatrix::RotationAroundVector(rot,
-			ballMeasurementAngle->ToDouble()).Transform(n);
-//	n.Set(1, 0, 0);
+	// Copy the UV coordinates over to the unflattened insole. The ordering of
+	// the vertices in the geometry should have stayed the same during the
+	// flattening and the analysis.
+	if (insoleFlat_out->CountVertices() != insole_out->CountVertices()) {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
+				<< __FUNCTION__ << " - ";
+		err
+				<< "The insole and the flattened insole have different counts of vertices. These counts should be exactly the same.";
+		error = err.str();
+		throw std::runtime_error(err.str());
+	}
+	for (size_t idx = 0; idx < insole_out->CountVertices(); idx++) {
+		auto &src = insoleFlat_out->GetVertex(idx);
+		auto &dst = insole_out->GetVertex(idx);
+		dst.u = src.u;
+		dst.v = src.v;
+	}
+	insole_out->FlagUV(true, false);
+	insole_out->CalculateUVCoordinateSystems();
 
-	auto int2 = out->outline.Intersect(n, out->C.Dot(n));
+	// Map XYZ coordinates of the construction points on the outline from
+	// flattened to normal insole. This is done using the UV coordinates and
+	// the coordinate system in the triangles.
 
-	if (!int2.positive.empty())
-		out->E = int2.positive[0];
-	if (!int2.negative.empty())
-		out->F = int2.negative[0];
+	// Calculate the normal vectors in UV on each side of the triangle pointing
+	// outwards.
+	std::vector<Vector3> triNormal(insole_out->CountTriangles() * 3);
+	for (size_t idx = 0; idx < insole_out->CountTriangles(); idx++) {
+		for (uint8_t eidx = 0; eidx < 3; eidx++) {
+			const Geometry::Vertex &v0 = insole_out->GetTriangleVertex(idx,
+					eidx);
+			const Geometry::Vertex &v1 = insole_out->GetTriangleVertex(idx,
+					(eidx + 1) % 3);
+			Geometry::Vertex temp = Normal(Diff(v1, v0));
+			triNormal[idx * 3 + eidx].Set(temp.v, -temp.u); // Rotate -90 deg.
+		}
+	}
 
-	const double fl = footLength->ToDouble();
-	const double ll = fl + extraLength->ToDouble();
-//
-//	out->C = (out->E + out->F) / 2.0;
-//	out->J = out->A.Interp(out->C, fl / ll / 0.62 / 6);
-//
-//	n = (out->J - out->A).Normal();
-//	rot = n * side;
-//	n = AffineTransformMatrix::RotationAroundVector(rot,
-//			heelDirectionAngle->ToDouble()).Transform(n);
-//	n.Set(1, 0, 0);
+	insole_out->A = MapUVtoXYZ(insoleFlat_out->A, *insole_out, triNormal);
+	insole_out->B = MapUVtoXYZ(insoleFlat_out->B, *insole_out, triNormal);
+	insole_out->C = MapUVtoXYZ(insoleFlat_out->C, *insole_out, triNormal);
+	insole_out->D = MapUVtoXYZ(insoleFlat_out->D, *insole_out, triNormal);
+	insole_out->E = MapUVtoXYZ(insoleFlat_out->E, *insole_out, triNormal);
+	insole_out->F = MapUVtoXYZ(insoleFlat_out->F, *insole_out, triNormal);
+	insole_out->G = MapUVtoXYZ(insoleFlat_out->G, *insole_out, triNormal);
+	insole_out->H = MapUVtoXYZ(insoleFlat_out->H, *insole_out, triNormal);
+	insole_out->J = MapUVtoXYZ(insoleFlat_out->J, *insole_out, triNormal);
+	insole_out->K = MapUVtoXYZ(insoleFlat_out->K, *insole_out, triNormal);
+	insole_out->L = MapUVtoXYZ(insoleFlat_out->L, *insole_out, triNormal);
+	insole_out->M = MapUVtoXYZ(insoleFlat_out->M, *insole_out, triNormal);
+	insole_out->N = MapUVtoXYZ(insoleFlat_out->N, *insole_out, triNormal);
+	insole_out->P = MapUVtoXYZ(insoleFlat_out->P, *insole_out, triNormal);
+	insole_out->Z = MapUVtoXYZ(insoleFlat_out->Z, *insole_out, triNormal);
 
-//	auto int3 = out->outline.Intersect(n, out->J.Dot(n));
-//
-//	if (!int3.positive.empty())
-//		out->K = int3.positive[0];
-//	if (!int3.negative.empty())
-//		out->L = int3.negative[0];
-//
-//	out->J = (out->K + out->L) / 2.0;
-//
-//	n = AffineTransformMatrix::RotationAroundVector(rot, -M_PI_2).Transform(n);
-//	auto int4 = out->outline.Intersect(n, out->J.Dot(n));
-//	if (!int4.positive.empty())
-//		out->P = int4.positive[0];
+	insole_out->outline.Clear();
+	for (size_t idx = 0; idx < insoleFlat_out->CountVertices(); idx++) {
+		Geometry::Vertex v = MapUVtoXYZ(insoleFlat_out->outline.GetVertex(idx),
+				*insole_out, triNormal);
+		insole_out->outline.AddEdgeToVertex(v);
+	}
+	insole_out->outline.CloseLoopNextGroup();
 
-// Calculate foot/last relation
-
-//	out->D = out->C.Interp(out->B, fl / ll);
-//
-//	n = (out->D - out->C).Normal();
-//	auto int5 = out->outline.Intersect(n, out->D.Dot(n));
-//
-//	if (!int5.positive.empty())
-//		out->G = int5.positive[0];
-//	if (!int5.negative.empty())
-//		out->H = int5.negative[0];
-//
-//	double fsl = (out->B - out->C).Abs() / 0.38 * fl / ll;
-//	Vector3 hz = out->D.Interp(out->C, (fsl / 5) / (out->B - out->C).Abs());
-//	auto int6 = out->outline.Intersect(n, hz.Dot(n));
-//	if (!int6.positive.empty())
-//		out->Z = int6.negative[0];
-//
-//	out->H.y = out->F.y
-//			+ (out->Z.y - out->F.y) / (out->Z.x - out->F.x)
-//					* (out->H.x - out->F.x);
-
-	out->MarkValid(true);
-	out->MarkNeeded(false);
-
+	insole_out->MarkValid(true);
+	insoleFlat_out->MarkValid(true);
+	insole_out->MarkNeeded(false);
+	insoleFlat_out->MarkNeeded(false);
 }
 
 Geometry::Vertex InsoleAnalyze::Diff(Geometry::Vertex a,
@@ -454,13 +502,13 @@ Geometry::Vertex InsoleAnalyze::Diff(Geometry::Vertex a,
 
 double InsoleAnalyze::Dist(const Geometry::Vertex &a,
 		const Geometry::Vertex &b) const {
-	const double du = b.u - a.u;
-	const double dv = b.v - a.v;
-	return sqrt(du * du + dv * dv);
+	const double dx = b.x - a.x;
+	const double dy = b.y - a.y;
+	return sqrt(dx * dx + dy * dy);
 }
 
 Geometry::Vertex InsoleAnalyze::Normal(Geometry::Vertex a) const {
-	const double d = sqrt(a.u * a.u + a.v * a.v);
+	const double d = sqrt(a.x * a.x + a.y * a.y);
 	if (d < FLT_EPSILON)
 		return a;
 	a.x /= d;
@@ -476,21 +524,21 @@ Polygon3::Intersections InsoleAnalyze::Intersect(const Geometry &geo,
 		double relDistance) const {
 	Geometry::Vertex dir = Diff(b, a);
 	{
-		const double L = sqrt(dir.u * dir.u + dir.v * dir.v);
+		const double L = sqrt(dir.x * dir.x + dir.y * dir.y);
 		if (L > FLT_EPSILON) {
 			const double F = 1.0 / (L * L);
-			dir.u *= F;
-			dir.v *= F;
+			dir.x *= F;
+			dir.y *= F;
 		}
 	}
 	Polygon3::Intersections ret;
 	for (size_t idx = 0; idx < geo.CountEdges(); ++idx) {
 		const Geometry::Vertex &vert0 = geo.GetEdgeVertex(idx, 0);
 		const Geometry::Vertex &vert1 = geo.GetEdgeVertex(idx, 1);
-		Vector3 v0(vert0.u - a.u, vert0.v - a.v);
-		Vector3 v1(vert1.u - a.u, vert1.v - a.v);
-		const double h0 = v0.x * dir.u + v0.y * dir.v;
-		const double h1 = v1.x * dir.u + v1.y * dir.v;
+		Vector3 v0(vert0.x - a.x, vert0.y - a.y);
+		Vector3 v1(vert1.x - a.x, vert1.y - a.y);
+		const double h0 = v0.x * dir.x + v0.y * dir.y;
+		const double h1 = v1.x * dir.x + v1.y * dir.y;
 		if (h0 <= relDistance && h1 > relDistance)
 			ret.positive.push_back(
 					vert0.Interp(vert1, (relDistance - h0) / (h1 - h0)));
@@ -501,5 +549,198 @@ Polygon3::Intersections InsoleAnalyze::Intersect(const Geometry &geo,
 	return ret;
 }
 
-void InsoleAnalyze::UpdateXYZfromUV(const Geometry &geo, Geometry::Vertex &V) {
+Insole::Point InsoleAnalyze::MapUVtoXYZ(Insole::Point p, const Geometry &dst,
+		const std::vector<Vector3> &triNormal) const {
+
+	// Find closest triangle to point p.
+
+	size_t idx = 0;
+	double dmin = DBL_MAX;
+	for (size_t tidx = 0; tidx < dst.CountTriangles(); tidx++) {
+		// Calculate the largest distance of the three sides of a triangle.
+		double d = -DBL_MAX;
+		for (uint_fast8_t eidx = 0; eidx < 3; eidx++) {
+			const Geometry::Vertex &v = dst.GetTriangleVertex(tidx, eidx);
+			const Vector3 &n = triNormal[tidx * 3 + eidx];
+			const double dl = n.x * (p.u - v.u) + n.y * (p.v - v.v);
+			if (dl > d)
+				d = dl;
+		}
+		if (d < dmin) {
+			dmin = d;
+			idx = tidx;
+		}
+	}
+
+	// The UV coordinate systems (tangent, bitrange, normal) in each triangle
+	// map the UV coordinates to XYZ coordinates.
+	// Calculate the inverse coordinate systems for all triangles in the
+	// unflattened insole.
+
+	const Geometry::Triangle &t = dst.GetTriangle(idx);
+	AffineTransformMatrix m;
+	m.SetEx(t.t);
+	m.SetEy(t.b);
+	m.SetEz(t.n);
+	// Calculate the origin
+	const Geometry::Vertex &v = dst.GetVertex(t.va);
+	Vector3 temp = m.Transform(t.tua, t.tva);
+	m.SetOrigin( { v.x - temp.x, v.y - temp.y, v.z - temp.z });
+	Vector3 pos = m.Transform(p.u, p.v);
+	p.x = pos.x;
+	p.y = pos.y;
+	p.z = pos.z;
+	return p;
+}
+
+void InsoleAnalyze::MapLinear(Polygon3 &geo, const Insole::Point &p0,
+		const Insole::Point &p1, double u0, double u1) const {
+	size_t idx0 = 0;
+	size_t idx1 = 0;
+	double dMin0 = DBL_MAX;
+	double dMin1 = DBL_MAX;
+	double r0 = 0.0;
+	double r1 = 0.0;
+
+	for (size_t idx = 0; idx < geo.CountEdges(); idx++) {
+		const Geometry::Vertex &v0 = geo.GetEdgeVertex(idx, 0);
+		const Geometry::Vertex &v1 = geo.GetEdgeVertex(idx, 1);
+		Geometry::Vertex dir = Diff(v1, v0);
+		const double L = dir.Abs();
+		Vector3 n = Vector3(dir.y, -dir.x, dir.z) / L; // Rotate -90 deg.
+		Geometry::Vertex temp0 = Diff(p0, v0);
+		Geometry::Vertex temp1 = Diff(p1, v0);
+		const double cr0 = (temp0.x * dir.x + temp0.y * dir.y) / L;
+		const double cr1 = (temp1.x * dir.x + temp1.y * dir.y) / L;
+		const double cn0 = (temp0.x * n.x + temp0.y * n.y) / L;
+		const double cn1 = (temp1.x * n.x + temp1.y * n.y) / L;
+
+		// The distance is measured in a rectangle from the edge. A capsule
+		// would be more precise, but all relevant points sit on the outline
+		// anyway, so it does not matter. This is mainly introduced to catch
+		// edge-cases that might arise from resampling the outline.
+
+		double d0 = fabs(cn0);
+		if ((cr0 - L) > 0.0 && (cr0 - L) > d0)
+			d0 = cr0 - L;
+		if (cr0 < 0.0 && -cr0 > d0)
+			d0 = -cr0;
+
+		double d1 = fabs(cn1);
+		if ((cr1 - L) > 0.0 && (cr1 - L) > d1)
+			d1 = cr1 - L;
+		if (cr1 < 0.0 && -cr1 > d1)
+			d1 = -cr1;
+
+		if (d0 < dMin0) {
+			dMin0 = d0;
+			r0 = cr0 / L;
+			idx0 = idx;
+		}
+		if (d1 < dMin1) {
+			dMin1 = d1;
+			r1 = cr1 / L;
+			idx1 = idx;
+		}
+	}
+
+	// Calculate the loop length between p0 and p1.
+	double L = 0;
+	{
+		const Geometry::Vertex &v0 = geo.GetEdgeVertex(idx0, 0);
+		const Geometry::Vertex &v1 = geo.GetEdgeVertex(idx0, 1);
+		L += Dist(v1, v0) * (1.0 - r0);
+	}
+	size_t idx = idx0;
+	while (idx != idx1) {
+		const Geometry::Vertex &v0 = geo.GetEdgeVertex(idx, 0);
+		const Geometry::Vertex &v1 = geo.GetEdgeVertex(idx, 1);
+		L += Dist(v1, v0);
+		idx = (idx + 1) % geo.CountVertices();
+	}
+	{
+		const Geometry::Vertex &v0 = geo.GetEdgeVertex(idx0, 0);
+		const Geometry::Vertex &v1 = geo.GetEdgeVertex(idx0, 1);
+		L += Dist(v1, v0) * r1;
+	}
+
+	const Polynomial mapLU = Polynomial::ByValue(0.0, u0, L, u1);
+
+	// Interpolate the measured distance.
+	L = 0;
+	{
+		const Geometry::Edge &e = geo.GetEdge(idx0);
+		const size_t vidx0 = e.GetVertexIndex(0);
+		const size_t vidx1 = e.GetVertexIndex(1);
+		Geometry::Vertex &v0 = geo.GetVertex(vidx0);
+		Geometry::Vertex &v1 = geo.GetVertex(vidx1);
+		if (r0 < FLT_EPSILON)
+			v0.u = mapLU(L);
+		L += Dist(v1, v0) * (1.0 - r0);
+		v1.u = mapLU(L);
+	}
+	idx = idx0;
+	while (idx != idx1) {
+		const Geometry::Edge &e = geo.GetEdge(idx);
+		const size_t vidx0 = e.GetVertexIndex(0);
+		const size_t vidx1 = e.GetVertexIndex(1);
+		Geometry::Vertex &v0 = geo.GetVertex(vidx0);
+		Geometry::Vertex &v1 = geo.GetVertex(vidx1);
+		L += Dist(v1, v0);
+		v1.u = mapLU(L);
+		idx = (idx + 1) % geo.CountVertices();
+	}
+	{
+		const Geometry::Edge &e = geo.GetEdge(idx1);
+		const size_t vidx0 = e.GetVertexIndex(0);
+		const size_t vidx1 = e.GetVertexIndex(1);
+		Geometry::Vertex &v0 = geo.GetVertex(vidx0);
+		Geometry::Vertex &v1 = geo.GetVertex(vidx1);
+		if (r1 >= 1.0 - FLT_EPSILON) {
+			L += Dist(v1, v0) * r1;
+			v1.u = mapLU(L);
+		}
+	}
+//	DEBUGOUT << "Length of outline between p0 and p1: " << L * 100.0 << " cm\n";
+}
+
+void InsoleAnalyze::MapPointToOutline(Insole::Point &p,
+		Polygon3 &outline) const {
+
+	size_t idx0 = 0;
+	double dMin0 = DBL_MAX;
+	double r0 = 0.0;
+
+	for (size_t idx = 0; idx < outline.CountEdges(); idx++) {
+		const Geometry::Vertex &v0 = outline.GetEdgeVertex(idx, 0);
+		const Geometry::Vertex &v1 = outline.GetEdgeVertex(idx, 1);
+		Geometry::Vertex dir = Diff(v1, v0);
+		const double L = dir.Abs();
+		Vector3 n = Vector3(dir.y, -dir.x, dir.z) / L; // Rotate -90 deg.
+		Geometry::Vertex temp0 = Diff(p, v0);
+		const double cr0 = (temp0.x * dir.x + temp0.y * dir.y) / L;
+		const double cn0 = (temp0.x * n.x + temp0.y * n.y) / L;
+
+		// The distance is measured in a rectangle from the edge. A capsule
+		// would be more precise, but all relevant points sit on the outline
+		// anyway, so it does not matter. This is mainly introduced to catch
+		// edge-cases that might arise from resampling the outline.
+
+		double d0 = fabs(cn0);
+		if ((cr0 - L) > 0.0 && (cr0 - L) > d0)
+			d0 = cr0 - L;
+		if (cr0 < 0.0 && -cr0 > d0)
+			d0 = -cr0;
+
+		if (d0 < dMin0) {
+			dMin0 = d0;
+			r0 = cr0 / L;
+			idx0 = idx;
+		}
+	}
+	const Geometry::Vertex &v0 = outline.GetEdgeVertex(idx0, 0);
+	const Geometry::Vertex &v1 = outline.GetEdgeVertex(idx0, 1);
+	Geometry::Vertex temp = v0.Interp(v1, r0);
+	p.u = temp.u;
+	p.v = temp.v;
 }

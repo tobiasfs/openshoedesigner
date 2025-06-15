@@ -32,8 +32,11 @@
  * http://www.cs.uky.edu/~cheng/PUBL/Paper_Nagata.pdf
  *
  * It is a quadratic patch. It is always continuous in position but almost
- * never continuous in the face normals. Except for very well behaved surfaces as
- * on simple geometry or with a very small patch size.
+ * never continuous in the face normals except for very well behaved surfaces
+ * with a simple geometry or with a very small patch size.
+ *
+ * Note that the coefficient c22 is not available. The whole patch has only 8
+ * (=3*3-1) coefiicients.
  */
 
 #include "Vector3.h"

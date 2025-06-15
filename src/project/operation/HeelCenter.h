@@ -27,11 +27,12 @@
 #define SRC_PROJECT_OPERATION_HEELCENTER_H_
 
 /** \class HeelCenter
- * 	\code #include "HeelCenter.h"\endcode
+ *  \brief Recenter the heel and the insole
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "HeelCenter.h"\endcode
  *
- * Text
+ * Reorient the heel and the insole so that the ankle is at X=0, Y=0.
+ *
  */
 
 #include "../../math/Matrix.h"
@@ -39,6 +40,8 @@
 #include "Operation.h"
 
 #include "../object/Insole.h"
+#include "../ParameterFormula.h"
+
 #include <memory>
 #include <string>
 
@@ -54,6 +57,8 @@ public:
 	virtual void Run() override;
 
 public:
+	std::shared_ptr<ParameterFormula> overAnkleBoneLevel;
+
 	std::shared_ptr<ObjectGeometry> heel_in;
 	std::shared_ptr<ObjectGeometry> heel_out;
 	std::shared_ptr<Insole> insole_in;

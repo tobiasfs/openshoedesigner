@@ -28,14 +28,27 @@
 #define PROJECT_INSOLE_H
 
 /*!\class Insole
- * \brief Construct, deform and export the insole of a shoe
+ * \brief Insole of a shoe
  * \ingroup ObjectOperations
  *
- * The heel is normally oriented in the N-M axis.
+ * \image html Insole.svg
+ *
+ * The insole is defined in X,Y,Z. The outline of the insole also in X,Y,Z but
+ * additionally with an U that is 0 in point B (tip of shoe) and ranges
+ * to +/- M_PI around the perimeter to point A (heel). Positive values on the
+ * outside, negative values on the inside. (Therefore is the left shoe the
+ * default shoe as X is pointing to the front, Y to the outside and Z up.)
+ * V (height above insole) is zero on the outline.
  *
  * The coordinate system of the upper in the heel section can be oriented in
  * the N-M axis (e.g. Lloyd shoes, Apollo shoes) or in the A-C axis (e.g. Ecco
  * shoes).
+ *
+ * The insole is normally oriented in the A-B axis.
+ *
+ * This orientation is switchable. It results in shifted U values on the
+ * outline and thus shifted U values on the last and an shifted symmetry.
+ * This is a design choice.
  */
 
 #include <functional>
@@ -57,13 +70,13 @@ protected:
 	public:
 		Point() = default;
 		Point(const Geometry::Vertex &other);
-		static Point FromUV(double u, double v) {
-			return Point(Geometry::Vertex(u, v, 0.0, u, v));
+		static Point FromXY(double x_, double y_) {
+			Point temp(Geometry::Vertex(x_, y_, 0.0, x_, y_));
+			temp.n.Set(0.0, 0.0, 1.0);
+			return temp;
 		}
-
-//		double rx = 0.0;
-		Vector3 dir;
-		void SetNormal(const Point &p0, const Point &p1);
+		Vector3 dir; ///< Direction of the incoming and outgoing vector.
+		void SetDirection(const Point &p0, const Point &p1);
 		void Transform(std::function<Vector3(Vector3)> func);
 
 		Point& operator+=(const Point &rhs);
@@ -89,31 +102,46 @@ protected:
 	};
 
 public:
+	/**\brief Transform X,Y,Z values of insole.
+	 *
+	 * This transforms the X,Y,Z values of the insole while keeping U and V.
+	 *
+	 * The transformations applies to the geometry, the outline and the
+	 * construction points.
+	 *
+	 * This function uses a transform function. This can be an
+	 * AffineTransformMatrix or another function providing the bending of
+	 * the insole.
+	 */
 	void Transform(std::function<Vector3(Vector3)> func);
+
+	/**\brief 3D Painting of insole.
+	 *
+	 * 2D Painting is happening inside CanvasInsole.
+	 */
 	void Paint() const;
 
-public:
+private:
+	void ToOpenGL(const Point &p, const std::string &label) const;
 
+public:
+	Polygon3 outline;
 	std::vector<Line> lines;
 
-	Polygon3 outline;
-//	Polygon3 inside;
-//	Polygon3 outside;
-
 	Insole::Point A; ///< Heel
-	Insole::Point B; ///< Shoe tip
-	Insole::Point C; ///< Insole center (middle of ball area)
-	Insole::Point D; ///< Center of toes
+	Insole::Point B; ///< Tip of last
+	Insole::Point C; ///< Middle of ball area
+	Insole::Point D; ///< Tip of foot
 	Insole::Point E; ///< Big toe ball
 	Insole::Point F; ///< Little toe ball
 	Insole::Point G; ///< Big toe tip
-	Insole::Point H; ///< Little toe direction
+	Insole::Point H; ///< Little toe direction (construction point)
 	Insole::Point J; ///< Center point (below os tibia)
 	Insole::Point K; ///< Heel half circle inside
 	Insole::Point L; ///< Heel half circle outside
-	Insole::Point M; ///< Middle of heel half-circle
-	Insole::Point N; ///< Middle of heel half-circle
-	Insole::Point P; ///< Middle of heel
+	Insole::Point M; ///< End of the middle line in the back of the foot
+	Insole::Point N; ///< Start of the middle line in the back of the foot
+	Insole::Point P; ///< Construction point for the heel
 	Insole::Point Z; ///< Little toe tip
 };
 

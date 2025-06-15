@@ -41,7 +41,7 @@
  *  - FBX
  *  - FLT
  *  - GLTF - very small files <- this is next to implement
- *  - GTS - implemented, but not used anywhere
+ *  - GTS - implemented, but there are almost no apps using this format
  *  - OBJ - implemented
  *  - PLY - implemented
  *  - STL - implemented

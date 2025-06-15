@@ -104,8 +104,6 @@ void HeelExtractInsole::Run() {
 	}
 	out->UpdateNormals(true, true, false);
 	out->outline.Clear();
-	out->outline.ExtractOutline(*out);
-	const double L = out->outline.MapU(false);
 
 #ifdef DEBUG
 	{

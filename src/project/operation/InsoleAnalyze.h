@@ -27,14 +27,18 @@
 #define SRC_PROJECT_OPERATION_INSOLEANALYZE_H_
 
 /**\class InsoleAnalyze
- * \code #include "InsoleAnalyze.h"\endcode
- * \ingroup ObjectOperations
  * \brief Analyze the outline an determine the construction-points
+ * \ingroup ObjectOperations
+ * \code #include "InsoleAnalyze.h"\endcode
  *
  * Determine the construction points A-Z from a given insole.
  *
- * All insole points, except M and H have the correct x, y, and z coordinates.
- * (For interpolation reasons these are zero for M and H.)
+ * All operations are done on the flattened insole, but are copied to the
+ * unflattened one: The construction points A-Z and the UV coordinates for the
+ * outline and the insole geometry.
+ *
+ * The geometry of the insole is not modified to keep the insole in sync with
+ * the heel geometry. The insoleFlat is centered and reoriented on J.
  */
 
 #include "Operation.h"
@@ -64,7 +68,16 @@ private:
 	Polygon3::Intersections Intersect(const Geometry &geo,
 			const Geometry::Vertex &a, const Geometry::Vertex &b,
 			double relDistance) const;
-	void UpdateXYZfromUV(const Geometry &geo, Geometry::Vertex &V);
+
+	Insole::Point MapUVtoXYZ(Insole::Point p, const Geometry &dst,
+			const std::vector<Vector3> &triNormal) const;
+
+	void MapLinear(Polygon3 &geo, const Insole::Point &p0,
+			const Insole::Point &p1, double u0, double u1) const;
+
+	void MapPointToOutline(Insole::Point &p, Polygon3 &outline) const;
+
+
 
 	/**\}
 	 */
@@ -76,8 +89,10 @@ public:
 	std::shared_ptr<ParameterFormula> bigToeAngle;
 	std::shared_ptr<ParameterFormula> extraLength;
 
-	std::shared_ptr<Insole> in;
-	std::shared_ptr<Insole> out;
+	std::shared_ptr<Insole> insole_in;
+	std::shared_ptr<Insole> insoleFlat_in;
+	std::shared_ptr<Insole> insole_out;
+	std::shared_ptr<Insole> insoleFlat_out;
 };
 
 #endif /* SRC_PROJECT_OPERATION_INSOLEANALYZE_H_ */

@@ -29,6 +29,7 @@
 
 /*!\class FrameMain
  * \brief Main Window
+ * \ingroup gui
  *
  * Main window of the application. Has the main 3D display and work area.
  * All other windows and dialogs are children of this frame.

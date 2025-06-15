@@ -46,8 +46,8 @@ void OpenGLText::Paint(const std::string &text) const {
 		return;
 	Update();
 
-	glBindTexture(GL_TEXTURE_2D, textureID);
 	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 	glNormal3f(0, 0, 1);
 	glBegin(GL_QUADS);
 

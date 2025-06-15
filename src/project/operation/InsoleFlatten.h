@@ -26,12 +26,16 @@
 #ifndef SRC_PROJECT_OPERATION_INSOLEFLATTEN_H_
 #define SRC_PROJECT_OPERATION_INSOLEFLATTEN_H_
 
-/** \class InsoleFlatten
- * 	\code #include "InsoleFlatten.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Flatten an insole extracted from geometry.
+/**\class InsoleFlatten
+ * \brief Flatten an insole extracted from geometry.
+ * \ingroup ObjectOperations
+ * \code #include "InsoleFlatten.h"\endcode
  *
- * Text
+ * For analysing the insole, when the insole was loaded from a file (heel or
+ * last was loaded), the insole is flattened for analysis.
+ *
+ * The UV coordinates in the output geometry and also the outline are the same
+ * as the XY coordinates.
  */
 
 #include "Operation.h"
@@ -63,7 +67,6 @@ public:
 	std::shared_ptr<ParameterValue> debugMIDI_53;
 	std::shared_ptr<ParameterValue> debugMIDI_54;
 	std::shared_ptr<ParameterValue> debugMIDI_55;
-
 };
 
 #endif /* SRC_PROJECT_OPERATION_INSOLEFLATTEN_H_ */

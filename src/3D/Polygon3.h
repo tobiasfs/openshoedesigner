@@ -155,7 +155,7 @@ public:
 //	Polygon3& operator/=(const double val);
 //	const Polygon3 operator/(const double val);
 
-	size_t Size() const; //<Get the number of vertices
+	size_t Size() const; //< Get the number of vertices
 	Vertex& operator[](size_t index); //< Manipulate a vertex
 	const Vertex& operator[](size_t index) const; //< Const inspect a vertex
 
@@ -207,7 +207,7 @@ public:
 	 * \param fixFirstVertexToZero (default true, because principle of least surprise)
 	 * \return Total length of polygon (also found in the U of the first vertex).
 	 */
-	double MapU(bool fixFirstVertexToZero = false);
+	double MapU(bool fixFirstVertexToZero = true);
 
 	void Shift(double distance); ///< Move the polygon along the normals.
 

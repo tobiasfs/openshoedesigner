@@ -27,11 +27,12 @@
 #ifndef PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H
 #define PROJECT_COMMAND_COMMANDPROJECTSETPARAMETER_H
 
-/*!\class CommandProjectSetParameter
+/*!\class CommandConfigSetEnum
+ * \brief Command to set an enum parameter
  * \ingroup command
- * \brief Command to set a parameter for the project itself
  *
- * ...
+ * Enum parameter are mostly used to change the order of operations to
+ * generate a shoe.
  */
 
 #include <wx/cmdproc.h>

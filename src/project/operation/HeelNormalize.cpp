@@ -94,7 +94,7 @@ void HeelNormalize::Run() {
 
 	if (heelReorient->GetSelectionIdx() == 1) {
 		AffineTransformMatrix mo;
-		mo.ScaleGlobal(-1, -1, 1); //TODO Automate flipping and rotation
+		mo.ScaleGlobal(-1, -1, 1);
 		out->Transform(mo);
 	}
 
@@ -105,7 +105,6 @@ void HeelNormalize::Run() {
 		AffineTransformMatrix m;
 		m.TranslateGlobal(-out->BB.xmin, -(out->BB.ymin + out->BB.ymax) / 2.0,
 				-out->BB.zmin);
-//		m.TranslateGlobal(-out->BB.GetSizeX() / 5, 0, 0);
 		out->Transform(m);
 	}
 

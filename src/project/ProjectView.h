@@ -63,25 +63,25 @@ public:
 	std::vector<BackgroundImage> background;
 
 	Display display = Display::Shoe;
-	Side active;
+	Side active = Side::Both;
 
-	bool showLeft;
-	bool showRight;
+	bool showLeft = true;
+	bool showRight = false;
 
-	bool showFootScan;
-	bool showBones;
-	bool showSkin;
-	bool showLeg;
+	bool showFootScan = false;
+	bool showBones = false;
+	bool showSkin = false;
+	bool showLeg = false;
 
-	bool showLastScan;
-	bool showLast;
-	bool showInsole;
-	bool showHeel;
-	bool showUpper;
-	bool showCutaway;
-	bool showFloor;
-	bool showCoordinateSystem;
-	bool showBackground;
+	bool showLastScan = false;
+	bool showLast = false;
+	bool showInsole = true;
+	bool showHeel = false;
+	bool showUpper = false;
+	bool showCutaway = false;
+	bool showFloor = false;
+	bool showCoordinateSystem = true;
+	bool showBackground = false;
 
 	const FootMeasurements* GetActiveFootMeasurements(void) const;
 

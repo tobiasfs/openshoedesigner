@@ -29,9 +29,10 @@
 /** \class CoordinateSystemConstruct
  * 	\code #include "CoordinateSystemConstruct.h"\endcode
  * 	\ingroup ObjectOperations
- *  \brief Description
+ *  \brief Construct a coordinate-system based on an Insole
  *
- * Text
+ * This last is used as the starting point for the upper pattern and the
+ * heel/sole generation.
  */
 
 #include "Operation.h"

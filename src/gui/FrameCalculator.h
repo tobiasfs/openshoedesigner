@@ -26,12 +26,18 @@
 #ifndef SRC_GUI_FRAMECALCULATOR_H_
 #define SRC_GUI_FRAMECALCULATOR_H_
 
-/** \class FrameCalculator
- * 	\code #include "FrameCalculator.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
+/**\class FrameCalculator
+ * \brief Testing the Mathparser and the geometry construction algorithm
+ * \ingroup gui
+ * \code #include "FrameCalculator.h"\endcode
  *
- * Text
+ * Dialog implementing a code editor connected to the MathParser. The entered
+ * code is parsed into instructions for the MathPrarser::VM. The virtual
+ * machine is run and the results plotted as a simple graph over X, a
+ * heightfield over XY, or as an 3D volume over XYZ. For the volume display
+ * the values returned by the code entered is displayed as a signed-distance-
+ * field.
+ *
  */
 
 #include "gui.h"

@@ -40,26 +40,6 @@ IMPLEMENT_DYNAMIC_CLASS(ProjectView, wxView)
 
 ProjectView::ProjectView() :
 		wxView() {
-	active = Side::Both;
-
-	showLeft = true;
-	showRight = false;
-
-	showFootScan = false;
-	showBones = false;
-	showSkin = false;
-	showLeg = false;
-
-	showLastScan = false;
-	showLast = false;
-	showInsole = true;
-	showHeel = true;
-	showUpper = false;
-	showCutaway = false;
-	showFloor = false;
-	showCoordinateSystem = true;
-	showBackground = false;
-
 }
 
 ProjectView::~ProjectView() {

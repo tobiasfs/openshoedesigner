@@ -235,34 +235,6 @@ const Polygon3 Polygon3::operator+(const Polygon3 &a) const {
 	return temp;
 }
 
-//FIXME: I am sure, the next four function should not exist. There might even
-// be functions using these, that do not perform as intended.
-// Use Shift() instead.
-//
-//Polygon3& Polygon3::operator *=(const double val) {
-//	for (auto &vect : v)
-//		vect *= val;
-//	return *this;
-//}
-//
-//const Polygon3 Polygon3::operator *(const double val) {
-//	Polygon3 temp = *this;
-//	temp *= val;
-//	return temp;
-//}
-//
-//Polygon3& Polygon3::operator /=(const double val) {
-//	for (auto &vect : v)
-//		vect /= val;
-//	return *this;
-//}
-//
-//const Polygon3 Polygon3::operator /(const double val) {
-//	Polygon3 temp = *this;
-//	temp /= val;
-//	return temp;
-//}
-
 size_t Polygon3::Size() const {
 	return v.size();
 }

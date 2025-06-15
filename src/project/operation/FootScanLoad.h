@@ -27,11 +27,11 @@
 #define SRC_PROJECT_OPERATION_FOOTSCANLOAD_H_
 
 /** \class FootScanLoad
- * 	\code #include "FootScanLoad.h"\endcode
+ *  \brief Load a foot scan from a file
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "FootScanLoad.h"\endcode
  *
- * Text
+ * Load a foot-scan from a file and use it instead of the measurements.
  */
 
 #include "Operation.h"

@@ -40,6 +40,10 @@ std::string HeelCenter::GetName() const {
 bool HeelCenter::CanRun() {
 	std::string missing;
 
+	if (!overAnkleBoneLevel)
+		missing +=
+				missing.empty() ?
+						"\"overAnkleBoneLevel\"" : ", \"overAnkleBoneLevel\"";
 	if (!heel_in)
 		missing += missing.empty() ? "\"heel_in\"" : ", \"heel_in\"";
 	if (!heel_out)
@@ -48,8 +52,6 @@ bool HeelCenter::CanRun() {
 		missing += missing.empty() ? "\"insole_in\"" : ", \"insole_in\"";
 	if (!insole_out)
 		missing += missing.empty() ? "\"insole_out\"" : ", \"insole_out\"";
-//	if (!debug)
-//		missing += missing.empty() ? "\"debug\"" : ", \"debug\"";
 
 	if (!missing.empty()) {
 		std::ostringstream err;
@@ -62,16 +64,25 @@ bool HeelCenter::CanRun() {
 
 	error.clear();
 
+	if (overAnkleBoneLevel->GetString().empty()) {
+		error += " Input \"overAnkleBoneLevel\" for HeelCenter is empty.";
+	}
+
 	return error.empty();
 }
 
 bool HeelCenter::Propagate() {
-	if (!heel_in || !heel_out || !insole_in || !insole_out)
+	if (!overAnkleBoneLevel || !heel_in || !heel_out || !insole_in
+			|| !insole_out)
 		return false;
 
 	bool modify = false;
+	bool parameterModified = false;
+	parameterModified |= !heel_in->IsValid();
+	parameterModified |= !insole_in->IsValid();
+	parameterModified |= overAnkleBoneLevel->IsModified();
 
-	if (!heel_in->IsValid() || !insole_in->IsValid()) {
+	if (parameterModified) {
 		modify |= heel_out->IsValid();
 		modify |= insole_out->IsValid();
 		heel_out->MarkValid(false);
@@ -88,9 +99,8 @@ bool HeelCenter::Propagate() {
 
 bool HeelCenter::HasToRun() {
 	return heel_in && heel_in->IsValid() && insole_in && insole_in->IsValid()
-			&& heel_out && insole_out
-			&& ((!heel_out->IsValid() && heel_out->IsNeeded())
-					|| (!insole_out->IsValid() && insole_out->IsNeeded()));
+			&& heel_out && !heel_out->IsValid() && heel_out->IsNeeded()
+			&& insole_out && !insole_out->IsValid() && insole_out->IsNeeded();
 }
 
 void HeelCenter::Run() {

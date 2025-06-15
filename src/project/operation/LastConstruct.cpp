@@ -25,6 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "LastConstruct.h"
 
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -88,6 +89,7 @@ void LastConstruct::Run() {
 	*out = cs->ExtractByUVPlane(0, -1, -1);
 
 	//TODO Extend algorithm to stitch the insole to the bottom of the last.
+	DEBUGOUT << GetName() << ": Operation not fully implemented.\n";
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

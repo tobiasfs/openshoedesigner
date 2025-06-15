@@ -27,17 +27,12 @@
 #ifndef PROJECT_LAST_LASTMODEL_H
 #define PROJECT_LAST_LASTMODEL_H
 /*!\class LastModel
- * \brief Rescales and handles a last
+ * \brief Last for shoemaking
  *
- * This class reads in a list from a STL or OBJ (Wavefront) file and displays the result.
- * It analysis and normalizes the form of the last. This last is the rescaled and adapted
- * to the foot measurements and the shoe form.
- *
- * This last is used as the starting point for the upper pattern and the sole generation.
- *
- * Alternatively this class takes over the data from the bone model and provides the data
- * to the above-mentioned steps. In this case the data is not transformed and adapted. This
- * step has already been done on the foot-model.
+ * Alternatively this class takes over the data from the bone model and
+ * provides the data to the above-mentioned steps. In this case the data
+ * is not transformed and adapted. This step has already been done on the
+ * foot-model.
  */
 
 #include "ObjectGeometry.h"

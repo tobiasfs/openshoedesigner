@@ -178,8 +178,8 @@ void FileSTL::ReadStreamBinary(std::istream &stream, std::string &header,
 		Geometry &geo) {
 	// NOTE: When changing to std::istream, check https://stackoverflow.com/questions/5605125/why-is-iostreameof-inside-a-loop-condition-i-e-while-stream-eof-cons
 
-	const size_t bytestoread = 80 - header.size();
 	{
+		const size_t bytestoread = 80 - header.size();
 		std::string temp(bytestoread, '\0');
 		if (!stream.read(&temp[0], bytestoread) || stream.eof()) {
 			throw std::runtime_error(

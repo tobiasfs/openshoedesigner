@@ -28,9 +28,10 @@
 #define FRAMEDEBUGPARSER_H
 
 /*!\class FrameDebugParser
- * \brief ...
+ * \brief Test of the single expression parsing of MathParser
  *
- * ...
+ * A single expression can be entered. It is evaluated and the results are
+ * displayed.
  */
 
 #include "gui.h"

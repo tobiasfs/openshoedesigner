@@ -27,11 +27,12 @@
 #define SRC_PROJECT_COMMAND_COMMANDCONFIGSETSTRING_H_
 
 /** \class CommandConfigSetString
+ *  \brief Command to set a string in the configuration
+ * 	\ingroup command
  * 	\code #include "CommandConfigSetString.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
  *
- * Text
+ * The strings set are the various filenames or the code for the heel
+ * generation.
  */
 
 #include "../Project.h"

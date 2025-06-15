@@ -31,7 +31,7 @@
  * \brief Introduce dependencies to approximate linear equation solutions
  * \deprecated Can be solved mathematically more elegant using a solution
  *          derived from https://en.wikipedia.org/wiki/Generalized_inverse#Uses
- *          see Surface::Calculate() and the HardBoundary() / SoftBoundary()
+ *          See Surface::Calculate() and the HardBoundary() / SoftBoundary()
  *          concept therein.
  *
  * Reduces the degrees of freedom in a linear equation system to create a

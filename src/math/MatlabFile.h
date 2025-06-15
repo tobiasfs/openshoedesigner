@@ -28,9 +28,10 @@
 #define MATH_MATLABFILE_H
 
 /*!\class MatlabFile
- * \brief Matlab MAT file
+ * \brief Loading and saving an Octave/Matlab .MAT file
  *
- * With this class MatlabMatrix%s can be read and written to Matlab MAT files.
+ * With this class MatlabMatrix%s can be read and written to Octave/Matlab
+ * MAT files.
  *
  *  \warning{In V4 only 2-dimensional double-matrices can be stored.}
  */

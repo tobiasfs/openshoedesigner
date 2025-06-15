@@ -264,7 +264,7 @@ void CoordinateSystemConstruct::Run() {
 
 	//		outline0.paintNormals = true;
 
-	double L = outline0.MapU();
+	double L = outline0.MapU(false); //FIXME This should be true, probably.
 	Polynomial m = Polynomial::ByValue(0, 0, L, 2.0 * M_PI);
 	auto inter = outline0.Intersect( { 0, 1, 0 }, 0);
 	if (!inter.positive.empty())

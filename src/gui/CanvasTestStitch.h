@@ -28,8 +28,8 @@
 
 /** \class CanvasTestStitch
  * 	\code #include "CanvasTestStitch.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
+ * 	\ingroup gui
+ *  \brief Canvas displaying the stiched up patches.
  *
  * Text
  */

@@ -98,6 +98,7 @@
 							<option id="gnu.cpp.compiler.option.warnings.woverloadedvirtual.1748665075" name="Function hides virtual functions from base class (-Woverloaded-virtual)" superClass="gnu.cpp.compiler.option.warnings.woverloadedvirtual" value="false" valueType="boolean"/>
 							<option id="gnu.cpp.compiler.option.warnings.wfloatequal.491745886" name="Direct float equal check (-Wfloat-equal)" superClass="gnu.cpp.compiler.option.warnings.wfloatequal" value="false" valueType="boolean"/>
 							<option id="gnu.cpp.compiler.option.warnings.wctordtorprivacy.852719908" name="All ctor and dtor private (-Wctor-dtor-privacy)" superClass="gnu.cpp.compiler.option.warnings.wctordtorprivacy" value="false" valueType="boolean"/>
+							<option id="gnu.cpp.compiler.option.other.other.1046895384" superClass="gnu.cpp.compiler.option.other.other" value="`wx-config --cxxflags --unicode=yes --static=no --toolkit=gtk3` -c -fmessage-length=0 -Wno-write-strings -isystem /usr/include/eigen3" valueType="string"/>
 							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.150764820" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>

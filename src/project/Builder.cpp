@@ -99,6 +99,7 @@ void Builder::Setup(Project &project) {
 		}
 		if (!opHeelCenter) {
 			opHeelCenter = std::make_shared<HeelCenter>();
+			opHeelCenter->overAnkleBoneLevel = footL.overAnkleBoneLevel;
 			operations.push_back(opHeelCenter);
 		}
 		if (!opHeelConstruct) {
@@ -199,10 +200,8 @@ void Builder::Setup(Project &project) {
 }
 
 void Builder::ToDot(std::ostream &out, const Project &project) const {
-
 	out << "digraph{\n";
 	out << "rankdir=TB;\n";
-
 	out
 			<< "opCoordinateSystemConstruct [shape=record,label=\"{ <i1> in }| opCoordinateSystemConstruct | { <o1> out }\"];\n";
 	out << "\"" << opCoordinateSystemConstruct->in
@@ -242,9 +241,13 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out << "\"" << opHeelNormalize->in << "\" -> opHeelNormalize:i1;\n";
 	out << "opHeelNormalize:o1 -> \"" << opHeelNormalize->out << "\";\n";
 	out
-			<< "opInsoleAnalyze [shape=record,label=\"{ <i1> in }| opInsoleAnalyze | { <o1> out }\"];\n";
-	out << "\"" << opInsoleAnalyze->in << "\" -> opInsoleAnalyze:i1;\n";
-	out << "opInsoleAnalyze:o1 -> \"" << opInsoleAnalyze->out << "\";\n";
+			<< "opInsoleAnalyze [shape=record,label=\"{ <i1> insole_in | <i2> insoleFlat_in }| opInsoleAnalyze | { <o1> insole_out | <o2> insoleFlat_out }\"];\n";
+	out << "\"" << opInsoleAnalyze->insole_in << "\" -> opInsoleAnalyze:i1;\n";
+	out << "\"" << opInsoleAnalyze->insoleFlat_in
+			<< "\" -> opInsoleAnalyze:i2;\n";
+	out << "opInsoleAnalyze:o1 -> \"" << opInsoleAnalyze->insole_out << "\";\n";
+	out << "opInsoleAnalyze:o2 -> \"" << opInsoleAnalyze->insoleFlat_out
+			<< "\";\n";
 	out
 			<< "opInsoleConstruct [shape=record,label=\"{  }| opInsoleConstruct | { <o1> out }\"];\n";
 	out << "opInsoleConstruct:o1 -> \"" << opInsoleConstruct->out << "\";\n";
@@ -276,7 +279,6 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 			<< "opLastUpdate [shape=record,label=\"{ <i1> in }| opLastUpdate | { <o1> out }\"];\n";
 	out << "\"" << opLastUpdate->in << "\" -> opLastUpdate:i1;\n";
 	out << "opLastUpdate:o1 -> \"" << opLastUpdate->out << "\";\n";
-
 	out
 			<< "project [shape=record,label=\"{ <i1> insoleFlatL | <i2> insoleL | <i3> heelL | <i4> lastL | <i5> csL}| project | { }\"];\n";
 	out << "\"" << project.insoleFlatL << "\" -> project:i1;\n";
@@ -284,9 +286,7 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out << "\"" << project.heelL << "\" -> project:i3;\n";
 	out << "\"" << project.lastL << "\" -> project:i4;\n";
 	out << "\"" << project.csL << "\" -> project:i5;\n";
-
 	out << "}\n";
-
 }
 
 void Builder::Connect(Project &project) {
@@ -303,9 +303,10 @@ void Builder::Connect(Project &project) {
 	opHeelNormalize->in = opHeelLoad->out;
 	opHeelExtractInsole->in = opHeelNormalize->out;
 	opInsoleFlatten->in = opHeelExtractInsole->out;
-	opInsoleAnalyze->in = opInsoleFlatten->out;
+	opInsoleAnalyze->insoleFlat_in = opInsoleFlatten->out;
+	opInsoleAnalyze->insole_in = opHeelExtractInsole->out;
 	opHeelCenter->heel_in = opHeelNormalize->out;
-	opHeelCenter->insole_in = opInsoleAnalyze->out;
+	opHeelCenter->insole_in = opInsoleAnalyze->insole_out;
 	project.heelL = opHeelCenter->heel_out;
 
 	if (config.heelConstructionType->IsSelection("construct")) {
@@ -322,7 +323,7 @@ void Builder::Connect(Project &project) {
 
 	if (config.heelConstructionType->IsSelection("loadFromFile")) {
 		project.insoleL = opHeelCenter->insole_out;
-		project.insoleFlatL = opInsoleAnalyze->out;
+		project.insoleFlatL = opInsoleAnalyze->insoleFlat_out;
 
 		project.insoleFlatR = project.insoleFlatL;
 		project.insoleR = project.insoleL;

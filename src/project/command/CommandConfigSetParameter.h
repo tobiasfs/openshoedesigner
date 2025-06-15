@@ -27,11 +27,12 @@
 #ifndef COMMANDSHOESETPARAMETER_H
 #define COMMANDSHOESETPARAMETER_H
 
-/*!\class CommandShoeSetParameter
+/*!\class CommandConfigSetParameter
+ * \brief Command to set the formula parameters
  * \ingroup command
- * \brief Command to set the parameters of the shoe
  *
- * ...
+ * Update the formula (and thus the value) of the many parameter of the
+ * shoe.
  */
 
 #include <wx/cmdproc.h>

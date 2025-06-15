@@ -27,11 +27,13 @@
 #define SRC_PROJECT_OPERATION_HEELNORMALIZE_H_
 
 /** \class HeelNormalize
- * 	\code #include "HeelNormalize.h"\endcode
+ *  \brief Normalize the positon of a heel/sole loaded from a file.
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "HeelNormalize.h"\endcode
  *
- * Text
+ * This operation reorients the heel so that the very sole of the heel is at
+ * Z = 0. The final orientation of the heel is done by analysing the insole
+ * at the upper part of the heel.
  */
 
 #include "../object/ObjectGeometry.h"
@@ -52,7 +54,7 @@ public:
 	virtual void Run() override;
 
 public:
-	std::shared_ptr<ParameterEnum> heelReorient;
+	std::shared_ptr<ParameterEnum> heelReorient; //< Allow the rotation of the geometry
 
 	std::shared_ptr<ObjectGeometry> in;
 	std::shared_ptr<ObjectGeometry> out;

@@ -26,12 +26,12 @@
 #ifndef SRC_PROJECT_OPERATION_LASTANALYSE_H_
 #define SRC_PROJECT_OPERATION_LASTANALYSE_H_
 
-/** \class LastAnalyse
- * 	\code #include "LastAnalyse.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Description
+/**\class LastAnalyse
+ * \brief Analyse a last loaded from a file.
+ * \ingroup ObjectOperations
+ * \code #include "LastAnalyse.h"\endcode
  *
- * Text
+ * The operation analysis and normalizes the form of the last.
  */
 
 #include "../../3D/Polygon3.h"

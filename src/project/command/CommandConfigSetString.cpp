@@ -80,6 +80,10 @@ void CommandConfigSetString::GetParam(std::shared_ptr<ParameterString> &param) {
 	case ID_BONES:
 		param = project->config.filenameBoneModel;
 		break;
+	case ID_CODE:
+		param = project->config.heelCode;
+		break;
+
 	default:
 		std::ostringstream err;
 		err << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << " - ";

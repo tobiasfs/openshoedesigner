@@ -28,10 +28,11 @@
 
 /** \class CanvasFlattening
  * 	\code #include "CanvasFlattening.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
+ * 	\ingroup gui
+ *  \brief Display the flattened patches
  *
- * Text
+ * Displays the flattened patches also shows additional info as the energy left
+ * in the material, the flattenability index, compression/stretching.
  */
 
 #include "CanvasMeasurementGrid.h"

@@ -31,7 +31,8 @@
  * \brief DEPRECATED: Planar 2.5D heightfield
  * \deprecated Unused
  *
- * Grid of points with a height. This class provides some operations to generate some Polygon3 objects from it.
+ * Grid of points with a height. This class provides some operations to
+ * generate some Polygon3 objects from it.
  */
 
 #include "AffineTransformMatrix.h"

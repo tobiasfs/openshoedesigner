@@ -26,10 +26,10 @@
 #ifndef SRC_PROJECT_OPERATION_LASTNORMALIZE_H_
 #define SRC_PROJECT_OPERATION_LASTNORMALIZE_H_
 
-/** \class LastNormalize
- * 	\code #include "LastNormalize.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Reorients a given last
+/**\class LastNormalize
+ * \brief Reorients a given last
+ * \ingroup ObjectOperations
+ * \code #include "LastNormalize.h"\endcode
  *
  * the last is reoriented to X forward, Y outside and Z up. The last is flipped
  * is needed to result in a left side last.

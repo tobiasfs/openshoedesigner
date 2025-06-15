@@ -172,7 +172,7 @@ OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 
 #else // Linux
 //	auto success = gladLoadGLLoader((GLADloadproc) *glXGetProcAddressARB);
-	auto success = gladLoadGL();
+	auto success = gladLoaderLoadGL();
 #endif
 	if (!success) {
 		std::ostringstream out;

@@ -27,11 +27,12 @@
 #define SRC_PROJECT_OPERATION_HEELEXTRACTINSOLE_H_
 
 /** \class HeelExtractInsole
- * 	\code #include "HeelExtractInsole.h"\endcode
+ *  \brief Extract the insole from a heel loaded from a file.
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "HeelExtractInsole.h"\endcode
  *
- * Text
+ * The upper surface is identified and an insole is extracted from that
+ * surface.
  */
 
 #include "../object/Insole.h"

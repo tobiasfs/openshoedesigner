@@ -38,7 +38,7 @@
  *
  * # Implementation needed
  *
- * ## Debugging facilities
+ * ## Debugging leftovers
  *
  ~~~~~{.cpp}
  Volume vol;
@@ -144,64 +144,6 @@
  }
  ~~~~~
  *
- *
- ~~~~~{.cpp}
- if (useMultiThreading)
- std::cout << "Starting threads ...";
- if (measR.IsModified() || legLengthDifference->IsModified()
- || shoe.IsModified() || lastModelR.IsModified()) {
-
- if (measR.IsModified())
- footR.ModifyForm(true);
- measR.Modify(false);
- insoleR.Modify(true);
-
- if (measR.IsModified())
- footR.ModifyForm(true);
-
- if (thread1 == nullptr) {
- if (useMultiThreading) {
- thread1 = new WorkerThread(this, 1);
- if (thread1->Run() != wxTHREAD_NO_ERROR) {
- wxLogError
- ("Can't create the thread1!");
- delete thread1;
- thread1 = nullptr;
- }
- } else {
- while (UpdateRight())
- ;
- }
- }
-
- }
- if (measL.IsModified() || legLengthDifference->IsModified()
- || shoe.IsModified() || lastModelL.IsModified()) {
- if (measL.IsModified())
- footL.ModifyForm(true);
- //measL->Modify(false);
- legLengthDifference->Modify(false);
- //shoe->Modify(false);
- insoleL.Modify(true);
-
- if (thread0 == nullptr) {
- if (useMultiThreading) {
- thread0 = new WorkerThread(this, 0);
- if (thread0->Run() != wxTHREAD_NO_ERROR) {
- wxLogError
- ("Can't create the thread0!");
- delete thread0;
- thread0 = nullptr;
- }
- } else {
- while (UpdateLeft())
- ;
- }
- }
- }
- if (useMultiThreading)
- std::cout << " done.\n";
- ~~~~~
  *
  */
 

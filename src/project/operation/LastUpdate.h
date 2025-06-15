@@ -26,12 +26,13 @@
 #ifndef SRC_PROJECT_OPERATION_LASTUPDATE_H_
 #define SRC_PROJECT_OPERATION_LASTUPDATE_H_
 
-/** \class LastUpdate
- * 	\code #include "LastUpdate.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Description
+/**\class LastUpdate
+ * \brief Update last
+ * \ingroup ObjectOperations
+ * \code #include "LastUpdate.h"\endcode
  *
- * Text
+ * This last is the rescaled and adapted to the foot measurements and the
+ * shoe form.
  */
 
 #include "../../math/NelderMeadOptimizer.h"

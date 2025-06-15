@@ -3,7 +3,7 @@
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
-// Compiler Options   : -lm
+// Compiler Options   :
 // Author             : Tobias Schaefer
 // Created            : 12.11.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
@@ -151,11 +151,11 @@ void InsoleConstruct::Construct() {
 
 	// A and B have to be on the axis y = 0.0
 	out->J.Set(0, 0, 0);
-	out->A = out->J - Insole::Point::FromUV(footLength->ToDouble() / 6.0, 0.0);
-	out->C = out->A + Insole::Point::FromUV(footLength->ToDouble() * 0.62, 0.0);
-	out->D = out->A + Insole::Point::FromUV(footLength->ToDouble(), 0.0);
+	out->A = out->J - Insole::Point::FromXY(footLength->ToDouble() / 6.0, 0.0);
+	out->C = out->A + Insole::Point::FromXY(footLength->ToDouble() * 0.62, 0.0);
+	out->D = out->A + Insole::Point::FromXY(footLength->ToDouble(), 0.0);
 	out->B = out->A
-			+ Insole::Point::FromUV(
+			+ Insole::Point::FromXY(
 					footLength->ToDouble() + extraLength->ToDouble(), 0.0);
 
 	{
@@ -163,20 +163,20 @@ void InsoleConstruct::Construct() {
 		const double c = cos(ballMeasurementAngle->ToDouble());
 
 		out->E = out->C
-				+ Insole::Point::FromUV(s * ballWidth->ToDouble() / 2,
+				+ Insole::Point::FromXY(s * ballWidth->ToDouble() / 2,
 						-c * ballWidth->ToDouble() / 2);
 		out->F = out->C
-				- Insole::Point::FromUV(s * ballWidth->ToDouble() / 2 * 1.24,
+				- Insole::Point::FromXY(s * ballWidth->ToDouble() / 2 * 1.24,
 						-c * ballWidth->ToDouble() / 2 * 1.24);
 	}
 	{
 		const double s = sin(heelDirectionAngle->ToDouble());
 		const double c = cos(heelDirectionAngle->ToDouble());
 		out->K = out->J
-				+ Insole::Point::FromUV(s * heelWidth->ToDouble() / 2,
+				+ Insole::Point::FromXY(s * heelWidth->ToDouble() / 2,
 						-c * heelWidth->ToDouble() / 2);
 		out->L = out->J
-				- Insole::Point::FromUV(s * heelWidth->ToDouble() / 2,
+				- Insole::Point::FromXY(s * heelWidth->ToDouble() / 2,
 						-c * heelWidth->ToDouble() / 2);
 		out->P.u = out->A.u * c;
 		out->P.v = out->A.u * s;
@@ -188,33 +188,33 @@ void InsoleConstruct::Construct() {
 		const double s = sin(bigToeAngle->ToDouble());
 		const double c = cos(bigToeAngle->ToDouble());
 		const double r = out->D.x - out->E.x;
-		out->G = out->E + Insole::Point::FromUV(r, s * r / c);
+		out->G = out->E + Insole::Point::FromXY(r, s * r / c);
 	}
 	{
 		const double s = sin(littleToeAngle->ToDouble());
 		const double c = cos(littleToeAngle->ToDouble());
 		const double r = out->D.u - out->F.u;
 		const double f = footLength->ToDouble() / 5;
-		out->H = out->F + Insole::Point::FromUV(r, -s * r / c);
-		out->Z = out->H - Insole::Point::FromUV(f, -s * f / c);
+		out->H = out->F + Insole::Point::FromXY(r, -s * r / c);
+		out->Z = out->H - Insole::Point::FromXY(f, -s * f / c);
 	}
 
 	// Normals
-	out->P.SetNormal(out->K, out->L);
+	out->P.SetDirection(out->K, out->L);
 	{
 		const double s = sin(heelDirectionAngle->ToDouble());
 		const double c = cos(heelDirectionAngle->ToDouble());
 		out->K.dir.Set(-c, -s, 0);
 		out->L.dir.Set(c, s, 0);
 	}
-	out->E.SetNormal(out->E, out->J);
-	out->F.SetNormal(out->J, out->H);
-	out->G.SetNormal(out->B, out->E);
-	out->Z.SetNormal(out->L, out->C);
-	out->B.SetNormal(out->H, out->G);
+	out->E.SetDirection(out->E, out->J);
+	out->F.SetDirection(out->J, out->H);
+	out->G.SetDirection(out->B, out->E);
+	out->Z.SetDirection(out->L, out->C);
+	out->B.SetDirection(out->H, out->G);
 
 	// The first line has to start at point B for the rest of the
-	// algorithm to work.
+	// algorithm to work. B will become u = 0.0 and A = +/- M_PI.
 	Insole::Line temp;
 	out->lines.clear();
 	double tip = 1.0 - tipSharpness->ToDouble();
@@ -244,7 +244,7 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 	for (const auto &line : out->lines)
 		L0 += line.Length();
 
-	// Rescale the polygons from 0..2*M_PI
+	// Rescale the polygons from -M_PI..M_PI
 	double Lsum = 0.0;
 	for (auto &line : out->lines) {
 		const double L = line.Length();

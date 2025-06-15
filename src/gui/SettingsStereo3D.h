@@ -28,9 +28,9 @@
 #define GUI_SETTINGSSTEREO3D_H
 
 /*!\class SettingsStereo3D
- * \brief ...
+ * \brief Setup dialog for displaying 2-color stereo 3D images.
  *
- * ...
+ * Dialog for selecting the colors for the left and the right eye.
  */
 
 #include <wx/config.h>

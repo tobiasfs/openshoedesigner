@@ -28,9 +28,9 @@
 #define GUI_DIALOGFORMULAEDITOR_H
 
 /*!\class DialogFormulaEditor
- * \brief ...
+ * \brief Editor for all formulas used
  *
- * ...
+ * This editor allows the editing of all formulas in all dialogs at once.
  */
 
 #include "gui.h"

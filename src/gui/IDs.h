@@ -29,6 +29,9 @@
 
 /*!\class IDs
  * \brief List of command IDs
+ * \ingroup gui
+ * \code #include "IDs.h"\endcode
+ *
  * This headerfile contains a list of command IDs. These are used to communicate
  * from the child windows to the main window.
  *

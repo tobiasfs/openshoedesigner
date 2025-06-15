@@ -130,7 +130,7 @@ void Project::CheckNeeded() {
 				if (projectview->showRight)
 					insoleR->MarkNeeded(true);
 			}
-			if (projectview->showCoordinateSystem) {
+			if (projectview->showUpper) {
 				if (projectview->showLeft)
 					csL->MarkNeeded(true);
 				if (projectview->showRight)

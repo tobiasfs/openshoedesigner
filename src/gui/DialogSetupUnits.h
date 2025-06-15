@@ -28,9 +28,9 @@
 #define DIALOGSETUPUNITS_H
 
 /*!\class DialogSetupUnits
- * \brief ...
+ * \brief Dialog to det the units
  *
- * ...
+ * For length, small distances and angles the unis can be set in this dialog.
  */
 
 #include "CollectionUnits.h"

@@ -29,17 +29,15 @@
 #include <algorithm>
 #include <stdexcept>
 
-void FourierTransform::TReset() {
+void FourierTransform::TXClear() {
 	x.clear();
 }
 
 void FourierTransform::TSetSize(size_t N) {
-	x.resize(N);
+	x.resize(N, { 0.0, 0.0, 0.0 });
 	if (N < 1)
 		throw(std::domain_error(
 		__FILE__"FourierTransform::SetInputSize: Nin < 1"));
-	for (size_t n = 0; n < N; ++n)
-		x[n].t = (double) n / (double) N;
 }
 
 size_t FourierTransform::TGetSize() const {
@@ -71,7 +69,7 @@ void FourierTransform::XAdd(double t, double re, double im) {
 }
 
 void FourierTransform::TSort() {
-	auto time_less = [](const Point &lhs, const Point &rhs) {
+	auto time_less = [](const PointTime &lhs, const PointTime &rhs) {
 		return lhs.t < rhs.t;
 	};
 	std::sort(x.begin(), x.end(), time_less);
@@ -100,8 +98,8 @@ void FourierTransform::TUnwrap(double tol) {
 }
 
 void FourierTransform::TScale(const double scale) {
-	for (size_t n = 0; n < x.size(); ++n)
-		x[n].t *= scale;
+	for (PointTime &v : x)
+		v.t *= scale;
 }
 
 void FourierTransform::FLinspace(double f0, double f1, size_t N) {
@@ -130,12 +128,19 @@ void FourierTransform::FLikeFFT(size_t N) {
 	}
 }
 
-void FourierTransform::Transform() {
-//  from wxMaxima:
-//		I(t,t0,t1,x0,x1):=(x1-x0)/(t1-t0)*(t-t0)+x0;
-//		integrate(I(t,t0,t1,xRe0,xRe1)*cos(2*%pi*f*t)+I(t,t0,t1,xIm0,xIm1)*sin(2*%pi*f*t),t,t0,t1)
-//		integrate(I(t,t0,t1,xIm0,xIm1)*cos(2*%pi*f*t)-I(t,t0,t1,xRe0,xRe1)*sin(2*%pi*f*t),t,t0,t1)
+void FourierTransform::FScale(const double scale) {
+	for (PointFrequency &v : y)
+		v.f *= scale;
+}
 
+void FourierTransform::Transform() {
+	// from wxMaxima:
+	//		I(t,t0,t1,x0,x1):=(x1-x0)/(t1-t0)*(t-t0)+x0;
+	//		integrate(I(t,t0,t1,xRe0,xRe1)*cos(2*%pi*f*t)+I(t,t0,t1,xIm0,xIm1)*sin(2*%pi*f*t),t,t0,t1)
+	//		integrate(I(t,t0,t1,xIm0,xIm1)*cos(2*%pi*f*t)-I(t,t0,t1,xRe0,xRe1)*sin(2*%pi*f*t),t,t0,t1)
+
+	// Double loop, because FFT-like speedup is not possible, when the sampling
+	// is not uniform.
 	for (size_t n = 0; n < y.size(); ++n) {
 		const double fr = y[n].f;
 		double re = 0.0;
@@ -194,17 +199,17 @@ void FourierTransform::Transform() {
 }
 
 void FourierTransform::SingleSidedResult() {
-	for (size_t n = 0; n < y.size(); ++n) {
-		if (fabs(y[n].f) > 1e-9) {
-			y[n].re *= 2;
-			y[n].im *= 2;
+	for (PointFrequency &v : y) {
+		if (fabs(v.f) > 1e-9) {
+			v.re *= 2.0;
+			v.im *= 2.0;
 		}
 	}
 }
 
 void FourierTransform::YScale(const double scale) {
-	for (size_t n = 0; n < y.size(); ++n) {
-		y[n].re *= scale;
-		y[n].im *= scale;
+	for (PointFrequency &v : y) {
+		v.re *= scale;
+		v.im *= scale;
 	}
 }

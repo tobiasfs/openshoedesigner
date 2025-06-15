@@ -35,8 +35,9 @@
 #include "../FootMeasurements.h"
 
 #include "../../3D/OpenGL.h"
+#include "../../3D/OpenGLText.h"
 
-void Insole::Point::SetNormal(const Point &p0, const Point &p1) {
+void Insole::Point::SetDirection(const Point &p0, const Point &p1) {
 	dir = (Vector3(p1.u, p1.v) - Vector3(p0.u, p0.v)).Normal();
 }
 
@@ -83,12 +84,11 @@ Insole::Point& Insole::Point::operator -=(const Point &rhs) {
 void Insole::Line::Setup(const Point &p0, const Point &p1, double f0,
 		double f1) {
 	const double d = (p1 - p0).Abs();
-	x = Polynomial::ByBezier(p0.x, p0.x + d * f0 * p0.dir.x,
-			p1.x - d * f1 * p1.dir.x, p1.x);
-	y = Polynomial::ByBezier(p0.y, p0.y + d * f0 * p0.dir.y,
-			p1.y - d * f1 * p1.dir.y, p1.y);
-	z = Polynomial::ByBezier(p0.z, p0.z + d * f0 * p0.dir.z,
-			p1.z - d * f1 * p1.dir.z, p1.z);
+	x = Polynomial::ByBezier(p0.u, p0.u + d * f0 * p0.dir.x,
+			p1.u - d * f1 * p1.dir.x, p1.u);
+	y = Polynomial::ByBezier(p0.v, p0.v + d * f0 * p0.dir.y,
+			p1.v - d * f1 * p1.dir.y, p1.v);
+	z = Polynomial::ByValue(0.0, 0.0);
 	r0 = 0.0;
 	r1 = 1.0;
 }
@@ -107,10 +107,6 @@ void Insole::Line::Paint() const {
 }
 
 void Insole::Transform(std::function<Vector3(Vector3)> func) {
-//	inside.Transform(func);
-//	inside.CalculateNormals();
-//	outside.Transform(func);
-//	outside.CalculateNormals();
 	A.Transform(func);
 	B.Transform(func);
 	C.Transform(func);
@@ -133,11 +129,44 @@ void Insole::Transform(std::function<Vector3(Vector3)> func) {
 		line.Transform(func);
 }
 
+void Insole::ToOpenGL(const Point &p, const std::string &label) const {
+	glPushMatrix();
+	glTranslated(p.x, p.y, p.z);
+	glScaled(0.01, 0.01, 0.01);
+	glNormal3d(0.0, -1.0, 0.0);
+	OpenGLText txt;
+	txt.Paint(label);
+	glBegin(GL_POINTS);
+	glVertex3d(0, 0, 0);
+	glEnd();
+	glPopMatrix();
+}
+
 void Insole::Paint() const {
 //	for(auto & line : lines)
 //		line.Paint();
 
 	outline.Paint();
+
+	glPointSize(5);
+
+	ToOpenGL(A, "A");
+	ToOpenGL(B, "B");
+	ToOpenGL(C, "C");
+	ToOpenGL(D, "D");
+	ToOpenGL(E, "E");
+	ToOpenGL(F, "F");
+	ToOpenGL(G, "G");
+	ToOpenGL(H, "H");
+	ToOpenGL(J, "J");
+	ToOpenGL(K, "K");
+	ToOpenGL(L, "L");
+	ToOpenGL(M, "M");
+	ToOpenGL(N, "N");
+	ToOpenGL(P, "P");
+	ToOpenGL(Z, "Z");
+
+	glPointSize(1);
 
 //	size_t count = std::min(inside.Size(), outside.Size());
 //

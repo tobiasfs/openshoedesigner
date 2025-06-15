@@ -3,7 +3,7 @@
 // Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
-// Compiler Options   : -lm
+// Compiler Options   : -isystem /usr/include/eigen3
 // Author             : Tobias Schaefer
 // Created            : 29.12.2024
 // Copyright          : (C) 2024 Tobias Schaefer <tobiassch@users.sourceforge.net>
@@ -151,8 +151,10 @@ void InsoleFlatten::Run() {
 	*out = *in;
 	out->Geometry::CalculateNormals();
 
-#ifdef USE_EIGEN
+	// Find the uniform axis of the insole.
+	// This is the axis along which the insole is NOT bend.
 
+#ifdef USE_EIGEN
 	Eigen::MatrixXd M;
 	M.resize(out->CountTriangles(), 3);
 
@@ -173,8 +175,11 @@ void InsoleFlatten::Run() {
 //	Eigen::MatrixXd pinvM = M.completeOrthogonalDecomposition().pseudoInverse();
 //	Eigen::MatrixXd S = Eigen::MatrixXd::Identity(3, 3) - pinvM * M;
 
-	std::cout << "Eigenvalues:\n" << S << '\n';
-	std::cout << "V - Matrix:\n" << V << '\n';
+	DEBUGOUT << "Eigenvalues:\n" << S << '\n';
+	DEBUGOUT << "V - Matrix:\n" << V << '\n';
+
+	// The column in V for which the eigenvalue in S is smallest is the axis
+	// that is least (or not at all) bent.
 
 	//TODO: Use the result above to calculate the uniform dimension.
 	EnergyRelease::InitByUniformDimension(*out, { 0, 1, 0 });
@@ -188,9 +193,32 @@ void InsoleFlatten::Run() {
 		throw std::logic_error(err.str());
 	}
 #endif
+
+	// The UV coordinates are set to XY with Z = 0.
+	for (size_t idx = 0; idx < out->CountVertices(); idx++) {
+		auto &v = out->GetVertex(idx);
+		v.x = v.u;
+		v.y = v.v;
+		v.z = 0.0;
+		v.n.Set(0.0, 0.0, 1.0);
+	}
+
+	out->CalculateUVCoordinateSystems();
+
 	out->outline.Clear();
 	out->outline.ExtractOutline(*out);
-	out->CalculateUVCoordinateSystems();
+
+	// Orient outline mathematically positive.
+	// Each edge points mathematically positive direction in relation to the
+	// area-center of the polygon.
+	// Top-view:
+	//  +--<--+
+	//  |     |
+	//  +-->--+
+
+	Vector3 axis = out->outline.GetRotationalAxis();
+	if (axis.z < 0.0)
+		out->outline.Reverse();
 
 #ifdef DEBUG
 	{

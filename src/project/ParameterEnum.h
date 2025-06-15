@@ -28,10 +28,10 @@
 
 /** \class ParameterEnum
  * 	\code #include "ParameterEnum.h"\endcode
- * 	\ingroup GroupName
- *  \brief Description
+ * 	\ingroup project
+ *  \brief Parameter containing an selection out of a group of options.
  *
- * Text
+ * For a given group of options one is selected.
  */
 
 #include "Parameter.h"

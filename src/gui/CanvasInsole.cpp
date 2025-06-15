@@ -70,8 +70,8 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 		const auto &ed = insole->outline.GetEdge(n);
 		const auto &v0 = insole->outline.GetEdgeVertex(n, 0);
 		const auto &v1 = insole->outline.GetEdgeVertex(n, 1);
-		Vector3 p2 = m.Transform(v0.u, v0.v);
-		Vector3 p3 = m.Transform(v1.u, v1.v);
+		Vector3 p2 = m.Transform(v0.x, v0.y);
+		Vector3 p3 = m.Transform(v1.x, v1.y);
 
 		wxPen *pc = wxThePenList->FindOrCreatePen(
 				wxColour(ed.c.r, ed.c.g, ed.c.b), 1);
@@ -88,7 +88,7 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 	}
 
 	auto mapUV = [&m](const Geometry::Vertex &p) {
-		return m.Transform(p.u, p.v);
+		return m.Transform(p.x, p.y);
 	};
 
 	Vector3 A = mapUV(insole->A);

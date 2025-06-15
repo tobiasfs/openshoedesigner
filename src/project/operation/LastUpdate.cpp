@@ -121,7 +121,7 @@ bool LastUpdate::HasToRun() {
 void LastUpdate::Run() {
 	*out = *in;
 
-	std::cerr << GetName() << ": No Operation implemented.\n";
+	std::cerr << GetName() << ": Operation not implemented.\n";
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

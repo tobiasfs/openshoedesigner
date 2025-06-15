@@ -23,17 +23,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #ifndef PROJECT_OPERATION_H
 #define PROJECT_OPERATION_H
-#include <string>
 
-/** \class Operation
- * 	\ingroup ObjectOperations
- * 	\code #include "Operation.h"\endcode
- *  \brief Abstract class for operations that have to run to generate the shoe
+/**\class Operation
+ * \brief Abstract class for operations that have to run to generate the shoe
+ * \ingroup ObjectOperations
+ * \code #include "Operation.h"\endcode
  *
- *  The operations can be scheduled to run in parallel.
+ * A single decernable operation runnin on some input, producing some output.
+ * The operations are orchestrated by the Builder.
+ *
+ * Operations are only run, if the output is needed and the input has changed.
+ *
+ * The operations can be scheduled to run in parallel.
  */
+
+#include <string>
 
 class Operation {
 public:

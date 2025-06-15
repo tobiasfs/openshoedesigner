@@ -23,20 +23,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #ifndef OPERATION_OBJECTLOAD_H
 #define OPERATION_OBJECTLOAD_H
 
-/** \class ObjectLoad
- * 	\code #include "ObjectLoad.h"\endcode
- * 	\ingroup ObjectOperations
- *  \brief Load the geometry from a file
+/**\class ObjectLoad
+ * \brief Load the geometry from a file
+ * \ingroup ObjectOperations
+ * \code #include "ObjectLoad.h"\endcode
  *
  * Used the importer derived from FileGeometry to import a geometry from disk.
  *
  * If the filename is changed or the modification time of the file is changed
  * the file is reloaded.
  *
- * Several file formats are supported: DXF, GTS, OBJ, PLY, SRL and some obscure
+ * Several file formats are supported: DXF, GTS, OBJ, PLY, STL and some obscure
  * file format for sliced last scans. The files are identified by the file
  * extension.
  */

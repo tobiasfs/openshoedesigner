@@ -27,11 +27,12 @@
 #define SRC_PROJECT_OPERATION_FOOTMODELUPDATE_H_
 
 /** \class FootModelUpdate
- * 	\code #include "FootModelUpdate.h"\endcode
+ *  \brief Reorient the bones
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "FootModelUpdate.h"\endcode
  *
- * Text
+ * Update the angles of the bones relative to each other to follow the surface
+ * if the insole.
  */
 
 #include "../../math/NelderMeadOptimizer.h"

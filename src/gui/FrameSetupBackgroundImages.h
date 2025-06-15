@@ -28,9 +28,10 @@
 #define GUI_FRAMESETUPBACKGROUNDIMAGES_H
 
 /*!\class FrameSetupBackgroundImages
- * \brief ...
+ * \brief Dialog to setup background images to construct a shoe onto.
  *
- * ...
+ * Dialog to load images, orient, and position them. These images can be used
+ * to construct a shoe on.
  */
 
 #include "gui.h"

@@ -3,7 +3,7 @@
 // Purpose            : Quadratic surface
 // Thread Safe        : Yes
 // Platform dependent : No
-// Compiler Options   :
+// Compiler Options   : -isystem /usr/include/eigen3
 // Author             : Tobias Schaefer
 // Created            : 05.10.2023
 // Copyright          : (C) 2023 Tobias Schaefer <tobiassch@users.sourceforge.net>

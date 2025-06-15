@@ -35,6 +35,9 @@
  *
  * This class is the other half of the Object and Operation system that limits
  * the number of operations done with each modification of the project.
+ *
+ * Object is derived from last in the class definitions, so that it does not
+ * impede the ordering of member variables in memory.
  */
 
 class Object {

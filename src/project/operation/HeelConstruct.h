@@ -27,11 +27,13 @@
 #define SRC_PROJECT_OPERATION_HEELCONSTRUCT_H_
 
 /** \class HeelConstruct
- * 	\code #include "HeelConstruct.h"\endcode
+ *  \brief Construct the heel of the shoe
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "HeelConstruct.h"\endcode
  *
- * Text
+ * Given the transformed insole, this operation uses the provided code
+ * to generate a signed-distance-field and applie marching cubes to it to
+ * generate the heel of the shoe.
  */
 
 #include "Operation.h"

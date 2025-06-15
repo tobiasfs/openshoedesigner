@@ -27,11 +27,17 @@
 #define SRC_PROJECT_OPERATION_INSOLETRANSFORM_H_
 
 /** \class InsoleTransform
- * 	\code #include "InsoleTransform.h"\endcode
+ *  \brief Transform the insole to fit the form of the shoe
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "InsoleTransform.h"\endcode
  *
- * Text
+ * Transform the insole, if it was constructed from scratch and modify it
+ * according to the parameters of the shoe.
+ *
+ * \todo Another transform operation is needed, if the last was loaded from a
+ * file. The insole in itself cannot be twisted because the shape is defined
+ * by the last, but the insole as a whole can be moved up and down and
+ * rotated.
  */
 
 #include "../object/Insole.h"

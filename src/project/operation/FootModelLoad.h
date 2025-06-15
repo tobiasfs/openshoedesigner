@@ -27,11 +27,13 @@
 #define SRC_PROJECT_OPERATION_FOOTMODELLOAD_H_
 
 /** \class FootModelLoad
- * 	\code #include "FootModelLoad.h"\endcode
+ *  \brief Load a bone-based foot model from a file.
  * 	\ingroup ObjectOperations
- *  \brief Description
+ * 	\code #include "FootModelLoad.h"\endcode
  *
- * Text
+ * Load a foot model from a file. This model is a collection of bone
+ * definitions, that are used to calculate the last and the surface coordinate
+ * system.
  */
 
 #include "../foot/FootModel.h"

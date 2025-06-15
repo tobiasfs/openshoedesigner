@@ -29,9 +29,10 @@
 /** \class ParameterString
  * 	\code #include "ParameterString.h"\endcode
  * 	\ingroup project
- *  \brief Description
+ *  \brief Parameter containing a string
  *
- * Text
+ * A string is stored without any processing. This can be used to store names
+ * and also filenames.
  */
 
 #include "Parameter.h"

@@ -29,6 +29,7 @@
 
 /*!\class FrameParent
  * \brief Parent-frame for the application
+ * \ingroup gui
  *
  * Parent frame for SDI application.
  */
