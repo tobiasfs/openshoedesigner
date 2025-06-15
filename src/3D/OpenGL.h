@@ -27,10 +27,10 @@
 #ifndef L3D_OPENGL_H
 #define L3D_OPENGL_H
 
-/**\file Opengl.h
- * \code #include "OpenGL.h"\endcode
- * \ingroup OpenGL
+/**\file OpenGL.h
  * \brief Header to include all the relevant OpenGL support classes
+ * \ingroup OpenGL
+ * \code #include "OpenGL.h"\endcode
  *
  * Only include this header in the classes to use OpenGL. If something is
  * missing, extend this header.
@@ -49,7 +49,7 @@
     #include <OpenGL/gl3.h> // For Core Profile
 #else
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 #endif
 
