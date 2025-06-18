@@ -76,12 +76,12 @@ bool HeelCenter::Propagate() {
 			|| !insole_out)
 		return false;
 
-	bool modify = false;
 	bool parameterModified = false;
 	parameterModified |= !heel_in->IsValid();
 	parameterModified |= !insole_in->IsValid();
 	parameterModified |= overAnkleBoneLevel->IsModified();
 
+	bool modify = false;
 	if (parameterModified) {
 		modify |= heel_out->IsValid();
 		modify |= insole_out->IsValid();
@@ -99,8 +99,9 @@ bool HeelCenter::Propagate() {
 
 bool HeelCenter::HasToRun() {
 	return heel_in && heel_in->IsValid() && insole_in && insole_in->IsValid()
-			&& heel_out && !heel_out->IsValid() && heel_out->IsNeeded()
-			&& insole_out && !insole_out->IsValid() && insole_out->IsNeeded();
+			&& heel_out && insole_out
+			&& ((!heel_out->IsValid() && heel_out->IsNeeded())
+					|| (!insole_out->IsValid() && insole_out->IsNeeded()));
 }
 
 void HeelCenter::Run() {

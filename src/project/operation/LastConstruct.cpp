@@ -25,8 +25,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "LastConstruct.h"
 
-#include <iostream>
 #include <sstream>
+#include <iostream>
 #include <stdexcept>
 
 LastConstruct::LastConstruct() {
@@ -66,7 +66,6 @@ bool LastConstruct::Propagate() {
 		return false;
 
 	bool modify = false;
-
 	if (!insole->IsValid() || !cs->IsValid()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);

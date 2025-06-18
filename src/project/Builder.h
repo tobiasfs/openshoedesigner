@@ -183,7 +183,10 @@ public:
 
 	void Paint() const;
 
+#ifdef DEBUG
 	void ToDot(std::ostream &out, const Project &project) const;
+	void ToCSV(std::ostream &out) const;
+#endif
 
 	std::shared_ptr<const Matrix> GetDebugMatrix() const {
 		return opHeelExtractInsole->debug;
@@ -217,6 +220,9 @@ private:
 	std::shared_ptr<LastNormalize> opLastNormalize;
 	std::shared_ptr<LastUpdate> opLastUpdate;
 
+#ifdef DEBUG
+	size_t debug_count = 0;
+#endif
 };
 
 #endif /* SRC_PROJECT_BUILDER_H_ */

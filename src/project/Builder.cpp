@@ -199,6 +199,8 @@ void Builder::Setup(Project &project) {
 	Connect(project);
 }
 
+#ifdef DEBUG
+
 void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out << "digraph{\n";
 	out << "rankdir=TB;\n";
@@ -289,6 +291,212 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out << "}\n";
 }
 
+void Builder::ToCSV(std::ostream &out) const {
+	out << "----------- Input ---------------\n";
+	out << std::left << std::setw(25) << opCoordinateSystemConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : "
+			<< (opCoordinateSystemConstruct->in->IsNeeded() ?
+					"needed" : "   -  ");
+	out << " : "
+			<< (opCoordinateSystemConstruct->in->IsValid() ?
+					"   OK  " : "invalid") << "\n";
+	out << std::left << std::setw(25) << opFootModelUpdate->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opFootModelUpdate->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opFootModelUpdate->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelCenter->GetName();
+	out << std::left << " : " << std::setw(15) << "heel_in";
+	out << " : " << (opHeelCenter->heel_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelCenter->heel_in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelCenter->GetName();
+	out << std::left << " : " << std::setw(15) << "insole_in";
+	out << " : " << (opHeelCenter->insole_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelCenter->insole_in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opHeelConstruct->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelConstruct->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelExtractInsole->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opHeelExtractInsole->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelExtractInsole->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelNormalize->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opHeelNormalize->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelNormalize->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opInsoleAnalyze->GetName();
+	out << std::left << " : " << std::setw(15) << "insole_in";
+	out << " : "
+			<< (opInsoleAnalyze->insole_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : "
+			<< (opInsoleAnalyze->insole_in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opInsoleAnalyze->GetName();
+	out << std::left << " : " << std::setw(15) << "insoleFlat_in";
+	out << " : "
+			<< (opInsoleAnalyze->insoleFlat_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : "
+			<< (opInsoleAnalyze->insoleFlat_in->IsValid() ?
+					"   OK  " : "invalid") << "\n";
+	out << std::left << std::setw(25) << opInsoleFlatten->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opInsoleFlatten->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opInsoleFlatten->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opInsoleTransform->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opInsoleTransform->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opInsoleTransform->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastAnalyse->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opLastAnalyse->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastAnalyse->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "insole";
+	out << " : " << (opLastConstruct->insole->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastConstruct->insole->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "cs";
+	out << " : " << (opLastConstruct->cs->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastConstruct->cs->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastNormalize->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opLastNormalize->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastNormalize->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastUpdate->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opLastUpdate->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastUpdate->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << "----------- Output --------------\n";
+	out << std::left << std::setw(25) << opCoordinateSystemConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : "
+			<< (opCoordinateSystemConstruct->out->IsNeeded() ?
+					"needed" : "   -  ");
+	out << " : "
+			<< (opCoordinateSystemConstruct->out->IsValid() ?
+					"   OK  " : "invalid") << "\n";
+	out << std::left << std::setw(25) << opFootModelLoad->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opFootModelLoad->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opFootModelLoad->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opFootModelUpdate->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opFootModelUpdate->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opFootModelUpdate->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opFootScanLoad->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opFootScanLoad->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opFootScanLoad->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelCenter->GetName();
+	out << std::left << " : " << std::setw(15) << "heel_out";
+	out << " : " << (opHeelCenter->heel_out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelCenter->heel_out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelCenter->GetName();
+	out << std::left << " : " << std::setw(15) << "insole_out";
+	out << " : "
+			<< (opHeelCenter->insole_out->IsNeeded() ? "needed" : "   -  ");
+	out << " : "
+			<< (opHeelCenter->insole_out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opHeelConstruct->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelConstruct->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelExtractInsole->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : "
+			<< (opHeelExtractInsole->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : "
+			<< (opHeelExtractInsole->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelLoad->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opHeelLoad->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelLoad->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opHeelNormalize->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opHeelNormalize->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opHeelNormalize->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opInsoleAnalyze->GetName();
+	out << std::left << " : " << std::setw(15) << "insole_out";
+	out << " : "
+			<< (opInsoleAnalyze->insole_out->IsNeeded() ? "needed" : "   -  ");
+	out << " : "
+			<< (opInsoleAnalyze->insole_out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opInsoleAnalyze->GetName();
+	out << std::left << " : " << std::setw(15) << "insoleFlat_out";
+	out << " : "
+			<< (opInsoleAnalyze->insoleFlat_out->IsNeeded() ?
+					"needed" : "   -  ");
+	out << " : "
+			<< (opInsoleAnalyze->insoleFlat_out->IsValid() ?
+					"   OK  " : "invalid") << "\n";
+	out << std::left << std::setw(25) << opInsoleConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opInsoleConstruct->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opInsoleConstruct->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opInsoleFlatten->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opInsoleFlatten->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opInsoleFlatten->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opInsoleTransform->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opInsoleTransform->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opInsoleTransform->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastAnalyse->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opLastAnalyse->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastAnalyse->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opLastConstruct->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastConstruct->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastLoad->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opLastLoad->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastLoad->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastNormalize->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opLastNormalize->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastNormalize->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opLastUpdate->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opLastUpdate->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastUpdate->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+}
+
+#endif
+
 void Builder::Connect(Project &project) {
 	auto &config = project.config;
 
@@ -378,6 +586,17 @@ void Builder::Update(Project &project) {
 
 	Setup(project);
 
+#ifdef DEBUG
+	debug_count++;
+	std::string prefix = std::to_string(debug_count);
+	while (prefix.size() < 4)
+		prefix = std::string("0") + prefix;
+	{
+		std::ofstream out("/tmp/state_" + prefix + "_A__pre_check.txt");
+		ToCSV(out);
+	}
+#endif
+
 	bool propagation_complete = false;
 	while (!propagation_complete) {
 		propagation_complete = true;
@@ -400,13 +619,20 @@ void Builder::Update(Project &project) {
 		return;
 	}
 
-	// Single threaded execution for debugging
+// Single threaded execution for debugging
 
 	bool hasToRun = false;
 	for (auto &op : operations)
 		hasToRun |= op->HasToRun();
 	if (!hasToRun)
 		return;
+
+#ifdef DEBUG
+	{
+		std::ofstream out("/tmp/state_" + prefix + "_B__pre_update.txt");
+		ToCSV(out);
+	}
+#endif
 
 	DEBUGOUT << "----- Updating -----\n";
 	StopWatch sw;
@@ -422,6 +648,14 @@ void Builder::Update(Project &project) {
 	}
 	sw.Stop();
 	DEBUGOUT << "----- Updating done in " << sw.GetSecondsCPU() << "s -----\n";
+
+#ifdef DEBUG
+	{
+		std::ofstream out("/tmp/state_" + prefix + "_C__post_update.txt");
+		ToCSV(out);
+	}
+#endif
+
 }
 
 void Builder::Paint() const {
@@ -430,3 +664,4 @@ void Builder::Paint() const {
 		op->Paint();
 #endif
 }
+

@@ -108,7 +108,6 @@ bool InsoleAnalyze::Propagate() {
 			|| !insoleFlat_in || !insole_out || !insoleFlat_out)
 		return false;
 
-	bool modify = false;
 	bool parameterModified = false;
 	parameterModified |= !insole_in->IsValid();
 	parameterModified |= !insoleFlat_in->IsValid();
@@ -119,6 +118,7 @@ bool InsoleAnalyze::Propagate() {
 	parameterModified |= bigToeAngle->IsModified();
 	parameterModified |= extraLength->IsModified();
 
+	bool modify = false;
 	if (parameterModified) {
 		modify |= insole_out->IsValid();
 		modify |= insoleFlat_out->IsValid();
@@ -136,9 +136,9 @@ bool InsoleAnalyze::Propagate() {
 
 bool InsoleAnalyze::HasToRun() {
 	return insole_in && insole_in->IsValid() && insoleFlat_in
-			&& insoleFlat_in->IsValid() && insole_out && !insole_out->IsValid()
-			&& insole_out->IsNeeded() && insoleFlat_out
-			&& !insoleFlat_out->IsValid() && insoleFlat_out->IsNeeded();
+			&& insoleFlat_in->IsValid() && insole_out && insoleFlat_out
+			&& ((!insole_out->IsValid() && insole_out->IsNeeded())
+					|| (!insoleFlat_out->IsValid() && insoleFlat_out->IsNeeded()));
 }
 
 void InsoleAnalyze::Run() {
