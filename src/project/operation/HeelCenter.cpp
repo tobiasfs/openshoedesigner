@@ -108,6 +108,30 @@ void HeelCenter::Run() {
 	*heel_out = *heel_in;
 	*insole_out = *insole_in;
 
+	// Find the center of the ankle.
+	AffineTransformMatrix m;
+	// Describe the coordinate system forwards
+	m.SetOrigin( { insole_in->J.x, insole_in->J.y, 0.0 });
+	Vector3 front = insole_in->B - insole_in->A;
+	front.z = 0.0;
+	m.SetEx(front.Normal());
+	m.SetEz( { 0, 0, 1 });
+
+	// If the insole is a right insole, flip the coordinate system.
+	Vector3 test = (insole_in->B - insole_in->A)
+			* (insole_in->F - insole_in->E);
+	if (test.z < 0.0)
+		m.SetOrientation(AffineTransformMatrix::Orientation::LHS);
+	m.CalculateEy();
+	m.Invert();
+
+	heel_out->Transform(m);
+	insole_out->Transform(m);
+
+//	insole_out->outline.paintNormals = true;
+//	insole_out->paintNormals = true;
+//	heel_out->paintNormals = true;
+
 	heel_out->MarkValid(true);
 	insole_out->MarkValid(true);
 	heel_out->MarkNeeded(false);

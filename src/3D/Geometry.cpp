@@ -1026,7 +1026,7 @@ void Geometry::Join() {
 
 		// Normalize normal vectors.
 		if (verticesHaveNormal)
-			for (size_t i = 1; i < v.size(); ++i)
+			for (size_t i = 0; i < v.size(); ++i)
 				v[i].n.Normalize();
 
 		// Map edges and triangles
@@ -1076,7 +1076,7 @@ void Geometry::Join() {
 		ecount.erase(ecount.begin() + (int) j + 1, ecount.end());
 
 		// Normalize normal vectors
-		for (size_t i = 1; i < e.size(); ++i)
+		for (size_t i = 0; i < e.size(); ++i)
 			e[i].n /= (double) ecount[i];
 
 		// Map triangles
@@ -2126,8 +2126,10 @@ void Geometry::Transform(const AffineTransformMatrix &matrix) {
 	if (orientation == AffineTransformMatrix::Orientation::LHS)
 		FlipInsideOutside();
 
-	for (Vertex &vertex : v)
+	for (Vertex &vertex : v) {
 		vertex.Transform(matrix);
+		vertex.n = matrixnormal.Transform(vertex.n);
+	}
 	for (Edge &edge : e)
 		edge.n = matrixnormal.Transform(edge.n);
 	for (Triangle &tri : t)
@@ -2857,13 +2859,13 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 	glEnd();
 	glPopName();
 
-	if (paintNormals && !smooth && trianglesHaveNormal) {
+	if (paintNormals && trianglesHaveNormal) {
 		glBegin(GL_LINES);
 		for (const Triangle &tri : t) {
-			glNormal3f(tri.n.x, tri.n.y, tri.n.z);
+			GLNormal(tri.n);
 			const Vector3 center = (v[tri.va] + v[tri.vb] + v[tri.vc]) / 3.0;
 			glColor3f(1.0, 0.0, 0.0);
-			GLVertex(center - tri.n * normalscale);
+			GLVertex(center - tri.n * normalscale * 0.0);
 			glColor3f(0.0, 1.0, 0.0);
 			GLVertex(center + tri.n * normalscale);
 
@@ -2874,7 +2876,7 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 }
 
 void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
-	const double normalscale = 1.0;
+	const double normalscale = 0.05;
 	glPushMatrix();
 	matrix.GLMultMatrix();
 	GLuint group = 0;
@@ -2897,20 +2899,21 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 				continue;
 			if (!ed.sharp)
 				continue;
+
 			if (edgesHaveColor && !verticesHaveColor)
 				GLColor(ed.c);
+			if (edgesHaveNormal && !verticesHaveNormal)
+				GLNormal(ed.n);
 			if (verticesHaveColor)
 				GLColor(v[ed.va].c);
-			GLNormal(v[ed.va].n);
+			if (verticesHaveNormal)
+				GLNormal(v[ed.va]);
 			GLVertex(v[ed.va]);
 			if (verticesHaveColor)
 				GLColor(v[ed.vb].c);
-			GLNormal(v[ed.vb].n);
+			if (verticesHaveNormal)
+				GLNormal(v[ed.vb]);
 			GLVertex(v[ed.vb]);
-			//			glNormal3f(v[ed.va].n.x, v[ed.va].n.y, v[ed.va].n.z);
-//			glVertex3f(v[ed.va].x, v[ed.va].y, v[ed.va].z);
-//			glNormal3f(v[ed.vb].n.x, v[ed.vb].n.y, v[ed.vb].n.z);
-//			glVertex3f(v[ed.vb].x, v[ed.vb].y, v[ed.vb].z);
 		}
 	} else {
 		for (const Edge &ed : e) {
@@ -2935,8 +2938,17 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 //			glColor3f(0.8, 0.8, 0.8);
 			if (edgesHaveColor)
 				GLColor(ed.c);
-			GLNormal(ed.n);
+			if (edgesHaveNormal)
+				GLNormal(ed.n);
+			if (!edgesHaveColor && verticesHaveColor)
+				GLColor(v[ed.va].c);
+			if (!edgesHaveNormal && verticesHaveNormal)
+				GLNormal(v[ed.va]);
 			GLVertex(v[ed.va]);
+			if (!edgesHaveColor && verticesHaveColor)
+				GLColor(v[ed.vb].c);
+			if (!edgesHaveNormal && verticesHaveNormal)
+				GLNormal(v[ed.vb]);
 			GLVertex(v[ed.vb]);
 		}
 	}
@@ -2973,13 +2985,23 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 
 	if (paintNormals) {
 		glBegin(GL_LINES);
-		for (const auto &ed : e) {
-			if (edgesHaveColor)
-				GLColor(ed.c);
-			GLNormal(ed.n);
-			const Vector3 center = (v[ed.va] + v[ed.vb]) / 2.0;
-			GLVertex(center);
-			GLVertex(center + ed.n * normalscale);
+		if (edgesHaveNormal) {
+			for (const auto &ed : e) {
+				if (edgesHaveColor)
+					GLColor(ed.c);
+				GLNormal(ed.n);
+				const Vector3 center = (v[ed.va] + v[ed.vb]) / 2.0;
+				GLVertex(center);
+				GLVertex(center + ed.n * normalscale);
+			}
+		} else if (verticesHaveNormal) {
+			for (const auto &vert : v) {
+				if (verticesHaveColor)
+					GLColor(vert.c);
+				GLNormal(vert.n);
+				GLVertex(vert);
+				GLVertex(vert + vert.n * normalscale);
+			}
 		}
 		glEnd();
 	}
@@ -3053,7 +3075,7 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 	return;
 #endif
 
-	// Note: A glVertexAttributePointer can only handle up to 4 floats.
+// Note: A glVertexAttributePointer can only handle up to 4 floats.
 
 	std::regex reFields("XYZ|XY|X|RGBA|RGB|RG|R|T|B|N|UV|.");
 	enum Op {

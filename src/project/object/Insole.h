@@ -102,6 +102,12 @@ protected:
 	};
 
 public:
+	/**\brief Transform the insole using a transform matrix.
+	 *
+	 * Has the advantage, that the normal vectors are transformed correctly.
+	 */
+	void Transform(const AffineTransformMatrix &m);
+
 	/**\brief Transform X,Y,Z values of insole.
 	 *
 	 * This transforms the X,Y,Z values of the insole while keeping U and V.

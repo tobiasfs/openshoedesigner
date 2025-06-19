@@ -94,7 +94,7 @@ void HeelNormalize::Run() {
 
 	if (heelReorient->GetSelectionIdx() == 1) {
 		AffineTransformMatrix mo;
-		mo.ScaleGlobal(-1, -1, 1);
+		mo.ScaleGlobal(1, -1, 1);
 		out->Transform(mo);
 	}
 

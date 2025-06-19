@@ -92,8 +92,10 @@ void HeelExtractInsole::Run() {
 		DEBUGOUT << "in is NOK\n";
 	}
 
+	const Vector3 up(0.707, 0.0, 0.707);
+
 	in->CalculateGroups(22.5 / 180.0 * M_PI);
-	in->SelectFacesCloseTo( { 1, 0, 1 });
+	in->SelectFacesCloseTo(up);
 
 	out->Clear();
 	out->AddSelectedFrom(*in);
@@ -102,11 +104,36 @@ void HeelExtractInsole::Run() {
 	} else {
 		DEBUGOUT << "out is NOK\n";
 	}
+
+#ifdef DEBUG
+	// Areas of all triangles. (Broken triangles have typically a very small
+	// area; they are almost collapsed. The calculation of the normal might
+	// be therefore off.
+	std::vector<double> areas(out->CountTriangles(), 0.0);
+	for (size_t idx = 0; idx < out->CountTriangles(); idx++)
+		areas[idx] = out->GetTriangleArea(idx);
+
+	// For an example insole the sum of the areas is around 200 cm^2.
+	// The median is 0.8cm^2; the mean is 2cm^2. This indicates many sliver-
+	// triangles.
+	std::vector<double> nlength(out->CountTriangles(), 0.0);
+	for (size_t idx = 0; idx < out->CountTriangles(); idx++) {
+		const Geometry::Triangle &t = out->GetTriangle(idx);
+		nlength[idx] = t.n.Dot(up);
+	}
+
+	{
+		Exporter ex("/tmp/tri_areas.mat");
+		ex.Add(areas, "areas");
+		ex.Add(nlength, "nlength");
+	}
+#endif
+
 	out->UpdateNormals(true, true, false);
 	out->outline.Clear();
 
-	// Fixing and sorting is done here, so that insole and insoleFlat have
-	// the same vertex-ordering.
+	// Fixing and sorting is already done here, so that insole and insoleFlat
+	// have the same vertex-ordering.
 	out->Fix();
 	out->Sort(); // This mitigates, that EnergyRelease::InitByUniformDimension is broken for certain edge-cases.
 

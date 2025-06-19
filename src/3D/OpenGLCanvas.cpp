@@ -73,7 +73,7 @@ OpenGLCanvas::OpenGLCanvas(wxWindow *parent, wxWindowID id, const wxPoint &pos,
 	leftEyeG = 0;
 	leftEyeB = 0;
 
-	rotationMode = Rotation::Turntable;
+	rotationMode = Rotation::Interwoven;
 
 	this->Connect(wxEVT_PAINT, wxPaintEventHandler(OpenGLCanvas::OnPaint),
 			nullptr, this);
@@ -250,7 +250,7 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 		}
 		case Rotation::Interwoven: {
 			rotmat = AffineTransformMatrix::RotationXY(event.m_x - x,
-					event.m_y - y, 0.5) * rotmat;
+					event.m_y - y, 2.0) * rotmat;
 			break;
 		}
 		case Rotation::Turntable: {
@@ -278,7 +278,10 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 			movement = unitAtOrigin;
 		const float dx = (float) (event.m_x - x) / movement;
 		const float dy = (float) (event.m_y - y) / movement;
-		transmat.TranslateGlobal(dx, -dy, 0);
+		if (rotationMode == Rotation::Turntable)
+			transmat.TranslateGlobal(dx, -dy, 0);
+		else
+			rotmat.TranslateGlobal(dx, -dy, 0);
 		x = event.m_x;
 		y = event.m_y;
 

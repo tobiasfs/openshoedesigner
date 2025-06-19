@@ -54,6 +54,10 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 	wxPen *d = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1,
 			wxPENSTYLE_DOT);
 
+	auto mapUV = [&m](const Geometry::Vertex &p) {
+		return m.Transform(p.x, p.y);
+	};
+
 //	dc.SetPen(*c);
 //	for (size_t n = 0; n < insole->CountEdges(); ++n) {
 //		const auto &ed = insole->GetEdge(n);
@@ -70,8 +74,8 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 		const auto &ed = insole->outline.GetEdge(n);
 		const auto &v0 = insole->outline.GetEdgeVertex(n, 0);
 		const auto &v1 = insole->outline.GetEdgeVertex(n, 1);
-		Vector3 p2 = m.Transform(v0.x, v0.y);
-		Vector3 p3 = m.Transform(v1.x, v1.y);
+		Vector3 p2 = mapUV(v0);
+		Vector3 p3 = mapUV(v1);
 
 		wxPen *pc = wxThePenList->FindOrCreatePen(
 				wxColour(ed.c.r, ed.c.g, ed.c.b), 1);
@@ -86,10 +90,6 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 //		dc.DrawLine(p4.x, p4.y, p5.x, p5.y);
 
 	}
-
-	auto mapUV = [&m](const Geometry::Vertex &p) {
-		return m.Transform(p.x, p.y);
-	};
 
 	Vector3 A = mapUV(insole->A);
 	Vector3 B = mapUV(insole->B);

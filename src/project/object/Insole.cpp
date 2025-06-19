@@ -106,6 +106,28 @@ void Insole::Line::Paint() const {
 	glEnd();
 }
 
+void Insole::Transform(const AffineTransformMatrix &m) {
+	A.Transform(m);
+	B.Transform(m);
+	C.Transform(m);
+	D.Transform(m);
+	E.Transform(m);
+	F.Transform(m);
+	G.Transform(m);
+	H.Transform(m);
+	J.Transform(m);
+	K.Transform(m);
+	L.Transform(m);
+	M.Transform(m);
+	N.Transform(m);
+	P.Transform(m);
+	Z.Transform(m);
+	Geometry::Transform(m);
+	outline.Transform(m);
+	for (auto &line : lines)
+		line.Transform(m);
+}
+
 void Insole::Transform(std::function<Vector3(Vector3)> func) {
 	A.Transform(func);
 	B.Transform(func);
@@ -124,7 +146,7 @@ void Insole::Transform(std::function<Vector3(Vector3)> func) {
 	Z.Transform(func);
 	Geometry::Transform(func);
 	outline.Transform(func);
-	this->CalculateNormals();
+//	this->CalculateNormals();
 	for (auto &line : lines)
 		line.Transform(func);
 }
@@ -146,10 +168,13 @@ void Insole::Paint() const {
 //	for(auto & line : lines)
 //		line.Paint();
 
-	outline.Paint();
+
+	Geometry::Paint();
+//	outline.Paint();
 
 	glPointSize(5);
 
+	// Only paint the points on the outline and J.
 	ToOpenGL(A, "A");
 	ToOpenGL(B, "B");
 	ToOpenGL(C, "C");

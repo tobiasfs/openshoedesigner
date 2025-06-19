@@ -27,6 +27,7 @@
 
 #include "../../math/EnergyRelease.h"
 #include "../../math/Exporter.h"
+#include "../../math/Kernel.h"
 #include "../../math/PCA.h"
 #ifdef USE_EIGEN
 #include <Eigen/Dense>
@@ -195,7 +196,7 @@ void InsoleFlatten::Run() {
 		throw std::logic_error(err.str());
 	}
 #endif
-
+	Vector3 uniqueDimension = m.GetEz().Normal();
 	m.Invert();
 	EnergyRelease::InitByUniformDimension(*out, m);
 
@@ -205,13 +206,57 @@ void InsoleFlatten::Run() {
 		v.x = v.u;
 		v.y = v.v;
 		v.z = 0.0;
-		v.n.Set(0.0, 0.0, 1.0);
 	}
-	// Move the normals and the UV from the vertices to the triangles
-	// (and edges)
-	out->UpdateNormals(false, true, true);
+	// Move the UV values from the vertices to the triangles
 	out->FlagUV(true, false);
 	out->CalculateUVCoordinateSystems();
+
+	// Fix the normal vectors for the triangles
+
+	std::vector<double> areas(out->CountTriangles(), 0.0);
+	for (size_t idx = 0; idx < out->CountTriangles(); idx++)
+		areas[idx] = out->GetTriangleArea(idx);
+	std::vector<double> defect(out->CountTriangles(), 0.0);
+	for (size_t idx = 0; idx < out->CountTriangles(); idx++) {
+		Geometry::Triangle &t = out->GetTriangle(idx);
+		Vector3 local = m.Transform(t.n);
+		// Check if the normal vector points into the unique dimension
+		// or the has a negative normal. To determine this the rotation of the
+		// normals around the main axis of the insole is calculated. This
+		// should be close to zeros.
+		defect[idx] = atan2(local.z, local.y);
+	}
+	for (size_t idx = 0; idx < out->CountTriangles(); idx++) {
+		Geometry::Triangle &t = out->GetTriangle(idx);
+		// Collapse the unique dimension for all normal-vectors.
+		t.n = (t.n - uniqueDimension * t.n.Dot(uniqueDimension)).Normal();
+	}
+	// Replace the defect normals using interpolation over nearby (in U)
+	// triangles.
+	Kernel::Function k = Kernel::Stretch(Kernel::Triweight, 0.1);
+	const double defectLimit = 0.01;
+	for (size_t idx = 0; idx < out->CountTriangles(); idx++) {
+		if (fabs(defect[idx]) < defectLimit)
+			continue;
+		Geometry::Triangle &t = out->GetTriangle(idx);
+		const double u0 = (t.tua + t.tub + t.tuc) / 3.0;
+		Vector3 n1;
+		double L = 0.0;
+		for (size_t idx1 = 0; idx1 < out->CountTriangles(); idx1++) {
+			if (defect[idx1] >= defectLimit)
+				continue;
+			Geometry::Triangle &t1 = out->GetTriangle(idx1);
+			const double u1 = (t1.tua + t1.tub + t1.tuc) / 3.0;
+			const double w = k(u1 - u0);
+			n1 += t1.n * w;
+			L += w;
+		}
+		if (fabs(L) > FLT_EPSILON)
+			t.n = n1.Normal();
+	}
+
+	// Move the normals and the UV from the vertices to the edges
+	out->UpdateNormals(true, true, false);
 
 	out->outline.Clear();
 	out->outline.ExtractOutline(*out);
@@ -234,18 +279,18 @@ void InsoleFlatten::Run() {
 		Matrix M1("out", out->CountVertices(), 5);
 		for (size_t idx = 0; idx < out->CountVertices(); idx++) {
 			const auto &v = out->GetVertex(idx);
-			M1.Insert(v.x, idx, 0);
-			M1.Insert(v.y, idx, 1);
-			M1.Insert(v.z, idx, 2);
+			M1.Insert(v.n.x, idx, 0);
+			M1.Insert(v.n.y, idx, 1);
+			M1.Insert(v.n.z, idx, 2);
 			M1.Insert(v.u, idx, 3);
 			M1.Insert(v.v, idx, 4);
 		}
 		Matrix M2("outline", out->outline.CountVertices(), 5);
 		for (size_t idx = 0; idx < out->outline.CountVertices(); idx++) {
 			const auto &v = out->outline.GetVertex(idx);
-			M2.Insert(v.x, idx, 0);
-			M2.Insert(v.y, idx, 1);
-			M2.Insert(v.z, idx, 2);
+			M2.Insert(v.n.x, idx, 0);
+			M2.Insert(v.n.y, idx, 1);
+			M2.Insert(v.n.z, idx, 2);
 			M2.Insert(v.u, idx, 3);
 			M2.Insert(v.v, idx, 4);
 		}
