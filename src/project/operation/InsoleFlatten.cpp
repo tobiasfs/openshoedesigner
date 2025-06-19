@@ -149,17 +149,17 @@ bool InsoleFlatten::HasToRun() {
 
 void InsoleFlatten::Run() {
 	*out = *in;
-	out->Geometry::CalculateNormals();
 
 	// Find the uniform axis of the insole.
 	// This is the axis along which the insole is NOT bend.
+	out->Geometry::CalculateNormals();
+	AffineTransformMatrix m;
 
 #ifdef USE_EIGEN
 	Eigen::MatrixXd M;
 	M.resize(out->CountTriangles(), 3);
 
 	// Transpose and map to Eigen matrices.
-	size_t p = 0;
 	for (size_t i = 0; i < out->CountTriangles(); i++) {
 		const Geometry::Triangle &t = out->GetTriangle(i);
 		const double a = out->GetTriangleArea(i);
@@ -169,20 +169,22 @@ void InsoleFlatten::Run() {
 	}
 
 	Eigen::BDCSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeThinV);
+
 	Eigen::MatrixXd S = svd.singularValues();
 	Eigen::MatrixXd V = svd.matrixV();
-
-//	Eigen::MatrixXd pinvM = M.completeOrthogonalDecomposition().pseudoInverse();
-//	Eigen::MatrixXd S = Eigen::MatrixXd::Identity(3, 3) - pinvM * M;
+	// Eigen guarantees, that the eigenvalues are always in descending order.
 
 	DEBUGOUT << "Eigenvalues:\n" << S << '\n';
 	DEBUGOUT << "V - Matrix:\n" << V << '\n';
 
 	// The column in V for which the eigenvalue in S is smallest is the axis
-	// that is least (or not at all) bent.
+	// that is least (or not at all) bent. The major eigenvalue points in the
+	// main surface direction. The middle eigenvalue is the one, that the
+	// U values are ordered in. Thus the mapping is YXZ: XY -> U, Z -> V.
+	m.SetEy( { V(0, 0), V(1, 0), V(2, 0) });
+	m.SetEx( { V(0, 1), V(1, 1), V(2, 1) });
+	m.SetEz( { V(0, 2), V(1, 2), V(2, 2) });
 
-	//TODO: Use the result above to calculate the uniform dimension.
-	EnergyRelease::InitByUniformDimension(*out, { 0, 1, 0 });
 #else
 	{
 		std::ostringstream err;
@@ -194,7 +196,10 @@ void InsoleFlatten::Run() {
 	}
 #endif
 
-	// The UV coordinates are set to XY with Z = 0.
+	m.Invert();
+	EnergyRelease::InitByUniformDimension(*out, m);
+
+	// The UV coordinates are copied to XY with Z = 0.
 	for (size_t idx = 0; idx < out->CountVertices(); idx++) {
 		auto &v = out->GetVertex(idx);
 		v.x = v.u;
@@ -202,11 +207,15 @@ void InsoleFlatten::Run() {
 		v.z = 0.0;
 		v.n.Set(0.0, 0.0, 1.0);
 	}
-
+	// Move the normals and the UV from the vertices to the triangles
+	// (and edges)
+	out->UpdateNormals(false, true, true);
+	out->FlagUV(true, false);
 	out->CalculateUVCoordinateSystems();
 
 	out->outline.Clear();
 	out->outline.ExtractOutline(*out);
+	// At this point the insole-outline has also the XY coordinates in UV.
 
 	// Orient outline mathematically positive.
 	// Each edge points mathematically positive direction in relation to the

@@ -105,6 +105,11 @@ void HeelExtractInsole::Run() {
 	out->UpdateNormals(true, true, false);
 	out->outline.Clear();
 
+	// Fixing and sorting is done here, so that insole and insoleFlat have
+	// the same vertex-ordering.
+	out->Fix();
+	out->Sort(); // This mitigates, that EnergyRelease::InitByUniformDimension is broken for certain edge-cases.
+
 #ifdef DEBUG
 	{
 

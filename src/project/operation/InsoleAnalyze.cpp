@@ -24,6 +24,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 #include "InsoleAnalyze.h"
+#include "../../math/Exporter.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -145,14 +146,35 @@ void InsoleAnalyze::Run() {
 	*insole_out = *insole_in;
 	*insoleFlat_out = *insoleFlat_in;
 
-	// For all calculations below, the insole is assumed to be flat, i.e. Z=0
+	// Copy the UV coordinates over to the unflattened insole. The ordering of
+	// the vertices in the geometry should have stayed the same during the
+	// flattening.
+	if (insoleFlat_out->CountVertices() != insole_out->CountVertices()) {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
+				<< __FUNCTION__ << " - ";
+		err
+				<< "The insole and the flattened insole have different counts of vertices. These counts should be exactly the same.";
+		error = err.str();
+		throw std::runtime_error(err.str());
+	}
+	for (size_t idx = 0; idx < insole_out->CountVertices(); idx++) {
+		auto &src = insoleFlat_out->GetVertex(idx);
+		auto &dst = insole_out->GetVertex(idx);
+		dst.u = src.u;
+		dst.v = src.v;
+	}
+	insole_out->FlagUV(true, false);
+	insole_out->CalculateUVCoordinateSystems();
+
+	// For all calculations below, the insoleFlat is assumed to have Z=0
 	// for all vertices.
 
 	auto dist = [](double a, double b) {
 		return sqrt(a * a + b * b);
 	};
 
-	// Find longest distance in insole outline.
+	// Find longest distance in insoleFlat outline.
 	double LLast = 0;
 	size_t idx0 = 0;
 	size_t idx1 = 0;
@@ -389,58 +411,68 @@ void InsoleAnalyze::Run() {
 				+ Insole::Point::FromXY(n2.x * m, n2.y * m);
 	}
 
+	// Sort and map the outline to the unflattened insole.
+	insoleFlat_out->outline.SortLoop();
+
+	insole_out->outline.Clear();
+	for (size_t idx = 0; idx < insoleFlat_out->outline.CountVertices(); idx++) {
+		Geometry::Vertex v = ClosestVertex(
+				insoleFlat_out->outline.GetVertex(idx), *insole_out);
+		insole_out->outline.AddEdgeToVertex(v);
+	}
+	insole_out->outline.CloseLoopNextGroup();
+
 	// Calculate the U coordinate of the outline used for the last coordinate
 	// system. (V is always 0.0.)
-
-	insoleFlat_out->outline.SortLoop();
 
 	MapLinear(insoleFlat_out->outline, insoleFlat_out->B, insoleFlat_out->A, 0,
 	M_PI);
 	MapLinear(insoleFlat_out->outline, insoleFlat_out->A, insoleFlat_out->B,
 			-M_PI, 0);
 
-	// MapLinear sets the U values. V is set to 0.0.
+	// MapLinear only sets the U values. V is set to 0.0. Copy the U values
+	// to the unflattened outline.
 	for (size_t idx = 0; idx < insoleFlat_out->outline.CountVertices(); idx++) {
-		Geometry::Vertex &v = insoleFlat_out->outline.GetVertex(idx);
-		v.v = 0.0;
+		Geometry::Vertex &v0 = insoleFlat_out->outline.GetVertex(idx);
+		Geometry::Vertex &v1 = insole_out->outline.GetVertex(idx);
+		v0.v = 0.0;
+		v1.u = v0.u;
+		v1.v = 0.0;
 	}
 
-	MapPointToOutline(insoleFlat_out->A, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->B, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->C, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->D, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->E, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->F, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->G, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->H, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->J, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->K, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->L, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->M, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->N, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->P, insoleFlat_out->outline);
-	MapPointToOutline(insoleFlat_out->Z, insoleFlat_out->outline);
+	// Map all construction points UV to the outline. Map the unflattened
+	// construction points at the same time.
 
-	// Copy the UV coordinates over to the unflattened insole. The ordering of
-	// the vertices in the geometry should have stayed the same during the
-	// flattening and the analysis.
-	if (insoleFlat_out->CountVertices() != insole_out->CountVertices()) {
-		std::ostringstream err;
-		err << __FILE__ << ":" << __LINE__ << ":" << GetName() << "::"
-				<< __FUNCTION__ << " - ";
-		err
-				<< "The insole and the flattened insole have different counts of vertices. These counts should be exactly the same.";
-		error = err.str();
-		throw std::runtime_error(err.str());
-	}
-	for (size_t idx = 0; idx < insole_out->CountVertices(); idx++) {
-		auto &src = insoleFlat_out->GetVertex(idx);
-		auto &dst = insole_out->GetVertex(idx);
-		dst.u = src.u;
-		dst.v = src.v;
-	}
-	insole_out->FlagUV(true, false);
-	insole_out->CalculateUVCoordinateSystems();
+	MapPointToOutline(insoleFlat_out->A, insole_out->A, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->B, insole_out->B, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->C, insole_out->C, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->D, insole_out->D, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->E, insole_out->E, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->F, insole_out->F, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->G, insole_out->G, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->H, insole_out->H, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->J, insole_out->J, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->K, insole_out->K, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->L, insole_out->L, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->M, insole_out->M, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->N, insole_out->N, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->P, insole_out->P, insoleFlat_out->outline,
+			insole_out->outline);
+	MapPointToOutline(insoleFlat_out->Z, insole_out->Z, insoleFlat_out->outline,
+			insole_out->outline);
 
 	// Map XYZ coordinates of the construction points on the outline from
 	// flattened to normal insole. This is done using the UV coordinates and
@@ -448,41 +480,27 @@ void InsoleAnalyze::Run() {
 
 	// Calculate the normal vectors in UV on each side of the triangle pointing
 	// outwards.
-	std::vector<Vector3> triNormal(insole_out->CountTriangles() * 3);
-	for (size_t idx = 0; idx < insole_out->CountTriangles(); idx++) {
-		for (uint8_t eidx = 0; eidx < 3; eidx++) {
-			const Geometry::Vertex &v0 = insole_out->GetTriangleVertex(idx,
-					eidx);
-			const Geometry::Vertex &v1 = insole_out->GetTriangleVertex(idx,
-					(eidx + 1) % 3);
-			Geometry::Vertex temp = Normal(Diff(v1, v0));
-			triNormal[idx * 3 + eidx].Set(temp.v, -temp.u); // Rotate -90 deg.
-		}
-	}
+//	std::vector<Vector3> triNormal(insole_out->CountTriangles() * 3);
+//	for (size_t idx = 0; idx < insole_out->CountTriangles(); idx++) {
+//		for (uint8_t eidx = 0; eidx < 3; eidx++) {
+//			const Geometry::Vertex &v0 = insole_out->GetTriangleVertex(idx,
+//					eidx);
+//			const Geometry::Vertex &v1 = insole_out->GetTriangleVertex(idx,
+//					(eidx + 1) % 3);
+//			Geometry::Vertex temp = Normal(Diff(v1, v0));
+//			triNormal[idx * 3 + eidx].Set(temp.v, -temp.u); // Rotate -90 deg.
+//		}
+//	}
 
-	insole_out->A = MapUVtoXYZ(insoleFlat_out->A, *insole_out, triNormal);
-	insole_out->B = MapUVtoXYZ(insoleFlat_out->B, *insole_out, triNormal);
-	insole_out->C = MapUVtoXYZ(insoleFlat_out->C, *insole_out, triNormal);
-	insole_out->D = MapUVtoXYZ(insoleFlat_out->D, *insole_out, triNormal);
-	insole_out->E = MapUVtoXYZ(insoleFlat_out->E, *insole_out, triNormal);
-	insole_out->F = MapUVtoXYZ(insoleFlat_out->F, *insole_out, triNormal);
-	insole_out->G = MapUVtoXYZ(insoleFlat_out->G, *insole_out, triNormal);
-	insole_out->H = MapUVtoXYZ(insoleFlat_out->H, *insole_out, triNormal);
-	insole_out->J = MapUVtoXYZ(insoleFlat_out->J, *insole_out, triNormal);
-	insole_out->K = MapUVtoXYZ(insoleFlat_out->K, *insole_out, triNormal);
-	insole_out->L = MapUVtoXYZ(insoleFlat_out->L, *insole_out, triNormal);
-	insole_out->M = MapUVtoXYZ(insoleFlat_out->M, *insole_out, triNormal);
-	insole_out->N = MapUVtoXYZ(insoleFlat_out->N, *insole_out, triNormal);
-	insole_out->P = MapUVtoXYZ(insoleFlat_out->P, *insole_out, triNormal);
-	insole_out->Z = MapUVtoXYZ(insoleFlat_out->Z, *insole_out, triNormal);
-
-	insole_out->outline.Clear();
-	for (size_t idx = 0; idx < insoleFlat_out->CountVertices(); idx++) {
-		Geometry::Vertex v = MapUVtoXYZ(insoleFlat_out->outline.GetVertex(idx),
-				*insole_out, triNormal);
-		insole_out->outline.AddEdgeToVertex(v);
+#ifdef DEBUG
+	{
+		Exporter ex("/tmp/geo.mat");
+		ex.Add(*insoleFlat_out, "insoleflat");
+		ex.Add(insoleFlat_out->outline, "outlineflat");
+		ex.Add(*insole_out, "insole");
+		ex.Add(insole_out->outline, "outline");
 	}
-	insole_out->outline.CloseLoopNextGroup();
+#endif
 
 	insole_out->MarkValid(true);
 	insoleFlat_out->MarkValid(true);
@@ -549,48 +567,24 @@ Polygon3::Intersections InsoleAnalyze::Intersect(const Geometry &geo,
 	return ret;
 }
 
-Insole::Point InsoleAnalyze::MapUVtoXYZ(Insole::Point p, const Geometry &dst,
-		const std::vector<Vector3> &triNormal) const {
+Geometry::Vertex InsoleAnalyze::ClosestVertex(const Geometry::Vertex &v,
+		const Geometry &dst) const {
 
-	// Find closest triangle to point p.
-
+	// Find closest triangle to point v.
+	auto dist = [](double a, double b) {
+		return sqrt(a * a + b * b);
+	};
 	size_t idx = 0;
 	double dmin = DBL_MAX;
-	for (size_t tidx = 0; tidx < dst.CountTriangles(); tidx++) {
-		// Calculate the largest distance of the three sides of a triangle.
-		double d = -DBL_MAX;
-		for (uint_fast8_t eidx = 0; eidx < 3; eidx++) {
-			const Geometry::Vertex &v = dst.GetTriangleVertex(tidx, eidx);
-			const Vector3 &n = triNormal[tidx * 3 + eidx];
-			const double dl = n.x * (p.u - v.u) + n.y * (p.v - v.v);
-			if (dl > d)
-				d = dl;
-		}
+	for (size_t vidx = 0; vidx < dst.CountVertices(); vidx++) {
+		const Geometry::Vertex &vdest = dst.GetVertex(vidx);
+		const double d = dist(v.u - vdest.u, v.v - vdest.v);
 		if (d < dmin) {
 			dmin = d;
-			idx = tidx;
+			idx = vidx;
 		}
 	}
-
-	// The UV coordinate systems (tangent, bitrange, normal) in each triangle
-	// map the UV coordinates to XYZ coordinates.
-	// Calculate the inverse coordinate systems for all triangles in the
-	// unflattened insole.
-
-	const Geometry::Triangle &t = dst.GetTriangle(idx);
-	AffineTransformMatrix m;
-	m.SetEx(t.t);
-	m.SetEy(t.b);
-	m.SetEz(t.n);
-	// Calculate the origin
-	const Geometry::Vertex &v = dst.GetVertex(t.va);
-	Vector3 temp = m.Transform(t.tua, t.tva);
-	m.SetOrigin( { v.x - temp.x, v.y - temp.y, v.z - temp.z });
-	Vector3 pos = m.Transform(p.u, p.v);
-	p.x = pos.x;
-	p.y = pos.y;
-	p.z = pos.z;
-	return p;
+	return dst.GetVertex(idx);
 }
 
 void InsoleAnalyze::MapLinear(Polygon3 &geo, const Insole::Point &p0,
@@ -704,20 +698,20 @@ void InsoleAnalyze::MapLinear(Polygon3 &geo, const Insole::Point &p0,
 //	DEBUGOUT << "Length of outline between p0 and p1: " << L * 100.0 << " cm\n";
 }
 
-void InsoleAnalyze::MapPointToOutline(Insole::Point &p,
-		Polygon3 &outline) const {
+void InsoleAnalyze::MapPointToOutline(Insole::Point &p0, Insole::Point &p1,
+		Polygon3 &outline0, Polygon3 &outline1) const {
 
 	size_t idx0 = 0;
 	double dMin0 = DBL_MAX;
 	double r0 = 0.0;
 
-	for (size_t idx = 0; idx < outline.CountEdges(); idx++) {
-		const Geometry::Vertex &v0 = outline.GetEdgeVertex(idx, 0);
-		const Geometry::Vertex &v1 = outline.GetEdgeVertex(idx, 1);
+	for (size_t idx = 0; idx < outline0.CountEdges(); idx++) {
+		const Geometry::Vertex &v0 = outline0.GetEdgeVertex(idx, 0);
+		const Geometry::Vertex &v1 = outline0.GetEdgeVertex(idx, 1);
 		Geometry::Vertex dir = Diff(v1, v0);
 		const double L = dir.Abs();
-		Vector3 n = Vector3(dir.y, -dir.x, dir.z) / L; // Rotate -90 deg.
-		Geometry::Vertex temp0 = Diff(p, v0);
+		Vector3 n = Vector3(dir.y, -dir.x, dir.z); // Rotate -90 deg.
+		Geometry::Vertex temp0 = Diff(p0, v0);
 		const double cr0 = (temp0.x * dir.x + temp0.y * dir.y) / L;
 		const double cn0 = (temp0.x * n.x + temp0.y * n.y) / L;
 
@@ -738,9 +732,23 @@ void InsoleAnalyze::MapPointToOutline(Insole::Point &p,
 			idx0 = idx;
 		}
 	}
-	const Geometry::Vertex &v0 = outline.GetEdgeVertex(idx0, 0);
-	const Geometry::Vertex &v1 = outline.GetEdgeVertex(idx0, 1);
-	Geometry::Vertex temp = v0.Interp(v1, r0);
-	p.u = temp.u;
-	p.v = temp.v;
+	// For the first (flattened) point, only adjust UV.
+	{
+		const Geometry::Vertex &v0 = outline0.GetEdgeVertex(idx0, 0);
+		const Geometry::Vertex &v1 = outline0.GetEdgeVertex(idx0, 1);
+		Geometry::Vertex temp = v0.Interp(v1, r0);
+		p0.u = temp.u;
+		p0.v = temp.v;
+	}
+	// For the second (unflattened) point, set all XYZUV.
+	{
+		const Geometry::Vertex &v0 = outline1.GetEdgeVertex(idx0, 0);
+		const Geometry::Vertex &v1 = outline1.GetEdgeVertex(idx0, 1);
+		Geometry::Vertex temp = v0.Interp(v1, r0);
+		p1.x = temp.x;
+		p1.y = temp.y;
+		p1.z = temp.z;
+		p1.u = temp.u;
+		p1.v = temp.v;
+	}
 }

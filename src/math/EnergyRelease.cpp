@@ -55,16 +55,15 @@ void EnergyRelease::InitByPCA(Geometry &geo) {
 }
 
 void EnergyRelease::InitByUniformDimension(Geometry &geo,
-		const Vector3 &uniformDimension) {
-	AffineTransformMatrix m;
-	m.SetEz(uniformDimension);
-	m.SetEy(uniformDimension.Orthogonal());
-	m.CalculateEx();
-	geo.Fix();
+		const AffineTransformMatrix &m) {
 
+	// Ordered distance function. Distances are monotone in a.
 	auto dist = [](double a, double b) {
+		if (a < 0.0)
+			return -sqrt(a * a + b * b);
 		return sqrt(a * a + b * b);
 	};
+
 	std::set<size_t> fixed = { 0 };
 	bool updated = true;
 	while (updated) {
@@ -83,7 +82,7 @@ void EnergyRelease::InitByUniformDimension(Geometry &geo,
 			const Vector3 r1 = m.Transform(geo.GetEdgeVertex(idx, 1));
 			v0.v = r0.z;
 			v1.v = r1.z;
-			const double d = dist(r0.x - r1.x, r0.y - r1.y);
+			const double d = dist(r1.x - r0.x, r1.y - r0.y);
 			if (found0 && !found1) {
 				v1.u = v0.u + d;
 				fixed.insert(vidx1);
@@ -91,25 +90,25 @@ void EnergyRelease::InitByUniformDimension(Geometry &geo,
 				continue;
 			}
 			if (!found0 && found1) {
-				v0.u = v1.u + d;
+				v0.u = v1.u - d;
 				fixed.insert(vidx0);
 				updated = true;
 				continue;
 			}
-			if (v0.u < v1.u) {
-				if (v0.u + d + FLT_EPSILON < v1.u) {
-					v1.u = v0.u + d;
-					updated = true;
-					continue;
-				}
-			}
-			if (v0.u > v1.u) {
-				if (v1.u + d + FLT_EPSILON < v0.u) {
-					v0.u = v1.u + d;
-					updated = true;
-					continue;
-				}
-			}
+//			if (v0.u < v1.u) {
+//				if (v0.u + d + FLT_EPSILON < v1.u) {
+//					v1.u = v0.u + d;
+//					updated = true;
+//					continue;
+//				}
+//			}
+//			if (v0.u > v1.u) {
+//				if (v1.u - d + FLT_EPSILON < v0.u) {
+//					v0.u = v1.u - d;
+//					updated = true;
+//					continue;
+//				}
+//			}
 		}
 	}
 	geo.FlagUV(true, false);
@@ -752,7 +751,7 @@ void EnergyRelease::Calculate(Geometry &geo) {
 
 	}
 #ifdef DEBUG
-		{
+	{
 
 //			Matrix normals("normals", geo.CountTriangles(), 3);
 //			for (size_t idx = 0; idx < geo.CountTriangles(); idx++) {
@@ -769,8 +768,8 @@ void EnergyRelease::Calculate(Geometry &geo) {
 //			ex.Add(tHeight0, "hstar");
 //			ex.Add(hcurr, "h");
 
-		}
-	#endif
+	}
+#endif
 
 }
 

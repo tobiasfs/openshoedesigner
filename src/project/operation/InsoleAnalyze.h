@@ -69,15 +69,13 @@ private:
 			const Geometry::Vertex &a, const Geometry::Vertex &b,
 			double relDistance) const;
 
-	Insole::Point MapUVtoXYZ(Insole::Point p, const Geometry &dst,
-			const std::vector<Vector3> &triNormal) const;
+	Geometry::Vertex ClosestVertex(const Geometry::Vertex &v, const Geometry &dst) const;
 
 	void MapLinear(Polygon3 &geo, const Insole::Point &p0,
 			const Insole::Point &p1, double u0, double u1) const;
 
-	void MapPointToOutline(Insole::Point &p, Polygon3 &outline) const;
-
-
+	void MapPointToOutline(Insole::Point &p0, Insole::Point &p1,
+			Polygon3 &outline0, Polygon3 &outline1) const;
 
 	/**\}
 	 */

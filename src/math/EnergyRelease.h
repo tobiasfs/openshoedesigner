@@ -136,7 +136,7 @@ public:
 	 *  Reduces the UV-mapping to a 2D problem.
 	 */
 	static void InitByUniformDimension(Geometry &geo,
-			const Vector3 &uniformDimension);
+			const AffineTransformMatrix &m);
 
 	void Calculate(Geometry &other);
 

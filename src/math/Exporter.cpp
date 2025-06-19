@@ -81,18 +81,26 @@ void Exporter::Add(const Polygon3 &polygon, const std::string &name) {
 	std::string name_x = name_ + "x";
 	std::string name_y = name_ + "y";
 	std::string name_z = name_ + "z";
+	std::string name_u = name_ + "u";
+	std::string name_v = name_ + "v";
 
 	Matrix Mx(name_x, polygon.Size());
 	Matrix My(name_y, polygon.Size());
 	Matrix Mz(name_z, polygon.Size());
+	Matrix Mu(name_u, polygon.Size());
+	Matrix Mv(name_v, polygon.Size());
 	for (size_t n = 0; n < polygon.Size(); ++n) {
 		Mx[n] = polygon[n].x;
 		My[n] = polygon[n].y;
 		Mz[n] = polygon[n].z;
+		Mu[n] = polygon[n].u;
+		Mv[n] = polygon[n].v;
 	}
 	WriteMatrix(Mx);
 	WriteMatrix(My);
 	WriteMatrix(Mz);
+	WriteMatrix(Mu);
+	WriteMatrix(Mv);
 }
 
 void Exporter::Add(const std::initializer_list<double> &values,
