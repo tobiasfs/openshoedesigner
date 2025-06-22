@@ -59,10 +59,10 @@ public:
 	std::shared_ptr<Insole> in;
 	std::shared_ptr<CoordinateSystem> out;
 
-	std::shared_ptr<ParameterFormula> belowCrutchGirth;
-	std::shared_ptr<ParameterFormula> belowCrutchLevel;
-	std::shared_ptr<ParameterFormula> middleOfCalfGirth;
-	std::shared_ptr<ParameterFormula> middleOfCalfLevel;
+	std::shared_ptr<ParameterFormula> belowCrotchGirth;
+	std::shared_ptr<ParameterFormula> belowCrotchLevel;
+	std::shared_ptr<ParameterFormula> middleOfThighGirth;
+	std::shared_ptr<ParameterFormula> middleOfThighLevel;
 	std::shared_ptr<ParameterFormula> aboveKneeGirth;
 	std::shared_ptr<ParameterFormula> aboveKneeLevel;
 	std::shared_ptr<ParameterFormula> overKneeCapGirth;
@@ -76,9 +76,14 @@ public:
 	std::shared_ptr<ParameterFormula> overAnkleBoneGirth;
 	std::shared_ptr<ParameterFormula> overAnkleBoneLevel;
 
-
 private:
-	Bezier3 elb;
+
+	std::vector<Bezier3> ellipses;
+	std::vector<double> ellipsesV;
+
+	/**\brief Calculate the ellipses that model the leg
+	 */
+	void InitLeg();
 };
 
 #endif /* SRC_PROJECT_OPERATION_COORDINATESYSTEMCONSTRUCT_H_ */

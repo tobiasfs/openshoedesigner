@@ -169,8 +169,15 @@ void Insole::Paint() const {
 //		line.Paint();
 
 
+
 	Geometry::Paint();
-//	outline.Paint();
+
+	Geometry underside = *this;
+	underside.FlipInsideOutside();
+	underside.FlipNormals();
+	underside.Paint();
+
+	outline.Paint();
 
 	glPointSize(5);
 
@@ -192,26 +199,5 @@ void Insole::Paint() const {
 	ToOpenGL(Z, "Z");
 
 	glPointSize(1);
-
-//	size_t count = std::min(inside.Size(), outside.Size());
-//
-//	glBegin(GL_QUAD_STRIP);
-//	for (size_t n = 0; n < count; ++n) {
-////		if (leftside) {
-//		glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
-//		glVertex3f(inside[n].x, inside[n].y, inside[n].z);
-//		glNormal3f(outside.Normal(n).x, outside.Normal(n).y,
-//				outside.Normal(n).z);
-//		glVertex3f(outside[n].x, outside[n].y, outside[n].z);
-////		} else {
-////			glNormal3f(outside.Normal(n).x, outside.Normal(n).y, outside.Normal(n).z);
-////			glVertex3f(outside[n].x, outside[n].y, outside[n].z);
-////			glNormal3f(inside.Normal(n).x, inside.Normal(n).y, inside.Normal(n).z);
-////			glVertex3f(inside[n].x, inside[n].y, inside[n].z);
-////		}
-//	}
-//	glEnd();
-//	inside.Paint();
-//	outside.Paint();
 }
 

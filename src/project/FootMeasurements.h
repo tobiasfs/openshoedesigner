@@ -105,10 +105,10 @@ public:
 	std::shared_ptr<ParameterFormula> legLengthDifference;
 
 	// Measurements for the leg
-	std::shared_ptr<ParameterFormula> belowCrutchGirth;
-	std::shared_ptr<ParameterFormula> belowCrutchLevel;
-	std::shared_ptr<ParameterFormula> middleOfCalfGirth;
-	std::shared_ptr<ParameterFormula> middleOfCalfLevel;
+	std::shared_ptr<ParameterFormula> belowCrotchGirth;
+	std::shared_ptr<ParameterFormula> belowCrotchLevel;
+	std::shared_ptr<ParameterFormula> middleOfThighGirth;
+	std::shared_ptr<ParameterFormula> middleOfThighLevel;
 	std::shared_ptr<ParameterFormula> aboveKneeGirth;
 	std::shared_ptr<ParameterFormula> aboveKneeLevel;
 	std::shared_ptr<ParameterFormula> overKneeCapGirth;

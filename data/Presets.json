@@ -59,7 +59,7 @@
 	"Name": "Boot (crew)",
 	"UpperLevel": "1.25"
 },{
-	"Name": "Boot (half-calf)",
+	"Name": "Boot (half-shank)",
 	"UpperLevel": "1.5"
 },{
 	"Name": "Boot (3/4)",
@@ -71,10 +71,10 @@
 	"Name": "Boot (over-knee)",
 	"UpperLevel": "2.1"
 },{
-	"Name": "Boot (tight-high)",
+	"Name": "Boot (high-tight)",
 	"UpperLevel": "2.5"
 },{
-	"Name": "Boot (crutch)",
+	"Name": "Boot (crotch)",
 	"UpperLevel": "2.9"
 },{
 	"Name": "Boot (caps)",

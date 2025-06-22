@@ -48,24 +48,36 @@ void Exporter::Add(const Geometry &geo, const std::string &name) {
 	std::string nameX = name_ + "x";
 	std::string nameY = name_ + "y";
 	std::string nameZ = name_ + "z";
+	std::string nameNX = name_ + "nx";
+	std::string nameNY = name_ + "ny";
+	std::string nameNZ = name_ + "nz";
 	std::string nameU = name_ + "u";
 	std::string nameV = name_ + "v";
 
 	Matrix Mx(nameX, geo.CountVertices(), 1);
 	Matrix My(nameY, geo.CountVertices(), 1);
 	Matrix Mz(nameZ, geo.CountVertices(), 1);
+	Matrix Mnx(nameNX, geo.CountVertices(), 1);
+	Matrix Mny(nameNY, geo.CountVertices(), 1);
+	Matrix Mnz(nameNZ, geo.CountVertices(), 1);
 	Matrix Mu(nameU, geo.CountVertices(), 1);
 	Matrix Mv(nameV, geo.CountVertices(), 1);
 	for (size_t n = 0; n < geo.CountVertices(); ++n) {
 		Mx[n] = geo[n].x;
 		My[n] = geo[n].y;
 		Mz[n] = geo[n].z;
+		Mnx[n] = geo[n].n.x;
+		Mny[n] = geo[n].n.y;
+		Mnz[n] = geo[n].n.z;
 		Mu[n] = geo[n].u;
 		Mv[n] = geo[n].v;
 	}
 	WriteMatrix(Mx);
 	WriteMatrix(My);
 	WriteMatrix(Mz);
+	WriteMatrix(Mnx);
+	WriteMatrix(Mny);
+	WriteMatrix(Mnz);
 	WriteMatrix(Mu);
 	WriteMatrix(Mv);
 }
@@ -78,27 +90,39 @@ void Exporter::Add(const DependentVector &vector, const std::string &name) {
 
 void Exporter::Add(const Polygon3 &polygon, const std::string &name) {
 	std::string name_ = GenName(name);
-	std::string name_x = name_ + "x";
-	std::string name_y = name_ + "y";
-	std::string name_z = name_ + "z";
-	std::string name_u = name_ + "u";
-	std::string name_v = name_ + "v";
+	std::string nameX = name_ + "x";
+	std::string nameY = name_ + "y";
+	std::string nameZ = name_ + "z";
+	std::string nameNX = name_ + "nx";
+	std::string nameNY = name_ + "ny";
+	std::string nameNZ = name_ + "nz";
+	std::string nameU = name_ + "u";
+	std::string nameV = name_ + "v";
 
-	Matrix Mx(name_x, polygon.Size());
-	Matrix My(name_y, polygon.Size());
-	Matrix Mz(name_z, polygon.Size());
-	Matrix Mu(name_u, polygon.Size());
-	Matrix Mv(name_v, polygon.Size());
+	Matrix Mx(nameX, polygon.CountVertices(), 1);
+	Matrix My(nameY, polygon.CountVertices(), 1);
+	Matrix Mz(nameZ, polygon.CountVertices(), 1);
+	Matrix Mnx(nameNX, polygon.CountVertices(), 1);
+	Matrix Mny(nameNY, polygon.CountVertices(), 1);
+	Matrix Mnz(nameNZ, polygon.CountVertices(), 1);
+	Matrix Mu(nameU, polygon.CountVertices(), 1);
+	Matrix Mv(nameV, polygon.CountVertices(), 1);
 	for (size_t n = 0; n < polygon.Size(); ++n) {
 		Mx[n] = polygon[n].x;
 		My[n] = polygon[n].y;
 		Mz[n] = polygon[n].z;
+		Mnx[n] = polygon[n].n.x;
+		Mny[n] = polygon[n].n.y;
+		Mnz[n] = polygon[n].n.z;
 		Mu[n] = polygon[n].u;
 		Mv[n] = polygon[n].v;
 	}
 	WriteMatrix(Mx);
 	WriteMatrix(My);
 	WriteMatrix(Mz);
+	WriteMatrix(Mnx);
+	WriteMatrix(Mny);
+	WriteMatrix(Mnz);
 	WriteMatrix(Mu);
 	WriteMatrix(Mv);
 }

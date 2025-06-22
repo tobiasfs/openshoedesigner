@@ -4064,7 +4064,7 @@
                                                                                         <property name="font"></property>
                                                                                         <property name="gripper">0</property>
                                                                                         <property name="hidden">0</property>
-                                                                                        <property name="id">ID_MEASUREMENT_BELOWCRUTCHGIRTH</property>
+                                                                                        <property name="id">ID_MEASUREMENT_BELOWCROTCHGIRTH</property>
                                                                                         <property name="max_size"></property>
                                                                                         <property name="maximize_button">0</property>
                                                                                         <property name="maximum_size"></property>
@@ -4073,7 +4073,7 @@
                                                                                         <property name="minimize_button">0</property>
                                                                                         <property name="minimum_size"></property>
                                                                                         <property name="moveable">1</property>
-                                                                                        <property name="name">m_textCtrlBelowCrutchGirth</property>
+                                                                                        <property name="name">m_textCtrlBelowCrotchGirth</property>
                                                                                         <property name="pane_border">1</property>
                                                                                         <property name="pane_position"></property>
                                                                                         <property name="pane_size"></property>
@@ -4132,7 +4132,7 @@
                                                                                         <property name="font"></property>
                                                                                         <property name="gripper">0</property>
                                                                                         <property name="hidden">0</property>
-                                                                                        <property name="id">ID_MEASUREMENT_BELOWCRUTCHLEVEL</property>
+                                                                                        <property name="id">ID_MEASUREMENT_BELOWCROTCHLEVEL</property>
                                                                                         <property name="max_size"></property>
                                                                                         <property name="maximize_button">0</property>
                                                                                         <property name="maximum_size"></property>
@@ -4141,7 +4141,7 @@
                                                                                         <property name="minimize_button">0</property>
                                                                                         <property name="minimum_size"></property>
                                                                                         <property name="moveable">1</property>
-                                                                                        <property name="name">m_textCtrlBelowCrutchLevel</property>
+                                                                                        <property name="name">m_textCtrlBelowCrotchLevel</property>
                                                                                         <property name="pane_border">1</property>
                                                                                         <property name="pane_position"></property>
                                                                                         <property name="pane_size"></property>
@@ -4200,7 +4200,7 @@
                                                                                         <property name="font"></property>
                                                                                         <property name="gripper">0</property>
                                                                                         <property name="hidden">0</property>
-                                                                                        <property name="id">ID_MEASUREMENT_MIDDLEOFCALFGIRTH</property>
+                                                                                        <property name="id">ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH</property>
                                                                                         <property name="max_size"></property>
                                                                                         <property name="maximize_button">0</property>
                                                                                         <property name="maximum_size"></property>
@@ -4209,7 +4209,7 @@
                                                                                         <property name="minimize_button">0</property>
                                                                                         <property name="minimum_size"></property>
                                                                                         <property name="moveable">1</property>
-                                                                                        <property name="name">m_textCtrlMiddleOfCalfGirth</property>
+                                                                                        <property name="name">m_textCtrlMiddleOfThighGirth</property>
                                                                                         <property name="pane_border">1</property>
                                                                                         <property name="pane_position"></property>
                                                                                         <property name="pane_size"></property>
@@ -4268,7 +4268,7 @@
                                                                                         <property name="font"></property>
                                                                                         <property name="gripper">0</property>
                                                                                         <property name="hidden">0</property>
-                                                                                        <property name="id">ID_MEASUREMENT_MIDDLEOFCALFLEVEL</property>
+                                                                                        <property name="id">ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL</property>
                                                                                         <property name="max_size"></property>
                                                                                         <property name="maximize_button">0</property>
                                                                                         <property name="maximum_size"></property>
@@ -4277,7 +4277,7 @@
                                                                                         <property name="minimize_button">0</property>
                                                                                         <property name="minimum_size"></property>
                                                                                         <property name="moveable">1</property>
-                                                                                        <property name="name">m_textCtrlMiddleOfCalfLevel</property>
+                                                                                        <property name="name">m_textCtrlMiddleOfThighLevel</property>
                                                                                         <property name="pane_border">1</property>
                                                                                         <property name="pane_position"></property>
                                                                                         <property name="pane_size"></property>

@@ -75,7 +75,6 @@ bool LastAnalyse::Propagate() {
 		return false;
 
 	bool modify = false;
-
 	if (!in->IsValid() || lastReorient->IsModified()) {
 		modify |= out->IsValid();
 		out->MarkValid(false);

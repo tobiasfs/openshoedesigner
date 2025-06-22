@@ -83,6 +83,8 @@ public:
 		Vertex(const Vector3 &vector, const Vector3 &normal = Vector3());
 
 		void Transform(const AffineTransformMatrix &m);
+		void Transform(const AffineTransformMatrix &m,
+				const AffineTransformMatrix &mn);
 		void FlipNormal();
 
 		Vertex Interp(const Vertex &b, const double mix) const;
@@ -110,6 +112,10 @@ public:
 		 */
 		void Fix();
 
+		/**\brief Invert the direction of the normal vector of the edge.
+		 *
+		 * This does not reorder the points of the edge.
+		 */
 		void FlipNormal();
 
 		/**\brief Return the index of the other vertex connected
@@ -177,6 +183,16 @@ public:
 		 */
 		void Fix();
 
+		/**\brief Flip the direction of the normal vector
+		 *
+		 * This only flips the normal vector of the triangle. To flip the
+		 * orientation (i.e. what is the front- and what the back-side of the
+		 * triangle, the function Geometry::Flip() has to be called.
+		 *
+		 * The rotation of the triangle has to be flipped as well, because the
+		 * order of the vertices determines front- and back-side of the
+		 * triangle.
+		 */
 		void FlipNormal();
 
 //		bool FromString(const std::string &string);

@@ -77,7 +77,7 @@ public:
 	bool showLast = false;
 	bool showInsole = true;
 	bool showHeel = false;
-	bool showUpper = false;
+	bool showUpper = true;
 	bool showCutaway = false;
 	bool showFloor = false;
 	bool showCoordinateSystem = true;

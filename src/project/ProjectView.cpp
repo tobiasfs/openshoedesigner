@@ -93,7 +93,7 @@ void ProjectView::Paint(bool usePicking) const {
 
 	if (!usePicking) {
 		OpenGLMaterial::EnableColors();
-		matLines.UseColor(0.0);
+		matLines.UseColor(0.8);
 
 		project->builder.Paint();
 

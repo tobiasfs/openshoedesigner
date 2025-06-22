@@ -24,6 +24,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 #include "HeelCenter.h"
+#include "../../math/Exporter.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -109,9 +110,12 @@ void HeelCenter::Run() {
 	*insole_out = *insole_in;
 
 	// Find the center of the ankle.
+	const Vector3 coa = insole_in->J
+			+ insole_in->J.n * overAnkleBoneLevel->ToDouble();
+
 	AffineTransformMatrix m;
 	// Describe the coordinate system forwards
-	m.SetOrigin( { insole_in->J.x, insole_in->J.y, 0.0 });
+	m.SetOrigin( { coa.x, coa.y, 0.0 });
 	Vector3 front = insole_in->B - insole_in->A;
 	front.z = 0.0;
 	m.SetEx(front.Normal());
@@ -131,6 +135,16 @@ void HeelCenter::Run() {
 //	insole_out->outline.paintNormals = true;
 //	insole_out->paintNormals = true;
 //	heel_out->paintNormals = true;
+
+#ifdef DEBUG
+	{
+//		Exporter ex("/tmp/geo.mat");
+////		ex.Add(*insoleFlat_out, "insoleflat");
+////		ex.Add(insoleFlat_out->outline, "outlineflat");
+//		ex.Add(*insole_out, "insole");
+//		ex.Add(insole_out->outline, "outline");
+	}
+#endif
 
 	heel_out->MarkValid(true);
 	insole_out->MarkValid(true);

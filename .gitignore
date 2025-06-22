@@ -4,6 +4,7 @@ openshoedesigner
 *.bak
 *.pdf
 *.blend?
+test*
 
 gmon.out
 
@@ -13,6 +14,7 @@ gmon.out
 /blender
 /rawWWW
 /WWW
+/www
 
 /bin_linux
 /bin_debug

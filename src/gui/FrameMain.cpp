@@ -322,14 +322,14 @@ bool FrameMain::TransferDataToWindow() {
 
 // On page "Leg":
 
-	TransferParameterToTextCtrl(meas->belowCrutchGirth,
-			m_textCtrlBelowCrutchGirth, UnitType::Distance);
-	TransferParameterToTextCtrl(meas->belowCrutchLevel,
-			m_textCtrlBelowCrutchLevel, UnitType::Distance);
-	TransferParameterToTextCtrl(meas->middleOfCalfGirth,
-			m_textCtrlMiddleOfCalfGirth, UnitType::Distance);
-	TransferParameterToTextCtrl(meas->middleOfCalfLevel,
-			m_textCtrlMiddleOfCalfLevel, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->belowCrotchGirth,
+			m_textCtrlBelowCrotchGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->belowCrotchLevel,
+			m_textCtrlBelowCrotchLevel, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->middleOfThighGirth,
+			m_textCtrlMiddleOfThighGirth, UnitType::Distance);
+	TransferParameterToTextCtrl(meas->middleOfThighLevel,
+			m_textCtrlMiddleOfThighLevel, UnitType::Distance);
 	TransferParameterToTextCtrl(meas->aboveKneeGirth, m_textCtrlAboveKneeGirth,
 			UnitType::Distance);
 	TransferParameterToTextCtrl(meas->aboveKneeLevel, m_textCtrlAboveKneeLevel,
@@ -623,14 +623,14 @@ wxTextCtrl* FrameMain::GetTextCtrlByID(int id) {
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 		return m_textCtrlLegLengthDifference;
 
-	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
-		return m_textCtrlBelowCrutchGirth;
-	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
-		return m_textCtrlBelowCrutchLevel;
-	case ID_MEASUREMENT_MIDDLEOFCALFGIRTH:
-		return m_textCtrlMiddleOfCalfGirth;
-	case ID_MEASUREMENT_MIDDLEOFCALFLEVEL:
-		return m_textCtrlMiddleOfCalfLevel;
+	case ID_MEASUREMENT_BELOWCROTCHGIRTH:
+		return m_textCtrlBelowCrotchGirth;
+	case ID_MEASUREMENT_BELOWCROTCHLEVEL:
+		return m_textCtrlBelowCrotchLevel;
+	case ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH:
+		return m_textCtrlMiddleOfThighGirth;
+	case ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL:
+		return m_textCtrlMiddleOfThighLevel;
 	case ID_MEASUREMENT_ABOVEKNEEGIRTH:
 		return m_textCtrlAboveKneeGirth;
 	case ID_MEASUREMENT_ABOVEKNEELEVEL:
@@ -1050,10 +1050,10 @@ void FrameMain::OnTextEnter(wxCommandEvent &event) {
 				wxNavigationKeyEvent::FromTab
 						| wxNavigationKeyEvent::IsForward);
 		break;
-	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
-	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
-	case ID_MEASUREMENT_MIDDLEOFCALFGIRTH:
-	case ID_MEASUREMENT_MIDDLEOFCALFLEVEL:
+	case ID_MEASUREMENT_BELOWCROTCHGIRTH:
+	case ID_MEASUREMENT_BELOWCROTCHLEVEL:
+	case ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH:
+	case ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL:
 	case ID_MEASUREMENT_ABOVEKNEEGIRTH:
 	case ID_MEASUREMENT_ABOVEKNEELEVEL:
 	case ID_MEASUREMENT_OVERKNEECAPGIRTH:
@@ -1315,6 +1315,7 @@ void FrameMain::OnToggleStereo3D(wxCommandEvent &event) {
 
 void FrameMain::OnViewChanged(wxCommandEvent &event) {
 	ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+	Project *project = wxStaticCast(GetDocument(), Project);
 	TransferDataFromWindow();
 
 	switch (event.GetId()) {
@@ -1324,11 +1325,26 @@ void FrameMain::OnViewChanged(wxCommandEvent &event) {
 	case ID_RIGHT:
 		projectview->showRight = event.IsChecked();
 		break;
+	case ID_BONES:
+	case ID_SKIN:
+	case ID_LEG:
+	case ID_LAST:
+	case ID_INSOLE:
+	case ID_UPPER:
+	case ID_HEEL:
+	case ID_CUTAWAY:
+	case ID_FLOOR:
+	case ID_COORDINATESYSTEM:
+	case ID_BACKGROUND:
+		// Nothing to do. TransferDataFromWindow already did the read-in.
+		// TODO Check if showLeft and showRight can also be merged into that function.
+		break;
 	default:
 		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 	}
 	TransferDataToWindow();
+	project->Update();
 	Refresh();
 }
 

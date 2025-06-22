@@ -609,16 +609,6 @@ void InsoleAnalyze::Run() {
 	MapPointToOutline(insoleFlat_out->Z, insole_out->Z, insoleFlat_out->outline,
 			insole_out->outline);
 
-#ifdef DEBUG
-	{
-		Exporter ex("/tmp/geo.mat");
-		ex.Add(*insoleFlat_out, "insoleflat");
-		ex.Add(insoleFlat_out->outline, "outlineflat");
-		ex.Add(*insole_out, "insole");
-		ex.Add(insole_out->outline, "outline");
-	}
-#endif
-
 	insole_out->MarkValid(true);
 	insoleFlat_out->MarkValid(true);
 	insole_out->MarkNeeded(false);
@@ -867,6 +857,7 @@ void InsoleAnalyze::MapPointToOutline(Insole::Point &p0, Insole::Point &p1,
 		p1.z = temp.z;
 		p1.u = temp.u;
 		p1.v = temp.v;
+		p1.n = v0.n.Interp(v1.n, r0).Normal();
 	}
 }
 
@@ -910,4 +901,5 @@ void InsoleAnalyze::MapUVtoXYZ(Insole::Point &p, const Geometry &dst,
 	p.x = pos.x;
 	p.y = pos.y;
 	p.z = pos.z;
+	p.n = t.n;
 }

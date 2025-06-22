@@ -64,7 +64,6 @@ public:
 	std::shared_ptr<Insole> insole_in;
 	std::shared_ptr<Insole> insole_out;
 
-//	std::shared_ptr<Matrix> debug;
 };
 
 #endif /* SRC_PROJECT_OPERATION_HEELCENTER_H_ */

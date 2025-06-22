@@ -194,6 +194,7 @@ public:
 
 private:
 	void Connect(Project &project);
+	void ResetState();
 
 public:
 	std::string error;

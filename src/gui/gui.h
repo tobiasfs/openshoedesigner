@@ -110,10 +110,10 @@
 #define ID_MEASUREMENT_HEELWIDTH 1043
 #define ID_MEASUREMENT_LEGLENGTHDIFFERENCE 1044
 #define ID_IMAGEFOOT 1045
-#define ID_MEASUREMENT_BELOWCRUTCHGIRTH 1046
-#define ID_MEASUREMENT_BELOWCRUTCHLEVEL 1047
-#define ID_MEASUREMENT_MIDDLEOFCALFGIRTH 1048
-#define ID_MEASUREMENT_MIDDLEOFCALFLEVEL 1049
+#define ID_MEASUREMENT_BELOWCROTCHGIRTH 1046
+#define ID_MEASUREMENT_BELOWCROTCHLEVEL 1047
+#define ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH 1048
+#define ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL 1049
 #define ID_MEASUREMENT_ABOVEKNEEGIRTH 1050
 #define ID_MEASUREMENT_ABOVEKNEELEVEL 1051
 #define ID_MEASUREMENT_OVERKNEECAPGIRTH 1052
@@ -273,10 +273,10 @@ class GUIFrameMain : public wxDocChildFrame
 		wxStaticBitmap* m_bitmapLeg;
 		wxStaticText* m_staticTextGirth;
 		wxStaticText* m_staticTextLevel;
-		ExtendedTextCtrl* m_textCtrlBelowCrutchGirth;
-		ExtendedTextCtrl* m_textCtrlBelowCrutchLevel;
-		ExtendedTextCtrl* m_textCtrlMiddleOfCalfGirth;
-		ExtendedTextCtrl* m_textCtrlMiddleOfCalfLevel;
+		ExtendedTextCtrl* m_textCtrlBelowCrotchGirth;
+		ExtendedTextCtrl* m_textCtrlBelowCrotchLevel;
+		ExtendedTextCtrl* m_textCtrlMiddleOfThighGirth;
+		ExtendedTextCtrl* m_textCtrlMiddleOfThighLevel;
 		ExtendedTextCtrl* m_textCtrlAboveKneeGirth;
 		ExtendedTextCtrl* m_textCtrlAboveKneeLevel;
 		ExtendedTextCtrl* m_textCtrlOverKneeCapGirth;

@@ -48,14 +48,14 @@ void Builder::Setup(Project &project) {
 		if (!opCoordinateSystemConstruct) {
 			opCoordinateSystemConstruct = std::make_shared<
 					CoordinateSystemConstruct>();
-			opCoordinateSystemConstruct->belowCrutchGirth =
-					footL.belowCrutchGirth;
-			opCoordinateSystemConstruct->belowCrutchLevel =
-					footL.belowCrutchLevel;
-			opCoordinateSystemConstruct->middleOfCalfGirth =
-					footL.middleOfCalfGirth;
-			opCoordinateSystemConstruct->middleOfCalfLevel =
-					footL.middleOfCalfLevel;
+			opCoordinateSystemConstruct->belowCrotchGirth =
+					footL.belowCrotchGirth;
+			opCoordinateSystemConstruct->belowCrotchLevel =
+					footL.belowCrotchLevel;
+			opCoordinateSystemConstruct->middleOfThighGirth =
+					footL.middleOfThighGirth;
+			opCoordinateSystemConstruct->middleOfThighLevel =
+					footL.middleOfThighLevel;
 			opCoordinateSystemConstruct->aboveKneeGirth = footL.aboveKneeGirth;
 			opCoordinateSystemConstruct->aboveKneeLevel = footL.aboveKneeLevel;
 			opCoordinateSystemConstruct->overKneeCapGirth =
@@ -581,6 +581,29 @@ void Builder::Connect(Project &project) {
 
 }
 
+void Builder::ResetState() {
+	opCoordinateSystemConstruct->out->MarkNeeded(false);
+	opFootModelLoad->out->MarkNeeded(false);
+	opFootModelUpdate->out->MarkNeeded(false);
+	opFootScanLoad->out->MarkNeeded(false);
+	opHeelCenter->heel_out->MarkNeeded(false);
+	opHeelCenter->insole_out->MarkNeeded(false);
+	opHeelConstruct->out->MarkNeeded(false);
+	opHeelExtractInsole->out->MarkNeeded(false);
+	opHeelLoad->out->MarkNeeded(false);
+	opHeelNormalize->out->MarkNeeded(false);
+	opInsoleAnalyze->insole_out->MarkNeeded(false);
+	opInsoleAnalyze->insoleFlat_out->MarkNeeded(false);
+	opInsoleConstruct->out->MarkNeeded(false);
+	opInsoleFlatten->out->MarkNeeded(false);
+	opInsoleTransform->out->MarkNeeded(false);
+	opLastAnalyse->out->MarkNeeded(false);
+	opLastConstruct->out->MarkNeeded(false);
+	opLastLoad->out->MarkNeeded(false);
+	opLastNormalize->out->MarkNeeded(false);
+	opLastUpdate->out->MarkNeeded(false);
+}
+
 void Builder::Update(Project &project) {
 	error.clear();
 
@@ -588,13 +611,13 @@ void Builder::Update(Project &project) {
 
 #ifdef DEBUG
 	debug_count++;
-	std::string prefix = std::to_string(debug_count);
-	while (prefix.size() < 4)
-		prefix = std::string("0") + prefix;
-	{
-		std::ofstream out("/tmp/state_" + prefix + "_A__pre_check.txt");
-		ToCSV(out);
-	}
+//	std::string prefix = std::to_string(debug_count);
+//	while (prefix.size() < 4)
+//		prefix = std::string("0") + prefix;
+//	{
+//		std::ofstream out("/tmp/state_" + prefix + "_A__pre_check.txt");
+//		ToCSV(out);
+//	}
 #endif
 
 	bool propagation_complete = false;
@@ -616,6 +639,7 @@ void Builder::Update(Project &project) {
 	if (!setup_complete) {
 		err << __FILE__ << ":Setup - Error in setup routine.";
 		error = err.str();
+		ResetState();
 		return;
 	}
 
@@ -624,13 +648,15 @@ void Builder::Update(Project &project) {
 	bool hasToRun = false;
 	for (auto &op : operations)
 		hasToRun |= op->HasToRun();
-	if (!hasToRun)
+	if (!hasToRun) {
+		ResetState();
 		return;
+	}
 
 #ifdef DEBUG
 	{
-		std::ofstream out("/tmp/state_" + prefix + "_B__pre_update.txt");
-		ToCSV(out);
+//		std::ofstream out("/tmp/state_" + prefix + "_B__pre_update.txt");
+//		ToCSV(out);
 	}
 #endif
 
@@ -651,11 +677,11 @@ void Builder::Update(Project &project) {
 
 #ifdef DEBUG
 	{
-		std::ofstream out("/tmp/state_" + prefix + "_C__post_update.txt");
-		ToCSV(out);
+//		std::ofstream out("/tmp/state_" + prefix + "_C__post_update.txt");
+//		ToCSV(out);
 	}
 #endif
-
+	ResetState();
 }
 
 void Builder::Paint() const {

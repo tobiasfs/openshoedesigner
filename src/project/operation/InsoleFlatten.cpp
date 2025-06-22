@@ -87,31 +87,6 @@ bool InsoleFlatten::CanRun() {
 
 	error.clear();
 
-	if (debugMIDI_48->GetString().empty()) {
-		error += " Input \"debugMIDI_48\" for InsoleFlatten is empty.";
-	}
-	if (debugMIDI_49->GetString().empty()) {
-		error += " Input \"debugMIDI_49\" for InsoleFlatten is empty.";
-	}
-	if (debugMIDI_50->GetString().empty()) {
-		error += " Input \"debugMIDI_50\" for InsoleFlatten is empty.";
-	}
-	if (debugMIDI_51->GetString().empty()) {
-		error += " Input \"debugMIDI_51\" for InsoleFlatten is empty.";
-	}
-	if (debugMIDI_52->GetString().empty()) {
-		error += " Input \"debugMIDI_52\" for InsoleFlatten is empty.";
-	}
-	if (debugMIDI_53->GetString().empty()) {
-		error += " Input \"debugMIDI_53\" for InsoleFlatten is empty.";
-	}
-	if (debugMIDI_54->GetString().empty()) {
-		error += " Input \"debugMIDI_54\" for InsoleFlatten is empty.";
-	}
-	if (debugMIDI_55->GetString().empty()) {
-		error += " Input \"debugMIDI_55\" for InsoleFlatten is empty.";
-	}
-
 	return error.empty();
 }
 
@@ -121,7 +96,6 @@ bool InsoleFlatten::Propagate() {
 			|| !debugMIDI_55)
 		return false;
 
-	bool modify = false;
 	bool parameterModified = false;
 	parameterModified |= !in->IsValid();
 	parameterModified |= debugMIDI_48->IsModified();
@@ -133,6 +107,7 @@ bool InsoleFlatten::Propagate() {
 	parameterModified |= debugMIDI_54->IsModified();
 	parameterModified |= debugMIDI_55->IsModified();
 
+	bool modify = false;
 	if (parameterModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
@@ -221,9 +196,9 @@ void InsoleFlatten::Run() {
 		Geometry::Triangle &t = out->GetTriangle(idx);
 		Vector3 local = m.Transform(t.n);
 		// Check if the normal vector points into the unique dimension
-		// or the has a negative normal. To determine this the rotation of the
+		// or the has a negative normal. To determine this, the rotation of the
 		// normals around the main axis of the insole is calculated. This
-		// should be close to zeros.
+		// should be close to zero.
 		defect[idx] = atan2(local.z, local.y);
 	}
 	for (size_t idx = 0; idx < out->CountTriangles(); idx++) {
@@ -276,23 +251,29 @@ void InsoleFlatten::Run() {
 
 #ifdef DEBUG
 	{
-		Matrix M1("out", out->CountVertices(), 5);
+		Matrix M1("out", out->CountVertices(), 8);
 		for (size_t idx = 0; idx < out->CountVertices(); idx++) {
 			const auto &v = out->GetVertex(idx);
-			M1.Insert(v.n.x, idx, 0);
-			M1.Insert(v.n.y, idx, 1);
-			M1.Insert(v.n.z, idx, 2);
-			M1.Insert(v.u, idx, 3);
-			M1.Insert(v.v, idx, 4);
+			M1.Insert(v.x, idx, 0);
+			M1.Insert(v.y, idx, 1);
+			M1.Insert(v.z, idx, 2);
+			M1.Insert(v.n.x, idx, 3);
+			M1.Insert(v.n.y, idx, 4);
+			M1.Insert(v.n.z, idx, 5);
+			M1.Insert(v.u, idx, 6);
+			M1.Insert(v.v, idx, 7);
 		}
-		Matrix M2("outline", out->outline.CountVertices(), 5);
+		Matrix M2("outline", out->outline.CountVertices(), 8);
 		for (size_t idx = 0; idx < out->outline.CountVertices(); idx++) {
 			const auto &v = out->outline.GetVertex(idx);
-			M2.Insert(v.n.x, idx, 0);
-			M2.Insert(v.n.y, idx, 1);
-			M2.Insert(v.n.z, idx, 2);
-			M2.Insert(v.u, idx, 3);
-			M2.Insert(v.v, idx, 4);
+			M2.Insert(v.x, idx, 0);
+			M2.Insert(v.y, idx, 1);
+			M2.Insert(v.z, idx, 2);
+			M2.Insert(v.n.x, idx, 3);
+			M2.Insert(v.n.y, idx, 4);
+			M2.Insert(v.n.z, idx, 5);
+			M2.Insert(v.u, idx, 6);
+			M2.Insert(v.v, idx, 7);
 		}
 
 		Exporter ex("/tmp/insoleflatten.mat");

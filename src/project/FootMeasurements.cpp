@@ -84,23 +84,23 @@ FootMeasurements::FootMeasurements() {
 					" misalignment of the foot is to be compensated.",
 			ID_MEASUREMENT_ANGLEMIXING);
 
-	belowCrutchGirth = std::make_shared<ParameterFormula>("belowCrutchGirth",
-			"footLength*2.5", "Below crutch girth",
-			ID_MEASUREMENT_BELOWCRUTCHGIRTH);
-	belowCrutchLevel = std::make_shared<ParameterFormula>("belowCrutchLevel",
-			"footLength*3", "Below crutch level",
-			ID_MEASUREMENT_BELOWCRUTCHLEVEL);
-	middleOfCalfGirth = std::make_shared<ParameterFormula>("middleOfCalfGirth",
-			"(belowCrutchGirth+footLength)/2", "Middle of calf girth",
-			ID_MEASUREMENT_MIDDLEOFCALFGIRTH);
-	middleOfCalfLevel = std::make_shared<ParameterFormula>("middleOfCalfLevel",
-			"belowCrutchLevel*0.825", "Middle of calf level",
-			ID_MEASUREMENT_MIDDLEOFCALFLEVEL);
+	belowCrotchGirth = std::make_shared<ParameterFormula>("belowCrotchGirth",
+			"footLength*2.5", "Below crotch girth",
+			ID_MEASUREMENT_BELOWCROTCHGIRTH);
+	belowCrotchLevel = std::make_shared<ParameterFormula>("belowCrotchLevel",
+			"footLength*3", "Below crotch level",
+			ID_MEASUREMENT_BELOWCROTCHLEVEL);
+	middleOfThighGirth = std::make_shared<ParameterFormula>("middleOfThighGirth",
+			"(belowCrotchGirth+footLength)/2", "Middle of thigh girth",
+			ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH);
+	middleOfThighLevel = std::make_shared<ParameterFormula>("middleOfThighLevel",
+			"belowCrotchLevel*0.825", "Middle of thigh level",
+			ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL);
 	aboveKneeGirth = std::make_shared<ParameterFormula>("aboveKneeGirth",
 			"footLength*1.4", "Above knee girth",
 			ID_MEASUREMENT_ABOVEKNEEGIRTH);
 	aboveKneeLevel = std::make_shared<ParameterFormula>("aboveKneeLevel",
-			"middleOfCalfLevel*0.785", "Above knee level",
+			"middleOfThighLevel*0.785", "Above knee level",
 			ID_MEASUREMENT_ABOVEKNEELEVEL);
 	overKneeCapGirth = std::make_shared<ParameterFormula>("overKneeCapGirth",
 			"footLength*1.5", "Over knee cap girth",
@@ -194,10 +194,10 @@ void FootMeasurements::Register(ParameterEvaluator &evaluator) {
 	evaluator.Register(heelWidth);
 	evaluator.Register(angleMixing);
 	evaluator.Register(legLengthDifference);
-	evaluator.Register(belowCrutchGirth);
-	evaluator.Register(belowCrutchLevel);
-	evaluator.Register(middleOfCalfGirth);
-	evaluator.Register(middleOfCalfLevel);
+	evaluator.Register(belowCrotchGirth);
+	evaluator.Register(belowCrotchLevel);
+	evaluator.Register(middleOfThighGirth);
+	evaluator.Register(middleOfThighLevel);
 	evaluator.Register(aboveKneeGirth);
 	evaluator.Register(aboveKneeLevel);
 	evaluator.Register(overKneeCapGirth);
@@ -232,13 +232,13 @@ bool FootMeasurements::operator==(const FootMeasurements &other) const {
 	if (legLengthDifference->GetString()
 			!= other.legLengthDifference->GetString())
 		return false;
-	if (belowCrutchGirth->GetString() != other.belowCrutchGirth->GetString())
+	if (belowCrotchGirth->GetString() != other.belowCrotchGirth->GetString())
 		return false;
-	if (belowCrutchLevel->GetString() != other.belowCrutchLevel->GetString())
+	if (belowCrotchLevel->GetString() != other.belowCrotchLevel->GetString())
 		return false;
-	if (middleOfCalfGirth->GetString() != other.middleOfCalfGirth->GetString())
+	if (middleOfThighGirth->GetString() != other.middleOfThighGirth->GetString())
 		return false;
-	if (middleOfCalfLevel->GetString() != other.middleOfCalfLevel->GetString())
+	if (middleOfThighLevel->GetString() != other.middleOfThighLevel->GetString())
 		return false;
 	if (aboveKneeGirth->GetString() != other.aboveKneeGirth->GetString())
 		return false;
@@ -276,9 +276,9 @@ bool FootMeasurements::IsModified() const {
 			| bigToeGirth->IsModified() | littleToeGirth->IsModified()
 			| waistGirth->IsModified() | heelGirth->IsModified()
 			| heelWidth->IsModified() | angleMixing->IsModified()
-			| legLengthDifference->IsModified() | belowCrutchGirth->IsModified()
-			| belowCrutchLevel->IsModified() | middleOfCalfGirth->IsModified()
-			| middleOfCalfLevel->IsModified() | aboveKneeGirth->IsModified()
+			| legLengthDifference->IsModified() | belowCrotchGirth->IsModified()
+			| belowCrotchLevel->IsModified() | middleOfThighGirth->IsModified()
+			| middleOfThighLevel->IsModified() | aboveKneeGirth->IsModified()
 			| aboveKneeLevel->IsModified() | overKneeCapGirth->IsModified()
 			| overKneeCapLevel->IsModified() | belowKneeGirth->IsModified()
 			| belowKneeLevel->IsModified() | middleOfShankGirth->IsModified()
@@ -297,10 +297,10 @@ void FootMeasurements::Modify(bool modified) {
 	heelWidth->Modify(modified);
 	angleMixing->Modify(modified);
 	legLengthDifference->Modify(modified);
-	belowCrutchGirth->Modify(modified);
-	belowCrutchLevel->Modify(modified);
-	middleOfCalfGirth->Modify(modified);
-	middleOfCalfLevel->Modify(modified);
+	belowCrotchGirth->Modify(modified);
+	belowCrotchLevel->Modify(modified);
+	middleOfThighGirth->Modify(modified);
+	middleOfThighLevel->Modify(modified);
 	aboveKneeGirth->Modify(modified);
 	aboveKneeLevel->Modify(modified);
 	overKneeCapGirth->Modify(modified);
@@ -326,10 +326,10 @@ bool FootMeasurements::IsValidID(int id) {
 	case ID_MEASUREMENT_HEELWIDTH:
 	case ID_MEASUREMENT_ANGLEMIXING:
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
-	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
-	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
-	case ID_MEASUREMENT_MIDDLEOFCALFGIRTH:
-	case ID_MEASUREMENT_MIDDLEOFCALFLEVEL:
+	case ID_MEASUREMENT_BELOWCROTCHGIRTH:
+	case ID_MEASUREMENT_BELOWCROTCHLEVEL:
+	case ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH:
+	case ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL:
 	case ID_MEASUREMENT_ABOVEKNEEGIRTH:
 	case ID_MEASUREMENT_ABOVEKNEELEVEL:
 	case ID_MEASUREMENT_OVERKNEECAPGIRTH:
@@ -367,14 +367,14 @@ std::string FootMeasurements::GetName(int id) {
 		return std::string("AngleMixing");
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 		return std::string("LegLengthDifference");
-	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
-		return std::string("BelowCrutchGirth");
-	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
-		return std::string("BelowCrutchLevel");
-	case ID_MEASUREMENT_MIDDLEOFCALFGIRTH:
-		return std::string("MiddleOfCalfGirth");
-	case ID_MEASUREMENT_MIDDLEOFCALFLEVEL:
-		return std::string("MiddleOfCalfLevel");
+	case ID_MEASUREMENT_BELOWCROTCHGIRTH:
+		return std::string("BelowCrotchGirth");
+	case ID_MEASUREMENT_BELOWCROTCHLEVEL:
+		return std::string("BelowCrotchLevel");
+	case ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH:
+		return std::string("MiddleOfThighGirth");
+	case ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL:
+		return std::string("MiddleOfThighLevel");
 	case ID_MEASUREMENT_ABOVEKNEEGIRTH:
 		return std::string("AboveKneeGirth");
 	case ID_MEASUREMENT_ABOVEKNEELEVEL:
@@ -425,14 +425,14 @@ std::shared_ptr<ParameterFormula> FootMeasurements::GetParameter(int id) {
 		return angleMixing;
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 		return legLengthDifference;
-	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
-		return belowCrutchGirth;
-	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
-		return belowCrutchLevel;
-	case ID_MEASUREMENT_MIDDLEOFCALFGIRTH:
-		return middleOfCalfGirth;
-	case ID_MEASUREMENT_MIDDLEOFCALFLEVEL:
-		return middleOfCalfLevel;
+	case ID_MEASUREMENT_BELOWCROTCHGIRTH:
+		return belowCrotchGirth;
+	case ID_MEASUREMENT_BELOWCROTCHLEVEL:
+		return belowCrotchLevel;
+	case ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH:
+		return middleOfThighGirth;
+	case ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL:
+		return middleOfThighLevel;
 	case ID_MEASUREMENT_ABOVEKNEEGIRTH:
 		return aboveKneeGirth;
 	case ID_MEASUREMENT_ABOVEKNEELEVEL:
@@ -484,14 +484,14 @@ const std::shared_ptr<const ParameterFormula> FootMeasurements::GetParameter(
 		return angleMixing;
 	case ID_MEASUREMENT_LEGLENGTHDIFFERENCE:
 		return legLengthDifference;
-	case ID_MEASUREMENT_BELOWCRUTCHGIRTH:
-		return belowCrutchGirth;
-	case ID_MEASUREMENT_BELOWCRUTCHLEVEL:
-		return belowCrutchLevel;
-	case ID_MEASUREMENT_MIDDLEOFCALFGIRTH:
-		return middleOfCalfGirth;
-	case ID_MEASUREMENT_MIDDLEOFCALFLEVEL:
-		return middleOfCalfLevel;
+	case ID_MEASUREMENT_BELOWCROTCHGIRTH:
+		return belowCrotchGirth;
+	case ID_MEASUREMENT_BELOWCROTCHLEVEL:
+		return belowCrotchLevel;
+	case ID_MEASUREMENT_MIDDLEOFTHIGHGIRTH:
+		return middleOfThighGirth;
+	case ID_MEASUREMENT_MIDDLEOFTHIGHLEVEL:
+		return middleOfThighLevel;
 	case ID_MEASUREMENT_ABOVEKNEEGIRTH:
 		return aboveKneeGirth;
 	case ID_MEASUREMENT_ABOVEKNEELEVEL:
@@ -547,14 +547,14 @@ void FootMeasurements::FromJSON(const JSON &js) {
 		angleMixing->SetString(js["angleMixing"].GetString(""));
 	if (js.HasKey("legLengthDifference"))
 		legLengthDifference->SetString(js["legLengthDifference"].GetString(""));
-	if (js.HasKey("belowCrutchGirth"))
-		belowCrutchGirth->SetString(js["belowCrutchGirth"].GetString(""));
-	if (js.HasKey("belowCrutchLevel"))
-		belowCrutchLevel->SetString(js["belowCrutchLevel"].GetString(""));
-	if (js.HasKey("middleOfCalfGirth"))
-		middleOfCalfGirth->SetString(js["middleOfCalfGirth"].GetString(""));
-	if (js.HasKey("middleOfCalfLevel"))
-		middleOfCalfLevel->SetString(js["middleOfCalfLevel"].GetString(""));
+	if (js.HasKey("belowCrotchGirth"))
+		belowCrotchGirth->SetString(js["belowCrotchGirth"].GetString(""));
+	if (js.HasKey("belowCrotchLevel"))
+		belowCrotchLevel->SetString(js["belowCrotchLevel"].GetString(""));
+	if (js.HasKey("middleOfThighGirth"))
+		middleOfThighGirth->SetString(js["middleOfThighGirth"].GetString(""));
+	if (js.HasKey("middleOfThighLevel"))
+		middleOfThighLevel->SetString(js["middleOfThighLevel"].GetString(""));
 	if (js.HasKey("aboveKneeGirth"))
 		aboveKneeGirth->SetString(js["aboveKneeGirth"].GetString(""));
 	if (js.HasKey("aboveKneeLevel"))
@@ -592,10 +592,10 @@ void FootMeasurements::ToJSON(JSON &js) const {
 	js["heelWidth"].SetString(heelWidth->GetString());
 	js["angleMixing"].SetString(angleMixing->GetString());
 	js["legLengthDifference"].SetString(legLengthDifference->GetString());
-	js["belowCrutchGirth"].SetString(belowCrutchGirth->GetString());
-	js["belowCrutchLevel"].SetString(belowCrutchLevel->GetString());
-	js["middleOfCalfGirth"].SetString(middleOfCalfGirth->GetString());
-	js["middleOfCalfLevel"].SetString(middleOfCalfLevel->GetString());
+	js["belowCrotchGirth"].SetString(belowCrotchGirth->GetString());
+	js["belowCrotchLevel"].SetString(belowCrotchLevel->GetString());
+	js["middleOfThighGirth"].SetString(middleOfThighGirth->GetString());
+	js["middleOfThighLevel"].SetString(middleOfThighLevel->GetString());
 	js["aboveKneeGirth"].SetString(aboveKneeGirth->GetString());
 	js["aboveKneeLevel"].SetString(aboveKneeLevel->GetString());
 	js["overKneeCapGirth"].SetString(overKneeCapGirth->GetString());

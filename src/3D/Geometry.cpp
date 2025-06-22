@@ -78,6 +78,15 @@ void Geometry::Vertex::Transform(const AffineTransformMatrix &m) {
 	z = temp.z;
 }
 
+void Geometry::Vertex::Transform(const AffineTransformMatrix &m,
+		const AffineTransformMatrix &mn) {
+	n = mn.Transform(n);
+	Vector3 temp = m.Transform(x, y, z);
+	x = temp.x;
+	y = temp.y;
+	z = temp.z;
+}
+
 void Geometry::Vertex::FlipNormal() {
 	n.x = -n.x;
 	n.y = -n.y;
@@ -131,8 +140,6 @@ void Geometry::Edge::FlipNormal() {
 	n.x = -n.x;
 	n.y = -n.y;
 	n.z = -n.z;
-	flip = !flip;
-
 }
 
 size_t Geometry::Edge::GetOtherVertex(size_t index) const {
@@ -239,9 +246,6 @@ void Geometry::Triangle::FlipNormal() {
 	n.x = -n.x;
 	n.y = -n.y;
 	n.z = -n.z;
-	// The rotation of the triangle has to be flipped as well, because the
-	// order of the vertices determines front- and back-side of the triangle.
-	flip = !flip;
 }
 
 int Geometry::Triangle::GetDirection(size_t idx0, size_t idx1) const {
@@ -2126,10 +2130,8 @@ void Geometry::Transform(const AffineTransformMatrix &matrix) {
 	if (orientation == AffineTransformMatrix::Orientation::LHS)
 		FlipInsideOutside();
 
-	for (Vertex &vertex : v) {
-		vertex.Transform(matrix);
-		vertex.n = matrixnormal.Transform(vertex.n);
-	}
+	for (Vertex &vertex : v)
+		vertex.Transform(matrix, matrixnormal);
 	for (Edge &edge : e)
 		edge.n = matrixnormal.Transform(edge.n);
 	for (Triangle &tri : t)

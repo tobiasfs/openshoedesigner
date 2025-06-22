@@ -34,7 +34,7 @@ double Ellipse::Excentricity() const {
 	const double h = GetEy().Abs();
 	const double a = (h > w) ? h : w;
 	const double b = (h > w) ? w : h;
-	return sqrt(1 - (a * a) / (b * b));
+	return sqrt(1 - (b * b) / (a * a));
 }
 
 double Ellipse::E(const double e) {
