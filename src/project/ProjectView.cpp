@@ -70,94 +70,42 @@ bool ProjectView::OnCreate(wxDocument *doc, long flags) {
 }
 
 void ProjectView::Paint(bool usePicking) const {
-	const bool shiftapart = (showLeft && showRight);
 
 	Project *project = wxStaticCast(this->GetDocument(), Project);
 
-//	glColor3f(0.8, 0.5, 0.0);
 	OpenGLMaterial matBones(OpenGLMaterial::Preset::Pearl);
 	OpenGLMaterial matFoot(OpenGLMaterial::Preset::RedRubber, 0.3);
-	matFoot.SetSimpleColor(0.8, 0.5, 0);
 	OpenGLMaterial matLast(OpenGLMaterial::Preset::CyanPlastic);
 	OpenGLMaterial matFloor(OpenGLMaterial::Preset::WhitePlastic);
 	OpenGLMaterial matInsole(OpenGLMaterial::Preset::YellowPlastic, 0.3);
-//	matFloor.SetSimpleColor(0.9, 0.9, 0.9);
+
+	matFoot.SetSimpleColor(0.8, 0.5, 0);
+	matFloor.SetSimpleColor(0.9, 0.9, 0.9);
+
 	OpenGLMaterial matLines;
-	matLines.SetSimpleColor(1, 1, 1, 0.6);
 	OpenGLMaterial matScan;
+	matLines.SetSimpleColor(1, 1, 1, 0.6);
 	matScan.SetSimpleColor(0.4, 0.9, 0.6);
+
+	const bool shiftapart = (showLeft && showRight);
+
+	// XY in the plane and Z pointing upwards.
+	glRotatef(-90, 1, 0, 0);
+
+	PaintBackground(true);
+	glClear( GL_DEPTH_BUFFER_BIT);
+
+	if (showOrigin)
+		Canvas3D::PaintCorrdinateSystem();
 
 	matBones.UseColor();
 
 #ifdef DEBUG
-
 	if (!usePicking) {
 		OpenGLMaterial::EnableColors();
 		matLines.UseColor(0.8);
 
 		project->builder.Paint();
-
-//	NagataPatch p0;
-//
-//	Vector3 v1(0, 0, 0);
-//	Vector3 v2(1, 0, 0.3);
-//	Vector3 v3(1, 1, 0);
-//	Vector3 v4(0, 1, 0);
-//
-//	Vector3 n1(-0.5, 0, 1);
-//	Vector3 n2(0, 0.4, 1);
-//	Vector3 n3(0, 0.0, 1);
-//	Vector3 n4(-0.4, 0.4, 1);
-//
-//	n1.Normalize();
-//	n2.Normalize();
-//	n3.Normalize();
-//	n4.Normalize();
-//
-//	p0.Set(v1, n1, v2, n2, v3, n3, v4, n4);
-//	p0.Paint();
-//
-////	std::cout << "(1,0): " << p0(1, 0).ToString() << " - "
-////			<< p0.Normal(1, 0).ToString() << "\n";
-//
-//	Vector3 d(+1, 0, 0);
-//
-//	p0.Set(v2, n2, v1 + d * 2, n1.Scale( {-1, 1, 1}), v4 + d * 2, n4.Scale( {-1,
-//			1, 1}), v3, n3);
-//	p0.Paint();
-//
-////	std::cout << "(0,0): " << p0(0, 0).ToString() << " - "
-////			<< p0.Normal(0, 0).ToString() << "\n";
-//
-//	Vector3 d2(0, -1, 0);
-//	p0.Set(v4 + d2 * 2, n4.Scale( {1, -1, 1}), v3 + d2 * 2,
-//			n3.Scale( {1, -1, 1}), v2, n2, v1, n1);
-//	p0.Paint();
-//
-//	p0.Set(v3 + d2 * 2, n3.Scale( {1, -1, 1}), v4 + (d + d2) * 2, n4.Scale( {-1,
-//			-1, 1}), v1 + d * 2, n1.Scale( {-1, 1, 1}), v2, n2);
-//	p0.Paint();
-
-//	Surface s;
-//	s.SetSize(3, 3);
-//	s.P(0, 0).p.Set(0, 0, 0.1);
-//	s.P(1, 0).p.Set(1, 0, 0.4);
-//	s.P(2, 0).p.Set(2, 0, -0.3);
-//	s.P(0, 1).p.Set(0, 1, 0.3);
-//	s.P(1, 1).p.Set(1, 1, 0.7);
-//	s.P(2, 1).p.Set(2, 1, 0.4);
-//	s.P(0, 2).p.Set(0, 2, 0.1);
-//	s.P(1, 2).p.Set(1, 2, 0.5);
-//	s.P(2, 2).p.Set(2, 2, 0.1);
-//	s.Calculate();
-//	s.Paint();
-//
-//	glPushMatrix();
-//	glTranslatef(0, -2, 0);
-//	s.CalculateDirections();
-//	s.Calculate();
-//	s.Paint();
-//	glPopMatrix();
 	}
 #endif
 
@@ -169,7 +117,7 @@ void ProjectView::Paint(bool usePicking) const {
 					0);
 
 		glLoadName(0); // Left
-//
+
 //		if (project->measurementsource
 //				== Project::MeasurementSource::scanBased && showFootScan) {
 //			glPushName(0);
@@ -178,7 +126,7 @@ void ProjectView::Paint(bool usePicking) const {
 //			project->footScan.Paint();
 //			glPopName();
 //		}
-//
+
 //		if (project->measurementsource
 //				== Project::MeasurementSource::measurementBased && showBones) {
 //			glPushName(1);
@@ -186,7 +134,7 @@ void ProjectView::Paint(bool usePicking) const {
 //			project->footL.PaintBones();
 //			glPopName();
 //		}
-//
+
 //		if (project->modeltype == Project::ModelType::boneBased && showSkin
 //				&& !usePicking) {
 //			glPushName(2);
@@ -194,7 +142,7 @@ void ProjectView::Paint(bool usePicking) const {
 //			project->footL.PaintSkin();
 //			glPopName();
 //		}
-//
+
 //		if (project->modeltype == Project::ModelType::lastBased && showLast)
 		{
 			glPushName(3);
@@ -229,18 +177,18 @@ void ProjectView::Paint(bool usePicking) const {
 			project->heelL->Paint();
 			glPopName();
 		}
-//		if (showUpper) {
-//			glPushName(13);
-//			PaintUpper();
-//			glPopName();
-//		}
-//
-//		if (showCutaway) {
-//			OpenGLMaterial::EnableColors();
-//			glPushName(14);
-//			PaintCutaway();
-//			glPopName();
-//		}
+		if (showUpper) {
+			glPushName(13);
+			PaintUpper();
+			glPopName();
+		}
+
+		if (showCutaway) {
+			OpenGLMaterial::EnableColors();
+			glPushName(14);
+			PaintCutaway();
+			glPopName();
+		}
 
 		if (showCoordinateSystem) {
 			glPushName(15);
@@ -257,7 +205,7 @@ void ProjectView::Paint(bool usePicking) const {
 					0);
 
 		glLoadName(1); // Right
-//
+
 //		if (project->measurementsource
 //				== Project::MeasurementSource::scanBased && showFootScan) {
 //			glPushName(0);
@@ -266,7 +214,7 @@ void ProjectView::Paint(bool usePicking) const {
 //			project->footScan.Paint();
 //			glPopName();
 //		}
-//
+
 //		if (project->measurementsource
 //				== Project::MeasurementSource::measurementBased && showBones) {
 //			glPushName(1);
@@ -274,7 +222,7 @@ void ProjectView::Paint(bool usePicking) const {
 //			project->footR.PaintBones();
 //			glPopName();
 //		}
-//
+
 //		if (project->modeltype == Project::ModelType::boneBased && showSkin
 //				&& !usePicking) {
 //			glPushName(2);
@@ -282,14 +230,14 @@ void ProjectView::Paint(bool usePicking) const {
 //			project->footR.PaintSkin();
 //			glPopName();
 //		}
-//
+
 //		if (project->modeltype == Project::ModelType::lastBased && showLast) {
 //			glPushName(3);
 //			matScan.UseMaterial();
 //			project->lastModelR.Paint();
 //			glPopName();
 //		}
-//
+
 		if (showLast) {
 			glPushName(3);
 			matLast.UseMaterial();
@@ -310,18 +258,18 @@ void ProjectView::Paint(bool usePicking) const {
 			project->heelR->Paint();
 			glPopName();
 		}
-//		if (showUpper) {
-//			glPushName(13);
-//			PaintUpper();
-//			glPopName();
-//		}
-//
-//		if (showCutaway) {
-//			OpenGLMaterial::EnableColors();
-//			glPushName(14);
-//			PaintCutaway();
-//			glPopName();
-//		}
+		if (showUpper) {
+			glPushName(13);
+			PaintUpper();
+			glPopName();
+		}
+
+		if (showCutaway) {
+			OpenGLMaterial::EnableColors();
+			glPushName(14);
+			PaintCutaway();
+			glPopName();
+		}
 
 		if (showCoordinateSystem) {
 			glPushName(15);
@@ -345,12 +293,12 @@ void ProjectView::Paint(bool usePicking) const {
 	OpenGLMaterial::EnableColors();
 }
 
-void ProjectView::PaintLast() const {
+//void ProjectView::PaintLast() const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
 //
 //	project->lastL.Paint();
 //	project->lastvol.PaintSurface();
-}
+//}
 
 void ProjectView::PaintSole() const {
 //	Project* project = wxStaticCast(this->GetDocument(), Project);
@@ -361,8 +309,9 @@ void ProjectView::PaintSole() const {
 void ProjectView::PaintUpper() const {
 	Project *project = wxStaticCast(this->GetDocument(), Project);
 	glColor3f(0.1, 0.4, 0.0);
-//	project->lastModelL.PaintAnalysis();
-
+	for (const Geometry &geo : project->upperL->patches) {
+		geo.Paint();
+	}
 }
 
 void ProjectView::PaintCutaway() const {
@@ -450,7 +399,7 @@ bool ProjectView::OnClose(bool deleteWindow) {
 	wxList tempDocs = manager->GetDocuments();
 	wxList tempViews = doc->GetViews();
 
-	DEBUGOUT << "ProjectView:OnClose: " << tempDocs.GetCount() << " docs, "
+	DEBUGOUT << "ProjectView::OnClose: " << tempDocs.GetCount() << " docs, "
 			<< tempViews.GetCount() << " views\n";
 
 //	GetDocument()->DeleteContents();
@@ -458,14 +407,14 @@ bool ProjectView::OnClose(bool deleteWindow) {
 	if (tempDocs.GetCount() <= 1 && tempViews.GetCount() <= 1
 			&& frame != nullptr) {
 		wxWindow *parent = frame->GetParent();
-		DEBUGOUT << "ProjectView:OnClose: Posting wxID_EXIT to parent\n";
+		DEBUGOUT << "ProjectView::OnClose: Posting wxID_EXIT to parent\n";
 		wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, wxID_EXIT);
 		wxPostEvent(parent, event);
 	}
 
 	if (deleteWindow) {
 		DEBUGOUT
-				<< "ProjectView:OnClose: Request destruction of associated Frame\n";
+				<< "ProjectView::OnClose: Request destruction of associated Frame\n";
 		frame->Destroy();
 		SetFrame(nullptr);
 	}

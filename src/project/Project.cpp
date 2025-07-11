@@ -132,9 +132,9 @@ void Project::CheckNeeded() {
 			}
 			if (projectview->showUpper) {
 				if (projectview->showLeft)
-					csL->MarkNeeded(true);
+					upperL->MarkNeeded(true);
 				if (projectview->showRight)
-					csR->MarkNeeded(true);
+					upperR->MarkNeeded(true);
 			}
 		}
 		if (projectview->display == ProjectView::Display::Insole) {

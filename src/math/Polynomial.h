@@ -39,7 +39,8 @@
  * \f]
  * The vector returned by the stream output << can be used directly in the
  * Octave/Matlab polyval command. Note that the order of coefficient is inverted
- * here for Octaves/Matlabs polyval, polyder, polyint, polyfit, ...
+ * here, because it is intended to be pasted into Octave/Matlab to be used with
+ * polyval, polyder, polyint, polyfit, ...
  *
  * \htmlonly
  * <svg width="300" height="200">

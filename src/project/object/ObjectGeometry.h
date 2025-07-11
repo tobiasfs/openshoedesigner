@@ -23,8 +23,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OBJECTGEOMETRY_H
-#define SRC_PROJECT_OBJECTGEOMETRY_H
+#ifndef OBJECT_OBJECTGEOMETRY_H
+#define OBJECT_OBJECTGEOMETRY_H
 
 /** \class ObjectGeometry
  * 	\code #include "ObjectGeometry.h"\endcode
@@ -53,4 +53,4 @@ public:
 	BoundingBox BB;
 };
 
-#endif /* SRC_PROJECT_OBJECTGEOMETRY_H */
+#endif /* OBJECT_OBJECTGEOMETRY_H */

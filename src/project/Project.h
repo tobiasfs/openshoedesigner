@@ -68,12 +68,13 @@
 
 #include "Builder.h"
 #include "Configuration.h"
-#include "design/Design.h"
+#include "object/Design.h"
 #include "foot/FootModel.h"
 #include "FootMeasurements.h"
 #include "object/Insole.h"
 #include "object/LastModel.h"
 #include "ParameterEvaluator.h"
+#include "object/Upper.h"
 
 class WorkerThread;
 
@@ -136,6 +137,9 @@ public:
 	// Pattern for the upper of the shoe
 	std::shared_ptr<CoordinateSystem> csL;
 	std::shared_ptr<CoordinateSystem> csR;
+
+	std::shared_ptr<Upper> upperL;
+	std::shared_ptr<Upper> upperR;
 
 //	FootModel footL;
 //	FootModel footR;

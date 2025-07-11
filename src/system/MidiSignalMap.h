@@ -47,6 +47,7 @@ public:
 
 	double operator()();
 	void Set(double v);
+	void Reset();
 
 	std::shared_ptr<MidiDevice> md;
 private:

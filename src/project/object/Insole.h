@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_INSOLE_H
-#define PROJECT_INSOLE_H
+#ifndef OBJECT_INSOLE_H
+#define OBJECT_INSOLE_H
 
 /*!\class Insole
  * \brief Insole of a shoe
@@ -151,4 +151,4 @@ public:
 	Insole::Point Z; ///< Little toe tip
 };
 
-#endif /* PROJECT_INSOLE_H */
+#endif /* OBJECT_INSOLE_H */

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CanvasInsole.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -53,6 +53,8 @@ public:
 protected:
 	void OnPaint(wxPaintEvent &event);
 	void OnSize(wxSizeEvent &event);
+
+	AffineTransformMatrix cameraXUp; ///< Mapping from SI-units to screen pixels.
 
 public:
 	std::shared_ptr<Insole> insoleL;

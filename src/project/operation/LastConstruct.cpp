@@ -40,6 +40,8 @@ std::string LastConstruct::GetName() const {
 bool LastConstruct::CanRun() {
 	std::string missing;
 
+	if (!upperLevel)
+		missing = "\"upperLevel\"";
 	if (!insole)
 		missing += missing.empty() ? "\"insole\"" : ", \"insole\"";
 	if (!cs)
@@ -58,15 +60,24 @@ bool LastConstruct::CanRun() {
 
 	error.clear();
 
+	if (upperLevel->GetString().empty()) {
+		error += " Input \"upperLevel\" for LastConstruct is empty.";
+	}
+
 	return error.empty();
 }
 
 bool LastConstruct::Propagate() {
-	if (!insole || !cs || !out)
+	if (!upperLevel || !insole || !cs || !out)
 		return false;
 
+	bool parameterModified = false;
+	parameterModified |= !insole->IsValid();
+	parameterModified |= !cs->IsValid();
+	parameterModified |= upperLevel->IsModified();
+
 	bool modify = false;
-	if (!insole->IsValid() || !cs->IsValid()) {
+	if (parameterModified) {
 		modify |= out->IsValid();
 		out->MarkValid(false);
 	}
@@ -85,7 +96,7 @@ bool LastConstruct::HasToRun() {
 }
 
 void LastConstruct::Run() {
-	*out = cs->ExtractByUVPlane(0, -1, -1);
+	*out = cs->ExtractByUVPlane(0, -1, -upperLevel->ToDouble());
 
 	//TODO Extend algorithm to stitch the insole to the bottom of the last.
 	DEBUGOUT << GetName() << ": Operation not fully implemented.\n";

@@ -70,7 +70,7 @@
 
 class Bezier3 {
 public:
-	enum Continuity {
+	enum struct Continuity {
 		Free = 0, ///< No handles (C0)
 		Handles = 1, ///< Independent handles (C0)
 		Linear = 2, ///< Handles on the same line (G1)

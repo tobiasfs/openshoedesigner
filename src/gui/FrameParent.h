@@ -45,7 +45,7 @@
 #include <wx/log.h>
 
 #ifdef USE_6DOFCONTROLLER
-#include "../controller/Control3D.h"
+#include "../system/controller/Control3D.h"
 #endif
 #include "../system/MidiPort.h"
 #ifdef USE_PORTMIDI
@@ -108,8 +108,8 @@ public:
 	float t;
 	float dt;
 
-wxDECLARE_EVENT_TABLE();DECLARE_NO_COPY_CLASS(FrameParent)
-	;
+	wxDECLARE_EVENT_TABLE();
+	DECLARE_NO_COPY_CLASS(FrameParent);
 };
 
 #endif /* FRAMEPARENT_H */

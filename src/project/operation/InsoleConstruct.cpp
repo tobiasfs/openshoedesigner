@@ -26,6 +26,7 @@
 #include "InsoleConstruct.h"
 
 #include "../../math/DependentVector.h"
+#include "../../math/Exporter.h"
 
 #include <iostream>
 #include <sstream>
@@ -143,6 +144,38 @@ bool InsoleConstruct::HasToRun() {
 
 void InsoleConstruct::Run() {
 	Construct();
+
+	{
+		Matrix M1("out", out->CountVertices(), 8);
+		for (size_t idx = 0; idx < out->CountVertices(); idx++) {
+			const auto &v = out->GetVertex(idx);
+			M1.Insert(v.x, idx, 0);
+			M1.Insert(v.y, idx, 1);
+			M1.Insert(v.z, idx, 2);
+			M1.Insert(v.n.x, idx, 3);
+			M1.Insert(v.n.y, idx, 4);
+			M1.Insert(v.n.z, idx, 5);
+			M1.Insert(v.u, idx, 6);
+			M1.Insert(v.v, idx, 7);
+		}
+		Matrix M2("outline", out->outline.CountVertices(), 8);
+		for (size_t idx = 0; idx < out->outline.CountVertices(); idx++) {
+			const auto &v = out->outline.GetVertex(idx);
+			M2.Insert(v.x, idx, 0);
+			M2.Insert(v.y, idx, 1);
+			M2.Insert(v.z, idx, 2);
+			M2.Insert(v.n.x, idx, 3);
+			M2.Insert(v.n.y, idx, 4);
+			M2.Insert(v.n.z, idx, 5);
+			M2.Insert(v.u, idx, 6);
+			M2.Insert(v.v, idx, 7);
+		}
+
+		Exporter ex("/tmp/insoleconstruct.mat");
+		ex.WriteMatrix(M1);
+		ex.WriteMatrix(M2);
+	}
+
 	out->MarkValid(true);
 	out->MarkNeeded(false);
 }
@@ -150,7 +183,7 @@ void InsoleConstruct::Run() {
 void InsoleConstruct::Construct() {
 
 	// A and B have to be on the axis y = 0.0
-	out->J.Set(0, 0, 0);
+	out->J = Insole::Point::FromXY(0, 0);
 	out->A = out->J - Insole::Point::FromXY(footLength->ToDouble() / 6.0, 0.0);
 	out->C = out->A + Insole::Point::FromXY(footLength->ToDouble() * 0.62, 0.0);
 	out->D = out->A + Insole::Point::FromXY(footLength->ToDouble(), 0.0);
@@ -299,7 +332,10 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 			while ((m + 1) < out->lines.size() && out->lines[m].r1 < r)
 				++m;
 			const double r2 = (r > M_PI) ? (r - 2 * M_PI) : r;
-			out->outline.AddEdgeToVertex(out->lines[m](r));
+			Geometry::Vertex p = out->lines[m](r);
+			p.n.Set(0, 0, 1);
+			p.u = -r2;
+			out->outline.AddEdgeToVertex(p);
 		}
 		out->outline.CloseLoopNextGroup();
 	}

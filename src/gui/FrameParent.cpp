@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameParent.cpp
-// Purpose            : Parent-frame for the application
+// Purpose            : Parent frame for the application
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -32,7 +32,7 @@
 #include "DialogSetupPaths.h"
 #include "IDs.h"
 #ifdef USE_6DOFCONTROLLER
-#include "../controller/DialogSetup6DOFController.h"
+#include "../system/controller/DialogSetup6DOFController.h"
 #endif
 
 #include <cstdio>
@@ -125,7 +125,7 @@ FrameParent::FrameParent(wxDocManager *manager, wxConfig *config,
 		mididevice->cc[53] = 64;
 		mididevice->cc[54] = 0;
 		mididevice->cc[55] = 0;
-		mididevice->Send(48, 55);
+		mididevice->Push(48, 55);
 	}
 #endif
 

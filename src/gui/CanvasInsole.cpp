@@ -165,19 +165,26 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 void CanvasInsole::OnPaint(wxPaintEvent &event) {
 	CanvasMeasurementGrid::OnPaint(event);
 
+	cameraXUp = camera;
+	cameraXUp[1] = -cameraXUp[0];
+	cameraXUp[0] = 0.0;
+	cameraXUp[4] = cameraXUp[5];
+	cameraXUp[5] = 0.0;
+
 	wxPaintDC dc(this);
 #ifdef DEBUG
 	dc.DrawText(_T("CanvasInsole"), 10, 30);
 #endif
 	if (insoleL) {
 		const double d = (insoleL && insoleR) ? dL : 0.0;
-		AffineTransformMatrix m = s
+		AffineTransformMatrix m = cameraXUp
 				* AffineTransformMatrix::Translation(0, d, 0);
 		PaintInsole(dc, m, insoleL);
 	}
 	if (insoleR) {
 		const double d = (insoleL && insoleR) ? dR : 0.0;
-		AffineTransformMatrix m = s * AffineTransformMatrix::Scaling(1, -1, 1)
+		AffineTransformMatrix m = cameraXUp
+				* AffineTransformMatrix::Scaling(1, -1, 1)
 				* AffineTransformMatrix::Translation(0, d, 0);
 		PaintInsole(dc, m, insoleR);
 	}

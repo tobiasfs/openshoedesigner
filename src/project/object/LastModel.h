@@ -24,8 +24,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PROJECT_LAST_LASTMODEL_H
-#define PROJECT_LAST_LASTMODEL_H
+#ifndef OBJECT_LASTMODEL_H
+#define OBJECT_LASTMODEL_H
 /*!\class LastModel
  * \brief Last for shoemaking
  *
@@ -132,4 +132,4 @@ public:
 
 };
 
-#endif /* PROJECT_LAST_LASTMODEL_H */
+#endif /* OBJECT_LASTMODEL_H */

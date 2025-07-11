@@ -94,7 +94,7 @@ std::string MidiDevice::GetName() const {
 	return name;
 }
 
-void MidiDevice::Send(uint8_t from, uint8_t to) {
+void MidiDevice::Push(uint8_t from, uint8_t to) {
 	for (size_t n = from; n <= to; ++n)
 		ccold[n] = cc[n] + 1;
 }

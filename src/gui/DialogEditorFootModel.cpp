@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogEditorFootModel.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -101,7 +101,6 @@ void DialogEditorFootModel::OnClose(wxCommandEvent &event) {
 }
 
 DialogEditorFootModel::~DialogEditorFootModel() {
-
 	this->Disconnect(wxEVT_TIMER,
 			wxTimerEventHandler(DialogEditorFootModel::OnTimer), nullptr, this);
 }
@@ -112,7 +111,7 @@ void DialogEditorFootModel::SetMidi(std::shared_ptr<MidiDevice> midi) {
 	for (size_t n = 0; n < 32; ++n)
 		device->cc[n] = 0;
 	device->cc[32] = 127;
-	device->Send(0, 56);
+	device->Push(0, 56);
 }
 
 void DialogEditorFootModel::OnTimer(wxTimerEvent &event) {

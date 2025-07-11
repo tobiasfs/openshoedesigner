@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : PanelMeasurementGrid.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -35,8 +35,9 @@ CanvasMeasurementGrid::CanvasMeasurementGrid(wxWindow *parent, wxWindowID id,
 
 	unit = Unit("cm");
 
-	view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 }, M_PI_2);
-	view.TranslateGlobal(0.1, 0, 0);
+	view.SetIdentity();
+//	view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 }, M_PI_2);
+//	view.TranslateGlobal(0, 0, 0);
 
 	this->Connect(wxEVT_PAINT,
 			wxPaintEventHandler(CanvasMeasurementGrid::OnPaint));
@@ -89,8 +90,9 @@ void CanvasMeasurementGrid::OnMouseEvent(wxMouseEvent &event) {
 		m_y = event.m_y;
 	}
 	if (event.ButtonDClick(wxMOUSE_BTN_RIGHT)) {
-		view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 },
-		M_PI_2);
+//		view = AffineTransformMatrix::RotationAroundVector( { 0, 0, 1 },
+//		M_PI_2);
+		view.SetIdentity();
 		m_x = event.m_x;
 		m_y = event.m_y;
 		this->Refresh();
@@ -150,14 +152,33 @@ void CanvasMeasurementGrid::OnPaint(wxPaintEvent &event) {
 	projection[12] = (double) sd.x / 2.0;
 	projection[13] = (double) sd.y / 2.0;
 
-	s = projection * view;
 
-	g = s;
-	g[0] = -g[1];
-	g[1] = 0.0;
-	g[5] = g[4];
-	g[4] = 0.0;
-	gRev = g.Inverse();
+	camera = projection * view;
+	gridInv = camera.Inverse();
+
+// 	Coordinate system
+//
+//	const double sc = 0.05;
+//	Vector3 p0 = camera.Transform(0, 0, 0);
+//	Vector3 p1 = camera.Transform(sc, 0, 0);
+//	Vector3 p2 = camera.Transform(0.9 * sc, -0.1 * sc, 0);
+//	Vector3 p3 = camera.Transform(0.9 * sc, 0.1 * sc, 0);
+//	Vector3 p4 = camera.Transform(0, sc, 0);
+//	Vector3 p5 = camera.Transform(-0.1 * sc, 0.9 * sc, 0);
+//	Vector3 p6 = camera.Transform(0.1 * sc, 0.9 * sc, 0);
+//
+//	wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(255,100, 100), 3);
+//	wxPen *c1 = wxThePenList->FindOrCreatePen(wxColour(100, 255, 100), 3);
+//
+//	dc.SetPen(*c0);
+//	dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
+//	dc.DrawLine(p2.x, p2.y, p1.x, p1.y);
+//	dc.DrawLine(p3.x, p3.y, p1.x, p1.y);
+//	dc.SetPen(*c1);
+//	dc.DrawLine(p0.x, p0.y, p4.x, p4.y);
+//	dc.DrawLine(p5.x, p5.y, p4.x, p4.y);
+//	dc.DrawLine(p6.x, p6.y, p4.x, p4.y);
+//	dc.SetPen(*wxBLACK_PEN);
 
 	PaintGrid(dc);
 }
@@ -169,8 +190,8 @@ void CanvasMeasurementGrid::PaintGrid(wxDC &dc) {
 	wxPen *c1 = wxThePenList->FindOrCreatePen(wxColour(150, 150, 150), 1);
 	wxPen *c2 = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1);
 
-	Vector3 topleft = gRev( { 0, 0, 0 });
-	Vector3 bottomright = gRev(Vector3(sd.x, sd.y, 0));
+	Vector3 topleft = gridInv( { 0, 0, 0 });
+	Vector3 bottomright = gridInv(Vector3(sd.x, sd.y, 0));
 
 	double minX = topleft.x;
 	double maxX = bottomright.x;
@@ -192,8 +213,8 @@ void CanvasMeasurementGrid::PaintGrid(wxDC &dc) {
 				dc.SetPen(*c1);
 		}
 
-		Vector3 p0 = g.Transform(xx, minY);
-		Vector3 p1 = g.Transform(xx, maxY);
+		Vector3 p0 = camera.Transform(xx, minY);
+		Vector3 p1 = camera.Transform(xx, maxY);
 
 		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
 		if (x % multiplier == 0)
@@ -209,8 +230,8 @@ void CanvasMeasurementGrid::PaintGrid(wxDC &dc) {
 			else
 				dc.SetPen(*c1);
 		}
-		Vector3 p0 = g.Transform(minX, yy);
-		Vector3 p1 = g.Transform(maxX, yy);
+		Vector3 p0 = camera.Transform(minX, yy);
+		Vector3 p1 = camera.Transform(maxX, yy);
 		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
 		if (y % multiplier == 0)
 			dc.SetPen(*c0);

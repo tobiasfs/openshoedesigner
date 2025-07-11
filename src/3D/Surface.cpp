@@ -869,7 +869,7 @@ void Surface::Calculate() {
 	Asoft.SetSize(N, 0);
 	bsoft.SetSize(3, 0);
 
-	//TODO Shovel the code below into function to reduce the cyclomatic-complexity. (Only _after_ it is tested.)
+	//TODO Shovel the code below into separate functions to reduce the cyclomatic-complexity. (Only _after_ it is tested.)
 
 	for (int level = 0; level <= 1; level++) {
 		softBoundaries = (level == 1);
@@ -1128,14 +1128,21 @@ void Surface::Calculate() {
 //
 //	Eigen::MatrixXd c = J + H * w;
 
-	Eigen::CompleteOrthogonalDecomposition Dec0 = A0.completeOrthogonalDecomposition();
+	Eigen::CompleteOrthogonalDecomposition Dec0 =
+			A0.completeOrthogonalDecomposition();
 	Eigen::MatrixXd J = Dec0.solve(b0); // @suppress("Invalid arguments")
 	Eigen::MatrixXd H = Eigen::MatrixXd::Identity(A0.cols(), A0.cols())
 			- Dec0.solve(A0);
 	Eigen::MatrixXd K = A1 * H; // @suppress("Invalid arguments")
-	Eigen::CompleteOrthogonalDecomposition Dec1 = K.completeOrthogonalDecomposition();
+	Eigen::CompleteOrthogonalDecomposition Dec1 =
+			K.completeOrthogonalDecomposition();
 	Eigen::MatrixXd w = Dec1.solve(b1 - A1 * J); // @suppress("Invalid arguments")
 	Eigen::MatrixXd c = J + H * w;
+
+	const size_t N1 = N - Dec0.rank();
+	const size_t N2 = N1 - Dec1.rank();
+	std::cout << "Exact solution: DOF " << N << " -> " << N1 << '\n';
+	std::cout << "Interpolation: DOF " << N1 << " -> " << N2 << '\n';
 
 #else
 	Ahard.Transpose();
@@ -1241,8 +1248,8 @@ Geometry::Vertex Surface::operator ()(double u, double v) const {
 void Surface::Apply(Geometry &geo) {
 	const size_t vc = geo.CountVertices();
 	for (size_t n = 0; n < vc; ++n) {
-		auto vert = geo[n];
-		auto addi = this->operator ()(vert.u, vert.v);
+		Geometry::Vertex &vert = geo[n];
+		Geometry::Vertex addi = this->operator ()(vert.u, vert.v);
 		vert.x = addi.x;
 		vert.y = addi.y;
 		vert.z = addi.z;
@@ -1264,7 +1271,7 @@ void Surface::Update() {
 
 void Surface::Paint() const {
 	Geometry::Paint();
-
+#ifdef DEBUG
 	glPointSize(5);
 	glBegin(GL_POINTS);
 	glNormal3f(0.0f, 1.0f, 0.2f);
@@ -1274,6 +1281,8 @@ void Surface::Paint() const {
 		glVertex3d(point.x, point.y, point.z);
 	}
 	glEnd();
+	glPointSize(1);
+#endif
 }
 
 size_t Surface::Pos(size_t nPatch, uint8_t idxU, uint8_t idxV) const {
@@ -1356,6 +1365,7 @@ Geometry Surface::ExtractByUVPlane(double u_, double v_, double d) {
 			selected.insert(i);
 	}
 	Geometry ret;
+	ret.CopyPropertiesFrom(*this);
 	ret.AddSelectedFrom(*this);
 	return ret;
 }

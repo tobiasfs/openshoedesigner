@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CoordinateSystem.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -32,14 +32,8 @@
  * Surface based coordinate system to project the pattern onto.
  */
 
-#include "../3D/Polygon3.h"
-#include "../3D/Polynomial3.h"
 #include "../3D/Surface.h"
 #include "object/Object.h"
-
-class FootMeasurements;
-class Insole;
-class LastModel;
 
 class CoordinateSystem: public Surface, public Object {
 public:

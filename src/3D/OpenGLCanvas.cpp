@@ -28,8 +28,9 @@
 
 #include "../StdInclude.h"
 
+#include <cfloat>
 #ifdef USE_6DOFCONTROLLER
-#include "../controller/Control3D.h"
+#include "../system/controller/Control3D.h"
 #endif
 
 #include <wx/dcclient.h>
@@ -39,6 +40,8 @@
 #include <stdexcept>
 
 #include "OpenGL.h"
+
+#include "GL/glu.h"
 
 #ifdef _MSC_VER
 #define _USE_MATH_DEFINES
@@ -53,11 +56,10 @@ OpenGLCanvas::OpenGLCanvas(wxWindow *parent, wxWindowID id, const wxPoint &pos,
 		wxGLCanvas(parent, id, wx_gl_attribs, pos, size,
 				style | wxFULL_REPAINT_ON_RESIZE, name), Light0(GL_LIGHT0) {
 
-	context = nullptr;
 	m_gllist = 0;
 	w = h = 500;
 	x = y = 250;
-	unitAtOrigin = 400;
+	unitAtOrigin = 1000;
 
 	turntableX = 0;
 	turntableY = M_PI / 2;
@@ -91,7 +93,6 @@ OpenGLCanvas::OpenGLCanvas(wxWindow *parent, wxWindowID id, const wxPoint &pos,
 			wxMouseEventHandler(OpenGLCanvas::OnMouseEvent), nullptr, this);
 
 #ifdef USE_6DOFCONTROLLER
-	control = nullptr;
 	timer.SetOwner(this);
 	this->Connect(wxEVT_TIMER, wxTimerEventHandler(OpenGLCanvas::OnTimer),
 			nullptr, this);
@@ -129,21 +130,6 @@ void OpenGLCanvas::SetController(Control3D &control) {
 }
 #endif
 
-#ifdef USE_GLAD
-#ifndef __APPLE__
-// GLX_ARB_get_proc_address
-// glXGetProcAddressARB is statically exported by all libGL implementations,
-// while glXGetProcAddress may be not available.
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern void (* glXGetProcAddressARB(const GLubyte *procName))();
-#ifdef __cplusplus
-};
-#endif
-#endif
-#endif
-
 OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 		wxGLContext(canvas) {
 	SetCurrent(*canvas);
@@ -171,7 +157,6 @@ OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 	auto success = gladLoadGLLoader((GLADloadproc) wglGetProcAddress);
 
 #else // Linux
-//	auto success = gladLoadGLLoader((GLADloadproc) *glXGetProcAddressARB);
 	auto success = gladLoaderLoadGL();
 #endif
 	if (!success) {
@@ -216,7 +201,6 @@ void OpenGLCanvas::OnTimer(wxTimerEvent &event) {
 	//rotmat.RotateXY(1,0,1);
 	if (control->GetButton(0)) {
 		rotmat.SetIdentity();
-		transmat.SetIdentity();
 	}
 	this->Refresh();
 }
@@ -230,7 +214,6 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 	}
 	if (event.ButtonDClick(wxMOUSE_BTN_RIGHT)) {
 		rotmat = AffineTransformMatrix::Identity();
-		transmat = AffineTransformMatrix::Identity();
 		turntableX = 0;
 		turntableY = M_PI / 2;
 		x = event.m_x;
@@ -254,15 +237,20 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 			break;
 		}
 		case Rotation::Turntable: {
+			Vector3 temp = rotmat.GetOrigin();
 			rotmat = AffineTransformMatrix::RotationAroundVector(
 					Vector3(1, 0, 0), -M_PI / 2);
 			turntableX += (double) (event.m_x - x) / 100;
 			turntableY += (double) (event.m_y - y) / 100;
+
 			rotmat = rotmat
 					* AffineTransformMatrix::RotationAroundVector(
 							Vector3(0, 1, 0), turntableX);
+
 			rotmat = AffineTransformMatrix::RotationAroundVector(
 					Vector3(1, 0, 0), turntableY) * rotmat;
+			rotmat.SetOrigin(temp);
+
 			break;
 		}
 		}
@@ -279,7 +267,7 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 		const float dx = (float) (event.m_x - x) / movement;
 		const float dy = (float) (event.m_y - y) / movement;
 		if (rotationMode == Rotation::Turntable)
-			transmat.TranslateGlobal(dx, -dy, 0);
+			rotmat.TranslateGlobal(dx, -dy, 0);
 		else
 			rotmat.TranslateGlobal(dx, -dy, 0);
 		x = event.m_x;
@@ -290,7 +278,6 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 		const int x = event.GetWheelRotation();
 		if (x != 0) {
 			scale *= exp(-((float) x) / 1000.0);
-//			transmat.TranslateGlobal(0, 0, (float) -x / 1000.0);
 			this->Refresh();
 		}
 	}
@@ -300,25 +287,27 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 }
 
 void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
-	if (!IsShown())
-		return;
+
 	wxPaintDC(this); // Set the clipping for this area
 
-//#ifndef __WXMOTIF__
-//	if(!GetContext()) return;
-//#endif
+	if (!IsShown())
+		return;
+
+	//#ifndef __WXMOTIF__
+	//	if(!GetContext()) return;
+	//#endif
 
 	if (context == nullptr)
 		context = new Context(this);
 	context->SetCurrent(*this); // Link OpenGL to this area
 
-	// set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
+	// Set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
 	GetClientSize(&w, &h);
 	glViewport(0, 0, (GLint) w, (GLint) h);
 
 	// Setup OpenGL state machine
-	glEnable(GL_POINT_SMOOTH);
 
+	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_BLEND);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_COLOR_MATERIAL);
@@ -405,6 +394,11 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 //	projection = AffineTransformMatrix::Orthogonal(-aspect * 0.4142,
 //			aspect * 0.4142, -0.4142, 0.4142, 0.4142, -0.4142);
 
+	camera = AffineTransformMatrix::Translation(0, 0, -focalDistance)
+			* AffineTransformMatrix::Scaling(scale) * rotmat;
+	camera_position = camera.Inverse();
+	model.SetIdentity();
+
 	glEnable(GL_LIGHTING);
 
 	glMatrixMode(GL_PROJECTION);
@@ -428,25 +422,22 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 	if (stereoMode == Stereo3D::Shutter) {
 		glDrawBuffer(GL_BACK_LEFT);
 	}
-
 	if (stereoMode != Stereo3D::Off) {
 		glRotatef(atan(eyeDistance / 2 / focalDistance) * 180.0 / M_PI, 0, 1,
 				0);
 		glTranslatef(eyeDistance / 2, 0, 0);
 	}
 
-	glTranslatef(0.0, 0.0, -focalDistance);
-	glScalef(scale, scale, scale);
-
-	transmat.GLMultMatrix();
-	rotmat.GLMultMatrix();
+	camera.GLMultMatrix();
 
 	{
 		// Determine unit length at origin
-		// Note that the reference implementation makes some assumtions on
+		// Note that the reference implementation makes some assumptions on
 		// the form of the projection matrix, that do not work with all
 		// projection matrices.
 		// https://www.khronos.org/opengl/wiki/GluProject_and_gluUnProject_code
+		//
+		// The code below works with perspective and orthogonal matrices.
 
 		GLint vp[4];
 		GLdouble mv[16];
@@ -464,19 +455,16 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 		unitAtOrigin = sc * 2.0 * vp[2] * T4 / ((T1 - T2) * (T1 + T2));
 	}
 
-	//	if(m_gllist == 0){
-	//		m_gllist = glGenLists(1); // Make one (1) empty display list.
-	//		glNewList(m_gllist, GL_COMPILE_AND_EXECUTE);
-
 	Light0.Enable();
 	Light0.Update(true);
 
+	if (m_gllist == 0)
+		m_gllist = glGenLists(1); // Make one (1) empty display list.
+	glNewList(m_gllist, GL_COMPILE_AND_EXECUTE);
+
 	Render();
 
-	//		glEndList();
-	//	}else{
-	//		glCallList(m_gllist);
-	//	}
+	glEndList();
 
 	if (stereoMode != Stereo3D::Off) {
 		glCullFace(GL_BACK);
@@ -500,13 +488,13 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 		glRotatef(-atan(eyeDistance / 2 / focalDistance) * 180.0 / M_PI, 0, 1,
 				0);
 		glTranslatef(-eyeDistance / 2, 0, 0);
-		glTranslatef(0.0, 0.0, -focalDistance);
-		glScalef(scale, scale, scale);
-		rotmat.GLMultMatrix();
-		transmat.GLMultMatrix();
+
+		camera.GLMultMatrix();
+
 		Light0.Update(true);
-		Render();
-		//glCallList(m_gllist);
+
+		// Render();
+		glCallList(m_gllist);
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
@@ -515,6 +503,146 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 	SwapBuffers();
 
 }
+
+OpenGLCanvas::Arrow OpenGLCanvas::GetPosition(int x, int y) const {
+	GLint vp[4];
+	glGetIntegerv( GL_VIEWPORT, vp);
+
+	// Note that gy is inverted.
+	// Screen coordinates are X: left -> right and Y: top bottom
+	// gx and gy are normalized coordinates:
+	// gx left -> right, -1 .. 1, gy bottom -> top, -1 .. 1
+
+	double gx = (2.0 * (double) (x - vp[0]) - (double) vp[2]) / (double) vp[2];
+	double gy = 1.0 - 2.0 * ((double) vp[1] + y) / (double) vp[3];
+
+	// Fricas code:
+	// )set fortran optlevel 2
+	// )set output fortran on
+	// mpr:=matrix([[pr[0],pr[4],pr[8],pr[12]],[pr[1],pr[5],pr[9],pr[13]],[pr[2],pr[6],pr[10],pr[14]],[0,0,pr[11],pr[15]]]);
+	// mmv:=matrix([[mv[0],mv[4],mv[8],mv[12]],[mv[1],mv[5],mv[9],mv[13]],[mv[2],mv[6],mv[10],mv[14]],[0,0,0,1]]);
+	// P := mpr*mmv*matrix([[x],[z],[-y],[1]]) - matrix([[gx*h],[gy*h],[gz*h],[h]]);
+	// solve([P(1,1),P(2,1),P(4,1)], [x,y,z])(1)
+
+	// Note that y and z are exchanged in the code above to make everything
+	// fit together from screen coordinates to OpenGL coordinates.
+
+	// This describes a solution for x,y,z given gx, gy. The free variable h
+	// represents the line into the view plane. The solution can be rewritten
+	// as A*h + B
+
+	// The code works with orthogonal and perspective projection matrices.
+
+	const double T2 = camera[10];
+	const double T3 = camera[6];
+	const double T4 = camera[5] * T2;
+	const double T5 = T3 * camera[9];
+	const double T6 = camera[4] * T2;
+	const double T7 = T3 * camera[8];
+	const double T8 = projection[11];
+	const double T9 = T4 - T5;
+	const double T10 = projection[4];
+	const double T11 = T6 - T7;
+	const double T12 = projection[0];
+	const double T13 = -T4 + T5;
+	const double T14 = projection[5];
+	const double T15 = -T6 + T7;
+	const double T16 = projection[1];
+	const double T17 = camera[4];
+	const double T18 = camera[9];
+	const double T19 = camera[5];
+	const double T20 = camera[8];
+	const double T21 = T17 * T18;
+	const double T22 = T19 * T20;
+	const double T23 = T13 * T10 + T15 * T12;
+	const double T24 = projection[9];
+	const double T25 = T9 * T14 + T11 * T16;
+	const double T26 = projection[8];
+	const double T27 = -T21 + T22;
+	const double T28 = T21 - T22;
+	const double T29 = T9 * T10 + T11 * T12;
+	const double T30 = T13 * T14 + T15 * T16;
+	const double T31 = camera[14];
+	const double T32 = camera[13];
+	const double T33 = camera[12];
+	const double T34 = camera[0];
+	const double T35 = camera[1];
+	const double T36 = camera[2];
+	const double T37 = T34 * T19;
+	const double T38 = T35 * T17;
+	const double T39 = T34 * T3;
+	const double T40 = T36 * T17;
+	const double T41 = T35 * T3;
+	const double T42 = T36 * T19;
+	const double T43 = T41 - T42;
+	const double T44 = T39 - T40;
+	const double T45 = -T41 + T42;
+	const double T46 = -T39 + T40;
+	const double T47 = -T37 + T38;
+	const double T48 = T37 - T38;
+	const double T49 = T43 * T10 + T44 * T12;
+	const double T50 = T45 * T14 + T46 * T16;
+	const double T51 = projection[15];
+	const double T52 = T45 * T10 + T46 * T12;
+	const double T53 = projection[13];
+	const double T54 = T43 * T14 + T44 * T16;
+	const double T55 = projection[12];
+	const double T56 = ((T48 * T2 + T46 * T18 + T43 * T20) * T12 * T14
+			+ (T47 * T2 + T44 * T18 + T45 * T20) * T16 * T10) * T8;
+	if (fabs(T56) < FLT_EPSILON) {
+		std::ostringstream err;
+		err << __FILE__ << ":" << __LINE__ << "::" << __FUNCTION__ << " - ";
+		err << " The projection matrix or the object matrix are defect.";
+		err << " An inverse projection cannot be calculated.";
+		throw std::logic_error(err.str());
+	}
+	const double T57 = T35 * T2;
+	const double T58 = T36 * T18;
+	const double T59 = T34 * T2;
+	const double T60 = T36 * T20;
+	const double T61 = -T57 + T58;
+	const double T62 = -T59 + T60;
+	const double T63 = T57 - T58;
+	const double T64 = T59 - T60;
+	const double T65 = T34 * T18;
+	const double T66 = T35 * T20;
+	const double T67 = T63 * T10 + T64 * T12;
+	const double T68 = T61 * T14 + T62 * T16;
+	const double T69 = T65 - T66;
+	const double T70 = -T65 + T66;
+	const double T71 = T61 * T10 + T62 * T12;
+	const double T72 = T63 * T14 + T64 * T16;
+
+	Arrow ret;
+	ret.normal.x = (T23 * T8 * gy + T25 * T8 * gx + T29 * T24 + T30 * T26
+			+ T28 * T12 * T14 + T27 * T16 * T10)
+
+	/ T56;
+	ret.normal.y = (T49 * T8 * gy + T50 * T8 * gx + T52 * T24 + T54 * T26
+			+ T47 * T12 * T14 + T48 * T16 * T10) / T56;
+	ret.normal.z = (T67 * T8 * gy + T68 * T8 * gx + T71 * T24 + T72 * T26
+			+ T70 * T12 * T14 + T69 * T16 * T10) / T56;
+	ret.origin.x = ((T23 * T24 + T25 * T26 + T27 * T12 * T14 + T28 * T16 * T10)
+			* T51 + T29 * T8 * T53 + T30 * T8 * T55
+			+ ((T27 * T31 + T11 * T32 + T13 * T33) * T12 * T14
+					+ (T28 * T31 + T15 * T32 + T9 * T33) * T16 * T10) * T8)
+			/ T56;
+	ret.origin.y = ((T49 * T24 + T50 * T26 + T48 * T12 * T14 + T47 * T16 * T10)
+			* T51 + T52 * T8 * T53 + T54 * T8 * T55
+			+ ((T48 * T31 + T46 * T32 + T43 * T33) * T12 * T14
+					+ (T47 * T31 + T44 * T32 + T45 * T33) * T16 * T10) * T8)
+			/ T56;
+	ret.origin.z = ((T67 * T24 + T68 * T26 + T69 * T12 * T14 + T70 * T16 * T10)
+			* T51 + T71 * T8 * T53 + T72 * T8 * T55
+			+ ((T69 * T31 + T62 * T32 + T63 * T33) * T12 * T14
+					+ (T70 * T31 + T64 * T32 + T61 * T33) * T16 * T10) * T8)
+			/ T56;
+
+	ret.normal.Normalize();
+
+	return ret;
+}
+
 #ifdef USE_3DPICKING
 void OpenGLCanvas::OnPick(OpenGLPick &result, int x, int y) {
 	this->OnPick(result, wxPoint(x, y));
@@ -527,9 +655,9 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 	//TODO: Test if needed:
 	//wxClientDC(this); // Set the clipping for this area
 
-//#ifndef __WXMOTIF__
-//	if(!GetContext()) return false;
-//#endif
+	//#ifndef __WXMOTIF__
+	//	if(!GetContext()) return false;
+	//#endif
 
 	if (context == nullptr)
 		context = new Context(this);
@@ -564,10 +692,8 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 	glLoadIdentity();
 
 #endif
-	glTranslatef(0.0, 0.0, -focalDistance);
-	glScalef(scale, scale, scale);
-	rotmat.GLMultMatrix();
-	transmat.GLMultMatrix();
+
+	camera.GLMultMatrix();
 
 	RenderPick();
 	glFlush();
@@ -575,16 +701,21 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 	GLenum err = glGetError();
 	result.SetHits(0);
 	if (err) {
-		if (err == GL_INVALID_OPERATION) {
-			DEBUGOUT
-					<< "OpenGLCanvas::OnPick - GL_INVALID_OPERATION returned %u.\n";
-			DEBUGOUT << err << '\n';
-		} else {
-			DEBUGOUT << "OpenGLCanvas::OnPick - Error " << err << '\n';
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__
+				<< " - Error: " << err;
+		switch (err) {
+		case GL_INVALID_VALUE:
+			DEBUGOUT << " (GL_INVALID_VALUE)\n";
+			break;
+		case GL_INVALID_OPERATION:
+			DEBUGOUT << " (GL_INVALID_OPERATION)\n";
+			break;
+		default:
+			DEBUGOUT << '\n';
 		}
 		return;
 	}
-	if (hits == 0xFFFFFFFF) {
+	if (hits == (GLint) 0xFFFFFFFF) {
 		DEBUGOUT
 				<< "OpenGLCanvas::OnPick - Buffer Overflow (increase buffer size).\n";
 		return;
@@ -597,76 +728,3 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 void OpenGLCanvas::RenderPick() {
 	this->Render();
 }
-
-//void OpenGLCanvas::Render() {
-//	glPushMatrix();
-//
-//	GLfloat x = 1.0;
-//	GLfloat y = 0.5;
-//	GLfloat z = 2.0;
-//
-//	GLfloat t = (float) sqrt(x * x + y * y + z * z);
-//	GLfloat nx = x / t;
-//	GLfloat ny = y / t;
-//	GLfloat nz = z / t;
-//
-//	glBegin(GL_QUADS);
-//	glNormal3f(nx, ny, nz);
-//	glVertex3f(x, y, z);
-//	glNormal3f(nx, -ny, nz);
-//	glVertex3f(x, -y, z);
-//	glNormal3f(nx, -ny, -nz);
-//	glVertex3f(x, -y, -z);
-//	glNormal3f(nx, ny, -nz);
-//	glVertex3f(x, y, -z);
-//
-//	glNormal3f(-nx, ny, nz);
-//	glVertex3f(-x, y, z);
-//	glNormal3f(-nx, ny, -nz);
-//	glVertex3f(-x, y, -z);
-//	glNormal3f(-nx, -ny, -nz);
-//	glVertex3f(-x, -y, -z);
-//	glNormal3f(-nx, -ny, nz);
-//	glVertex3f(-x, -y, z);
-//
-//	glNormal3f(nx, ny, nz);
-//	glVertex3f(x, y, z);
-//	glNormal3f(nx, ny, -nz);
-//	glVertex3f(x, y, -z);
-//	glNormal3f(-nx, ny, -nz);
-//	glVertex3f(-x, y, -z);
-//	glNormal3f(-nx, ny, nz);
-//	glVertex3f(-x, y, z);
-//
-//	glNormal3f(nx, -ny, nz);
-//	glVertex3f(x, -y, z);
-//	glNormal3f(-nx, -ny, nz);
-//	glVertex3f(-x, -y, z);
-//	glNormal3f(-nx, -ny, -nz);
-//	glVertex3f(-x, -y, -z);
-//	glNormal3f(nx, -ny, -nz);
-//	glVertex3f(x, -y, -z);
-//
-//	glNormal3f(nx, ny, nz);
-//	glVertex3f(x, y, z);
-//	glNormal3f(-nx, ny, nz);
-//	glVertex3f(-x, y, z);
-//	glNormal3f(-nx, -ny, nz);
-//	glVertex3f(-x, -y, z);
-//	glNormal3f(nx, -ny, nz);
-//	glVertex3f(x, -y, z);
-//
-//	glNormal3f(nx, ny, -nz);
-//	glVertex3f(x, y, -z);
-//	glNormal3f(nx, -ny, -nz);
-//	glVertex3f(x, -y, -z);
-//	glNormal3f(-nx, -ny, -nz);
-//	glVertex3f(-x, -y, -z);
-//	glNormal3f(-nx, ny, -nz);
-//	glVertex3f(-x, y, -z);
-//
-//	glEnd();
-//
-//	glPopMatrix();
-//}
-

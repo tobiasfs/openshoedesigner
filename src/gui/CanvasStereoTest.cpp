@@ -29,7 +29,7 @@
 CanvasStereoTest::CanvasStereoTest(wxWindow *parent, wxWindowID id,
 		const wxPoint &pos, const wxSize &size, long style,
 		const wxString &name) :
-		OpenGLCanvas(parent, id, pos, size, style, name){
+		OpenGLCanvas(parent, id, pos, size, style, name) {
 	scale = 0.1;
 }
 

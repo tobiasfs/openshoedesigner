@@ -25,6 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "CanvasPattern.h"
 
+#include <cfloat>
 #include <wx/dcclient.h>
 
 CanvasPattern::CanvasPattern(wxWindow *parent, wxWindowID id,
@@ -59,7 +60,51 @@ void CanvasPattern::OnPaint(wxPaintEvent &event) {
 	dc.DrawText(text, 10, 30);
 #endif
 
+	if (!design)
+		return;
 
+	wxPen *penBezier = wxThePenList->FindOrCreatePen(wxColour(0, 0, 0), 2);
+	wxPen *penEdge = wxThePenList->FindOrCreatePen(wxColour(60, 60, 60), 1,
+			wxPENSTYLE_SHORT_DASH);
+	wxPen *penVertex = wxThePenList->FindOrCreatePen(wxColour(60, 260, 60), 1);
+
+	AffineTransformMatrix sp = camera
+			* AffineTransformMatrix::Scaling(0.1 / M_PI, 0.1, 1);
+
+	std::vector<wxPoint> pl;
+	for (auto &e : design->edges) {
+		pl.clear();
+		for (size_t idx = 0; idx < e.geo.CountVertices(); idx++) {
+			const Geometry::Vertex &v = e.geo.GetVertex(idx);
+			Vector3 p = sp.Transform(v.u, v.v);
+			pl.emplace_back(p.x, p.y);
+		}
+		dc.SetPen(*penBezier);
+		dc.DrawLines(pl.size(), pl.data());
+
+		pl.clear();
+		for (size_t idx : e.vidx) {
+			const Design::Vertex &v = design->vertices[idx];
+			Vector3 p = sp.Transform(v.u, v.v);
+			pl.emplace_back(p.x, p.y);
+		}
+		dc.SetPen(*penEdge);
+		dc.DrawLines(pl.size(), pl.data());
+	}
+	dc.SetPen(*penVertex);
+	for (const Design::Vertex &v : design->vertices) {
+		Vector3 p = sp.Transform(v.u, v.v);
+		dc.DrawCircle(p.x, p.y, 4);
+		if (v.u < -M_PI + FLT_EPSILON) {
+			Vector3 p = sp.Transform(v.u + 2.0 * M_PI, v.v);
+			dc.DrawCircle(p.x, p.y, 4);
+		}
+		if (v.u > M_PI - FLT_EPSILON) {
+			Vector3 p = sp.Transform(v.u - 2.0 * M_PI, v.v);
+			dc.DrawCircle(p.x, p.y, 4);
+		}
+	}
+	dc.SetPen(*wxBLACK);
 }
 
 //void CanvasPattern::OnMotion(wxMouseEvent &event) {

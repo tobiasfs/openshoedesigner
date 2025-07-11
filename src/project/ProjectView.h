@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : ProjectView.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -80,7 +80,8 @@ public:
 	bool showUpper = true;
 	bool showCutaway = false;
 	bool showFloor = false;
-	bool showCoordinateSystem = true;
+	bool showCoordinateSystem = false;
+	bool showOrigin = true;
 	bool showBackground = false;
 
 	const FootMeasurements* GetActiveFootMeasurements(void) const;
@@ -92,7 +93,7 @@ public:
 	virtual bool OnClose(bool deleteWindow = true) override;
 
 private:
-	void PaintLast() const;
+//	void PaintLast() const;
 	void PaintSole() const;
 	void PaintUpper() const;
 	void PaintCutaway() const;

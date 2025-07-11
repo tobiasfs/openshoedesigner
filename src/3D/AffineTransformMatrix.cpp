@@ -43,10 +43,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-AffineTransformMatrix::AffineTransformMatrix() {
-	SetIdentity();
-}
-
 AffineTransformMatrix::AffineTransformMatrix(Orientation orientation_) :
 		orientation(orientation_) {
 	SetIdentity();
@@ -113,12 +109,10 @@ void AffineTransformMatrix::UpdateOrientation() {
 }
 
 void AffineTransformMatrix::SetIdentity() {
-	for (uint_fast8_t i = 0; i < 16; ++i)
-		a[i] = 0;
-	a[0] = 1.0;
-	a[5] = 1.0;
-	a[10] = (orientation == Orientation::RHS) ? 1.0 : -1.0;
-	a[15] = 1.0;
+	if (orientation == Orientation::RHS)
+		a = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+	else
+		a = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1 };
 }
 
 void AffineTransformMatrix::SetZero() {
@@ -127,7 +121,7 @@ void AffineTransformMatrix::SetZero() {
 
 void AffineTransformMatrix::ResetRotationAndScale() {
 	for (uint_fast8_t i = 0; i < 12; ++i)
-		a[i] = 0;
+		a[i] = 0.0;
 	a[0] = 1.0;
 	a[5] = 1.0;
 	a[10] = (orientation == Orientation::RHS) ? 1.0 : -1.0;
@@ -312,12 +306,12 @@ AffineTransformMatrix AffineTransformMatrix::GetNormalMatrix() const {
 
 AffineTransformMatrix& AffineTransformMatrix::operator*=(
 		const AffineTransformMatrix &b) {
-	//Generated with this code:
-	//php -r'for($i=0;$i<4;$i++){for($j=0;$j<4;$j++){printf("this->a[%u]=",$i*4+$j);for($k=0;$k<4;$k++){printf("c[%u]*b.a[%u]%s",$k*4+$j,$i*4+$k,($k==3)?";\r\n":"+");}}}'
+	// Generated with this code:
+	// php -r'for($i=0;$i<4;$i++){for($j=0;$j<4;$j++){printf("this->a[%u]=",$i*4+$j);for($k=0;$k<4;$k++){printf("c[%u]*b.a[%u]%s",$k*4+$j,$i*4+$k,($k==3)?";\r\n":"+");}}}'
 
 	// The php code generates all combinations.
-	// The axiom code optimizes it a little more, because b.a[3], b.a[7] and b.a[11] are
-	// zero and b.a[15] is one.
+	// The Fricas code optimizes it a little more, because b.a[3], b.a[7] and
+	// b.a[11] are zero and b.a[15] is one.
 
 	// Fricas:
 	// this:=matrix([[c[0],c[4],c[8],c[12]],[c[1],c[5],c[9],c[13]],[c[2],c[6],c[10],c[14]],[0,0,0,1]]);
@@ -393,6 +387,8 @@ AffineTransformMatrix AffineTransformMatrix::Inverse() const {
 		throw(std::logic_error(
 		__FILE__ " Inverse() - Matrix is broken and cannot be inverted."));
 
+	const double T36 = 1.0 / T11;
+
 	const double T27 = T34 - T35;
 	const double T28 = T33 - T32;
 	const double T29 = T30 - T31;
@@ -411,25 +407,24 @@ AffineTransformMatrix AffineTransformMatrix::Inverse() const {
 	const double T17 = a[6] * a[9];
 
 	AffineTransformMatrix b;
-
-	b.a[0] = (T16 - T17) / T11;
-	b.a[4] = (-T14 + T15) / T11;
-	b.a[8] = (T12 - T13) / T11;
+	b.a[0] = (T16 - T17) * T36;
+	b.a[4] = (-T14 + T15) * T36;
+	b.a[8] = (T12 - T13) * T36;
 	b.a[12] =
 			((-T12 + T13) * a[14] + (T14 - T15) * a[13] + (-T16 + T17) * a[12])
-					/ T11;
-	b.a[1] = (-T24 + T25) / T11;
-	b.a[5] = (T21 - T22) / T11;
-	b.a[9] = (-T18 + T19) / T11;
+					* T36;
+	b.a[1] = (-T24 + T25) * T36;
+	b.a[5] = (T21 - T22) * T36;
+	b.a[9] = (-T18 + T19) * T36;
 	b.a[13] =
 			((T18 - T19) * a[14] + (-T21 + T22) * a[13] + (-T25 + T24) * a[12])
-					/ T11;
-	b.a[2] = T27 / T11;
-	b.a[6] = T28 / T11;
-	b.a[10] = T29 / T11;
+					* T36;
+	b.a[2] = T27 * T36;
+	b.a[6] = T28 * T36;
+	b.a[10] = T29 * T36;
 	b.a[14] =
 			((-T30 + T31) * a[14] + (T32 - T33) * a[13] + (-T34 + T35) * a[12])
-					/ T11;
+					* T36;
 	b.a[3] = 0;
 	b.a[7] = 0;
 	b.a[11] = 0;

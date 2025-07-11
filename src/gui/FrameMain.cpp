@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameMain.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -42,9 +42,9 @@
 #include "../project/command/CommandFootMeasurementSet.h"
 #include "../project/command/CommandFootModelSetParameter.h"
 
-#include "../icons/FootMeasurements_small.xpm"
-#include "../icons/FootMeasurements.xpm"
-#include "../icons/Logo.xpm"
+#include "icons/FootMeasurements_small.xpm"
+#include "icons/FootMeasurements.xpm"
+#include "icons/Logo.xpm"
 
 #include <wx/cmdproc.h>
 #include <wx/dir.h>
@@ -115,9 +115,13 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 	FrameParent *parentframe = wxStaticCast(parent, FrameParent);
 	SettingsStereo3D *settings = &(parentframe->settingsStereo3D);
 
+#ifdef USE_6DOFCONTROLLER
+	m_canvas3D->SetController(parentframe->control);
+#endif
 	m_canvas3D->SetProjectView(wxStaticCast(view, ProjectView));
 	settings->WriteToCanvas(m_canvas3D);
 	m_canvas3D->Refresh();
+
 	filepaths.Load(config);
 
 	m_editorCode->SetLexer(wxSTC_LEX_CPP);
@@ -209,6 +213,8 @@ bool FrameMain::TransferDataToWindow() {
 			(projectview->showRight) ? project->insoleFlatR : nullptr;
 	m_canvasInsole->dL = project->footL.ballWidth->ToDouble() * 0.75;
 	m_canvasInsole->dR = project->footR.ballWidth->ToDouble() * 0.75;
+
+	m_canvasPattern->design = project->design;
 
 	// Set checkboxes and selections in main menu
 
@@ -1090,9 +1096,15 @@ void FrameMain::OnTextEnter(wxCommandEvent &event) {
 
 void FrameMain::On3DSelect(wxMouseEvent &event) {
 	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
-			<< event.GetId() << " ) not implemented.\n";
+			<< event.GetId() << " ) called.\n";
 	int x = event.GetX();
 	int y = event.GetY();
+
+
+
+
+
+	return;
 	OpenGLPick result;
 	m_canvas3D->OnPick(result, x, y);
 	if (result.HasHits()) {

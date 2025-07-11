@@ -31,11 +31,16 @@
  * \brief Extended wxGLCanvas
  * \ingroup OpenGL
  *
+ * Adapter class to provide some basic 3D functions for OpenGL canvases.
+ *
  * Provides features like:
  *  * Mouse movement
  *  * 6-DOF controller support
  *  * Object picking
  *  * Stereo 3D (Anaglyph- and Shutterglasses)
+ *
+ *
+ *
  */
 
 #include "../Config.h"
@@ -47,6 +52,7 @@ class Control3D;
 #ifdef USE_3DPICKING
 #include "OpenGLPick.h"
 #endif
+
 #include "OpenGLLight.h"
 //#include "OpenGLShader.h"
 
@@ -56,14 +62,12 @@ class Control3D;
 
 class OpenGLCanvas: public wxGLCanvas {
 public:
-
-	enum class Stereo3D {
+	enum struct Stereo3D {
 		Off, //!< No stereo effect
 		Anaglyph, //!< Stereoeffect using colored glasses
 		Shutter //!< Stereoeffect using shutter-glasses
 	};
-
-	enum class Rotation {
+	enum struct Rotation {
 		Trackball, //!< Use trackball style mouse control.
 		Interwoven, //!< Rotate around the object using interwoven mouse movements.
 		Turntable //!< Rotate the object like a turntable. X rotates always around the Z axis, while Y rotates around the X axis.
@@ -77,11 +81,36 @@ public:
 
 	class Context: public wxGLContext {
 	public:
+		Context() = delete;
 		explicit Context(wxGLCanvas *canvas);
 	};
 
-	// Member Variables
 public:
+	/**\name Positioning in 3D space
+	 *
+	 * The position is split into
+	 *
+	 *\{
+	 */
+
+	AffineTransformMatrix projection;
+	AffineTransformMatrix camera;
+	AffineTransformMatrix camera_position;
+	AffineTransformMatrix model;
+
+	AffineTransformMatrix rotmat; ///< Rotation around current origin
+
+	float scale; ///< Scale of the scene
+
+	/**\}
+	 */
+
+	/**\name Support for stereo-3D rendering
+	 *
+	 *
+	 *
+	 * \{
+	 */
 	Stereo3D stereoMode;
 	float eyeDistance;
 	float focalDistance;
@@ -93,18 +122,22 @@ public:
 	unsigned char leftEyeG;
 	unsigned char leftEyeB;
 
+	/**\}
+	 */
+
 	Rotation rotationMode;
-	AffineTransformMatrix rotmat;
-	AffineTransformMatrix transmat;
-	float scale;
 
-	OpenGLLight Light0;
+	OpenGLLight Light0; ///< Default light
 
-	AffineTransformMatrix projection;
-	AffineTransformMatrix camera;
-	AffineTransformMatrix camera_position;
-	AffineTransformMatrix model;
-
+	/**\brief Calculated unit length in pixel at the origin
+	 *
+	 * This variable contains the distance in X for the length of one
+	 * unit in 3D space. This distance can be used to move the origin in 3D
+	 * in unison with the mouse cursor.
+	 *
+	 * The calculation is updated in the beginning of each rendering of the
+	 * scene.
+	 */
 	float unitAtOrigin;
 
 protected:
@@ -114,7 +147,7 @@ protected:
 	int h; //!< Height of viewport
 	float turntableX;
 	float turntableY;
-	unsigned int m_gllist;
+	unsigned int m_gllist = 0;
 
 //	OpenGLShader shadows;
 //	GLuint depthBuffer;
@@ -124,19 +157,17 @@ private:
 	Context *context = nullptr;
 
 #ifdef USE_6DOFCONTROLLER
-	Control3D *control; //!< Link to 6DOF-controller
+	Control3D *control = nullptr; //!< Link to 6DOF-controller
 	wxTimer timer; //!< Timer for polling the controller
 #endif
 
-	// Methods
 public:
-#ifdef USE_6DOFCONTROLLER
-	void SetController(Control3D &control);
-#endif
-#ifdef USE_3DPICKING
-	void OnPick(OpenGLPick &result, int x, int y);
-	void OnPick(OpenGLPick &result, wxPoint pos);
-#endif
+	class Arrow {
+	public:
+		Vector3 normal;
+		Vector3 origin;
+	};
+	Arrow GetPosition(int x, int y) const;
 
 protected:
 	virtual void Render() = 0;
@@ -147,8 +178,16 @@ protected:
 
 	virtual void OnMouseEvent(wxMouseEvent &event);
 
-private:
 #ifdef USE_6DOFCONTROLLER
+public:
+	void SetController(Control3D &control);
+#endif
+
+#ifdef USE_3DPICKING
+public:
+	void OnPick(OpenGLPick &result, int x, int y);
+	void OnPick(OpenGLPick &result, wxPoint pos);
+private:
 	void OnTimer(wxTimerEvent &event);
 #endif
 

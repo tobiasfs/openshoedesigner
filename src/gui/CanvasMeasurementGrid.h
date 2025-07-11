@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : PanelMeasurementGrid.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -67,12 +67,11 @@ public:
 protected:
 	AffineTransformMatrix projection;
 	AffineTransformMatrix view;
+	AffineTransformMatrix camera; ///< Mapping into the main XY coordinate system
 
-	AffineTransformMatrix s; ///< Mapping from SI-units to screen pixels.
 
 private:
-	AffineTransformMatrix g; ///< For displaying the grid
-	AffineTransformMatrix gRev; ///< Reverse for displaying the grid
+	AffineTransformMatrix gridInv; ///< Reverse for displaying the grid
 
 	int m_x = 0;
 	int m_y = 0;

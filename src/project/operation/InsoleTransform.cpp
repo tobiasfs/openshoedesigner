@@ -121,7 +121,7 @@ bool InsoleTransform::HasToRun() {
 void InsoleTransform::Run() {
 	*out = *in;
 
-	Shape();
+//	Shape();
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

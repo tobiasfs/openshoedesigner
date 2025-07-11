@@ -40,6 +40,7 @@
 #include "../object/Insole.h"
 #include "../object/ObjectGeometry.h"
 #include "Operation.h"
+#include "../ParameterFormula.h"
 
 #include <memory>
 
@@ -55,6 +56,7 @@ public:
 	virtual void Run() override;
 
 public:
+	std::shared_ptr<ParameterFormula> upperLevel;
 	std::shared_ptr<Insole> insole;
 	std::shared_ptr<CoordinateSystem> cs;
 	std::shared_ptr<ObjectGeometry> out;

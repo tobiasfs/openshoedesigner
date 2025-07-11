@@ -23,8 +23,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OBJECT_H_
-#define SRC_PROJECT_OBJECT_H_
+#ifndef OBJECT_OBJECT_H
+#define OBJECT_OBJECT_H
 
 /** \class Object
  * 	\code #include "Object.h"\endcode
@@ -56,4 +56,4 @@ private:
 	bool valid = false;
 };
 
-#endif /* SRC_PROJECT_OBJECT_H_ */
+#endif /* OBJECT_OBJECT_H */

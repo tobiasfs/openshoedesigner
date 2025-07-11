@@ -76,6 +76,8 @@
  *
  * ...
  *
+ * [Wikipedia: Verlet integration](https://en.wikipedia.org/wiki/Verlet_integration)
+ * [Paper](https://www.cs.cmu.edu/afs/cs/academic/class/15462-s13/www/lec_slides/Jakobsen.pdf)
  *
  * # Literature and Links
  *

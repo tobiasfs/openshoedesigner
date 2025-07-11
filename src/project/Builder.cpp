@@ -173,6 +173,7 @@ void Builder::Setup(Project &project) {
 		}
 		if (!opLastConstruct) {
 			opLastConstruct = std::make_shared<LastConstruct>();
+			opLastConstruct->upperLevel = config.upperLevel;
 			operations.push_back(opLastConstruct);
 		}
 		if (!opLastLoad) {
@@ -195,12 +196,19 @@ void Builder::Setup(Project &project) {
 			opLastUpdate->legLengthDifference = footL.legLengthDifference;
 			operations.push_back(opLastUpdate);
 		}
+		if (!opUpperConstruct) {
+			opUpperConstruct = std::make_shared<UpperConstruct>();
+			operations.push_back(opUpperConstruct);
+		}
+		if (!opUpperFlatten) {
+			opUpperFlatten = std::make_shared<UpperFlatten>();
+			operations.push_back(opUpperFlatten);
+		}
 	}
 	Connect(project);
 }
 
 #ifdef DEBUG
-
 void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out << "digraph{\n";
 	out << "rankdir=TB;\n";
@@ -281,6 +289,16 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 			<< "opLastUpdate [shape=record,label=\"{ <i1> in }| opLastUpdate | { <o1> out }\"];\n";
 	out << "\"" << opLastUpdate->in << "\" -> opLastUpdate:i1;\n";
 	out << "opLastUpdate:o1 -> \"" << opLastUpdate->out << "\";\n";
+	out
+			<< "opUpperConstruct [shape=record,label=\"{ <i1> design_in | <i2> cs_in }| opUpperConstruct | { <o1> out }\"];\n";
+	out << "\"" << opUpperConstruct->design_in
+			<< "\" -> opUpperConstruct:i1;\n";
+	out << "\"" << opUpperConstruct->cs_in << "\" -> opUpperConstruct:i2;\n";
+	out << "opUpperConstruct:o1 -> \"" << opUpperConstruct->out << "\";\n";
+	out
+			<< "opUpperFlatten [shape=record,label=\"{ <i1> in }| opUpperFlatten | { <o1> out }\"];\n";
+	out << "\"" << opUpperFlatten->in << "\" -> opUpperFlatten:i1;\n";
+	out << "opUpperFlatten:o1 -> \"" << opUpperFlatten->out << "\";\n";
 	out
 			<< "project [shape=record,label=\"{ <i1> insoleFlatL | <i2> insoleL | <i3> heelL | <i4> lastL | <i5> csL}| project | { }\"];\n";
 	out << "\"" << project.insoleFlatL << "\" -> project:i1;\n";
@@ -379,6 +397,23 @@ void Builder::ToCSV(std::ostream &out) const {
 	out << std::left << " : " << std::setw(15) << "in";
 	out << " : " << (opLastUpdate->in->IsNeeded() ? "needed" : "   -  ");
 	out << " : " << (opLastUpdate->in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opUpperConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "design_in";
+	out << " : "
+			<< (opUpperConstruct->design_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : "
+			<< (opUpperConstruct->design_in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opUpperConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "cs_in";
+	out << " : " << (opUpperConstruct->cs_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opUpperConstruct->cs_in->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opUpperFlatten->GetName();
+	out << std::left << " : " << std::setw(15) << "in";
+	out << " : " << (opUpperFlatten->in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opUpperFlatten->in->IsValid() ? "   OK  " : "invalid")
 			<< "\n";
 	out << "----------- Output --------------\n";
 	out << std::left << std::setw(25) << opCoordinateSystemConstruct->GetName();
@@ -493,9 +528,44 @@ void Builder::ToCSV(std::ostream &out) const {
 	out << " : " << (opLastUpdate->out->IsNeeded() ? "needed" : "   -  ");
 	out << " : " << (opLastUpdate->out->IsValid() ? "   OK  " : "invalid")
 			<< "\n";
+	out << std::left << std::setw(25) << opUpperConstruct->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opUpperConstruct->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opUpperConstruct->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
+	out << std::left << std::setw(25) << opUpperFlatten->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opUpperFlatten->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opUpperFlatten->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
 }
 
 #endif
+
+void Builder::ResetState() {
+	opCoordinateSystemConstruct->out->MarkNeeded(false);
+	opFootModelLoad->out->MarkNeeded(false);
+	opFootModelUpdate->out->MarkNeeded(false);
+	opFootScanLoad->out->MarkNeeded(false);
+	opHeelCenter->heel_out->MarkNeeded(false);
+	opHeelCenter->insole_out->MarkNeeded(false);
+	opHeelConstruct->out->MarkNeeded(false);
+	opHeelExtractInsole->out->MarkNeeded(false);
+	opHeelLoad->out->MarkNeeded(false);
+	opHeelNormalize->out->MarkNeeded(false);
+	opInsoleAnalyze->insole_out->MarkNeeded(false);
+	opInsoleAnalyze->insoleFlat_out->MarkNeeded(false);
+	opInsoleConstruct->out->MarkNeeded(false);
+	opInsoleFlatten->out->MarkNeeded(false);
+	opInsoleTransform->out->MarkNeeded(false);
+	opLastAnalyse->out->MarkNeeded(false);
+	opLastConstruct->out->MarkNeeded(false);
+	opLastLoad->out->MarkNeeded(false);
+	opLastNormalize->out->MarkNeeded(false);
+	opLastUpdate->out->MarkNeeded(false);
+	opUpperConstruct->out->MarkNeeded(false);
+	opUpperFlatten->out->MarkNeeded(false);
+}
 
 void Builder::Connect(Project &project) {
 	auto &config = project.config;
@@ -539,8 +609,13 @@ void Builder::Connect(Project &project) {
 	}
 
 	opCoordinateSystemConstruct->in = project.insoleL;
+	opUpperConstruct->design_in = project.design;
+	opUpperConstruct->cs_in = opCoordinateSystemConstruct->out;
+	opUpperFlatten->in = opUpperConstruct->out;
+	project.upperL = opUpperFlatten->out;
+	project.upperR = opUpperFlatten->out;
 	project.csL = opCoordinateSystemConstruct->out;
-	project.csR = project.csL;
+	project.csR = opCoordinateSystemConstruct->out;
 
 	if (config.lastConstructionType->IsSelection("construct")) {
 		opLastConstruct->cs = project.csL;
@@ -581,32 +656,10 @@ void Builder::Connect(Project &project) {
 
 }
 
-void Builder::ResetState() {
-	opCoordinateSystemConstruct->out->MarkNeeded(false);
-	opFootModelLoad->out->MarkNeeded(false);
-	opFootModelUpdate->out->MarkNeeded(false);
-	opFootScanLoad->out->MarkNeeded(false);
-	opHeelCenter->heel_out->MarkNeeded(false);
-	opHeelCenter->insole_out->MarkNeeded(false);
-	opHeelConstruct->out->MarkNeeded(false);
-	opHeelExtractInsole->out->MarkNeeded(false);
-	opHeelLoad->out->MarkNeeded(false);
-	opHeelNormalize->out->MarkNeeded(false);
-	opInsoleAnalyze->insole_out->MarkNeeded(false);
-	opInsoleAnalyze->insoleFlat_out->MarkNeeded(false);
-	opInsoleConstruct->out->MarkNeeded(false);
-	opInsoleFlatten->out->MarkNeeded(false);
-	opInsoleTransform->out->MarkNeeded(false);
-	opLastAnalyse->out->MarkNeeded(false);
-	opLastConstruct->out->MarkNeeded(false);
-	opLastLoad->out->MarkNeeded(false);
-	opLastNormalize->out->MarkNeeded(false);
-	opLastUpdate->out->MarkNeeded(false);
-}
-
 void Builder::Update(Project &project) {
 	error.clear();
 
+	project.design->UpdateEdges();
 	Setup(project);
 
 #ifdef DEBUG

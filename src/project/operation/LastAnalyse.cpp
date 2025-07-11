@@ -102,7 +102,7 @@ void LastAnalyse::Run() {
 	DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": ";
 	DEBUGOUT << "Normal Curvature = " << out->GetNormalCurvature() << " rad\n";
 
-	AnalyseForm();
+//	AnalyseForm();
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);
@@ -112,11 +112,11 @@ void LastAnalyse::Run() {
 void LastAnalyse::Paint() const {
 	glPushMatrix();
 
-	out->Paint();
-
-	debug.Paint();
-	glScalef(10, 10, 10);
-	me.Paint();
+//	out->Paint();
+//
+//	debug.Paint();
+//	glScalef(10, 10, 10);
+//	me.Paint();
 
 //	OpenGLMaterial mat0(OpenGLMaterial::Preset::RedPlastic);
 //	OpenGLMaterial mat1(OpenGLMaterial::Preset::GreenPlastic);

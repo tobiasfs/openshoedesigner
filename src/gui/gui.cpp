@@ -9,8 +9,8 @@
 
 #include "gui.h"
 
-#include "../icons/FootMeasurements_small.xpm"
-#include "../icons/LegMeasurements.xpm"
+#include "icons/FootMeasurements_small.xpm"
+#include "icons/LegMeasurements.xpm"
 
 ///////////////////////////////////////////////////////////////////////////
 

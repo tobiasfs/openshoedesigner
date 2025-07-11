@@ -34,7 +34,9 @@
  */
 
 #include "CanvasMeasurementGrid.h"
+#include "../project/object/Design.h"
 
+#include <memory>
 #include <wx/panel.h>
 
 class CanvasPattern: public CanvasMeasurementGrid {
@@ -47,12 +49,20 @@ public:
             const wxString& name = wxPanelNameStr);
 	virtual ~CanvasPattern();
 
+
 protected:
 	void OnPaint(wxPaintEvent &event);
 //	void OnSize(wxSizeEvent &event);
 //
 //	void OnMotion(wxMouseEvent &event);
 //	void OnLeftDown(wxMouseEvent &event);
+
+
+public:
+	std::shared_ptr<Design> design;
+
+
+
 };
 
 #endif /* CANVASPATTERN_H */

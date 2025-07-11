@@ -73,7 +73,7 @@ public:
 	bool IsBidirectional() const;
 	std::string GetName() const;
 
-	void Send(uint8_t from = 0, uint8_t to = 255);
+	void Push(uint8_t from = 0, uint8_t to = 255);
 	void Flush();
 	bool Poll();
 	bool PollEvent(uint8_t *data0, uint8_t *data1, uint8_t *data2);

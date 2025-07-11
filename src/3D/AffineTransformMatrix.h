@@ -75,14 +75,21 @@ public:
 		Lines, BasePlane, Planes, Cylinder, Box, BoxWithoutColors
 	}; ///< Drawing style for displaying the coordinate-system defined by the matrix.
 
-	AffineTransformMatrix();
+	AffineTransformMatrix() = default;
 	explicit AffineTransformMatrix(Orientation orientation_);
 	AffineTransformMatrix(const Vector3 &ex, const Vector3 &ey,
 			const Vector3 &ez, const Vector3 &center);
 	explicit AffineTransformMatrix(const std::string &numbers);
 
 private:
-	std::array<double, 16> a; ///< Transformation matrix
+	/**\brief Internal matrix stored in a fixed size array.
+	 *
+	 * This is the actual transformation matrix. It is initialized upon matrix
+	 * construction
+	 *
+	 */
+	std::array<double, 16> a =
+			{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 	Orientation orientation = Orientation::RHS; ///< Handedness of the coordinate system
 
 public:

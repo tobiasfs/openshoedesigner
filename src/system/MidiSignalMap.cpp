@@ -57,3 +57,6 @@ void MidiSignalMap::Set(double v) {
 	initialized = true;
 }
 
+void MidiSignalMap::Reset() {
+	Set(v0);
+}

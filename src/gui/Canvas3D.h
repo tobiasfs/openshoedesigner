@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Canvas3D.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -48,9 +48,10 @@ public:
 	Canvas3D& operator=(const Canvas3D&) = delete;
 	virtual ~Canvas3D() = default;
 	void SetProjectView(const ProjectView *projectview);
-//
-//	void ConnectMouseEvents();
-//	void DisconnectMouseEvents();
+	static void PaintCorrdinateSystem();
+
+	void ConnectMouseEvents();
+	void DisconnectMouseEvents();
 	void Render() override;
 	void RenderPick() override;
 
@@ -58,9 +59,7 @@ public:
 	bool backfaceCulling = true;
 
 protected:
-	void PaintCorrdinateSystem();
-
-//	void OnMouseEvent(wxMouseEvent& event);
+	void OnMouseEvent(wxMouseEvent &event);
 
 private:
 	const ProjectView *projectview;
