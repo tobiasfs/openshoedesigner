@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : PolyFilter.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -55,13 +55,13 @@ void PolyFilter::Init(size_t order, size_t size) {
 		{
 			const double a = 12 / den2;
 			const double b = -6 / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_c[i] = a * i + b;
 		}
 		{
 			const double a = -6 / den;
 			const double b = 2 * (2 * N - 1) / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_d[i] = a * i + b;
 		}
 		break;
@@ -73,21 +73,21 @@ void PolyFilter::Init(size_t order, size_t size) {
 			const double a = 180 / den2;
 			const double b = -180 / ((N - 2) * den);
 			const double c = 30 / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_b[i] = (a * i + b) * i + c;
 		}
 		{
 			const double a = -180 / ((N - 2) * den);
 			const double b = 12 * (2 * N - 1) * (8 * N - 11) / den2;
 			const double c = -18 * (2 * N - 1) / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_c[i] = (a * i + b) * i + c;
 		}
 		{
 			const double a = 30 / den;
 			const double b = -18 * (2 * N - 1) / den;
 			const double c = 3 * (3 * N * N - 3 * N + 2) / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_d[i] = (a * i + b) * i + c;
 		}
 		break;
@@ -101,7 +101,7 @@ void PolyFilter::Init(size_t order, size_t size) {
 			const double b = -4200 / ((N - 3) * (N - 2) * den);
 			const double c = 280 * ((6 * N - 15) * N + 11) / den2;
 			const double d = -140 / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_a[i] = ((a * i + b) * i + c) * i + d;
 		}
 		{
@@ -110,7 +110,7 @@ void PolyFilter::Init(size_t order, size_t size) {
 			const double c = -300 * (3 * N - 5) * (3 * N - 2)
 					/ ((N - 3) * (N - 2) * den);
 			const double d = 120 * (2 * N - 1) / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_b[i] = ((a * i + b) * i + c) * i + d;
 		}
 		{
@@ -120,7 +120,7 @@ void PolyFilter::Init(size_t order, size_t size) {
 			const double c = 200 * ((((6 * N - 27) * N + 42) * N - 30) * N + 11)
 					/ den2;
 			const double d = -20 * ((6 * N - 6) * N + 5) / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_c[i] = ((a * i + b) * i + c) * i + d;
 		}
 		{
@@ -128,7 +128,7 @@ void PolyFilter::Init(size_t order, size_t size) {
 			const double b = 120 * (2 * N - 1) / den;
 			const double c = -20 * ((6 * N - 6) * N + 5) / den;
 			const double d = 8 * (2 * N - 1) * ((N - 1) * N + 3) / den;
-			for (size_t i = 0; i < size; ++i)
+			for (size_t i = 0; i < size; i++)
 				filter_d[i] = ((a * i + b) * i + c) * i + d;
 		}
 	}
@@ -160,25 +160,25 @@ Polynomial PolyFilter::Filter(const std::vector<double> &vec,
 
 	if (order == 3) {
 		double temp = 0.0;
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			temp += vec[(n + pos) % M] * filter_a[n];
 		poly[3] = temp;
 	}
 	if (order >= 2) {
 		double temp = 0.0;
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			temp += vec[(n + pos) % M] * filter_b[n];
 		poly[2] = temp;
 	}
 	if (order >= 1) {
 		double temp = 0.0;
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			temp += vec[(n + pos) % M] * filter_c[n];
 		poly[1] = temp;
 	}
 	if (order >= 0) {
 		double temp = 0.0;
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			temp += vec[(n + pos) % M] * filter_d[n];
 		poly[0] = temp;
 	}
@@ -187,13 +187,13 @@ Polynomial PolyFilter::Filter(const std::vector<double> &vec,
 
 void PolyFilter::Export(std::string filename) const {
 	Matrix F("F", filter_a.size(), 4);
-	for (size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); n++)
 		F.Insert(filter_a[n]);
-	for (size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); n++)
 		F.Insert(filter_b[n]);
-	for (size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); n++)
 		F.Insert(filter_c[n]);
-	for (size_t n = 0; n < filter_a.size(); ++n)
+	for (size_t n = 0; n < filter_a.size(); n++)
 		F.Insert(filter_d[n]);
 
 	MatlabFile mf(filename);
@@ -205,7 +205,7 @@ void PolyFilter::Export(std::string filename) const {
 //	const size_t N = vec.size();
 //	const size_t F = filter_b.size();
 //	double temp = 0.0;
-//	for(size_t f = 0; f < F; ++f)
+//	for(size_t f = 0; f < F; f++)
 //		temp += vec[(pos + f) % N] * filter_b[f];
 //	return temp;
 //}
@@ -215,7 +215,7 @@ void PolyFilter::Export(std::string filename) const {
 //	const size_t N = vec.size();
 //	const size_t F = filter_c.size();
 //	double temp = 0.0;
-//	for(size_t f = 0; f < F; ++f)
+//	for(size_t f = 0; f < F; f++)
 //		temp += vec[(pos + f) % N] * filter_c[f];
 //	return temp;
 //}
@@ -225,7 +225,7 @@ void PolyFilter::Export(std::string filename) const {
 //	const size_t N = vec.size();
 //	const size_t F = filter_d.size();
 //	double temp = 0.0;
-//	for(size_t f = 0; f < F; ++f)
+//	for(size_t f = 0; f < F; f++)
 //		temp += vec[(pos + f) % N] * filter_d[f];
 //	return temp;
 //}

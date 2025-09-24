@@ -309,7 +309,7 @@ void CanvasGraph::OnPaint(wxPaintEvent &event) {
 	axisY.Paint(dc, sY);
 
 	std::vector<wxPoint> points(rows);
-	for (size_t m = 0; m < plots; ++m) {
+	for (size_t m = 0; m < plots; m++) {
 		// m to HSV-color
 
 		double f = (double) m * 2.0;
@@ -360,7 +360,7 @@ void CanvasGraph::OnPaint(wxPaintEvent &event) {
 		}
 		wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(r, g, b), 2);
 		dc.SetPen(*c0);
-		for (size_t n = 0; n < rows; ++n) {
+		for (size_t n = 0; n < rows; n++) {
 			double x = values->operator()(n, 0);
 			double y = values->operator()(n, m + 1);
 			Vector3 p = s.Transform(x, y);

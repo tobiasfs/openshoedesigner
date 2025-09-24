@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Polynom3.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -114,9 +114,9 @@ Polynomial3 Polynomial3::ByPolygon3(const Polygon3 &p, size_t order,
 	std::vector<double> vy(N, 0.0);
 	std::vector<double> vz(N, 0.0);
 	double L = 0.0;
-	for (size_t n = 0; n < idxStart; ++n)
+	for (size_t n = 0; n < idxStart; n++)
 		L += (p[n + 1] - p[n]).Abs();
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		r[n] = L;
 		vx[n] = p[n + idxStart].x;
 		vy[n] = p[n + idxStart].y;
@@ -130,7 +130,7 @@ Polynomial3 Polynomial3::ByPolygon3(const Polygon3 &p, size_t order,
 	temp.r0 = r[0];
 	temp.r1 = r[N - 1];
 	temp.mapR = Polynomial::ByValue(temp.r0, 0.0, temp.r1, 1.0);
-	for (size_t n = 0; n < N; ++n)
+	for (size_t n = 0; n < N; n++)
 		r[n] = temp.mapR(r[n]);
 
 	temp.x = Polynomial::ByVector(r, vx, order);
@@ -143,7 +143,7 @@ double Polynomial3::Length(const size_t N) const {
 	Polynomial rn = Polynomial::ByValue(0, mapR(r0), N - 1, mapR(r1));
 	double d = 0;
 	Vector3 p0(x(0), y(0), z(0));
-	for (size_t n = 1; n < N; ++n) {
+	for (size_t n = 1; n < N; n++) {
 		const double r = rn(n);
 		Vector3 p1(x(r), y(r), z(r));
 		d += (p1 - p0).Abs();
@@ -166,7 +166,7 @@ void Polynomial3::Paint() const {
 	glBegin(GL_LINE_STRIP);
 	const double N = 100;
 	const Polynomial i = Polynomial::ByValue(0, mapR(r0), (N - 1), mapR(r1));
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		const double r = i(n);
 		glVertex3d(x(r), y(r), z(r));
 	}

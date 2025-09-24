@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : PointCloud.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -31,7 +31,7 @@
 void PointCloud::InitExample() {
 	const size_t N = 10000;
 	p.resize(N);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		p[n].x = (float) rand() / (float) (RAND_MAX) * 0.3 - 0.1;
 		p[n].y = (float) rand() / (float) (RAND_MAX) * 0.2 - 0.1;
 		float d = p[n].y * p[n].y;
@@ -50,7 +50,7 @@ void PointCloud::InitExample() {
 void PointCloud::Paint() {
 	glBegin(GL_POINTS);
 	const size_t N = p.size();
-	for (size_t n = 0; n < N; ++n)
+	for (size_t n = 0; n < N; n++)
 		glVertex3f(p[n].x, p[n].y, p[n].z);
 	glEnd();
 }

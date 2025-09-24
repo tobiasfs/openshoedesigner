@@ -57,26 +57,26 @@ Geometry::Vertex Surface::Patch::operator ()(double u, double v) const {
 	ret.u = u;
 	ret.v = v;
 
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		ret.x += x[i] * cx[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		ret.y += x[i] * cy[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		ret.z += x[i] * cz[i];
 
 	Vector3 du;
 	Vector3 dv;
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		du.x += x[i] * cdxdu[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		du.y += x[i] * cdydu[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		du.z += x[i] * cdzdu[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		dv.x += x[i] * cdxdv[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		dv.y += x[i] * cdydv[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		dv.z += x[i] * cdzdv[i];
 
 	ret.n = du * dv;
@@ -97,26 +97,26 @@ AffineTransformMatrix Surface::Patch::GetMatrix(double u, double v,
 	Fill(x, u, v);
 	Vector3 pos;
 	AffineTransformMatrix m;
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		pos.x += x[i] * cx[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		pos.y += x[i] * cy[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		pos.z += x[i] * cz[i];
 
 	Vector3 du;
 	Vector3 dv;
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		du.x += x[i] * cdxdu[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		du.y += x[i] * cdydu[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		du.z += x[i] * cdzdu[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		dv.x += x[i] * cdxdv[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		dv.y += x[i] * cdydv[i];
-	for (uint_fast8_t i = 0; i < N; ++i)
+	for (uint_fast8_t i = 0; i < N; i++)
 		dv.z += x[i] * cdzdv[i];
 
 	du.Normalize();
@@ -145,9 +145,9 @@ void Surface::Patch::Fill(std::vector<double> &vect, double u, double v) const {
 	const double v_ = mapv(v);
 	vect.resize(N);
 	vect[0] = 1.0;
-	for (uint_fast8_t i = 1; i < Nu; ++i)
+	for (uint_fast8_t i = 1; i < Nu; i++)
 		vect[i] = vect[i - 1] * u_;
-	for (uint_fast8_t j = Nu; j < N; ++j)
+	for (uint_fast8_t j = Nu; j < N; j++)
 		vect[j] = vect[j - Nu] * v_;
 }
 
@@ -158,17 +158,17 @@ void Surface::Patch::FilldU(std::vector<double> &vect, double u, double v,
 	const double v_ = mapv(v);
 	vect.assign(N, 0.0);
 	vect[diff] = 1.0;
-	for (uint_fast8_t i = 1 + diff; i < Nu; ++i)
+	for (uint_fast8_t i = 1 + diff; i < Nu; i++)
 		vect[i] = vect[i - 1] * u_;
 	if (diff > 0) {
-		for (uint_fast8_t i = 1 + diff; i < Nu; ++i) {
+		for (uint_fast8_t i = 1 + diff; i < Nu; i++) {
 			double f = 1.0;
-			for (uint8_t h = i; h < i + diff; ++h)
+			for (uint8_t h = i; h < i + diff; h++)
 				f *= (double) h;
 			vect[i] *= f;
 		}
 	}
-	for (uint_fast8_t j = Nu; j < N; ++j)
+	for (uint_fast8_t j = Nu; j < N; j++)
 		vect[j] = vect[j - Nu] * v_;
 }
 
@@ -180,18 +180,18 @@ void Surface::Patch::FilldV(std::vector<double> &vect, double u, double v,
 	vect.assign(N, 0.0);
 
 	vect[diff * Nu] = 1.0;
-	for (uint_fast8_t j = 1 + diff; j < Nv; ++j)
+	for (uint_fast8_t j = 1 + diff; j < Nv; j++)
 		vect[j * Nu] = vect[(j - 1) * Nu] * v_;
 	if (diff > 0) {
-		for (uint_fast8_t j = 1 + diff; j < Nv; ++j) {
+		for (uint_fast8_t j = 1 + diff; j < Nv; j++) {
 			double f = 1.0;
-			for (uint8_t h = j; h < j + diff; ++h)
+			for (uint8_t h = j; h < j + diff; h++)
 				f *= (double) h;
 			vect[j * Nu] *= f;
 		}
 	}
-	for (uint_fast8_t j = diff; j < Nv; ++j)
-		for (uint_fast8_t i = 1; i < Nu; ++i)
+	for (uint_fast8_t j = diff; j < Nv; j++)
+		for (uint_fast8_t i = 1; i < Nu; i++)
 			vect[i + j * Nu] = vect[i + j * Nu - 1] * u_;
 }
 
@@ -216,14 +216,14 @@ void Surface::Patch::UpdatePostSolve() {
 	cdxdv.assign(N, 0.0);
 	cdydv.assign(N, 0.0);
 	cdzdv.assign(N, 0.0);
-	for (uint8_t j = 0; j < Nv; ++j)
-		for (uint8_t i = 1; i < Nu; ++i) {
+	for (uint8_t j = 0; j < Nv; j++)
+		for (uint8_t i = 1; i < Nu; i++) {
 			cdxdu[j * Nu + i - 1] = cx[j * Nu + i] * (double) (i);
 			cdydu[j * Nu + i - 1] = cy[j * Nu + i] * (double) (i);
 			cdzdu[j * Nu + i - 1] = cz[j * Nu + i] * (double) (i);
 		}
-	for (uint8_t i = 0; i < Nu; ++i) {
-		for (uint8_t j = 1; j < Nv; ++j) {
+	for (uint8_t i = 0; i < Nu; i++) {
+		for (uint8_t j = 1; j < Nv; j++) {
 			cdxdv[(j - 1) * Nu + i] = cx[j * Nu + i] * (double) (j);
 			cdydv[(j - 1) * Nu + i] = cy[j * Nu + i] * (double) (j);
 			cdzdv[(j - 1) * Nu + i] = cz[j * Nu + i] * (double) (j);
@@ -246,8 +246,8 @@ void Surface::Patch::AddToGeometry(Geometry &geo) {
 	Polynomial V = Polynomial::ByValue(0, v0, Cv, v1);
 
 	// Add vertices
-	for (size_t j = 0; j <= Cv; ++j) {
-		for (size_t i = 0; i <= Cu; ++i) {
+	for (size_t j = 0; j <= Cv; j++) {
+		for (size_t i = 0; i <= Cu; i++) {
 			const double u = U((double) i);
 			const double v = V((double) j);
 			Geometry::Vertex vert = this->operator ()(u, v);
@@ -256,8 +256,8 @@ void Surface::Patch::AddToGeometry(Geometry &geo) {
 	}
 
 	// Add quads
-	for (size_t j = 0; j < Cv; ++j) {
-		for (size_t i = 0; i < Cu; ++i) {
+	for (size_t j = 0; j < Cv; j++) {
+		for (size_t i = 0; i < Cu; i++) {
 			const size_t idx0 = vert0 + i + j * (Cu + 1);
 			const size_t idx1 = vert0 + i + j * (Cu + 1) + 1;
 			const size_t idx2 = vert0 + i + j * (Cu + 1) + 1 + (Cu + 1);
@@ -336,8 +336,8 @@ void Surface::Setup(size_t Nu, size_t Nv, double u0, double u1, double v0,
 		double v1) {
 	Polynomial mapU = Polynomial::ByValue(0, u0, Nu, u1);
 	Polynomial mapV = Polynomial::ByValue(0, v0, Nv, v1);
-	for (size_t j = 0; j < Nv; ++j) {
-		for (size_t i = 0; i < Nu; ++i) {
+	for (size_t j = 0; j < Nv; j++) {
+		for (size_t i = 0; i < Nu; i++) {
 			Patch p;
 			p.u0 = mapU((double) i);
 			p.v0 = mapV((double) j);
@@ -353,6 +353,10 @@ void Surface::Setup(size_t Nu, size_t Nv, double u0, double u1, double v0,
 			patches.push_back(p);
 		}
 	}
+	gu0 = std::fmin(gu0, u0);
+	gu1 = std::fmax(gu1, u1);
+	gv0 = std::fmin(gv0, v0);
+	gv1 = std::fmax(gv1, v1);
 }
 
 void Surface::SetOrder(size_t Nu_, size_t Nv_, double u0, double u1, double v0,
@@ -531,11 +535,11 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //
 //	const size_t N = Pos(patches.size());
 //
-//	for (size_t i = 0; i < patches.size(); ++i) {
+//	for (size_t i = 0; i < patches.size(); i++) {
 //		const auto &pt0 = patches[i];
 //		if (fabs(pt0.u0 - au0) > FLT_EPSILON) {
 //
-//			for (size_t j = 0; j < patches.size(); ++j) {
+//			for (size_t j = 0; j < patches.size(); j++) {
 //				const auto &pt1 = patches[j];
 //				if (fabs(pt0.u0 - pt1.u1) < FLT_EPSILON
 //						&& fabs(pt0.v0 - pt1.v0) < FLT_EPSILON
@@ -543,7 +547,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //					size_t n = IncreaseAB(order * pt0.Nv);
 //					std::vector<double> conn0;
 //					std::vector<double> conn1;
-//					for (uint8_t ord = 0; ord < order; ++ord) {
+//					for (uint8_t ord = 0; ord < order; ord++) {
 //						pt0.FilldU(conn0, pt0.u0, pt0.v1, ord);
 //						pt1.FilldU(conn1, pt1.u1, pt1.v1, ord);
 //						for (size_t cp = 0; cp < pt0.Nv; cp++) {
@@ -551,13 +555,13 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //							const size_t offs1 = Pos(j, 0, cp) + n * N;
 //							SetA(conn0, cp * pt0.Nu, offs0, pt0.Nu, 1, 1, 1);
 //							SetA(conn1, cp * pt0.Nu, offs1, pt0.Nu, 1, 1, -1);
-//							++n;
+//							n++;
 //						}
 //					}
 //				}
 //			}
 //		} else if (cyclicU) {
-//			for (size_t j = 0; j < patches.size(); ++j) {
+//			for (size_t j = 0; j < patches.size(); j++) {
 //				const auto &pt1 = patches[j];
 //				if (fabs(au1 - pt1.u1) < FLT_EPSILON
 //						&& fabs(pt0.v0 - pt1.v0) < FLT_EPSILON
@@ -565,7 +569,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //					size_t n = IncreaseAB(order * pt0.Nv);
 //					std::vector<double> conn0;
 //					std::vector<double> conn1;
-//					for (uint8_t ord = 0; ord < order; ++ord) {
+//					for (uint8_t ord = 0; ord < order; ord++) {
 //						pt0.FilldU(conn0, au0, pt0.v1, ord);
 //						pt1.FilldU(conn1, au1, pt1.v1, ord);
 //						for (size_t cp = 0; cp < pt0.Nv; cp++) {
@@ -573,7 +577,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //							const size_t offs1 = Pos(j, 0, cp) + n * N;
 //							SetA(conn0, cp * pt0.Nu, offs0, pt0.Nu, 1, 1, 1);
 //							SetA(conn1, cp * pt0.Nu, offs1, pt0.Nu, 1, 1, -1);
-//							++n;
+//							n++;
 //						}
 //					}
 //				}
@@ -581,11 +585,11 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //		}
 //	}
 //
-//	for (size_t i = 0; i < patches.size(); ++i) {
+//	for (size_t i = 0; i < patches.size(); i++) {
 //		const auto &pt0 = patches[i];
 //		if (fabs(pt0.v0 - av0) > FLT_EPSILON) {
 //
-//			for (size_t j = 0; j < patches.size(); ++j) {
+//			for (size_t j = 0; j < patches.size(); j++) {
 //				const auto &pt1 = patches[j];
 //				if (fabs(pt0.v0 - pt1.v1) < FLT_EPSILON
 //						&& fabs(pt0.u0 - pt1.u0) < FLT_EPSILON
@@ -593,7 +597,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //					size_t n = IncreaseAB(order * pt0.Nu);
 //					std::vector<double> conn0;
 //					std::vector<double> conn1;
-//					for (uint8_t ord = 0; ord < order; ++ord) {
+//					for (uint8_t ord = 0; ord < order; ord++) {
 //						pt0.FilldV(conn0, pt0.u1, pt0.v0, ord);
 //						pt1.FilldV(conn1, pt1.u1, pt1.v1, ord);
 //						for (size_t cp = 0; cp < pt0.Nu; cp++) {
@@ -601,13 +605,13 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //							const size_t offs1 = Pos(j, cp, 0) + n * N;
 //							SetA(conn0, cp, offs0, pt0.Nv, pt0.Nu, pt0.Nu, 1);
 //							SetA(conn1, cp, offs1, pt0.Nv, pt0.Nu, pt0.Nu, -1);
-//							++n;
+//							n++;
 //						}
 //					}
 //				}
 //			}
 //		} else if (cyclicV) {
-//			for (size_t j = 0; j < patches.size(); ++j) {
+//			for (size_t j = 0; j < patches.size(); j++) {
 //				const auto &pt1 = patches[j];
 //				if (fabs(av1 - pt1.v1) < FLT_EPSILON
 //						&& fabs(pt0.u0 - pt1.u0) < FLT_EPSILON
@@ -615,7 +619,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //					size_t n = IncreaseAB(order * pt0.Nu);
 //					std::vector<double> conn0;
 //					std::vector<double> conn1;
-//					for (uint8_t ord = 0; ord < order; ++ord) {
+//					for (uint8_t ord = 0; ord < order; ord++) {
 //						pt0.FilldV(conn0, pt0.u1, av0, ord);
 //						pt1.FilldV(conn1, pt1.u1, av1, ord);
 //						for (size_t cp = 0; cp < pt0.Nu; cp++) {
@@ -623,7 +627,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //							const size_t offs1 = Pos(j, cp, 0) + n * N;
 //							SetA(conn0, cp, offs0, pt0.Nv, pt0.Nu, pt0.Nu, 1);
 //							SetA(conn1, cp, offs1, pt0.Nv, pt0.Nu, pt0.Nu, -1);
-//							++n;
+//							n++;
 //						}
 //					}
 //				}
@@ -639,7 +643,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //	const double v = vertex.v;
 //	size_t idx = (size_t) -1;
 //	for (auto &p : patches) {
-//		++idx;
+//		idx++;
 //		if (u < p.u0 - DBL_EPSILON || u > p.u1 + DBL_EPSILON
 //				|| v < p.v0 - DBL_EPSILON || v > p.v1 + DBL_EPSILON)
 //			continue;
@@ -668,7 +672,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //	const double v = vertex.v;
 //	size_t idx = (size_t) -1;
 //	for (auto &p : patches) {
-//		++idx;
+//		idx++;
 //		if (u < p.u0 - DBL_EPSILON || u > p.u1 + DBL_EPSILON
 //				|| v < p.v0 - DBL_EPSILON || v > p.v1 + DBL_EPSILON)
 //			continue;
@@ -688,7 +692,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //	const double v = vertex.v;
 //	size_t idx = (size_t) -1;
 //	for (auto &p : patches) {
-//		++idx;
+//		idx++;
 //		if (u < p.u0 - DBL_EPSILON || u > p.u1 + DBL_EPSILON
 //				|| v < p.v0 - DBL_EPSILON || v > p.v1 + DBL_EPSILON)
 //			continue;
@@ -710,7 +714,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //		auto bx = poly.x.GetBezier();
 //		auto by = poly.y.GetBezier();
 //		auto bz = poly.z.GetBezier();
-//		for (size_t n = 0; n < bx.size(); ++n)
+//		for (size_t n = 0; n < bx.size(); n++)
 //			debug.emplace_back(bx[n], by[n], bz[n]);
 //	}
 //#endif
@@ -720,7 +724,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //		// "Vertical"
 //		size_t idx = (size_t) -1;
 //		for (auto &p : patches) {
-//			++idx;
+//			idx++;
 //			if (u0 < p.u0 - DBL_EPSILON || u0 > p.u1 + DBL_EPSILON
 //					|| fabs(v0 - p.v0) > DBL_EPSILON
 //					|| fabs(v1 - p.v1) > DBL_EPSILON)
@@ -732,7 +736,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //				size_t offs = Pos(idx, 0, cp) + n * N;
 //				SetA(x, cp, offs, p.Nu, 1, 1);
 //				SetB( { poly.x[cp], poly.y[cp], poly.z[cp] }, n * 3);
-//				++n;
+//				n++;
 //			}
 //		}
 //		//TODO Check if no patch was found.
@@ -741,7 +745,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //		// "Horizontal"
 //		size_t idx = (size_t) -1;
 //		for (auto &p : patches) {
-//			++idx;
+//			idx++;
 //			if (v0 < p.v0 - DBL_EPSILON || v0 > p.v1 + DBL_EPSILON
 //					|| fabs(u0 - p.u0) > DBL_EPSILON
 //					|| fabs(u1 - p.u1) > DBL_EPSILON)
@@ -753,7 +757,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //				size_t offs = Pos(idx, cp, 0) + n * N;
 //				SetA(x, cp, offs, p.Nv, p.Nu, p.Nu);
 //				SetB( { poly.x[cp], poly.y[cp], poly.z[cp] }, n * 3);
-//				++n;
+//				n++;
 //			}
 //		}
 //		//TODO Check if no patch was found.
@@ -770,7 +774,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //	const size_t N = Pos(patches.size());
 //			size_t idx = (size_t) -1;
 //			for (auto &p : patches) {
-//				++idx;
+//				idx++;
 //				if (u0 < p.u0 - DBL_EPSILON || u0 > p.u1 + DBL_EPSILON
 //						|| fabs(v0 - p.v0) > DBL_EPSILON
 //						|| fabs(v1 - p.v1) > DBL_EPSILON)
@@ -782,7 +786,7 @@ void Surface::AddPolynomial(double u0, double u1, double v0, double v1,
 //					size_t offs = Pos(idx, 0, cp) + n * N;
 //					SetA(x, cp, offs, p.Nu, 1, 1);
 //					SetB( { poly.x[cp], poly.y[cp], poly.z[cp] }, n * 3);
-//					++n;
+//					n++;
 //				}
 //			}
 //
@@ -826,7 +830,7 @@ void Surface::SetA(const std::vector<double> &values, size_t posFrom,
 	size_t j = posTo;
 
 	if (softBoundaries) {
-		for (size_t n = 0; n < count; ++n) {
+		for (size_t n = 0; n < count; n++) {
 
 			Asoft[j] = values[i] * factor;
 
@@ -834,7 +838,7 @@ void Surface::SetA(const std::vector<double> &values, size_t posFrom,
 			j += strideTo;
 		}
 	} else {
-		for (size_t n = 0; n < count; ++n) {
+		for (size_t n = 0; n < count; n++) {
 
 			Ahard[j] = values[i] * factor;
 
@@ -930,7 +934,7 @@ void Surface::Calculate() {
 							size_t n = IncreaseAB((b.order + 1) * p.Nv);
 							std::vector<double> conn0;
 							std::vector<double> conn1;
-							for (uint8_t ord = 0; ord <= b.order; ++ord) {
+							for (uint8_t ord = 0; ord <= b.order; ord++) {
 								p.FilldU(conn0, p.u0, p.v1, ord);
 								p2.FilldU(conn1, p2.u1, p2.v1, ord);
 								for (size_t cp = 0; cp < p.Nv; cp++) {
@@ -942,7 +946,7 @@ void Surface::Calculate() {
 											1);
 									SetA(conn1, cp * p2.Nu, offs1, p2.Nu, 1, 1,
 											-1);
-									++n;
+									n++;
 								}
 							}
 						}
@@ -974,7 +978,7 @@ void Surface::Calculate() {
 							size_t n = IncreaseAB((b.order + 1) * p.Nu);
 							std::vector<double> conn0;
 							std::vector<double> conn1;
-							for (uint8_t ord = 0; ord <= b.order; ++ord) {
+							for (uint8_t ord = 0; ord <= b.order; ord++) {
 								p.FilldV(conn0, p.u1, p.v0, ord);
 								p2.FilldV(conn1, p2.u1, p2.v1, ord);
 								for (size_t cp = 0; cp < p.Nu; cp++) {
@@ -985,7 +989,7 @@ void Surface::Calculate() {
 									SetA(conn0, cp, offs0, p.Nv, p.Nu, p.Nu, 1);
 									SetA(conn1, cp, offs1, p2.Nv, p2.Nu, p2.Nu,
 											-1);
-									++n;
+									n++;
 								}
 							}
 						}
@@ -1009,7 +1013,7 @@ void Surface::Calculate() {
 							SetB(
 									{ b.values[cp].x, b.values[cp].y,
 											b.values[cp].z }, n * 3);
-							++n;
+							n++;
 						}
 					} else if (fabs(b.v1 - b.v0) < DBL_EPSILON) {
 						// "Horizontal"
@@ -1028,7 +1032,7 @@ void Surface::Calculate() {
 							SetB(
 									{ b.values[cp].x, b.values[cp].y,
 											b.values[cp].z }, n * 3);
-							++n;
+							n++;
 						}
 
 					} else {
@@ -1089,21 +1093,21 @@ void Surface::Calculate() {
 
 // Transpose and map to Eigen matrices.
 	size_t p = 0;
-	for (size_t i = 0; i < Ahard.Size(1); ++i)
-		for (size_t j = 0; j < Ahard.Size(0); ++j)
+	for (size_t i = 0; i < Ahard.Size(1); i++)
+		for (size_t j = 0; j < Ahard.Size(0); j++)
 			A0(i, j) = Ahard[p++];
 	p = 0;
-	for (size_t i = 0; i < Asoft.Size(1); ++i)
-		for (size_t j = 0; j < Asoft.Size(0); ++j)
+	for (size_t i = 0; i < Asoft.Size(1); i++)
+		for (size_t j = 0; j < Asoft.Size(0); j++)
 			A1(i, j) = Asoft[p++];
 
 	p = 0;
-	for (size_t i = 0; i < bhard.Size(1); ++i)
-		for (size_t j = 0; j < bhard.Size(0); ++j)
+	for (size_t i = 0; i < bhard.Size(1); i++)
+		for (size_t j = 0; j < bhard.Size(0); j++)
 			b0(i, j) = bhard[p++];
 	p = 0;
-	for (size_t i = 0; i < bsoft.Size(1); ++i)
-		for (size_t j = 0; j < bsoft.Size(0); ++j)
+	for (size_t i = 0; i < bsoft.Size(1); i++)
+		for (size_t j = 0; j < bsoft.Size(0); j++)
 			b1(i, j) = bsoft[p++];
 
 #ifdef DEBUG
@@ -1141,9 +1145,10 @@ void Surface::Calculate() {
 
 	const size_t N1 = N - Dec0.rank();
 	const size_t N2 = N1 - Dec1.rank();
+#ifdef DEBUG
 	std::cout << "Exact solution: DOF " << N << " -> " << N1 << '\n';
 	std::cout << "Interpolation: DOF " << N1 << " -> " << N2 << '\n';
-
+#endif
 #else
 	Ahard.Transpose();
 	bhard.Transpose();
@@ -1153,9 +1158,9 @@ void Surface::Calculate() {
 #ifdef DEBUG
 //	PrintProblem(Ahard, bhard);
 
-//	for (size_t n = 0; n < bhard.Size(0); ++n)
+//	for (size_t n = 0; n < bhard.Size(0); n++)
 //		debug.emplace_back(bhard(n, 0), bhard(n, 1), bhard(n, 2));
-//	for (size_t n = 0; n < bsoft.Size(0); ++n)
+//	for (size_t n = 0; n < bsoft.Size(0); n++)
 //		debug.emplace_back(bsoft(n, 0), bsoft(n, 1), bsoft(n, 2));
 #endif
 
@@ -1196,7 +1201,7 @@ void Surface::Calculate() {
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_real_distribution<> dis(-0.01, 0.01);
-		for (int n = 0; n < w.Numel(); ++n)
+		for (int n = 0; n < w.Numel(); n++)
 			w[n] = dis(gen);
 
 		c = J + H * w;
@@ -1204,18 +1209,18 @@ void Surface::Calculate() {
 
 #endif
 
-// Note that the classes Matrix and Eigen::MatrixXd have the same interface
-// In both cases c is of a different type but can be accessed the same way.
+	// Note that the classes Matrix and Eigen::MatrixXd have the same interface
+	// In both cases c is of a different type but can be accessed the same way.
 
-// Map the solution into the patches.
+	// Map the solution into the patches.
 	size_t offs = 0;
 	for (auto &p : patches) {
 		const size_t Np = p.Nu * p.Nv;
-		for (size_t m = 0; m < Np; ++m)
+		for (size_t m = 0; m < Np; m++)
 			p.cx[m] = c(offs + m, 0);
-		for (size_t m = 0; m < Np; ++m)
+		for (size_t m = 0; m < Np; m++)
 			p.cy[m] = c(offs + m, 1);
-		for (size_t m = 0; m < Np; ++m)
+		for (size_t m = 0; m < Np; m++)
 			p.cz[m] = c(offs + m, 2);
 		offs += Np;
 	}
@@ -1226,6 +1231,15 @@ Geometry::Vertex Surface::operator ()(double u, double v) const {
 	size_t check = patches.size();
 	if (lastSearchedPatch >= patches.size())
 		lastSearchedPatch = 0;
+	while (u <= -M_PI)
+		u += 2.0 * M_PI;
+	while (u > M_PI)
+		u -= 2.0 * M_PI;
+	if (v > gv1)
+		v = gv1;
+	if (v < gv0)
+		v = gv0;
+
 	while (check > 0) {
 		if (patches[lastSearchedPatch].IsInside(u, v))
 			break;
@@ -1247,7 +1261,7 @@ Geometry::Vertex Surface::operator ()(double u, double v) const {
 
 void Surface::Apply(Geometry &geo) {
 	const size_t vc = geo.CountVertices();
-	for (size_t n = 0; n < vc; ++n) {
+	for (size_t n = 0; n < vc; n++) {
 		Geometry::Vertex &vert = geo[n];
 		Geometry::Vertex addi = this->operator ()(vert.u, vert.v);
 		vert.x = addi.x;
@@ -1255,6 +1269,7 @@ void Surface::Apply(Geometry &geo) {
 		vert.z = addi.z;
 		vert.n = addi.n;
 	}
+	geo.FlagNormals(true, false, false);
 	geo.CalculateUVCoordinateSystems();
 }
 
@@ -1287,7 +1302,7 @@ void Surface::Paint() const {
 
 size_t Surface::Pos(size_t nPatch, uint8_t idxU, uint8_t idxV) const {
 	size_t pos = 0;
-	for (size_t idx = 0; idx < nPatch; ++idx)
+	for (size_t idx = 0; idx < nPatch; idx++)
 		pos += patches[idx].Nu * patches[idx].Nv;
 // Early exit, if the Pos command is run with nPatch = patches.size().
 // In this case the total number of coefficients is returned.
@@ -1301,9 +1316,9 @@ size_t Surface::Pos(size_t nPatch, uint8_t idxU, uint8_t idxV) const {
 void Surface::PrintProblem(const Matrix &A, const Matrix &b) const {
 
 	std::vector<std::string> varnames;
-	for (size_t i = 0; i < patches.size(); ++i) {
-		for (size_t j = 0; j < patches[i].Nv; ++j) {
-			for (size_t k = 0; k < patches[i].Nu; ++k) {
+	for (size_t i = 0; i < patches.size(); i++) {
+		for (size_t j = 0; j < patches[i].Nv; j++) {
+			for (size_t k = 0; k < patches[i].Nu; k++) {
 				std::ostringstream out;
 				out << "Cp" << i;
 				out << "u" << k;
@@ -1314,12 +1329,12 @@ void Surface::PrintProblem(const Matrix &A, const Matrix &b) const {
 	}
 
 	std::ostringstream r;
-	for (size_t i = 0; i < A.Size(0); ++i) {
+	for (size_t i = 0; i < A.Size(0); i++) {
 		std::ostringstream lhs;
 		std::ostringstream rhs;
 		bool lhsfirst = true;
 		bool rhsfirst = true;
-		for (size_t j = 0; j < A.Size(1); ++j) {
+		for (size_t j = 0; j < A.Size(1); j++) {
 			const double v = A(i, j);
 			if (fabs(v) < FLT_EPSILON)
 				continue;
@@ -1358,7 +1373,7 @@ void Surface::PrintProblem(const Matrix &A, const Matrix &b) const {
 
 Geometry Surface::ExtractByUVPlane(double u_, double v_, double d) {
 	UnselectAll();
-	for (size_t i = 0; i < v.size(); ++i) {
+	for (size_t i = 0; i < v.size(); i++) {
 		const Geometry::Vertex &vert = v[i];
 		const double temp = vert.u * u_ + vert.v * v_;
 		if (temp >= d - DBL_EPSILON)

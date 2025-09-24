@@ -75,6 +75,11 @@ public:
 	void PushRotation();
 	void PopRotation();
 
+	friend bool operator==(const std::shared_ptr<Bone> &bone,
+			const std::string &name) {
+		return name.compare(bone->name) == 0;
+	}
+
 	void Paint() const;
 
 private:

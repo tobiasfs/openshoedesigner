@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : ParameterLimits.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -63,7 +63,7 @@ void ParameterLimits::AddLimitMax(size_t index, double max, double a,
 
 double ParameterLimits::Evaluate(const std::vector<double> &param) const {
 	double temp = 0.0;
-	for (size_t n = 0; n < limits.size(); ++n) {
+	for (size_t n = 0; n < limits.size(); n++) {
 		if (limits[n].index >= param.size())
 			continue;
 		if (param[limits[n].index] > limits[n].maxval) {

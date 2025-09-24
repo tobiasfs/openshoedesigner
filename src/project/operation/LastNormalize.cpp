@@ -163,9 +163,9 @@ void LastNormalize::ReorientPCA() {
 
 	pca.SetCenter(center);
 
-//	for (size_t i = 0; i < out->CountTriangles(); ++i)
+//	for (size_t i = 0; i < out->CountTriangles(); i++)
 //		pca.Add(out->GetTetraederCenter(i), out->GetTetraederVolume(i));
-	for (size_t i = 0; i < out->CountVertices(); ++i)
+	for (size_t i = 0; i < out->CountVertices(); i++)
 		pca.Add(out->GetVertex(i));
 	pca.Calculate();
 	// Make coordinate system right handed
@@ -214,7 +214,7 @@ void LastNormalize::ReorientSymmetry() {
 
 		FourierTransform ft;
 		ft.TSetSize(section.Size());
-		for (size_t n = 0; n < section.Size(); ++n) {
+		for (size_t n = 0; n < section.Size(); n++) {
 			const double lx = coordsys.LocalX(section[n]);
 			const double ly = coordsys.LocalY(section[n]);
 //			debug.AddEdgeToVertex({lx,ly,0});
@@ -271,7 +271,7 @@ void LastNormalize::ReorientSole() {
 			section.Reverse();
 
 		const double Lmax = section.GetLength();
-		for (size_t n = 0; n < section.CountEdges(); ++n) {
+		for (size_t n = 0; n < section.CountEdges(); n++) {
 			const Vector3 temp = section.GetEdgeVertex(n, 1)
 					- section.GetEdgeVertex(n, 0);
 			double a = atan2(temp.y, -temp.z);
@@ -307,7 +307,7 @@ void LastNormalize::ReorientFrontBack() {
 		Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0),
 				bbc.GlobalX(cut));
 		BoundingBox temp;
-		for (size_t n = 0; n < section.Size(); ++n)
+		for (size_t n = 0; n < section.Size(); n++)
 			temp.Insert(section[n]);
 		ratio.push_back(temp.GetSizeZ() / temp.GetSizeY());
 //			loop += section.GetCenter();
@@ -377,7 +377,7 @@ void LastNormalize::ReorientLeftRight() {
 		loop.AddEdgeToVertex(section.GetCenter());
 
 		//			BoundingBox bb2;
-		//			for(size_t n = 0; n < section.Size(); ++n)
+		//			for(size_t n = 0; n < section.Size(); n++)
 		//				bb2.Insert(section[n]);
 
 		//			kde.Insert(cut, bb2.GetSizeZ() / bb2.GetSizeY(), 0.3,
@@ -428,7 +428,7 @@ void LastNormalize::ReorientLeftRight() {
 		loop.SortLoop();
 	}
 	const double Lmax = loop.GetLength();
-	for (size_t n = 0; n < loop.Size(); ++n) {
+	for (size_t n = 0; n < loop.Size(); n++) {
 		const Vector3 dirvect = (loop[(n + 1) % loop.Size()] - loop[n]);
 		double a = atan2(dirvect.y, -dirvect.z);
 		kde.Insert(a, Kernel::Sigmoid, dirvect.Abs() / Lmax, 0.3);
@@ -441,7 +441,7 @@ void LastNormalize::ReorientLeftRight() {
 
 	double minRight = 1e9;
 	double minLeft = 1e9;
-	for (size_t n = 0; n < kde.Length(); ++n) {
+	for (size_t n = 0; n < kde.Length(); n++) {
 		if (kde.X()[n] > M_PI && kde.X()[n] < 3 * M_PI_2
 				&& kde.Y()[n] < minRight)
 			minRight = kde.Y()[n];

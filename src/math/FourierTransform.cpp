@@ -50,7 +50,7 @@ void FourierTransform::TLinspace(double t0, double t1, size_t N) {
 		throw(std::domain_error(
 		__FILE__"FourierTransform::TLinspace: Nin < 2"));
 	const double dt = (t1 - t0) / (N - 1);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		x[n].t = t0;
 		t0 += dt;
 	}
@@ -89,7 +89,7 @@ void FourierTransform::TUnwrap(double tol) {
 	if (tol <= 0.0)
 		throw(std::domain_error(
 		__FILE__"FourierTransform::TUnwrap: 'tol' should be a positive number."));
-	for (size_t n = 1; n < x.size(); ++n) {
+	for (size_t n = 1; n < x.size(); n++) {
 		while (x[n].t < x[n - 1].t - tol)
 			x[n].t += 2 * tol;
 		while (x[n].t > x[n - 1].t + tol)
@@ -108,7 +108,7 @@ void FourierTransform::FLinspace(double f0, double f1, size_t N) {
 		__FILE__"FourierTransform::FLinspace: Nout < 2"));
 	y.resize(N);
 	const double df = (f1 - f0) / (N - 1);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		y[n].f = f0;
 		f0 += df;
 	}
@@ -120,7 +120,7 @@ void FourierTransform::FLikeFFT(size_t N) {
 		__FILE__"FourierTransform::FLikeFFT: N < 1"));
 	y.resize(N);
 	const size_t limit = (N + 1) / 2;
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		if (n >= limit)
 			y[n].f = -(double) (N - n);
 		else
@@ -141,12 +141,12 @@ void FourierTransform::Transform() {
 
 	// Double loop, because FFT-like speedup is not possible, when the sampling
 	// is not uniform.
-	for (size_t n = 0; n < y.size(); ++n) {
+	for (size_t n = 0; n < y.size(); n++) {
 		const double fr = y[n].f;
 		double re = 0.0;
 		double im = 0.0;
 
-		for (size_t m = 0; m < (x.size() - 1); ++m) {
+		for (size_t m = 0; m < (x.size() - 1); m++) {
 			const double t0 = x[m].t;
 			const double t1 = x[m + 1].t;
 			const double xRe0 = x[m].re;

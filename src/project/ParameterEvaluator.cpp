@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : ParameterEvaluator.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -104,7 +104,7 @@ bool ParameterEvaluator::ConnectExternal(size_t n, std::set<size_t> &open) {
 	const size_t NVar = parameter[n]->parser.vm.heap.size();
 	parameter[n]->parser.vm.externalvariables.resize(NVar);
 	const size_t neededGroup = parameter[n]->group;
-	for (size_t idxNeededVar = 0; idxNeededVar < NVar; ++idxNeededVar) {
+	for (size_t idxNeededVar = 0; idxNeededVar < NVar; idxNeededVar++) {
 		parameter[n]->parser.vm.externalvariables[idxNeededVar].reset();
 		const auto &neededVar = parameter[n]->parser.vm.heap[idxNeededVar];
 		if (!neededVar.isinput)
@@ -130,7 +130,7 @@ bool ParameterEvaluator::ConnectExternal(size_t n, std::set<size_t> &open) {
 				if (groupIdx.size() > 1) {
 					parameter[n]->unstable = true;
 				}
-				for (size_t i = 1; i < groupIdx.size(); ++i) {
+				for (size_t i = 1; i < groupIdx.size(); i++) {
 					// Clone for every group >= 1
 					std::shared_ptr<ParameterFormula> temp = std::make_shared<
 							ParameterFormula>(*parameter[n]);
@@ -198,13 +198,13 @@ void ParameterEvaluator::Update() {
 	// need to be split after descending into variants and coming back to
 	// global parameters.
 
-	for (size_t n = 0; n < parameter.size(); ++n)
+	for (size_t n = 0; n < parameter.size(); n++)
 		open.insert(n);
 	evaluationOrder.clear();
 
 	size_t N0 = open.size();
 	do {
-		for (size_t n = 0; n < parameter.size(); ++n) {
+		for (size_t n = 0; n < parameter.size(); n++) {
 			//TODO Change the check into iterator magic.
 			if (open.find(n) == open.end())
 				continue;
@@ -226,7 +226,7 @@ void ParameterEvaluator::Update() {
 				const size_t neededGroup = parameter[idx]->group;
 				for (size_t idxNeededVar = 0;
 						idxNeededVar < parameter[idx]->parser.vm.heap.size();
-						++idxNeededVar) {
+						idxNeededVar++) {
 					const auto &neededVar =
 							parameter[idx]->parser.vm.heap[idxNeededVar];
 					if (!neededVar.isinput)

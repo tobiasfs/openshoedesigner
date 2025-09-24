@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : IniFile.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -128,7 +128,7 @@ void IniFile::ReadFile(std::string filename) {
 
 std::string IniFile::Section::GetParameter(std::string name,
 		std::string defaultvalue) const {
-	for (size_t n = 0; n < param.size(); ++n) {
+	for (size_t n = 0; n < param.size(); n++) {
 		if (StringCmpI(param[n].name, name)) {
 			return param[n].value;
 		}
@@ -138,11 +138,11 @@ std::string IniFile::Section::GetParameter(std::string name,
 
 const IniFile::Section* IniFile::FindSection(std::string name) const {
 	if (IniFile::casesensitive) {
-		for (size_t n = 0; n < section.size(); ++n)
+		for (size_t n = 0; n < section.size(); n++)
 			if (StringCmp(section[n].name, name))
 				return &(section[n]);
 	} else {
-		for (size_t n = 0; n < section.size(); ++n)
+		for (size_t n = 0; n < section.size(); n++)
 			if (StringCmpI(section[n].name, name))
 				return &(section[n]);
 	}
@@ -153,7 +153,7 @@ const IniFile::Section* IniFile::NextSection(
 		const IniFile::Section *lastsection) const {
 	bool temp = false;
 	std::string name;
-	for (size_t n = 0; n < section.size(); ++n) {
+	for (size_t n = 0; n < section.size(); n++) {
 		if (temp) {
 			if (IniFile::casesensitive) {
 				if (StringCmp(section[n].name, name))

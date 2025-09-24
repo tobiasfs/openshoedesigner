@@ -29,6 +29,7 @@
 
 /**\class Polygon3
  * \brief Polygon in 3D space.
+ * \ingroup Base3D
  *
  * Overload of the Geometry class with special functions for polygon(s) in
  * 3D-space.
@@ -155,9 +156,9 @@ public:
 //	Polygon3& operator/=(const double val);
 //	const Polygon3 operator/(const double val);
 
-	size_t Size() const; //< Get the number of vertices
-	Vertex& operator[](size_t index); //< Manipulate a vertex
-	const Vertex& operator[](size_t index) const; //< Const inspect a vertex
+	size_t Size() const; ///< Get the number of vertices
+	Vertex& operator[](size_t index); ///< Manipulate a vertex
+	const Vertex& operator[](size_t index) const; ///< Const inspect a vertex
 
 	/** \brief Direction away from a vertex
 	 *
@@ -221,10 +222,15 @@ public:
 	void Triangulate();
 	Polygon3 Voronoi() const;
 
+	/**\brief Regularize the distribution of triangle angles.
+	 *
+	 */
+	void Regularize();
+
 //	/** \brief Resample the point in the polygon.
 //	 *
 //	 * The polygon is resampled into a polygon with N points. This can be an over- or undersampling of the original polygon.
-//	 * @param Nnew New number of points
+//	 * \param Nnew New number of points
 //	 */
 //	void Resample(unsigned int Nnew);
 
@@ -237,7 +243,7 @@ public:
 	 *
 	 *\todo Revisit and check, if everything is implemented according to the description.
 	 *
-	 * @param width length of the MA filter.
+	 * \param width length of the MA filter.
 	 */
 	void Filter(unsigned int width);
 
@@ -261,7 +267,7 @@ public:
 	 *
 	 * \note The datatype is converted from float to double upon export.
 	 *
-	 * @return std::vector \<double\> with all x values.
+	 * \return std::vector \<double\> with all x values.
 	 */
 	std::vector<double> GetXVectorD() const;
 
@@ -269,7 +275,7 @@ public:
 	 *
 	 * \note The datatype is converted from float to double upon export.
 	 *
-	 * @return std::vector \<double\> with all y values.
+	 * \return std::vector \<double\> with all y values.
 	 */
 	std::vector<double> GetYVectorD() const;
 
@@ -277,7 +283,7 @@ public:
 	 *
 	 * \note The datatype is converted from float to double upon export.
 	 *
-	 * @return std::vector \<double\> with all z values.
+	 * \return std::vector \<double\> with all z values.
 	 */
 	std::vector<double> GetZVectorD() const;
 
@@ -336,6 +342,15 @@ public:
 	 * \return Structure with positive and negative intersections of the plane.
 	 */
 	Intersections Intersect(Vector3 n, double d) const;
+
+	/**\brief Check for attributes, that make up a planar geometry
+	 *
+	 * Like PassedSelfCheck() this function checks the construction of a
+	 * planar geometry.
+	 *
+	 * \return Boolean if the check was passed.
+	 */
+	bool PassedPlaneCheck(size_t maxErrorsPerType = 10) const;
 
 	std::string ToString() const;
 

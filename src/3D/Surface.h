@@ -42,6 +42,7 @@
 // fx(u,v):=cx0 + cx1*u + cx2*u^2 + cx3*u^3 + (cx4 + cx5*u + cx6*u^2 + cx7*u^3)*v + (cx8 + cx9*u + cx10*u^2 + cx11*u^3)*v^2 + (cx12 + cx13*u + cx14*u^2 + cx15*u^3)*v^3;
 // fy(u,v):=cy0 + cy1*u + cy2*u^2 + cy3*u^3 + (cy4 + cy5*u + cy6*u^2 + cy7*u^3)*v + (cy8 + cy9*u + cy10*u^2 + cy11*u^3)*v^2 + (cy12 + cy13*u + cy14*u^2 + cy15*u^3)*v^3;
 // fz(u,v):=cz0 + cz1*u + cz2*u^2 + cz3*u^3 + (cz4 + cz5*u + cz6*u^2 + cz7*u^3)*v + (cz8 + cz9*u + cz10*u^2 + cz11*u^3)*v^2 + (cz12 + cz13*u + cz14*u^2 + cz15*u^3)*v^3;
+//
 #include "../math/Dependencies.h"
 #include "../math/Matrix.h"
 #include "../math/Polynomial.h"
@@ -361,7 +362,8 @@ public:
 	 * 					   only the end-point is inside the boundary condition.
 	 */
 	void AddStitching(double u0, double u1, double v0, double v1, size_t order,
-			bool cyclicU = false, bool cyclicV = false, bool allowPartial = false);
+			bool cyclicU = false, bool cyclicV = false, bool allowPartial =
+					false);
 	void AddPoint(const Geometry::Vertex &p);
 	void AddPoint(double u, double v, const Vector3 &p);
 	void AdddPdU(double u, double v, const Vector3 &dPdU);
@@ -458,6 +460,11 @@ public:
 	Matrix bsoft;
 
 private:
+
+	double gu0 = DBL_MAX; ///< Global start in U
+	double gu1 = -DBL_MAX; ///< Global end in U
+	double gv0 = DBL_MAX; ///< Global start in V
+	double gv1 = -DBL_MAX; ///< Global end in V
 
 	/** \brief Speedup variable for patch-search
 	 *

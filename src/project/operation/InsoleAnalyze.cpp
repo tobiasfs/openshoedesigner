@@ -657,7 +657,7 @@ Polygon3::Intersections InsoleAnalyze::Intersect(const Geometry &geo,
 		}
 	}
 	Polygon3::Intersections ret;
-	for (size_t idx = 0; idx < geo.CountEdges(); ++idx) {
+	for (size_t idx = 0; idx < geo.CountEdges(); idx++) {
 		const Geometry::Vertex &vert0 = geo.GetEdgeVertex(idx, 0);
 		const Geometry::Vertex &vert1 = geo.GetEdgeVertex(idx, 1);
 		Vector3 v0(vert0.x - a.x, vert0.y - a.y);

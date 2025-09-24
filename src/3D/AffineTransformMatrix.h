@@ -85,8 +85,7 @@ private:
 	/**\brief Internal matrix stored in a fixed size array.
 	 *
 	 * This is the actual transformation matrix. It is initialized upon matrix
-	 * construction
-	 *
+	 * construction.
 	 */
 	std::array<double, 16> a =
 			{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
@@ -230,12 +229,12 @@ public:
 
 	/*!\brief Rotation matrix around a virtual trackball.
 	 *
-	 * @param x1 Old x-mouse position on screen
-	 * @param y1 Old y-mouse position on screen
-	 * @param x2 New x-mouse position on screen
-	 * @param y2 New y-mouse position on screen
-	 * @param r Radius of a sphere in screen units.
-	 * @return Rotational Matrix
+	 * \param x1 Old x-mouse position on screen
+	 * \param y1 Old y-mouse position on screen
+	 * \param x2 New x-mouse position on screen
+	 * \param y2 New y-mouse position on screen
+	 * \param r Radius of a sphere in screen units.
+	 * \return Rotational Matrix
 	 */
 	static AffineTransformMatrix RotationTrackball(const double x1,
 			const double y1, const double x2, const double y2, const double r);

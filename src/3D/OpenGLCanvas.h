@@ -187,6 +187,8 @@ public:
 public:
 	void OnPick(OpenGLPick &result, int x, int y);
 	void OnPick(OpenGLPick &result, wxPoint pos);
+#endif
+#ifdef USE_6DOFCONTROLLER
 private:
 	void OnTimer(wxTimerEvent &event);
 #endif

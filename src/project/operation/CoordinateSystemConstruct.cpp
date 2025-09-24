@@ -458,7 +458,7 @@ void CoordinateSystemConstruct::Run() {
 //	auto inter = outline0.Intersect( { 0, 1, 0 }, 0);
 //	if (!inter.positive.empty())
 //		m.ShiftX(inter.positive[0].u);
-//	for (size_t n = 0; n < outline0.CountVertices(); ++n) {
+//	for (size_t n = 0; n < outline0.CountVertices(); n++) {
 //		auto &vert = outline0.GetVertex(n);
 //		vert.u = m(vert.u);
 //		while (vert.u > M_PI)
@@ -480,11 +480,11 @@ void CoordinateSystemConstruct::Run() {
 //
 //		out->HardBoundaries();
 //		Polynomial mapu = Polynomial::ByValue(0, -M_PI, 4, M_PI);
-//		for (size_t n = 0; n < 4; ++n)
+//		for (size_t n = 0; n < 4; n++)
 //			out->AddPolynomial(mapu(n), mapu(n + 1), 1, 1, elb.GetSegment(n));
 //		out->SoftBoundaries();
 //	}
-//	for (size_t n = 0; n < outline0.CountVertices(); ++n)
+//	for (size_t n = 0; n < outline0.CountVertices(); n++)
 //		out->Add(outline0.GetVertex(n), 0.05);
 //	out->Calculate();
 //	out->Update();

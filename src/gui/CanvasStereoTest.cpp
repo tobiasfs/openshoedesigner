@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CanvasStereoTest.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -43,8 +43,8 @@ void CanvasStereoTest::Render() {
 	Vector3 v3;
 	const float dt = (double) 2 / 40;
 	glBegin(GL_QUADS);
-	for (size_t i = 0; i < 40; ++i) {
-		for (size_t j = 0; j < 40; ++j) {
+	for (size_t i = 0; i < 40; i++) {
+		for (size_t j = 0; j < 40; j++) {
 			const float x = -1.0 + (double) i * dt;
 			const float y = -1.0 + (double) j * dt;
 			v0.Set(x, y, CalculateFront(x, y));
@@ -63,8 +63,8 @@ void CanvasStereoTest::Render() {
 		}
 	}
 
-	for (size_t i = 0; i < 40; ++i) {
-		for (size_t j = 0; j < 40; ++j) {
+	for (size_t i = 0; i < 40; i++) {
+		for (size_t j = 0; j < 40; j++) {
 			const float x = -1.0 + (double) i * dt;
 			const float y = -1.0 + (double) j * dt;
 			v0.Set(x, y, CalculateZBack(x, y));

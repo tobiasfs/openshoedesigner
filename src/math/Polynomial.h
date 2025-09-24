@@ -28,19 +28,21 @@
 #define MATH_POLYNOMIAL_H
 
 /*!\class Polynomial
- * \brief Evaluateable polynomial with an arbitrary number of coefficients
+ * \brief Evaluatable polynomial with an arbitrary number of coefficients
  *
  * This class contains a polynomial of arbitrary order.
  *
- * The coefficients are stored at the index of their power. 
+ * The coefficients are stored at the index of their power.
  *
  * e.g. \f[
  * 	f(r) =  c_0 + c_1 \cdot r + c_2\cdot r^2 + c_3\cdot r^3
  * \f]
- * The vector returned by the stream output << can be used directly in the
- * Octave/Matlab polyval command. Note that the order of coefficient is inverted
- * here, because it is intended to be pasted into Octave/Matlab to be used with
- * polyval, polyder, polyint, polyfit, ...
+ *
+ * The vector returned by the stream output << on the other hand is inverted.
+ * Thus it can be used directly in the Octave/Matlab polyval command. Note that
+ *  the order of coefficient is inverted here, because it is intended to be
+ *  pasted into Octave/Matlab to be used with polyval, polyder, polyint,
+ *  polyfit, ...
  *
  * \htmlonly
  * <svg width="300" height="200">
@@ -153,6 +155,18 @@ public:
 	 */
 	static Polynomial Lagrange(const size_t N, const size_t index);
 
+	static Polynomial Hermite(const size_t N);
+	static Polynomial Legendre(const size_t N);
+	static Polynomial Laguerre(const size_t N);
+
+	// https://de.wikipedia.org/wiki/Liste_spezieller_Polynome
+
+	// https://de.wikipedia.org/wiki/Gegenbauer-Polynom
+	// https://de.wikipedia.org/wiki/Jacobi-Polynom
+	// https://de.wikipedia.org/wiki/Kreisteilungspolynom
+	// https://de.wikipedia.org/wiki/Tschebyschow-Polynom
+	// https://de.wikipedia.org/wiki/Zernike-Polynom
+
 	/**\}\name Basic operations
 	 * \{
 	 */
@@ -160,16 +174,19 @@ public:
 	explicit Polynomial(size_t N = 0);
 	Polynomial(const std::initializer_list<double> coefficients);
 
+	double operator()(double x) const; ///< Evaluation of polynomial
+	double InvEval(double y, double xStart = 0.0) const; ///< Inverse evaluation of polynomial
+
 	size_t Order() const; ///< Order of the polynomial (= number of coefficients - 1)
 
 	/*! \brief Change the number of coefficients
 	 *
 	 * If the number of coefficients is increased, zeros are appended to the
 	 * vector of coefficients. Appending zeros does not change the form of the
-	 * polygon. On a decrease of the coefficients, the extra coefficients are
-	 * simply cut off. The form of the polygon may change a lot during this
-	 * operation. If a reduction is necessary while keeping the polygon fit as
-	 * close as possible to the original one, use the Reduce() function.
+	 * polynomial. On a decrease of the coefficients, the extra coefficients
+	 * are simply cut off. The form of the polynomial may change a lot during this
+	 * operation. If a reduction is necessary while keeping the polynomial fit
+	 * as close as possible to the original one, use the Reduce() function.
 	 *
 	 * \param N New coefficient count
 	 */
@@ -189,8 +206,6 @@ public:
 	 * \param b Upper-limit of the range to fit the polynomial
 	 */
 	Polynomial Reduce(size_t N, double a, double b) const;
-
-	double operator()(double x) const; ///< Evaluation of polygon
 
 	std::vector<double> GetBezier() const; ///< Returns the Bezier-values for a polynomial of up to order 3 (= 4 coefficients)
 
@@ -304,7 +319,7 @@ public:
 	double InflectionPoint() const; ///< Return the inflection point (only working for an order of exactly 3 (4 coefficients))
 
 	double FindZero(const double xStart = 0.0,
-			const size_t maxSteps = 10) const; ///< From a given starting-point the function searches for the value where the Polygon evaluates to 0.
+			const size_t maxSteps = 10) const; ///< From a given starting-point the function searches for the value where the polynomial evaluates to 0.
 
 //	std::vector<double> FindRoots() const;
 

@@ -146,7 +146,7 @@ void LastAnalyse::AnalyseForm() {
 //	kde.Clear();
 //	kde.XLinspace(0, 2 * M_PI, 360);
 //	kde.SetCyclic(2 * M_PI);
-//	for(size_t n = 0; n < center.Length(); ++n){
+//	for(size_t n = 0; n < center.Length(); n++){
 //		const Vector3 temp = (center[(n + 1) % center.Length()] - center[n]);
 //		const double a = atan2(-temp.x, temp.z);
 //		kde.Insert(a, Kernel::Picard, temp.Abs(), 0.3);
@@ -165,7 +165,7 @@ void LastAnalyse::AnalyseForm() {
 //				AffineTransformMatrix::RotationAroundVector(Vector3(0, 0, 1),
 //				M_PI));
 //		bb.Clear();
-//		for(size_t i = 0; i < hull.CountVertices(); ++i)
+//		for(size_t i = 0; i < hull.CountVertices(); i++)
 //			bb.Insert(hull.GetVertex(i));
 //	}
 
@@ -175,7 +175,7 @@ void LastAnalyse::AnalyseForm() {
 
 //	{
 //		const double Lmax = shape2.GetLength();
-//		for(size_t n = 0; n < shape2.Length(); ++n){
+//		for(size_t n = 0; n < shape2.Length(); n++){
 //			const Vector3 temp = (shape2[(n + 1) % shape2.Length()] - shape2[n]);
 //			double a = atan2(temp.y, -temp.z);
 //			cde.Add(CoreDensityEstimator::Epanechnikov, 0.5, a,
@@ -261,7 +261,7 @@ void LastAnalyse::AnalyseForm() {
 //			center.Export("/tmp/cent_3.mat");
 //
 //			double err = 0;
-//			for(size_t n = 0; n < bottom.Size(); ++n){
+//			for(size_t n = 0; n < bottom.Size(); n++){
 //				const double x = coordsys.LocalX(bottom[n]);
 //				const double y = center.YatX(x);
 //				const double y_target = coordsys.LocalY(bottom[n]);
@@ -271,7 +271,7 @@ void LastAnalyse::AnalyseForm() {
 //		}
 //
 //		DEBUGOUT << "param = [";
-//		for(size_t n = 0; n < optim.param.size(); ++n){
+//		for(size_t n = 0; n < optim.param.size(); n++){
 //			if(n > 0) DEBUGOUT << ", ";
 //			DEBUGOUT << optim.param[n];
 //		}
@@ -285,13 +285,13 @@ void LastAnalyse::AnalyseForm() {
 //				coordsys.CalculateEz();
 
 //			Polygon3 pmin;
-//			for(size_t n = Nmin; n < (N + Nmin); ++n){
+//			for(size_t n = Nmin; n < (N + Nmin); n++){
 //				const size_t m = n % N;
 //				pmin += loop[m];
 //				if(m == Nmax) break;
 //			}
 //			Polygon3 pmax;
-//			for(size_t n = Nmax; n < (N + Nmax); ++n){
+//			for(size_t n = Nmax; n < (N + Nmax); n++){
 //				const size_t m = n % N;
 //				pmax += loop[m];
 //				if(m == Nmin) break;
@@ -301,7 +301,7 @@ void LastAnalyse::AnalyseForm() {
 //			pmax.Resample(100);
 //			pmax.Reverse();
 //
-//			for(size_t n = 0; n < 100; ++n)
+//			for(size_t n = 0; n < 100; n++)
 //				pmin[n] += pmax[n];
 //			pmin /= 2.0;
 //
@@ -329,7 +329,7 @@ void LastAnalyse::AnalyseForm() {
 //			formfinder.d.end());
 
 //	MatlabMatrix F("F", 12, formfinder.a.size());
-//	for(size_t n = 0; n < formfinder.a.size(); ++n){
+//	for(size_t n = 0; n < formfinder.a.size(); n++){
 //		F.Insert(formfinder.a[n].x);
 //		F.Insert(formfinder.b[n].x);
 //		F.Insert(formfinder.c[n].x);
@@ -354,7 +354,7 @@ void LastAnalyse::AnalyseForm() {
 //
 //
 //	MatlabMatrix X("X", 3, ft.InRe.size());
-//	for(size_t n = 0; n < ft.InRe.size(); ++n){
+//	for(size_t n = 0; n < ft.InRe.size(); n++){
 //		X.Insert(ft.t[n]);
 //		X.Insert(ft.InRe[n]);
 //		X.Insert(ft.InIm[n]);
@@ -363,7 +363,7 @@ void LastAnalyse::AnalyseForm() {
 //	mf.WriteMatrix(X);
 //
 //	MatlabMatrix Y("Y", 3, ft.f.size());
-//	for(size_t n = 0; n < ft.f.size(); ++n){
+//	for(size_t n = 0; n < ft.f.size(); n++){
 //		Y.Insert(ft.f[n]);
 //		Y.Insert(ft.OutRe[n]);
 //		Y.Insert(ft.OutIm[n]);
@@ -372,7 +372,7 @@ void LastAnalyse::AnalyseForm() {
 //	mf.WriteMatrix(Y);
 //
 //	MatlabMatrix S("S", symmetry.support.size());
-//	for(size_t n = 0; n < symmetry.support.size(); ++n)
+//	for(size_t n = 0; n < symmetry.support.size(); n++)
 //		S.Insert(symmetry.support[n]);
 //	mf.WriteMatrix(S);
 
@@ -408,7 +408,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 
 //	kde.XLinspace(-M_PI_2, M_PI_2, 81);
 //
-//	for (size_t n = 0; n < section.CountVertices(); ++n) {
+//	for (size_t n = 0; n < section.CountVertices(); n++) {
 //		const Vector3 v = section[n].n;
 //		double a = atan2(v.z, v.y);
 //		double weight = section[n].y;
@@ -439,13 +439,13 @@ void LastAnalyse::FindAndReorientCenterplane() {
 //
 //	const size_t N = section.Size();
 //	size_t Nmin = 0;
-//	for (size_t n = 0; n < N; ++n)
+//	for (size_t n = 0; n < N; n++)
 //		if (section[n].z < section[Nmin].z)
 //			Nmin = n;
 //
 //	size_t p0 = 0;
 //	size_t p1 = 0;
-//	for (size_t n = Nmin; n < Nmin + N; ++n) {
+//	for (size_t n = Nmin; n < Nmin + N; n++) {
 //		const Vector3 n0 = section.Normal(n % N);
 //		const Vector3 n1 = section.Normal((n + 1) % N);
 //		const double a0 = atan2(n0.y, n0.z);
@@ -481,7 +481,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 		kde.Clear();
 		kde.XLinspace(0, 2 * M_PI, 360);
 		kde.SetCyclic(2 * M_PI);
-		for (size_t n = 0; n < out->planeXZ.CountEdges(); ++n) {
+		for (size_t n = 0; n < out->planeXZ.CountEdges(); n++) {
 			const Vector3 v0 = out->planeXZ.GetEdgeVertex(n, 0);
 			const Vector3 v1 = out->planeXZ.GetEdgeVertex(n, 1);
 			const Vector3 temp = v1 - v0;
@@ -512,7 +512,7 @@ void LastAnalyse::FindAndReorientCenterplane() {
 		out->angleXZ.Clear();
 		const double Lmax = 1;		//last->planeXZ.GetLength();
 		double L = 0.0;
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			Vector3 temp = (out->planeXZ[(n + 1) % N] - out->planeXZ[n]);
 			const double h = atan2(temp.z, temp.x);
 			out->angleXZ.PushBack((double) L / (double) Lmax, h);
@@ -635,14 +635,14 @@ bool LastAnalyse::FindMarker() {
 		Vector3 b;
 		double da = DBL_MAX;
 		double db = DBL_MAX;
-		for (size_t n = 0; n < out->bottomleft.Size(); ++n) {
+		for (size_t n = 0; n < out->bottomleft.Size(); n++) {
 			const double d = (out->bottomleft[n] - p).Abs2();
 			if (d < da) {
 				da = d;
 				a = out->bottomleft[n];
 			}
 		}
-		for (size_t n = 0; n < out->bottomright.Size(); ++n) {
+		for (size_t n = 0; n < out->bottomright.Size(); n++) {
 			const double d = (out->bottomright[n] - p).Abs2();
 			if (d < da) {
 				da = d;
@@ -838,13 +838,13 @@ bool LastAnalyse::FindMarker() {
 
 //	debug2.XLinspace(toRad(-90), toRad(90), 301);
 //	auto e = MEstimator::AndrewWave();
-//	for(size_t n = 0; n < debug2.Size(); ++n)
+//	for(size_t n = 0; n < debug2.Size(); n++)
 //		debug2.Y()[n] = e.Rho(debug2.X()[n] / 0.05);
 
 // Statistics for magic numbers
 //	{
 //		const double A0 = test.X()[last->idxToeTip] - test.X()[last->idxHeelPoint];
-//		for(size_t n = 3; n < 9; ++n){
+//		for(size_t n = 3; n < 9; n++){
 //			const double A1 = test.X()[markerindex[n]] - test.X()[last->idxHeelPoint];
 //			DEBUGOUT << (char) ('@' + n) << " - " << 100 * A1 / A0 << "%\n";
 //		}
@@ -913,7 +913,7 @@ void LastAnalyse::FindOutline() {
 
 //	AffineTransformMatrix bbc = BB.GetCoordinateSystem();
 
-	for (size_t n = 0; n < Ncut; ++n) {
+	for (size_t n = 0; n < Ncut; n++) {
 		const double a = rotation(n);
 		const Vector3 normal(cos(a), 0, sin(a));
 		const Vector3 pos = xHeel + (xToe - xHeel) * cutAt(n);
@@ -927,11 +927,11 @@ void LastAnalyse::FindOutline() {
 
 		const size_t N = section.Size();
 		size_t Nmin = 0;
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			if (section[n].z < section[Nmin].z)
 				Nmin = n;
 
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			const Vector3 n0 = section.Normal((Nmin + n) % N);
 			const Vector3 n1 = section.Normal((Nmin + n + 1) % N);
 			const double a0 = atan2(n0.y, -n0.z);
@@ -947,7 +947,7 @@ void LastAnalyse::FindOutline() {
 			}
 		}
 
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			const Vector3 n0 = section.Normal((Nmin + N - n) % N);
 			const Vector3 n1 = section.Normal((Nmin + N - (n + 1)) % N);
 			const double a0 = atan2(n0.y, -n0.z);
@@ -966,7 +966,7 @@ void LastAnalyse::FindOutline() {
 
 	out->bottom.Clear();
 	out->top.Clear();
-	for (size_t n = 0; n < out->bottomright.Size(); ++n) {
+	for (size_t n = 0; n < out->bottomright.Size(); n++) {
 		const Vector3 temp = (out->bottomright[n] + out->bottomleft[n]) / 2;
 		out->bottom.AddEdgeToVertex(
 				Geometry::Vertex(out->IntersectArrow(temp, Vector3(0, 0, -1))));
@@ -974,7 +974,7 @@ void LastAnalyse::FindOutline() {
 				Geometry::Vertex(out->IntersectArrow(temp, Vector3(0, 0, 1))));
 	}
 //	last->planeXZ.Clear();
-//	for(size_t n = 0; n < bottomright.Size(); ++n){
+//	for(size_t n = 0; n < bottomright.Size(); n++){
 //		last->planeXZ.InsertPoint((top[n] + bottom[n] * 2.0) / 3.0);
 //	}
 //	{
@@ -990,7 +990,7 @@ void LastAnalyse::FindOutline() {
 size_t LastAnalyse::FindTopPoint(size_t idxBottom, size_t idxStart,
 		size_t idxEnd) const {
 	auto orth = OrthogonalPoint(out->planeXZ[idxBottom]);
-	for (size_t n = 0; n < orth.Length(); ++n)
+	for (size_t n = 0; n < orth.Length(); n++)
 		orth.X()[n] = out->angleXZ.X()[n];
 	size_t idx = orth.IatV(0, 1, DependentVector::Direction::first_risingabove,
 			idxStart, idxEnd);
@@ -1004,7 +1004,7 @@ size_t LastAnalyse::FindTopPoint(size_t idxBottom, size_t idxStart,
 DependentVector LastAnalyse::OrthogonalPoint(const Vector3 &p) const {
 	const size_t N = out->planeXZ.Size();
 	DependentVector temp = DependentVector::Linspace(0, 1, N);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		const Vector3 d =
 				(out->planeXZ[(n + 1) % N] - out->planeXZ[n]).Normal();
 		const Vector3 c = (out->planeXZ[n] - p).Normal();
@@ -1102,7 +1102,7 @@ bool LastAnalyse::Vector3XLess(const Vector3 a, const Vector3 b) {
 BoundingBox LastAnalyse::CalculateBoundingBox(const Polygon3 &polygon) {
 	BoundingBox temp;
 	const size_t N = polygon.Size();
-	for (size_t n = 0; n < N; ++n)
+	for (size_t n = 0; n < N; n++)
 		temp.Insert(polygon[n]);
 	return temp;
 }

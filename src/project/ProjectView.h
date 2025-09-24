@@ -75,7 +75,7 @@ public:
 
 	bool showLastScan = false;
 	bool showLast = false;
-	bool showInsole = true;
+	bool showInsole = false;
 	bool showHeel = false;
 	bool showUpper = true;
 	bool showCutaway = false;

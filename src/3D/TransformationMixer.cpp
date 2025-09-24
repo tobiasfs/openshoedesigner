@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : TransformationMixer.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -107,7 +107,7 @@ Vector3 TransformationMixer::operator ()(const Vector3 &v) const {
 			break;
 		}
 		}
-		++n;
+		n++;
 	}
 
 	double sum = mixing.sum();
@@ -123,7 +123,7 @@ Vector3 TransformationMixer::operator ()(const Vector3 &v) const {
 	Vector3 temp = backgroundtransformation(v) * back;
 	n = 0;
 	for (auto &e : elements) {
-		++n;
+		n++;
 		if (fabs(mixing[n - 1]) < 1e-12)
 			continue;
 		temp += e.m(v) * mixing[n - 1];

@@ -95,7 +95,7 @@ std::string MidiDevice::GetName() const {
 }
 
 void MidiDevice::Push(uint8_t from, uint8_t to) {
-	for (size_t n = from; n <= to; ++n)
+	for (size_t n = from; n <= to; n++)
 		ccold[n] = cc[n] + 1;
 }
 
@@ -103,7 +103,7 @@ bool MidiDevice::Poll() {
 	bool flag = false;
 #ifdef USE_PORTMIDI
 	if (output != nullptr) {
-		for (size_t n = 0; n < cc.size(); ++n) {
+		for (size_t n = 0; n < cc.size(); n++) {
 			if (cc[n] != ccold[n]) {
 				buffer[0].message = Pm_Message(0xB0, n, cc[n]);
 				buffer[0].timestamp = 0;
@@ -270,7 +270,7 @@ std::set<std::string> MidiPort::GetDeviceNames() const {
 	const PmDeviceInfo *info = Pm_GetDeviceInfo(idx);
 	while (info != nullptr) {
 		temp.insert(info->name);
-		++idx;
+		idx++;
 		info = Pm_GetDeviceInfo(idx);
 	}
 #endif
@@ -421,7 +421,7 @@ std::string MidiPort::ToString() const {
 		buf << "Interface: \"" << info->interf << "\" ";
 		buf << "I:" << info->input << " O:" << info->output;
 		buf << "\n";
-		++idx;
+		idx++;
 		info = Pm_GetDeviceInfo(idx);
 	}
 #endif

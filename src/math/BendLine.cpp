@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : BendLine.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -36,7 +36,7 @@ void BendLine::AngleToPos() {
 	y[0] = 0.0;
 	double dx = x[1] - x[0];
 	double a = (y[1] + y[0]) / 2.0;
-	for (size_t n = 2; n < N; ++n) {
+	for (size_t n = 2; n < N; n++) {
 		double xn = x[n - 2] + cos(a) * dx;
 		double yn = y[n - 2] + sin(a) * dx;
 		dx = x[n] - x[n - 1];

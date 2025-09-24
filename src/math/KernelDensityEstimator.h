@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : KernelDensityEstimator.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -33,7 +33,6 @@
  * This Class does a (cyclic) kernel density estimation.
  *
  * [Wikipedia: Kernel density estimation](https://en.wikipedia.org/wiki/Kernel_density_estimation)
- *
  */
 
 #include <cstddef>

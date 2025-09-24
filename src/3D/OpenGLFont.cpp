@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLFont.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -44,7 +44,7 @@ std::vector<OpenGLFont> OpenGLFont::ParseGeometry(GeometrySplitter &geometry,
 	// Find all parts in the geometry
 	size_t groupCount = geometry.objects.size();
 
-	for (size_t n = 0; n < groupCount; ++n) {
+	for (size_t n = 0; n < groupCount; n++) {
 		if (!geometry.objects[n].PassedSelfCheck()) {
 			std::cerr << "The glyphe in object " << n << " is broken.\n";
 		}
@@ -55,12 +55,12 @@ std::vector<OpenGLFont> OpenGLFont::ParseGeometry(GeometrySplitter &geometry,
 	std::vector<OpenGLFont> ret;
 	ret.assign(font_count, OpenGLFont(glyph_names_));
 
-	for (size_t font_idx = 0; font_idx < font_count; ++font_idx) {
+	for (size_t font_idx = 0; font_idx < font_count; font_idx++) {
 		const double limit0 = 1.0 - fontdistance * (double) font_idx
 				+ fontlowline;
 
 //		size_t c = 0;
-		for (size_t n = 0; n < groupCount; ++n)
+		for (size_t n = 0; n < groupCount; n++)
 			if (geometry.bbs[n].GetCenter().y <= limit0
 					&& geometry.bbs[n].GetCenter().y > (limit0 - 1.0)) {
 //				std::cout << c++ << '/' << groupCount << '\n';

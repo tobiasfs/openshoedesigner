@@ -74,7 +74,7 @@ public:
 		std::mt19937 gen { 1234321 };
 		std::normal_distribution<double> dist { 5.0, 2.0 };
 		Matrix A(251, 101); // Note: both are prime numbers.
-		for (size_t i = 0; i < A.Numel(); ++i)
+		for (size_t i = 0; i < A.Numel(); i++)
 			A.Insert(dist(gen));
 
 		SVD svd;
@@ -115,12 +115,12 @@ public:
 			std::normal_distribution<double> dVal { 5.0, 0.0 };
 			std::uniform_int_distribution<int> dRow(0, A.Size(0) - 1);
 			std::uniform_int_distribution<int> dCol(0, A.Size(1) - 1);
-			for (size_t i = 0; i < A.Size(0); ++i) {
+			for (size_t i = 0; i < A.Size(0); i++) {
 				const size_t c = dCol(gen);
 				const double v = dVal(gen);
 				A(i, c) = v;
 			}
-			for (size_t i = 0; i < A.Size(1); ++i) {
+			for (size_t i = 0; i < A.Size(1); i++) {
 				const size_t r = dRow(gen);
 				const double v = dVal(gen);
 				A(r, i) = v;
@@ -170,7 +170,7 @@ public:
 			std::normal_distribution<double> dVal { 0.0, 5.0 };
 			std::uniform_int_distribution<int> dRow(0, A.Size(0) - 1);
 			std::uniform_int_distribution<int> dCol(0, A.Size(1) - 1);
-			for (size_t i = 0; i < ((A.Size(0) + A.Size(1)) / 1); ++i) {
+			for (size_t i = 0; i < ((A.Size(0) + A.Size(1)) / 1); i++) {
 				const size_t r = dRow(gen);
 				const size_t c = dCol(gen);
 				const double v = dVal(gen);

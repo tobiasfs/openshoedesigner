@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Ellipse.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -97,7 +97,7 @@ Bezier3 Ellipse::GetBezierSpline(size_t N) const {
 	ret.SetSize(N);
 	ret.CloseLoop(true);
 
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		const double a0 = ang(n);
 		const double s0 = sin(a0);
 		const double c0 = cos(a0);

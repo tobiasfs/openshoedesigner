@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Skeleton.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -41,7 +41,7 @@ Skeleton::Skeleton(const Skeleton &other) {
 		return;
 	const size_t N = other.bones.size();
 	this->bones.resize(N);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		this->bones[n] = std::make_shared<Bone>(*(other.bones[n]));
 		if (!other.bones[n]->parentTo.expired()) {
 			const std::string parentname = other.bones[n]->parentTo.lock()->name;
@@ -59,9 +59,7 @@ Skeleton::~Skeleton() {
 		glDeleteLists(m_gllist, 1);
 }
 
-bool operator==(const std::shared_ptr<Bone> &bone, const std::string &name) {
-	return name.compare(bone->name) == 0;
-}
+
 
 Skeleton& Skeleton::operator =(const Skeleton &other) {
 	// Support function to enable std::find with std::shared_ptr
@@ -69,7 +67,7 @@ Skeleton& Skeleton::operator =(const Skeleton &other) {
 		return *this;
 	const size_t N = other.bones.size();
 	this->bones.resize(N);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		this->bones[n] = std::make_shared<Bone>(*(other.bones[n]));
 		if (!other.bones[n]->parentTo.expired()) {
 			const std::string parentname = other.bones[n]->parentTo.lock()->name;
@@ -147,7 +145,7 @@ void Skeleton::RestoreRotation() {
 void Skeleton::LoadJSON(std::string filename) {
 	JSON js = JSON::Load(filename);
 	bones.clear();
-	for (size_t n = 0; n < js.Size(); ++n) {
+	for (size_t n = 0; n < js.Size(); n++) {
 		const std::string name = js.GetKey(n);
 		const JSON &bjs = js[name];
 		const JSON &bjsi = bjs["init"];
@@ -176,7 +174,7 @@ void Skeleton::LoadJSON(std::string filename) {
 		(*bone)->formulaS2 = bjsf["s2"].GetString("0");
 	}
 
-	for (size_t n = 0; n < js.Size(); ++n) {
+	for (size_t n = 0; n < js.Size(); n++) {
 		const std::string name = js.GetKey(n);
 		const JSON &bjs = js[name];
 		std::string parent = bjs["parent"].GetString();

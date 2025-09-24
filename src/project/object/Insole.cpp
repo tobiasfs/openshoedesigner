@@ -99,7 +99,7 @@ bool Insole::Line::IsInside(const double r) const {
 
 void Insole::Line::Paint() const {
 	glBegin(GL_LINE_STRIP);
-	for (uint8_t n = 0; n <= 100; ++n) {
+	for (uint8_t n = 0; n <= 100; n++) {
 		const double r = (double) n * 0.01;
 		glVertex3d(x(r), y(r), z(r));
 	}

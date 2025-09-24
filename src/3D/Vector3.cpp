@@ -93,7 +93,7 @@ std::string Vector3::ToString() const {
 void Vector3::FromString(const std::string &string) {
 	size_t pos = 0;
 	const std::string numchars("+-.ABCDEFINTXYabcdefintxy0123456789");
-	for (uint_fast8_t i = 0; i < 3; ++i) {
+	for (uint_fast8_t i = 0; i < 3; i++) {
 		const auto posStart = string.find_first_of(numchars, pos);
 		if (posStart == std::string::npos)
 			throw std::invalid_argument(

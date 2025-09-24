@@ -46,10 +46,10 @@ public:
 
 	void SetFirstTest(double xFirst);
 
-	void Start(); //!< Setup the internal variables and start an optimization
-	bool IsRunning(); //!< Loop control function for the main loop
-	void SetError(double error); //!< Insert the error back into the solver
-	void Stop(); //!< Optional: Stops the optimization prematurely and copies the best result so far into 'param'.
+	void Start() override;; //!< Setup the internal variables and start an optimization
+	bool IsRunning() override;; //!< Loop control function for the main loop
+	void SetError(double error) override;; //!< Insert the error back into the solver
+	void Stop() override;; //!< Optional: Stops the optimization prematurely and copies the best result so far into 'param'.
 
 private:
 	size_t state = 0;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogSetupMidi.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -74,7 +74,7 @@ void DialogSetupMidi::OnConnectDisconnect(wxCommandEvent &event) {
 		mididevice = midiport->Open(device.ToStdString(),
 				MidiPort::Direction::Bidirectional);
 		mididevice->Poll();
-//		for(int i = 0; i < 100; ++i)
+//		for(int i = 0; i < 100; i++)
 //			d->cc[i] = 64;
 //		d->Poll();
 

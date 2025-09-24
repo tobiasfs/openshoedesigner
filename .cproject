@@ -33,8 +33,8 @@
 								<option id="gnu.cpp.compiler.option.warnings.extrawarn.865356275" name="Extra warnings (-Wextra)" superClass="gnu.cpp.compiler.option.warnings.extrawarn" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.75204940" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
-									<listOptionValue builtIn="false" value="USE_6DOFCONTROLLER"/>
-									<listOptionValue builtIn="false" value="USE_PORTMIDI"/>
+									<listOptionValue builtIn="false" value="NO_USE_6DOFCONTROLLER"/>
+									<listOptionValue builtIn="false" value="NO_USE_PORTMIDI"/>
 									<listOptionValue builtIn="false" value="USE_EIGEN"/>
 									<listOptionValue builtIn="false" value="USE_GLAD"/>
 									<listOptionValue builtIn="false" value="USE_LIBZIP"/>
@@ -68,7 +68,6 @@
 								<option id="gnu.cpp.link.option.flags.163469286" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="`wx-config --unicode=yes --static=no --toolkit=gtk3 --libs base,core,xml,gl,stc,adv,html,propgrid,aui`" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1095832593" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="GL"/>
-									<listOptionValue builtIn="false" value="portmidi"/>
 									<listOptionValue builtIn="false" value="zip"/>
 									<listOptionValue builtIn="false" value="jpeg"/>
 									<listOptionValue builtIn="false" value="png"/>
@@ -112,8 +111,8 @@
 					</fileInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.2097012802.1442959887" name="Design.cpp" rcbsApplicability="disable" resourcePath="src/project/object/Design.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.383426711">
 						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.383426711" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377">
-							<option id="gnu.cpp.compiler.option.other.other.1137293078" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-write-strings -isystem /usr/include/eigen3" valueType="string"/>
-							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.869206119" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+							<option id="gnu.cpp.compiler.option.other.other.1137293078" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-write-strings -isystem /usr/include/eigen3" valueType="string"/>
+							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.869206119" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 								<listOptionValue builtIn="false" value="/usr/include/eigen3"/>
 							</option>
 							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.830590573" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -167,8 +166,8 @@
 								<option id="gnu.cpp.compiler.option.other.other.404681368" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="`wx-config --cxxflags --unicode=yes --static=no --toolkit=gtk3` -c -fmessage-length=0 -Wno-write-strings" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1536037286" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
-									<listOptionValue builtIn="false" value="USE_6DOFCONTROLLER"/>
-									<listOptionValue builtIn="false" value="USE_PORTMIDI"/>
+									<listOptionValue builtIn="false" value="NO_USE_6DOFCONTROLLER"/>
+									<listOptionValue builtIn="false" value="NO_USE_PORTMIDI"/>
 									<listOptionValue builtIn="false" value="USE_EIGEN"/>
 									<listOptionValue builtIn="false" value="USE_GLAD"/>
 									<listOptionValue builtIn="false" value="USE_LIBZIP"/>
@@ -186,6 +185,14 @@
 							<tool commandLinePattern="${COMMAND} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${FLAGS}" id="cdt.managedbuild.tool.gnu.c.linker.exe.release.2114762727" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
 							<tool commandLinePattern="${COMMAND} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.598757648" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
 								<option id="gnu.cpp.link.option.flags.1190654629" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="`wx-config --unicode=yes --static=no --toolkit=gtk3 --libs base,core,xml,gl,stc,adv,html,propgrid,aui`" valueType="string"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.448988604" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="GL"/>
+									<listOptionValue builtIn="false" value="zip"/>
+									<listOptionValue builtIn="false" value="jpeg"/>
+									<listOptionValue builtIn="false" value="png"/>
+									<listOptionValue builtIn="false" value="GLEW"/>
+									<listOptionValue builtIn="false" value="GLU"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.151698479" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -213,8 +220,8 @@
 					</fileInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.874828542.786268211" name="Design.cpp" rcbsApplicability="disable" resourcePath="src/project/object/Design.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1836645359.1256570477">
 						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1836645359.1256570477" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1836645359">
-							<option id="gnu.cpp.compiler.option.other.other.1881964635" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-write-strings -isystem /usr/include/eigen3" valueType="string"/>
-							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.310395337" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+							<option id="gnu.cpp.compiler.option.other.other.1881964635" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-write-strings -isystem /usr/include/eigen3" valueType="string"/>
+							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.310395337" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 								<listOptionValue builtIn="false" value="/usr/include/eigen3"/>
 							</option>
 							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.55241960" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -259,9 +266,7 @@
 		<configuration configurationName="Multiple configurations">
 			<resource resourceType="PROJECT" workspacePath="/openshoedesigner"/>
 		</configuration>
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/LastGenerator"/>
-		</configuration>
+		<configuration configurationName="Debug"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/LastGenerator"/>
 		</configuration>

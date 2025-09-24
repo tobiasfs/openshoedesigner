@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : MathParser.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -809,8 +809,8 @@ void MathParser::VM::StepOpCode() {
 		break;
 	}
 	}
-	++instructionpointer;
-	++stepCount;
+	instructionpointer++;
+	stepCount++;
 }
 
 bool MathParser::VM::ConvertToExternal(size_t idxInternal, size_t idxExternal) {
@@ -1044,7 +1044,7 @@ void MathParser::ParseIterationStatement() {
 
 		if (lexer.token != Lexer::TokenType::RightParen) {
 			const size_t stackcountiterator = ParseExpression();
-			for (size_t n = 0; n < stackcountiterator; ++n)
+			for (size_t n = 0; n < stackcountiterator; n++)
 				AddInstruction(MathParser::VM::OpCode::POP);
 		}
 		AddInstruction(MathParser::VM::OpCode::JMPR, Value(0.0),
@@ -1128,7 +1128,7 @@ void MathParser::ParseIterationStatement() {
 		ErrorAt("IterationStatement", "This type of loop is not implemented.");
 	}
 
-	for (size_t n = idx_loop_body; n < idx_loop_end; ++n) {
+	for (size_t n = idx_loop_body; n < idx_loop_end; n++) {
 		if (vm.instructions[n].opcode == MathParser::VM::OpCode::NOP
 				&& vm.instructions[n].idx == 0) {
 			vm.instructions[n].opcode = MathParser::VM::OpCode::JMP;
@@ -1171,7 +1171,7 @@ size_t MathParser::ParseExpressionStatement() {
 		const size_t stackcount = ParseExpression();
 		if (lexer.token != Lexer::TokenType::Semi)
 			ErrorAt("ExpressionStatement", "Missing ';' to close statement.");
-		for (size_t n = 0; n < stackcount; ++n)
+		for (size_t n = 0; n < stackcount; n++)
 			AddInstruction(MathParser::VM::OpCode::POP);
 		if (!vm.instructions.empty())
 			vm.instructions.back().expression = true;
@@ -1628,7 +1628,7 @@ size_t MathParser::ParseArgumentExpressionList() {
 		if (s != 1)
 			ErrorAt("ExpressionList",
 					"The argument should reduce to/be one value.");
-		++stackcount;
+		stackcount++;
 		if (lexer.token != Lexer::TokenType::Comma
 				&& lexer.token != Lexer::TokenType::RightParen)
 			ErrorAt("ExpressionList",
@@ -1748,12 +1748,12 @@ size_t MathParser::ParseFunction() {
 		AddInstruction(MathParser::VM::OpCode::F_LOG2);
 		break;
 	case Lexer::TokenType::Func_max: {
-		for (size_t n = 1; n < stackcount; ++n)
+		for (size_t n = 1; n < stackcount; n++)
 			AddInstruction(MathParser::VM::OpCode::F_MAX);
 	}
 		break;
 	case Lexer::TokenType::Func_min: {
-		for (size_t n = 1; n < stackcount; ++n)
+		for (size_t n = 1; n < stackcount; n++)
 			AddInstruction(MathParser::VM::OpCode::F_MIN);
 	}
 		break;
@@ -2074,7 +2074,7 @@ void MathParser::Lexer::NextToken() {
 		}
 		state = nextstate;
 
-		++pos;
+		pos++;
 		if (c == '\t') {
 			col += 4 - (col % 4); // Tabs have a width of 4 chars
 		} else {
@@ -2183,8 +2183,8 @@ std::array<size_t, MathParser::Lexer::stateCount * MathParser::Lexer::charWidth>
 	std::array<size_t,
 			MathParser::Lexer::stateCount * MathParser::Lexer::charWidth> table { };
 
-	for (size_t state = 0; state < MathParser::Lexer::stateCount; ++state) {
-		for (uint16_t c = 0; c < MathParser::Lexer::charWidth; ++c) {
+	for (size_t state = 0; state < MathParser::Lexer::stateCount; state++) {
+		for (uint16_t c = 0; c < MathParser::Lexer::charWidth; c++) {
 			size_t value = 0;
 			if (state == 0) {
 				if (c == 10)
@@ -2905,7 +2905,7 @@ std::array<size_t, MathParser::Lexer::stateCount * MathParser::Lexer::charWidth>
 
 std::array<MathParser::Lexer::TokenType, MathParser::Lexer::stateCount> MathParser::Lexer::InitTokenTypeTable() {
 	std::array<MathParser::Lexer::TokenType, MathParser::Lexer::stateCount> table { };
-	for (size_t state = 0; state < MathParser::Lexer::stateCount; ++state) {
+	for (size_t state = 0; state < MathParser::Lexer::stateCount; state++) {
 		MathParser::Lexer::TokenType value =
 				MathParser::Lexer::TokenType::Unknown;
 
@@ -3087,8 +3087,8 @@ std::array<MathParser::Lexer::ActionType,
 		MathParser::Lexer::stateCount * MathParser::Lexer::charWidth> MathParser::Lexer::InitActionTable() {
 	std::array<MathParser::Lexer::ActionType,
 			MathParser::Lexer::stateCount * MathParser::Lexer::charWidth> table { };
-	for (size_t state = 0; state < MathParser::Lexer::stateCount; ++state) {
-		for (uint16_t c = 0; c < MathParser::Lexer::charWidth; ++c) {
+	for (size_t state = 0; state < MathParser::Lexer::stateCount; state++) {
+		for (uint16_t c = 0; c < MathParser::Lexer::charWidth; c++) {
 
 			MathParser::Lexer::ActionType value =
 					MathParser::Lexer::ActionType::NoAction;

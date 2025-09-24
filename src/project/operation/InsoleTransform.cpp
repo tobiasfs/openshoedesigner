@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : InsoleTransform.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -143,7 +143,7 @@ void InsoleTransform::Shape() {
 	double optg1 = -1;
 	double optd0 = 0;
 	double optd1 = -1;
-	for (size_t n = 0; n < NSample; ++n) {
+	for (size_t n = 0; n < NSample; n++) {
 		const double gamma0 = gammasample(n);
 		const double gamma1 = alpha0 + alpha1 + gamma0;
 		double d0 = 0.0;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameDebugParser.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -64,7 +64,7 @@ void FrameDebugParser::OnText(wxCommandEvent &event) {
 		m_textCtrlUnit->SetValue(unit.ToString());
 
 		std::ostringstream sib;
-		for (uint8_t n = 0; n < Unit::Size(); ++n) {
+		for (uint8_t n = 0; n < Unit::Size(); n++) {
 			Unit::Base b = (Unit::Base) n;
 			if (unit[b] != 0)
 				sib << unit.GetName(b) << "^" << unit[b] << " ";

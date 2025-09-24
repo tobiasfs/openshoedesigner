@@ -327,7 +327,7 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 		out->outline.Clear();
 		Polynomial rs = Polynomial::ByValue(0.0, 0.0, (double) N, 2 * M_PI);
 		size_t m = 0;
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			const double r = rs(n);
 			while ((m + 1) < out->lines.size() && out->lines[m].r1 < r)
 				++m;
@@ -346,7 +346,7 @@ void InsoleConstruct::FinishConstruction(const size_t N) {
 //
 //	const Polynomial px = Polynomial::ByValue(-0.2, out->A.x,
 //			(double) N - 1 + 0.2, out->B.x);
-//	for (size_t n = 0; n < N; ++n) {
+//	for (size_t n = 0; n < N; n++) {
 //		const double x = px(n);
 //		double y0 = DBL_MAX;
 //		double y1 = -DBL_MAX;

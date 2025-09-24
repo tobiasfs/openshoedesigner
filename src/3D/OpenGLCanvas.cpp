@@ -28,20 +28,17 @@
 
 #include "../StdInclude.h"
 
-#include <cfloat>
 #ifdef USE_6DOFCONTROLLER
 #include "../system/controller/Control3D.h"
 #endif
 
 #include <wx/dcclient.h>
-
+#include <cfloat>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
 #include "OpenGL.h"
-
-#include "GL/glu.h"
 
 #ifdef _MSC_VER
 #define _USE_MATH_DEFINES
@@ -287,11 +284,9 @@ void OpenGLCanvas::OnMouseEvent(wxMouseEvent &event) {
 }
 
 void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
-
-	wxPaintDC(this); // Set the clipping for this area
-
 	if (!IsShown())
 		return;
+	wxPaintDC(this); // Set the clipping for this area
 
 	//#ifndef __WXMOTIF__
 	//	if(!GetContext()) return;
@@ -728,3 +723,4 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 void OpenGLCanvas::RenderPick() {
 	this->Render();
 }
+

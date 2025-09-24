@@ -39,14 +39,14 @@ ObjectGeometry::ObjectGeometry(const Geometry &&other) :
 
 void ObjectGeometry::UpdateBoundingBox() {
 	BB.Empty();
-	for (size_t i = 0; i < CountVertices(); ++i)
+	for (size_t i = 0; i < CountVertices(); i++)
 		BB.Insert(v[i]);
 }
 
 void ObjectGeometry::SelectFacesCloseTo(const Vector3 &vect) {
 
 	std::map<size_t, double> groupdir;
-	for (size_t n = 0; n < CountTriangles(); ++n) {
+	for (size_t n = 0; n < CountTriangles(); n++) {
 		const Geometry::Triangle &tri = GetTriangle(n);
 		auto xi = groupdir.find(tri.group);
 		if (xi == groupdir.end()) {

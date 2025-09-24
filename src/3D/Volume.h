@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Volume.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -103,9 +103,9 @@ public:
 	/*! \brief Point on the surface
 	 *
 	 *
-	 * @param p0
-	 * @param n
-	 * @return
+	 * \param p0
+	 * \param n
+	 * \return
 	 */
 	Vector3 GetSurface(const Vector3 &p0, const Vector3 &n) const;
 

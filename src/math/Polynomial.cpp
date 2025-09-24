@@ -272,18 +272,18 @@ Polynomial Polynomial::ByIntegrals(const std::vector<double> &integrals,
 	}
 	std::vector<size_t> f(N, 0);
 	f[0] = 1;
-	for (size_t n = 1; n < (N - 1); ++n)
+	for (size_t n = 1; n < (N - 1); n++)
 		f[0] *= (N - n);
 	Polynomial ret(N);
 	for (size_t n = N; n-- > 0;) {
 		double k = integrals[n];
-		for (size_t m = 0; m < (N - n - 1); ++m) {
+		for (size_t m = 0; m < (N - n - 1); m++) {
 			k -= ret[m] * ab[m + n] * (double) f[m] / (double) (N - n - m);
 		}
 		ret[n] = k / ab[N - 1] / (double) (f[N - n - 1]);
 		if (n > 0) {
 			f[N - n] = f[N - n - 1] / n;
-			for (size_t m = 0; m < (N - n); ++m) {
+			for (size_t m = 0; m < (N - n); m++) {
 				f[m] /= (N - n - m);
 			}
 		}
@@ -312,7 +312,7 @@ Polynomial Polynomial::ByVectorDerivates(const std::vector<double> &r,
 	std::vector<double> integral(N, 0.0);
 	std::vector<double> p(M, 0.0);
 	std::vector<double> d(M, 0.0);
-	for (size_t m = 0; m < M; ++m) {
+	for (size_t m = 0; m < M; m++) {
 		p[m] = r[m + idxStart];
 		d[m] = v[m + idxStart];
 	}
@@ -321,12 +321,12 @@ Polynomial Polynomial::ByVectorDerivates(const std::vector<double> &r,
 	const double b = r[idxEnd];
 
 	double sum = 0.0;
-	for (size_t m = 1; m < M; ++m)
+	for (size_t m = 1; m < M; m++)
 		sum += (d[m] + d[m - 1]) / 2.0 * (p[m] - p[m - 1]);
 	integral[0] = sum;
 
-	for (size_t n = 1; n < N; ++n) {
-		for (size_t m = 0; m < (M - n); ++m) {
+	for (size_t n = 1; n < N; n++) {
+		for (size_t m = 0; m < (M - n); m++) {
 			const double dp = (p[m + 1] - p[m]);
 			const double dd = (d[m + 1] - d[m]);
 			if (fabs(dp) < DBL_EPSILON) {
@@ -337,7 +337,7 @@ Polynomial Polynomial::ByVectorDerivates(const std::vector<double> &r,
 			p[m] += dp / 2.0;
 		}
 		double sum1 = 0.0;
-		for (size_t m = 1; m < (M - n); ++m)
+		for (size_t m = 1; m < (M - n); m++)
 			sum1 += (d[m] + d[m - 1]) / 2.0 * (p[m] - p[m - 1]);
 		integral[n] = sum1;
 	}
@@ -368,16 +368,16 @@ Polynomial Polynomial::ByVector(const std::vector<double> &r,
 
 	// Calculate Vandermonde matrix
 	std::vector<double> Vandermonde(N * M, 1.0);
-	for (size_t n = 1; n < N; ++n)
-		for (size_t m = 0; m < M; ++m)
+	for (size_t n = 1; n < N; n++)
+		for (size_t m = 0; m < M; m++)
 			Vandermonde[n * M + m] = Vandermonde[(n - 1) * M + m]
 					* r[m + idxStart];
 
 	// Prepare the pseudoinverse
 	std::vector<double> H(N * N, 0.0); // Matrix that needs to be inverted
-	for (size_t n1 = 0; n1 < N; ++n1)
-		for (size_t n2 = 0; n2 < N; ++n2)
-			for (size_t m = 0; m < M; ++m)
+	for (size_t n1 = 0; n1 < N; n1++)
+		for (size_t n2 = 0; n2 < N; n2++)
+			for (size_t m = 0; m < M; m++)
 				H[n1 * N + n2] += Vandermonde[n1 * M + m]
 						* Vandermonde[n2 * M + m];
 
@@ -390,32 +390,32 @@ Polynomial Polynomial::ByVector(const std::vector<double> &r,
 		// Simple basic Gauss-Jordan inversion
 
 		// Set Inv to identity matrix
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			Inv[n * N + n] = 1.0;
 
-		for (size_t n0 = 0; n0 < N; ++n0) {
+		for (size_t n0 = 0; n0 < N; n0++) {
 			// Find max element in column
 			size_t nMax = n0;
-			for (size_t n1 = n0; n1 < N; ++n1)
+			for (size_t n1 = n0; n1 < N; n1++)
 				if (fabs(H[n0 * N + n1]) > fabs(H[n0 * N + nMax]))
 					nMax = n1;
 			// Swap rows if the max element is not on the diagonal
 			if (nMax != n0) {
-				for (size_t n1 = 0; n1 < N; ++n1) {
+				for (size_t n1 = 0; n1 < N; n1++) {
 					const double temp2 = H[n1 * N + n0];
 					H[n1 * N + n0] = H[n1 * N + nMax];
 					H[n1 * N + nMax] = temp2;
 				}
-				for (size_t n1 = 0; n1 < N; ++n1) {
+				for (size_t n1 = 0; n1 < N; n1++) {
 					const double temp2 = Inv[n1 * N + n0];
 					Inv[n1 * N + n0] = Inv[n1 * N + nMax];
 					Inv[n1 * N + nMax] = temp2;
 				}
 			}
 			// Eliminate bottom/left
-			for (size_t n1 = n0 + 1; n1 < N; ++n1) {
+			for (size_t n1 = n0 + 1; n1 < N; n1++) {
 				const double R = H[n0 * N + n1] / H[n0 * N + n0];
-				for (size_t n2 = 0; n2 < N; ++n2) {
+				for (size_t n2 = 0; n2 < N; n2++) {
 					H[n2 * N + n1] -= R * H[n2 * N + n0];
 					Inv[n2 * N + n1] -= R * Inv[n2 * N + n0];
 				}
@@ -425,28 +425,28 @@ Polynomial Polynomial::ByVector(const std::vector<double> &r,
 		for (size_t n0 = N; n0-- > 1;) {
 			for (size_t n1 = n0; n1-- > 0;) {
 				const double R = H[n0 * N + n1] / H[n0 * N + n0];
-				for (size_t n2 = 0; n2 < N; ++n2) {
+				for (size_t n2 = 0; n2 < N; n2++) {
 					H[n2 * N + n1] -= R * H[n2 * N + n0];
 					Inv[n2 * N + n1] -= R * Inv[n2 * N + n0];
 				}
 			}
 		}
 		// Normalize the elements on the diagonal
-		for (size_t n0 = 0; n0 < N; ++n0) {
+		for (size_t n0 = 0; n0 < N; n0++) {
 			const double divider = H[n0 * N + n0];
-			for (size_t n1 = 0; n1 < N; ++n1)
+			for (size_t n1 = 0; n1 < N; n1++)
 				H[n1 * N + n0] /= divider;
-			for (size_t n1 = 0; n1 < N; ++n1)
+			for (size_t n1 = 0; n1 < N; n1++)
 				Inv[n1 * N + n0] /= divider;
 		}
 	}
 
 	// Calculate coefficients
 	Polynomial temp(N);
-	for (size_t n1 = 0; n1 < N; ++n1) {
+	for (size_t n1 = 0; n1 < N; n1++) {
 		double s = 0.0;
-		for (size_t m = 0; m < M; ++m)
-			for (size_t n2 = 0; n2 < N; ++n2)
+		for (size_t m = 0; m < M; m++)
+			for (size_t n2 = 0; n2 < N; n2++)
 				s += Inv[n1 * N + n2] * Vandermonde[n2 * M + m]
 						* values[m + idxStart];
 		temp[n1] = s;
@@ -464,19 +464,19 @@ Polynomial Polynomial::Bernstein(const size_t N, const size_t index) {
 	// Calculate Pascals triangle up to N.
 	std::vector<size_t> P(N, 0);
 	P[0] = 1;
-	for (size_t n = 0; n < N; ++n) {
-		for (size_t k = n; k > 0; --k)
+	for (size_t n = 0; n < N; n++) {
+		for (size_t k = n; k > 0; k--)
 			P[k] = P[k] + P[k - 1];
 		if (n == (N - index - 1)) {
 			double sign = 1.0;
-			for (size_t k = 0; k < (N - index); ++k) {
+			for (size_t k = 0; k < (N - index); k++) {
 				//ret[N - k - 1] = sign * (double) P[k];
 				ret[index + k] = sign * (double) P[k];
 				sign = -sign;
 			}
 		}
 	}
-	for (size_t k = index; k < N; ++k)
+	for (size_t k = index; k < N; k++)
 		ret[k] *= (double) P[index];
 	return ret;
 }
@@ -490,18 +490,86 @@ Polynomial Polynomial::Lagrange(const size_t N, const size_t index) {
 	Polynomial ret(N);
 	double den = 1.0;
 	ret[0] = 1.0;
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		if (n == index)
 			continue;
 		const double v = (double) n / (double) (N - 1);
-		for (size_t m = N - 1; m > 0; --m)
+		for (size_t m = N - 1; m > 0; m--)
 			ret[m] = ret[m - 1] - ret[m] * v;
 		ret[0] = -ret[0] * v;
 		den *= ((double) index - (double) n) / (double) (N - 1);
 	}
-	for (size_t k = 0; k < N; ++k)
+	for (size_t k = 0; k < N; k++)
 		ret[k] /= den;
 	return ret;
+}
+
+Polynomial Polynomial::Hermite(const size_t N) {
+	if (N == 0)
+		return Polynomial(0);
+	if (N == 1)
+		return Polynomial( { 1.0 });
+	if (N == 2)
+		return Polynomial( { 0.0, 2.0 });
+	Polynomial ret1(N);
+	Polynomial ret2(N);
+	ret2[0] = 1.0;
+	ret1[1] = 2.0;
+	for (size_t n = 2; n < N; n++) {
+		for (size_t m = N - 1; m > 0; m--) {
+			ret1[m] = 2.0 * ret1[m - 1];
+			ret1[m] -= 2.0 * (double) (n - 1) * ret2[m];
+		}
+		ret1[0] -= 2.0 * (double) (n - 1) * ret2[0];
+		ret2 = ret1;
+	}
+	return ret1;
+}
+
+Polynomial Polynomial::Legendre(const size_t N) {
+	if (N == 0)
+		return Polynomial(0);
+	if (N == 1)
+		return Polynomial( { 1.0 });
+	if (N == 2)
+		return Polynomial( { 0.0, 1.0 });
+	Polynomial ret1(N);
+	Polynomial ret2(N);
+	ret2[0] = 1.0;
+	ret1[1] = 1.0;
+	for (size_t n = 2; n < N; n++) {
+		for (size_t m = N - 1; m > 0; m--) {
+			ret1[m] = (double) (2 * n - 1) / (double) n * ret1[m - 1];
+			ret1[m] -= (double) (n - 1) / (double) n * ret2[m];
+		}
+		ret1[0] -= (double) (2 * n - 1) / (double) n * ret2[0];
+		ret2 = ret1;
+	}
+	return ret1;
+}
+
+Polynomial Polynomial::Laguerre(const size_t N) {
+	if (N == 0)
+		return Polynomial(0);
+	if (N == 1)
+		return Polynomial( { 1.0 });
+	if (N == 2)
+		return Polynomial( { 1.0, -1.0 });
+	Polynomial ret1(N);
+	Polynomial ret2(N);
+	ret2[0] = 1.0;
+	ret1[0] = 1.0;
+	ret1[1] = -1.0;
+	for (size_t n = 2; n < N; n++) {
+		for (size_t m = N - 1; m > 0; m--) {
+			ret1[m] += ((double) (2 * n) * ret1[m] - ret1[m - 1])
+					/ (double) (n + 1);
+			ret1[m] -= (double) (n) / (double) (n + 1) * ret2[m];
+		}
+		ret1[0] -= (double) (n) / (double) (n + 1) * ret2[0];
+		ret2 = ret1;
+	}
+	return ret1;
 }
 
 Polynomial::Polynomial(size_t N) {
@@ -514,7 +582,7 @@ Polynomial::Polynomial(const std::initializer_list<double> coefficients) {
 	size_t n = 0;
 	for (const double coeff : coefficients) {
 		operator[](n) = coeff;
-		++n;
+		n++;
 	}
 }
 
@@ -544,7 +612,7 @@ Polynomial Polynomial::Reduce(size_t N, double a, double b) const {
 	}
 	h = *this;
 	integral[1] = h(b) - h(a);
-	for (size_t n = 2; n < (N); ++n) {
+	for (size_t n = 2; n < (N); n++) {
 		h.Derive();
 		integral[n] = h(b) - h(a);
 	}
@@ -558,18 +626,18 @@ Polynomial Polynomial::Reduce(size_t N, double a, double b) const {
 	}
 	std::vector<size_t> f(N, 0);
 	f[0] = 1;
-	for (size_t n = 1; n < (N - 1); ++n)
+	for (size_t n = 1; n < (N - 1); n++)
 		f[0] *= (N - n);
 	for (size_t n = N; n-- > 0;) {
 		double k = integral[n];
-		for (size_t m = 0; m < (N - n - 1); ++m) {
+		for (size_t m = 0; m < (N - n - 1); m++) {
 			k -= d[N - m - 1] * ab[m + n] * (double) f[m]
 					/ (double) (N - n - m);
 		}
 		d[n] = k / ab[N - 1] / (double) f[N - n - 1];
 		if (n > 0) {
 			f[N - n] = f[N - n - 1] / n;
-			for (size_t m = 0; m < (N - n); ++m) {
+			for (size_t m = 0; m < (N - n); m++) {
 				f[m] /= (N - n - m);
 			}
 		}
@@ -583,13 +651,95 @@ double Polynomial::operator()(double r) const {
 		return 0.0;
 	// Horner-scheme to evaluate the polynomial
 	double temp = back();
-	for (auto it = rbegin() + 1; it != rend(); it++) {
-		double h = *it;
-		temp = temp * r + h;
-	}
+	for (auto it = rbegin() + 1; it != rend(); it++)
+		temp = std::fma(temp, r, *it);
 	return temp;
 }
 
+double Polynomial::InvEval(double y, double xStart) const {
+	if (size() <= 1)
+		return 0.0;
+	if (size() == 2) {
+		if (fabs(operator[](1)) <= FLT_EPSILON)
+			return 0.0;
+		return (y - operator[](0)) / operator[](1);
+	}
+	double x = xStart;
+	double dx = std::fmin(std::fmax(std::fmin(1.0 - xStart, xStart), 0.001),
+			1.0);
+
+	size_t Nmax = size() * 2;
+	// Newton-Raphson
+
+	size_t iterations = 0;
+	while (iterations < Nmax) {
+		iterations++;
+		const double y0 = operator()(x - dx) - y;
+		const double y1 = operator()(x) - y;
+		const double y2 = operator()(x + dx) - y;
+
+		double xUpdate = x;
+		double yUpdate = y1;
+		if (fabs(y0) < fabs(yUpdate)) {
+			xUpdate = x - dx;
+			yUpdate = y0;
+		}
+		if (fabs(y2) < fabs(yUpdate)) {
+			xUpdate = x + dx;
+			yUpdate = y2;
+		}
+		const double W2 = y2 * (y2 - 8 * y1) + y1 * (16 * y1 - 8 * y0)
+				+ y0 * (y0 - 2 * y2);
+		const double D = 2 * y2 - 4 * y1 + 2 * y0;
+		if (W2 >= 0.0 && fabs(D) > FLT_EPSILON) {
+			const double W = sqrt(W2);
+			double x3 = x + dx * (y0 - y2 - W);
+			double x4 = x + dx * (y0 - y2 + W);
+			const double y3 = operator()(x3) - y;
+			const double y4 = operator()(x4) - y;
+			if (fabs(y3) < fabs(yUpdate)) {
+				xUpdate = x3;
+				yUpdate = y3;
+			}
+			if (fabs(y4) < fabs(yUpdate)) {
+				xUpdate = x4;
+				yUpdate = y4;
+			}
+		}
+		const double D1 = y1 - y0;
+		if (fabs(D1) > FLT_EPSILON) {
+			const double x3 = x - dx * y1 / D1;
+			const double y3 = operator()(x3) - y;
+			if (fabs(y3) < fabs(yUpdate)) {
+				xUpdate = x3;
+				yUpdate = y3;
+			}
+		}
+		const double D2 = y2 - y1;
+		if (fabs(D2) > FLT_EPSILON) {
+			const double x3 = x - dx * y1 / D2;
+			const double y3 = operator()(x3) - y;
+			if (fabs(y3) < fabs(yUpdate)) {
+				xUpdate = x3;
+				yUpdate = y3;
+			}
+		}
+		const double D3 = y2 - y0;
+		if (fabs(D3) > FLT_EPSILON) {
+			const double x3 = x - dx * (y2 + y0) / D3;
+			const double y3 = operator()(x3) - y;
+			if (fabs(y3) < fabs(yUpdate)) {
+				xUpdate = x3;
+				yUpdate = y3;
+			}
+		}
+		x = xUpdate;
+		if (fabs(yUpdate) < FLT_EPSILON)
+			break;
+		dx /= 2.0;
+	}
+	return x;
+}
 std::vector<double> Polynomial::GetBezier() const {
 	std::vector<double> temp(size(), 0);
 	if (size() == 0)
@@ -629,7 +779,7 @@ Polynomial& Polynomial::operator +=(const Polynomial &b) {
 	size_t B = b.size();
 	if (B > size())
 		resize(B, 0.0);
-	for (size_t n = 0; n < B; ++n)
+	for (size_t n = 0; n < B; n++)
 		operator[](n) += b[n];
 	return *this;
 }
@@ -643,7 +793,7 @@ Polynomial& Polynomial::operator -=(const Polynomial &b) {
 	size_t B = b.size();
 	if (B > size())
 		resize(B, 0.0);
-	for (size_t n = 0; n < B; ++n)
+	for (size_t n = 0; n < B; n++)
 		operator[](n) -= b[n];
 	return *this;
 }
@@ -659,8 +809,8 @@ Polynomial& Polynomial::operator *=(const Polynomial &b) {
 	const size_t N = cold.size();
 	const size_t M = b.size();
 	assign(N + M - 1, 0.0);
-	for (size_t n = 0; n < N; ++n)
-		for (size_t m = 0; m < M; ++m)
+	for (size_t n = 0; n < N; n++)
+		for (size_t m = 0; m < M; m++)
 			operator[](n + m) += cold[n] * b[m];
 	return *this;
 }
@@ -710,8 +860,8 @@ void Polynomial::ShiftX(double val) {
 	std::vector<double> pascal(N, 1.0); // Stores a diagonal in Pascals triangle
 	double valpower = val;
 	double sign = -1.0;
-	for (size_t nv = (N - 1); nv > 0; --nv) {
-		for (size_t n = N - 1; n > (N - nv - 1); --n) {
+	for (size_t nv = (N - 1); nv > 0; nv--) {
+		for (size_t n = N - 1; n > (N - nv - 1); n--) {
 			pascal[N - n] += pascal[N - n - 1];
 			operator[](N - n - 1) += sign * pascal[N - n - 1]
 					* cold[N - (n - (N - nv)) - 1] * valpower;
@@ -773,7 +923,7 @@ Polynomial Polynomial::Inverse(double a, double b, size_t N) const {
 	if (size() == 2) {
 		if (fabs(back()) < DBL_EPSILON)
 			throw(std::domain_error(
-					__FILE__" Invert - This function cannot invert constants (first coefficient is 0)."));
+					__FILE__" Invert - This function cannot invert constants (slope is 0)."));
 		ret.resize(2);
 		ret[1] = 1.0 / operator[](1);
 		ret[0] = -ret[1] * operator[](0);
@@ -786,19 +936,19 @@ Polynomial Polynomial::Inverse(double a, double b, size_t N) const {
 		// Fill x with N Chebyshev nodes.
 		const double c = (b + a) / 2.0;
 		const double r = (b - a) / 2.0;
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			x[n] = c - r * cos(M_PI * (double) n / (double) (N - 1));
-		for (size_t n = 0; n < N; ++n)
+		for (size_t n = 0; n < N; n++)
 			y[n] = operator ()(x[n]);
 		if (y[0] < y[1]) {
 			// Increasing values
-			for (size_t n = 0; n < (N - 1); ++n)
+			for (size_t n = 0; n < (N - 1); n++)
 				if (y[n] >= y[n + 1])
 					throw(std::range_error(
 							__FILE__" Invert - The function has to be uniform in the selected range. (It has sections where it is falling after rising.)"));
 		} else {
 			// Decreasing values
-			for (size_t n = 0; n < (N - 1); ++n)
+			for (size_t n = 0; n < (N - 1); n++)
 				if (y[n] <= y[n + 1])
 					throw(std::range_error(
 							__FILE__" Invert - The function has to be uniform in the selected range. (It has sections where it is rising after falling.)"));
@@ -906,7 +1056,7 @@ double Polynomial::FindZero(const double xStart, const size_t maxSteps) const {
 	const Polynomial pd1 = this->Derivative();
 	const Polynomial pd2 = pd1.Derivative();
 	double x = xStart;
-	for (size_t n = 0; n < maxSteps; ++n) {
+	for (size_t n = 0; n < maxSteps; n++) {
 		const double d0 = this->operator ()(x);
 		if (fabs(d0) < DBL_EPSILON)
 			break;

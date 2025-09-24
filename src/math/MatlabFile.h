@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : MatlabFile.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -64,8 +64,8 @@ public:
 
 	/*! \brief Read a MatlabMatrix from the file
 	 *
-	 * @param M Pointer to a MatlabMatrix
-	 * @param matrixname Search for this matrix in the file.
+	 * \param M Pointer to a MatlabMatrix
+	 * \param matrixname Search for this matrix in the file.
 	 */
 	void ReadMatrix(Matrix *M, const std::string &matrixname = "");
 
@@ -74,7 +74,7 @@ public:
 	 * If the file is open, append the matrix, otherwise open the file and
 	 * overwrite the data with this matrix.
 	 *
-	 * @param M Pointer to a MatlabMatrix
+	 * \param M Pointer to a MatlabMatrix
 	 */
 	void WriteMatrix(const Matrix &M);
 

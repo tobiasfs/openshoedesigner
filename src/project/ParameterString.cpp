@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : ParameterString.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -61,6 +61,6 @@ ParameterString::ParameterString(const std::string &name_,
 }
 
 std::ostream& operator<<(std::ostream &out, const ParameterString &param) {
-	out << param;
+	out << param.text;
 	return out;
 }

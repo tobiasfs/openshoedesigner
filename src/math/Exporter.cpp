@@ -62,7 +62,7 @@ void Exporter::Add(const Geometry &geo, const std::string &name) {
 	Matrix Mnz(nameNZ, geo.CountVertices(), 1);
 	Matrix Mu(nameU, geo.CountVertices(), 1);
 	Matrix Mv(nameV, geo.CountVertices(), 1);
-	for (size_t n = 0; n < geo.CountVertices(); ++n) {
+	for (size_t n = 0; n < geo.CountVertices(); n++) {
 		Mx[n] = geo[n].x;
 		My[n] = geo[n].y;
 		Mz[n] = geo[n].z;
@@ -107,7 +107,7 @@ void Exporter::Add(const Polygon3 &polygon, const std::string &name) {
 	Matrix Mnz(nameNZ, polygon.CountVertices(), 1);
 	Matrix Mu(nameU, polygon.CountVertices(), 1);
 	Matrix Mv(nameV, polygon.CountVertices(), 1);
-	for (size_t n = 0; n < polygon.Size(); ++n) {
+	for (size_t n = 0; n < polygon.Size(); n++) {
 		Mx[n] = polygon[n].x;
 		My[n] = polygon[n].y;
 		Mz[n] = polygon[n].z;

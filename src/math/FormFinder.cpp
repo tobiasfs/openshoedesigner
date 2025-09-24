@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FormFinder.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -44,7 +44,7 @@ void FormFinder::AddPolygon(const Polygon3 &poly, size_t Nsections) {
 	 b.resize(N);
 	 c.resize(N);
 	 d.resize(N);
-	 for (size_t n = 0; n < N; ++n) {
+	 for (size_t n = 0; n < N; n++) {
 	 a[n].x = pf.Filter(x, n);
 	 a[n].y = pf.Filter(y, n);
 	 a[n].z = pf.Filter(z, n);

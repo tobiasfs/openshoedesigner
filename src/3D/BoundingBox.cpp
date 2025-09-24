@@ -379,18 +379,18 @@ void BoundingBox::PaintVertices(unsigned int extrapoints,
 	unsigned int c = 0;
 	glPushName(c);
 	double z = zmin;
-	for (unsigned int k = 0; k <= N; ++k) {
+	for (unsigned int k = 0; k <= N; k++) {
 		double y = ymin;
-		for (unsigned int j = 0; j <= N; ++j) {
+		for (unsigned int j = 0; j <= N; j++) {
 			double x = xmin;
-			for (unsigned int i = 0; i <= N; ++i) {
+			for (unsigned int i = 0; i <= N; i++) {
 				if (i == 0 || j == 0 || k == 0 || i == N || j == N || k == N) {
 					glLoadName(c);
 					glBegin(GL_POINTS);
 					glVertex3d(x, y, z);
 					glEnd();
 				}
-				++c;
+				c++;
 				x += dx;
 			}
 			y += dy;

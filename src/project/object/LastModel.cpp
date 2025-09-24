@@ -252,7 +252,7 @@ void LastModel::Paint() const {
 	//
 	//	glEnd();
 
-	//	for(size_t n = 0; n < center.N; ++n){
+	//	for(size_t n = 0; n < center.N; n++){
 	//		glVertex3d(center.x[n], 0, center.y[n]);
 	//	}
 	//	glEnd();
@@ -305,10 +305,10 @@ void LastModel::UpdateForm(const Insole &insole,
 	throw std::runtime_error(
 			__FILE__ " - inside and outside not part of insole anymore. Modify algorithm!");
 
-	for (size_t n = 0; n < insoleCenter.Size(); ++n)
+	for (size_t n = 0; n < insoleCenter.Size(); n++)
 		insoleCenter[n].y = 0.0;
 	Polygon3 lastCenter;
-	for (size_t n = idxHeelPoint; n <= idxToePoint; ++n)
+	for (size_t n = idxHeelPoint; n <= idxToePoint; n++)
 		lastCenter.AddVertex(lastPlane[n]);
 
 	Polynomial centerHeight;
@@ -405,7 +405,7 @@ void LastModel::UpdateForm(const Insole &insole,
 		Polynomial pDistance = Polynomial::ByValue(-1, 0, N + 1,
 				insoleCenter.GetLength());
 //		DEBUGOUT<< centerHeight << "\n";
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			const double L0 = pDistance(n);
 			const double L1 = pDistance(n + 1);
 			auto I0 = insoleCenter.At(L0);
@@ -456,7 +456,7 @@ void LastModel::UpdateForm(const Insole &insole,
 		Polynomial dDistance = pDistance.Derivative();
 		const double width = measurements.footLength->ToDouble() / N;
 		auto func = Kernel::Scale(Kernel::Cauchy, width);
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			const double L0 = pDistance(n);
 			auto I0 = insoleCenter.At(L0);
 			auto A0 = lastCenter.At(L0);
@@ -507,10 +507,10 @@ void LastModel::UpdateForm(const Insole &insole,
 		auto func = Kernel::Scale(Kernel::Gaussian, width);
 
 		Polygon3 sideCenter = lastLeft;
-		for (size_t n = 0; n < sideCenter.Size(); ++n)
+		for (size_t n = 0; n < sideCenter.Size(); n++)
 			sideCenter[n] = (sideCenter[n] + lastRight[n]) / 2.0;
 
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			const double L0 = pDistance(n);
 
 			auto I0 = insoleCenter.At(L0);
@@ -614,7 +614,7 @@ void LastModel::UpdateForm(const Insole &insole,
 
 	 auto func = Kernel::Scale(Kernel::NormalizeY(Kernel::Gaussian), width);
 
-	 for (size_t n = 0; n < N; ++n) {
+	 for (size_t n = 0; n < N; n++) {
 	 const double L0 = pDistance(n);
 	 auto I0 = insoleCenter.At(L0);
 	 auto A0 = lastCenter.At(L0 / scale);
@@ -646,10 +646,10 @@ void LastModel::UpdateForm(const Insole &insole,
 	 const double width = measurements.footLength->ToDouble();
 	 auto func = Kernel::Scale(Kernel::Gaussian, width / N);
 	 Polygon3 sideCenter = lastLeft;
-	 for (size_t n = 0; n < sideCenter.Size(); ++n)
+	 for (size_t n = 0; n < sideCenter.Size(); n++)
 	 sideCenter[n] += (sideCenter[n] + lastRight[n]) / 2.0;
 
-	 for (size_t n = 0; n < N; ++n) {
+	 for (size_t n = 0; n < N; n++) {
 	 const double L0 = pDistance(n);
 
 	 auto I0 = insoleCenter.At(L0);
@@ -726,7 +726,7 @@ void LastModel::UpdateForm(const Insole &insole,
 	 return;
 
 	 BoundingBox bb;
-	 for(size_t i = 0; i < hull.GetCountVertices(); ++i)
+	 for(size_t i = 0; i < hull.GetCountVertices(); i++)
 	 bb.Insert(hull.GetVertex(i));
 	 AffineTransformMatrix bbc = bb.GetCoordinateSystem();
 
@@ -750,7 +750,7 @@ void LastModel::UpdateForm(const Insole &insole,
 	 Polynomial s = Polynomial::ByDerivative(0, optim.param[1], 0, 1,
 	 optim.param[2], 0);
 	 const double sx = optim.param[0];
-	 for(size_t n = 0; n < resized.Size(); ++n){
+	 for(size_t n = 0; n < resized.Size(); n++){
 	 Vector3 temp = hull[n];
 	 const double x = bbc.LocalX(temp);
 	 const double syz = s.Evaluate(x);
@@ -837,7 +837,7 @@ void LastModel::UpdateForm(const Insole &insole,
 		return Vector3((r.x + fp), r.y, r.z);
 	};
 
-//	for(size_t n = 0; n < resized.Size(); ++n)
+//	for(size_t n = 0; n < resized.Size(); n++)
 //		resized[n] = unitBend(raw[n] - bendpoint) + bendpoint;
 //	for(auto & p : tg.p)
 //		p = unitBend(p - bendpoint) + bendpoint;
@@ -910,7 +910,7 @@ void LastModel::Transform(std::function<Vector3(Vector3)> func) {
 	for (auto &p : tg.p)
 		p = func(p);
 
-	for (size_t n = 0; n < CountVertices(); ++n)
+	for (size_t n = 0; n < CountVertices(); n++)
 		v[n] = func(v[n]);
 }
 

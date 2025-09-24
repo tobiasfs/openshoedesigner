@@ -223,16 +223,16 @@ void FrameParent::OnSetupPaths(wxCommandEvent &event) {
 void FrameParent::OnRefreshAll(wxCommandEvent &event) {
 	wxDocManager *mgr = GetDocumentManager();
 	wxDocVector docs = mgr->GetDocumentsVector();
-	for (size_t i = 0; i < docs.size(); ++i)
+	for (size_t i = 0; i < docs.size(); i++)
 		docs[i]->UpdateAllViews();
 }
 
 void FrameParent::OnRefreshAll3D(wxCommandEvent &event) {
 	wxDocManager *mgr = GetDocumentManager();
 	wxDocVector docs = mgr->GetDocumentsVector();
-	for (size_t i = 0; i < docs.size(); ++i) {
+	for (size_t i = 0; i < docs.size(); i++) {
 		wxViewVector views = docs[i]->GetViewsVector();
-		for (size_t j = 0; j < views.size(); ++j) {
+		for (size_t j = 0; j < views.size(); j++) {
 			ProjectView *projectview = wxStaticCast(views[j], ProjectView);
 			projectview->OnUpdate3D();
 		}
@@ -250,7 +250,7 @@ void FrameParent::OnRefreshView3D(wxCommandEvent &event) {
 	wxDocManager *mgr = GetDocumentManager();
 	wxDocument *doc = mgr->GetCurrentDocument();
 	wxViewVector views = doc->GetViewsVector();
-	for (size_t i = 0; i < views.size(); ++i) {
+	for (size_t i = 0; i < views.size(); i++) {
 		ProjectView *projectview = wxStaticCast(views[i], ProjectView);
 		projectview->OnUpdate3D();
 	}

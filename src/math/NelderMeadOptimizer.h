@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : NelderMeadOptimizer.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   :
@@ -95,10 +95,10 @@ public:
 	bool keepSimplex = false; //!< Speed up continued optimizations, if the system changes only a little. Default: false
 	bool reevalBest = false; //!< After the optimization has finished, do an evaluation on the best result. Default: false
 
-	void Start(); //!< Setup the internal variables and start an optimization
-	bool IsRunning(); //!< Loop control function for the main loop
-	void SetError(double error); //!< Insert the error back into the solver
-	void Stop(); //!< Optional: Stops the optimization prematurely and copies the best result so far into 'param'.
+	void Start() override; //!< Setup the internal variables and start an optimization
+	bool IsRunning() override; //!< Loop control function for the main loop
+	void SetError(double error) override; //!< Insert the error back into the solver
+	void Stop() override; //!< Optional: Stops the optimization prematurely and copies the best result so far into 'param'.
 
 private:
 	bool simplexIsSetup = false; //!< Internal variable to indicate that the simplex has been set up.

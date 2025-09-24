@@ -264,7 +264,7 @@ void FileSTL::WriteStream(const Geometry &geo) {
 	uint32_t numTriangles = geo.CountTriangles();
 	outp->write(reinterpret_cast<char*>(&numTriangles), sizeof(numTriangles));
 
-	for (size_t idx = 0; idx < geo.CountTriangles(); ++idx) {
+	for (size_t idx = 0; idx < geo.CountTriangles(); idx++) {
 		const auto &tri = geo.GetTriangle(idx);
 		const auto &v0 = geo.GetTriangleVertex(idx, 0);
 		const auto &v1 = geo.GetTriangleVertex(idx, 1);

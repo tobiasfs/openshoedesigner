@@ -96,7 +96,7 @@ void Polygon3::CloseLoopNextGroup() {
 void Polygon3::ExtractOutline(const Geometry &other) {
 	const Vector3 center = other.GetCenterOfVertices();
 	ResetAddNormal();
-	for (size_t n = 0; n < other.CountEdges(); ++n) {
+	for (size_t n = 0; n < other.CountEdges(); n++) {
 		const auto &ed = other.GetEdge(n);
 		if (ed.trianglecount >= 2)
 			continue;
@@ -141,7 +141,7 @@ void Polygon3::SortLoop() {
 		connections[ed.vb]++;
 	// Vertices without connections to them are starting points.
 	std::list<size_t> starting_points;
-	for (size_t idx = 0; idx < connections.size(); ++idx)
+	for (size_t idx = 0; idx < connections.size(); idx++)
 		if (connections[idx] == 0)
 			starting_points.push_back(idx);
 
@@ -208,10 +208,10 @@ Polygon3& Polygon3::operator+=(const Polygon3 &a) {
 	const size_t vfirst = v.size();
 	const size_t efirst = e.size();
 	Geometry::AddFrom(a);
-	for (size_t n = vfirst; n < v.size(); ++n)
+	for (size_t n = vfirst; n < v.size(); n++)
 		if (v[n].group != nothing)
 			v[n].group += groupCount;
-	for (size_t n = efirst; n < e.size(); ++n)
+	for (size_t n = efirst; n < e.size(); n++)
 		if (e[n].group != nothing)
 			e[n].group += groupCount;
 
@@ -417,37 +417,272 @@ void Polygon3::RotateOrigin(const Vector3 &p, size_t group) {
 //	const size_t minimalIndex = ClosestPoint(p, group);
 }
 
-void Polygon3::Triangulate() {
+void Polygon3::Filter(unsigned int width) {
+//TODO Implement this.
+}
 
-	// Check that there are no triangles. If it is needed, that some
-	// triangles already exist, write some edge-triangle-sorting algorithm.
+double Polygon3::GetLength() const {
+	double d = 0.0;
+	for (const Edge &edge : e) {
+		const auto &v0 = v[edge.va];
+		const auto &v1 = v[edge.vb];
+		d += (v0 - v1).Abs();
+	}
+	return d;
+}
+
+double Polygon3::GetLength(size_t group) const {
+	double d = 0.0;
+	for (const Edge &edge : e) {
+		if (edge.group == group) {
+			const auto &v0 = v[edge.va];
+			const auto &v1 = v[edge.vb];
+			d += (v0 - v1).Abs();
+		}
+	}
+	return d;
+}
+
+std::vector<double> Polygon3::GetXVectorD() const {
+	std::vector<double> temp;
+	temp.reserve(v.size());
+	for (const auto &vec : v)
+		temp.push_back((double) vec.x);
+	return temp;
+}
+
+std::vector<double> Polygon3::GetYVectorD() const {
+	std::vector<double> temp;
+	temp.reserve(v.size());
+	for (const auto &vec : v)
+		temp.push_back((double) vec.y);
+	return temp;
+}
+
+std::vector<double> Polygon3::GetZVectorD() const {
+	std::vector<double> temp;
+	temp.reserve(v.size());
+	for (const auto &vec : v)
+		temp.push_back((double) vec.z);
+	return temp;
+}
+
+Vector3 Polygon3::GetCenter() const {
+	Vector3 c;
+	double wSum = 0.0;
+	for (const Edge &edge : e) {
+		const auto &v0 = v[edge.va];
+		const auto &v1 = v[edge.vb];
+		const double d = (v0 - v1).Abs();
+		const auto cw = (v0 + v1) / 2.0 * d;
+		wSum += d;
+		c += cw;
+	}
+	if (wSum > FLT_EPSILON)
+		c /= wSum;
+	return c;
+}
+
+Vector3 Polygon3::GetCenter(size_t group) const {
+	Vector3 c;
+	double wSum = 0.0;
+	for (const Edge &edge : e) {
+		if (edge.group == group) {
+			const auto &v0 = v[edge.va];
+			const auto &v1 = v[edge.vb];
+			const double d = (v0 - v1).Abs();
+			const auto cw = (v0 + v1) / 2.0 * d;
+			wSum += d;
+			c += cw;
+		}
+	}
+	if (wSum > FLT_EPSILON)
+		c /= wSum;
+	return c;
+}
+
+double Polygon3::GetArea() const {
+	Vector3 temp;
+	for (const auto &edge : e) {
+		const auto &v0 = v[edge.GetVertexIndex(0)];
+		const auto &v1 = v[edge.GetVertexIndex(1)];
+		temp += (v0 * v1);
+	}
+	return temp.Abs() / 2.0;
+}
+
+Vector3 Polygon3::GetRotationalAxis() const {
+	if (e.size() < 2)
+		return Vector3();
+	const Vector3 center = GetCenter();
+	Vector3 temp;
+	for (const auto &edge : e) {
+		const auto &v0 = v[edge.GetVertexIndex(0)];
+		const auto &v1 = v[edge.GetVertexIndex(1)];
+		temp += (v0 - center) * (v1 - v0);
+	}
+	temp.Normalize();
+	return temp;
+}
+
+Polygon3::Result Polygon3::At(double L) const {
+	const size_t N = v.size();
+	Result res;
+	if (N == 0)
+		return res;
+	if (N == 1) {
+		res.pos = v[0];
+		res.normal = v[0].n;
+		return res;
+	}
+	size_t n = 0;
+	double sL = 0.0;
+	double dL = (v[1] - v[0]).Abs();
+	while (n < (N - 2) && (sL + dL) < L) {
+		n++;
+		sL += dL;
+		dL = (v[n + 1] - v[n]).Abs();
+	}
+	res.rel = (L - sL);
+	res.idx = n;
+	res.dir = (v[n + 1] - v[n]).Normal();
+	res.pos = v[n].Interp(v[n + 1], res.rel / dL);
+	res.normal = v[n].n.Interp(v[n + 1].n, res.rel / dL);
+	return res;
+}
+
+Polygon3::Result Polygon3::AtU(double u) const {
+	const size_t N = v.size();
+	if (N <= 1)
+		return At(u);
+	Result res;
+	double L = v.back().u;
+	if (fabs(v.front().u) > DBL_EPSILON)
+		L = v.front().u;
+	while (u < 0.0)
+		u += L;
+	while (u > L)
+		u -= L;
+	size_t idx = 0;
+	while (u > v[e[idx].vb].u && (idx + 1) < N)
+		idx++;
+	if (idx >= N)
+		return res;
+	const Edge &ed = e[idx];
+	const Vertex &va = v[ed.va];
+	const Vertex &vb = v[ed.vb];
+
+	const double u0 = (ed.va == 0) ? 0.0 : va.u;
+	const double u1 = (ed.vb == 0) ? 0.0 : vb.u;
+	const double d = u1 - u0;
+	if (fabs(d) > DBL_EPSILON)
+		res.rel = u - u0;
+	else
+		res.rel = 0.0;
+	res.idx = idx;
+	res.dir = (vb - va).Normal();
+	res.pos = va.Interp(vb, res.rel / d);
+	res.normal = va.n.Interp(vb.n, res.rel / d);
+	return res;
+}
+
+std::tuple<size_t, size_t> Polygon3::ClosestPoint(const Vector3 &p) const {
+	size_t minimalIndex = 0;
+	double minimalDistance = DBL_MAX;
+	for (size_t n = 0; n < v.size(); n++) {
+		const double distance = (v[n] - p).Abs();
+		if (distance < minimalDistance) {
+			minimalDistance = distance;
+			minimalIndex = n;
+		}
+	}
+	return std::make_tuple(minimalIndex, v[minimalIndex].group); // @suppress("Function cannot be instantiated")
+}
+
+size_t Polygon3::ClosestPoint(const Vector3 &p, size_t group) const {
+	size_t minimalIndex = 0;
+	double minimalDistance = DBL_MAX;
+	for (size_t n = 0; n < v.size(); n++) {
+		if (v[n].group != group)
+			continue;
+		const double distance = (v[n] - p).Abs();
+		if (distance < minimalDistance) {
+			minimalDistance = distance;
+			minimalIndex = n;
+		}
+	}
+	return minimalIndex;
+}
+
+Polygon3::Intersections Polygon3::Intersect(Vector3 n, double d) const {
+	Polygon3::Intersections ret;
+	for (size_t idx = 0; idx < e.size(); idx++) {
+		const auto &v0 = GetEdgeVertex(idx, 0);
+		const auto &v1 = GetEdgeVertex(idx, 1);
+		const double h0 = v0.Dot(n);
+		const double h1 = v1.Dot(n);
+		if (h0 <= d && h1 > d)
+			ret.positive.push_back(v0.Interp(v1, (d - h0) / (h1 - h0)));
+		if (h0 >= d && h1 < d)
+			ret.negative.push_back(v0.Interp(v1, (d - h0) / (h1 - h0)));
+	}
+	return ret;
+}
+
+std::string Polygon3::ToString() const {
+	std::ostringstream s;
+	s << '[';
+	bool first = true;
+	for (const auto &vert : v) {
+		if (first)
+			first = false;
+		else
+			s << ';';
+		s << vert.x << ',' << vert.y << ',' << vert.z;
+	}
+	s << ']';
+	return s.str();
+}
+
+void Polygon3::Triangulate() {
+	if (e.empty())
+		return;
+	Sort();
+
+	// If some triangles already exist, correct the triangle edge assignment.
 	// i.e. swapping e[].ta and e[].tb so that from above in the direction
 	// of the edge ta is left and tb is right. This is needed to find edges,
 	// that already have been processed.
 
-	for (const Edge &ed : e) {
-		if (ed.ta != nothing || ed.tb != nothing) {
-			throw std::logic_error(
-					"Polygon3::Triangulate() - Function called on a polygon, that already has triangles.");
-		}
+	for (Edge &ed : e) {
+		if (ed.trianglecount != 1)
+			continue;
+		// After sorting, trianglecount is correct and ta always contains the
+		// triangle if trianglecount == 1.
+//		Triangle &tri = t[ed.ta];
+		// Orient the edges, so that they point mathematically negative. The
+		// existing triangles look like holes this way.
+//		ed.flip = (tri.GetDirection(ed.va, ed.vb) == 1);
+		if (!ed.flip)
+			std::swap(ed.ta, ed.tb);
 	}
 
-	if (e.empty())
-		return;
-
 	// Add edges to generate areas that are x-monotone.
-	Sort();
 
 	// Collect some information on the vertices.
 
 	std::vector<size_t> left_count(v.size(), 0);
 	std::vector<size_t> right_count(v.size(), 0);
 	std::vector<int> dir(v.size(), 0);
-	std::vector<double> eslope;
-	eslope.reserve(e.size());
+//	std::vector<double> eslope;
+//	eslope.reserve(e.size());
 	std::vector<double> vslope(v.size(), 0);
 
 	for (const Edge &ed : e) {
+		if (ed.trianglecount >= 2) {
+//			eslope.push_back(0.0);
+			continue;
+		}
 		left_count[ed.vb]++;
 		right_count[ed.va]++;
 		if (ed.flip) {
@@ -468,14 +703,14 @@ void Polygon3::Triangulate() {
 			es = dy / dx;
 		if (ed.flip)
 			es = -es;
-		eslope.push_back(es);
+//		eslope.push_back(es);
 		vslope[ed.va] += es;
 		vslope[ed.vb] += es;
 	}
 
 //	verticesHaveColor = true;
 //	paintVertices = true;
-//	for (size_t n = 0; n < v.size(); ++n) {
+//	for (size_t n = 0; n < v.size(); n++) {
 //		v[n].c.r = fmin(fmax(-vslope[n] * 2.0, 0), 1);
 //		v[n].c.g = fmin(fmax(vslope[n] * 2.0, 0), 1);
 //		v[n].c.b = 0.0;
@@ -484,18 +719,23 @@ void Polygon3::Triangulate() {
 	// Mark all existing edges as "sharp" to separate them from the extra edges.
 
 	for (Edge &ed : e)
-		ed.sharp = true;
+		ed.sharp |= (ed.group == nothing || ed.group == 0);
 
 	// Add extra edges
 
-	for (size_t idx = 0; idx < v.size(); ++idx) {
-		if (right_count[idx] == 0 && vslope[idx] < 0.0) {
+	for (size_t idx = 0; idx < v.size(); idx++) {
+		if (right_count[idx] == 0 && vslope[idx] < -DBL_EPSILON) {
+			//TODO Check if the vertex found is inside or outside using the .sharp flag.
 
 			size_t idx1 = idx;
 			bool crossed = false;
 			do {
 				idx1++;
-				//TODO Check if idx1 is within the range of vertices. Will eventually fail for non-simple polygons.
+				if (idx1 >= v.size()) {
+					throw std::logic_error(
+							"Triangulate(): The vertex search algorithm returned a vertex outside the number of available vertices.");
+				}
+
 				// Check if some other edge is crossed.
 				crossed = false;
 				for (Edge &ed : e) {
@@ -528,15 +768,22 @@ void Polygon3::Triangulate() {
 				}
 			} while (crossed);
 
+			// The extra edges are added pointing from left to right by
+			// construction.
 			AddEdge(idx, idx1);
 			e.back().n = (v[idx].n + v[idx1].n) / 2.0;
 		}
-		if (left_count[idx] == 0 && vslope[idx] > 0.0) {
+		if (left_count[idx] == 0 && vslope[idx] > DBL_EPSILON) {
+			//TODO Check if the vertex found is inside or outside using the .sharp flag.
 			size_t idx0 = idx;
 			bool crossed = false;
 			do {
+				if (idx0 == 0) {
+					throw std::logic_error(
+							"Triangulate(): The vertex search algorithm returned a vertex smaller than 0.");
+				}
 				idx0--;
-				//TODO Check if idx0 is within the range of vertices. Will eventually fail for non-simple polygons.
+
 				// Check if some other edge is crossed.
 				crossed = false;
 				for (Edge &ed : e) {
@@ -588,13 +835,17 @@ void Polygon3::Triangulate() {
 		}
 	}
 	Sort();
+	// Reposition existing triangles to the outside of single-triangle-edges.
+	for (Edge &ed : e)
+		if (ed.trianglecount == 1 && !ed.flip)
+			std::swap(ed.ta, ed.tb);
 
 	// Redo the statistics with the added edges
 
 	left_count.assign(v.size(), 0);
 	right_count.assign(v.size(), 0);
 	dir.assign(v.size(), 0);
-	eslope.clear();
+	std::vector<double> eslope;
 	eslope.reserve(e.size());
 	vslope.assign(v.size(), 0);
 	for (const Edge &ed : e) {
@@ -631,7 +882,7 @@ void Polygon3::Triangulate() {
 	std::vector<size_t> idx_top;
 	std::vector<size_t> idx_bot;
 
-	// Store the current number of edges, as generation of triangles also
+	// Store the current number of edges, as the generation of triangles also
 	// generates edges, that need to be ignored here.
 	const size_t Ne = e.size();
 
@@ -644,6 +895,11 @@ void Polygon3::Triangulate() {
 		size_t eidx = 0;
 		while ((vidx + 1) < v.size() || vidx == (size_t) -1) {
 			vidx++;
+
+//			if (vidx == 2 || vidx == 3) {
+//				std::cout << "x\n";
+//			}
+
 			// Search for a starting point
 			if (right_count[vidx] < 2)
 				continue;
@@ -655,15 +911,18 @@ void Polygon3::Triangulate() {
 			while (eidx < Ne && e[eidx].va < vidx)
 				eidx++;
 			if (eidx >= Ne) {
-				throw std::logic_error("Triangulate(): Vertex without edges.");
+				throw std::logic_error(
+						"Triangulate(): Free-floating vertex without edges connected found.");
 			}
 			size_t e_first = eidx;
 
 			// Find top-most valid edge (e_top)
-			for (eidx = e_first; eidx < Ne && e[eidx].va == vidx; ++eidx) {
+			for (eidx = e_first; eidx < Ne && e[eidx].va == vidx; eidx++) {
+
 				// Skip already processed areas.
 				if (e[eidx].tb != nothing)
 					continue;
+
 				if (e[eidx].sharp) {
 					if (e[eidx].flip)
 						e_top = eidx;
@@ -680,7 +939,7 @@ void Polygon3::Triangulate() {
 			// area)
 
 			double esl = -DBL_MAX;
-			for (eidx = e_first; eidx < Ne && e[eidx].va == vidx; ++eidx) {
+			for (eidx = e_first; eidx < Ne && e[eidx].va == vidx; eidx++) {
 				if (eidx == e_top || e[eidx].ta != nothing)
 					continue;
 
@@ -713,7 +972,7 @@ void Polygon3::Triangulate() {
 			idx_top.push_back(e[e_top].va);
 			idx_bot.push_back(e[e_bot].va);
 
-			for (; vidx < v.size(); ++vidx) {
+			for (; vidx < v.size(); vidx++) {
 				int c = 0;
 				if (vidx == e[e_top].vb) {
 
@@ -734,7 +993,7 @@ void Polygon3::Triangulate() {
 						if (idx_top.size() != 1)
 							throw std::logic_error(
 									"Triangulate(): The idx_top should contain exactly 1 element here.");
-						for (size_t n = 1; n < idx_bot.size(); ++n) {
+						for (size_t n = 1; n < idx_bot.size(); n++) {
 							AddTriangleMinimal(idx_bot[n - 1], idx_bot[n],
 									vidx);
 						}
@@ -743,12 +1002,12 @@ void Polygon3::Triangulate() {
 					}
 
 					idx_top.push_back(vidx);
-					++c;
+					c++;
 
 					// Search for the next top edge
 					eidx = e_top;
 					e_top = nothing;
-					for (; eidx < Ne && e[eidx].va <= vidx; ++eidx) {
+					for (; eidx < Ne && e[eidx].va <= vidx; eidx++) {
 						if (e[eidx].va < vidx)
 							continue;
 						if (e[eidx].tb != nothing)
@@ -780,7 +1039,7 @@ void Polygon3::Triangulate() {
 						if (idx_bot.size() != 1)
 							throw std::logic_error(
 									"Triangulate(): The idx_bot should contain exactly 1 element here.");
-						for (size_t n = 1; n < idx_top.size(); ++n) {
+						for (size_t n = 1; n < idx_top.size(); n++) {
 							AddTriangleMinimal(idx_top[n], idx_top[n - 1],
 									vidx);
 						}
@@ -791,7 +1050,7 @@ void Polygon3::Triangulate() {
 					// Search for the next bottom edge
 					eidx = e_bot;
 					e_bot = nothing;
-					for (; eidx < Ne && e[eidx].va <= vidx; ++eidx) {
+					for (; eidx < Ne && e[eidx].va <= vidx; eidx++) {
 						if (e[eidx].va < vidx)
 							continue;
 						if (e[eidx].ta != nothing)
@@ -819,24 +1078,23 @@ void Polygon3::Triangulate() {
 	}
 
 	// Clean up edges
-	for (Edge &ed : e) {
-		if (ed.ta == nothing)
-			swap(ed.ta, ed.tb);
-		ed.trianglecount = (ed.ta == nothing) ? 0 : 1;
-		if (ed.tb != nothing)
-			ed.trianglecount++;
-	}
+	for (Edge &ed : e)
+		ed.Fix();
+	for (Triangle &tri : t)
+		tri.Fix();
 
-	Finish(); // Sort the triangles into a consistent order
+	Sort();
+
+	PropagateNormals();
+	CalculateUVCoordinateSystems();
+//	Finish(); // Sort the triangles into a consistent order
 }
 
 void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
-
 	Geometry::Triangle tri;
 	tri.va = idx0;
 	tri.vb = idx1;
 	tri.vc = idx2;
-	tri.Fix();
 
 	trianglesHaveNormal |= addNormals;
 	trianglesHaveColor |= addColors;
@@ -859,33 +1117,45 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 	if (addColors)
 		tri.c = addColor;
 
+	tri.Fix();
 	const size_t tidx = t.size();
 
-	for (size_t idx = 0; idx < e.size(); ++idx) {
-		if (e[idx].va == tri.va && e[idx].vb == tri.vb) {
+	for (size_t idx = 0; idx < e.size(); idx++) {
+		Geometry::Edge &ed = e[idx];
+
+		if (ed.va == tri.va && ed.vb == tri.vb) {
 			tri.ea = idx;
-			if (tri.flip)
-				e[idx].tb = tidx;
-			else
-				e[idx].ta = tidx;
-		}
 
-		if (e[idx].va == tri.vb && e[idx].vb == tri.vc) {
+			if (tri.flip)
+				ed.tb = tidx;
+			else
+				ed.ta = tidx;
+
+			ed.trianglecount = ((ed.ta == nothing) ? 0 : 1)
+					+ ((ed.tb == nothing) ? 0 : 1);
+		}
+		if (ed.va == tri.vb && ed.vb == tri.vc) {
 			tri.eb = idx;
-			if (tri.flip)
-				e[idx].tb = tidx;
-			else
-				e[idx].ta = tidx;
-		}
 
-		if (e[idx].va == tri.va && e[idx].vb == tri.vc) {
-			tri.ec = idx;
 			if (tri.flip)
-				e[idx].ta = tidx;
+				ed.tb = tidx;
 			else
-				e[idx].tb = tidx;
+				ed.ta = tidx;
+			ed.trianglecount = ((ed.ta == nothing) ? 0 : 1)
+					+ ((ed.tb == nothing) ? 0 : 1);
+		}
+		if (ed.va == tri.va && ed.vb == tri.vc) {
+			tri.ec = idx;
+
+			if (tri.flip)
+				ed.ta = tidx;
+			else
+				ed.tb = tidx;
+			ed.trianglecount = ((ed.ta == nothing) ? 0 : 1)
+					+ ((ed.tb == nothing) ? 0 : 1);
 		}
 	}
+
 	if (tri.ea == nothing) {
 		Geometry::Edge edge0;
 		edge0.va = tri.va;
@@ -919,7 +1189,6 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 		Geometry::Edge edge2;
 		edge2.va = tri.va;
 		edge2.vb = tri.vc;
-		edge2.flip = true;
 		if (tri.flip)
 			edge2.ta = tidx;
 		else
@@ -1057,7 +1326,7 @@ Polygon3 Polygon3::Voronoi() const {
 		// Calculate all arc-splits for the horizon at hy
 		std::list<Arc>::iterator it1 = T.begin();
 		std::list<Arc>::iterator it0 = it1++;
-		for (; it1 != T.end(); ++it0, ++it1) {
+		for (; it1 != T.end(); ++it0, it1++) {
 			if (fabs(it0->y - it1->y) < DBL_EPSILON) {
 				it0->x1 = (it0->x + it1->x) / 2.0;
 				continue;
@@ -1731,230 +2000,239 @@ Polygon3 Polygon3::Voronoi() const {
 	return ret;
 }
 
-void Polygon3::Filter(unsigned int width) {
-//TODO Implement this.
-}
+void Polygon3::Regularize() {
 
-double Polygon3::GetLength() const {
-	double d = 0.0;
-	for (const Edge &edge : e) {
-		const auto &v0 = v[edge.va];
-		const auto &v1 = v[edge.vb];
-		d += (v0 - v1).Abs();
-	}
-	return d;
-}
+	for (size_t n = 0; n < 10; n++) {
 
-double Polygon3::GetLength(size_t group) const {
-	double d = 0.0;
-	for (const Edge &edge : e) {
-		if (edge.group == group) {
-			const auto &v0 = v[edge.va];
-			const auto &v1 = v[edge.vb];
-			d += (v0 - v1).Abs();
+		for (size_t eidx = 0; eidx < e.size(); eidx++) {
+			Edge &em = e[eidx];
+			if (em.trianglecount != 2)
+				continue;
+			Triangle &ta = t[em.ta];
+			Triangle &tb = t[em.tb];
+
+			int_fast8_t idxeta = ta.GetEdgePosition(eidx);
+			int_fast8_t idxetb = tb.GetEdgePosition(eidx);
+			if (idxeta < 0 || idxetb < 0)
+				continue;
+
+			size_t idxv0 = ta.GetVertexIndex((idxeta + 1) % 3);
+			size_t idxv1 = ta.GetVertexIndex((idxeta + 2) % 3);
+			size_t idxv2 = tb.GetVertexIndex((idxetb + 1) % 3);
+			size_t idxv3 = tb.GetVertexIndex((idxetb + 2) % 3);
+			if (idxv0 == idxv2)
+				throw std::runtime_error("One of the triangles is flipped.");
+
+			size_t idxe0 = ta.GetEdgeIndex((idxeta + 1) % 3);
+			size_t idxe1 = ta.GetEdgeIndex((idxeta + 2) % 3);
+			size_t idxe2 = tb.GetEdgeIndex((idxetb + 1) % 3);
+			size_t idxe3 = tb.GetEdgeIndex((idxetb + 2) % 3);
+
+			const Vertex &v0 = v[idxv0];
+			const Vertex &v1 = v[idxv1];
+			const Vertex &v2 = v[idxv2];
+			const Vertex &v3 = v[idxv3];
+
+			const Vector3 dv0 = v1 - v0;
+			const Vector3 dv1 = v2 - v1;
+			const Vector3 dv2 = v3 - v2;
+			const Vector3 dv3 = v0 - v3;
+
+			auto negativeAngle = [](const Vector3 &lhs, const Vector3 &rhs) {
+				const double h = lhs.x * (lhs.y + rhs.y)
+						- lhs.y * (lhs.x + rhs.x);
+				return (bool) (h < 0.0);
+			};
+			const bool co0 = negativeAngle(dv0, dv1);
+			const bool co1 = negativeAngle(dv1, dv2);
+			const bool co2 = negativeAngle(dv2, dv3);
+			const bool co3 = negativeAngle(dv3, dv0);
+			if (co0 || co1 || co2 || co3)
+				continue;
+
+			// Fricas code:
+			// )clear all
+			// )set fortran optlevel 2
+			// )set output fortran on
+			// determinant(matrix([[v0x,v0y,v0x^2+v0y^2,1],[v1x,v1y,v1x^2+v1y^2,1],[v2x,v2y,v2x^2+v2y^2,1],[v3x,v3y,v3x^2+v3y^2,1]]))
+
+			const double T2 = v1.x - v0.x;
+			const double T3 = v1.y * v1.y;
+			const double T4 = v1.x * v1.x;
+			const double T5 = v0.y * v0.y;
+			const double T6 = v0.x * v0.x;
+			const double T7 = (-v1.x + v0.x) * v2.y + (v1.y - v0.y) * v2.x
+					- v0.x * v1.y + v0.y * v1.x;
+			const double T8 = v2.y * v2.y;
+			const double T9 = -v1.y + v0.y;
+			const double T10 = v2.x * v2.x;
+			const double T11 = v0.x * v1.y;
+			const double T12 = v0.y * v1.x;
+			const double T13 = v0.x * T3;
+			const double T14 = v0.x * T4;
+			const double T15 = T5 + T6;
+			const double T16 = T11 - T12;
+			const double T17 = v0.y * T3;
+			const double T18 = -T5 - T6;
+			const double T19 = v0.y * T4;
+			const double det = T7 * v3.y * v3.y
+					+ (T2 * T8 + T2 * T10 + (-T3 - T4 + T5 + T6) * v2.x + T13
+							+ T14 + T18 * v1.x) * v3.y + T7 * v3.x * v3.x
+					+ (T9 * T8 + (T3 + T4 - T5 - T6) * v2.y + T9 * T10 - T17
+							+ T15 * v1.y - T19) * v3.x + T16 * T8
+					+ (-T13 - T14 + T15 * v1.x) * v2.y + T16 * T10
+					+ (T17 + T18 * v1.y + T19) * v2.x;
+
+			if (det < 0.0)
+				continue;
+
+//			Matrix n("n", { 6, 4 });
+//			n.Insert(ta.GetVertexIndex(0));
+//			n.Insert(ta.GetVertexIndex(1));
+//			n.Insert(ta.GetVertexIndex(2));
+//			n.Insert(tb.GetVertexIndex(0));
+//			n.Insert(tb.GetVertexIndex(1));
+//			n.Insert(tb.GetVertexIndex(2));
+//			n.Insert(ta.GetEdgeIndex(0));
+//			n.Insert(ta.GetEdgeIndex(1));
+//			n.Insert(ta.GetEdgeIndex(2));
+//			n.Insert(tb.GetEdgeIndex(0));
+//			n.Insert(tb.GetEdgeIndex(1));
+//			n.Insert(tb.GetEdgeIndex(2));
+
+			// Flip center edge
+
+			Edge &e0 = e[idxe0];
+			Edge &e1 = e[idxe1];
+			Edge &e2 = e[idxe2];
+			Edge &e3 = e[idxe3];
+
+			const size_t idxt0 = e0.GetOtherTriangle(em.ta);
+			const size_t idxt1 = e1.GetOtherTriangle(em.ta);
+			const size_t idxt2 = e2.GetOtherTriangle(em.tb);
+			const size_t idxt3 = e3.GetOtherTriangle(em.tb);
+
+			em.va = idxv1;
+			em.vb = idxv3;
+
+			ta.flip = false;
+			ta.va = idxv1;
+			ta.vb = idxv2;
+			ta.vc = idxv3;
+			ta.ea = idxe1;
+			ta.eb = idxe2;
+			ta.ec = eidx;
+
+			tb.flip = false;
+			tb.va = idxv3;
+			tb.vb = idxv0;
+			tb.vc = idxv1;
+			tb.ea = idxe3;
+			tb.eb = idxe0;
+			tb.ec = eidx;
+
+			e0.ta = em.tb;
+			e0.tb = idxt0;
+
+			e2.ta = em.ta;
+			e2.tb = idxt2;
+
+//			n.Insert(ta.GetVertexIndex(0));
+//			n.Insert(ta.GetVertexIndex(1));
+//			n.Insert(ta.GetVertexIndex(2));
+//			n.Insert(tb.GetVertexIndex(0));
+//			n.Insert(tb.GetVertexIndex(1));
+//			n.Insert(tb.GetVertexIndex(2));
+//			n.Insert(ta.GetEdgeIndex(0));
+//			n.Insert(ta.GetEdgeIndex(1));
+//			n.Insert(ta.GetEdgeIndex(2));
+//			n.Insert(tb.GetEdgeIndex(0));
+//			n.Insert(tb.GetEdgeIndex(1));
+//			n.Insert(tb.GetEdgeIndex(2));
+//
+//			{
+//				MatlabFile mf("/tmp/triangles.mat");
+//				Matrix p("p", { 4, 3 }, Matrix::Order::TWO_REVERSED);
+//				p.Insert(v0.x);
+//				p.Insert(v0.y);
+//				p.Insert(v0.z);
+//				p.Insert(v1.x);
+//				p.Insert(v1.y);
+//				p.Insert(v1.z);
+//				p.Insert(v2.x);
+//				p.Insert(v2.y);
+//				p.Insert(v2.z);
+//				p.Insert(v3.x);
+//				p.Insert(v3.y);
+//				p.Insert(v3.z);
+//				p.ReorderDimensions();
+//
+//				mf.WriteMatrix(p);
+//				mf.WriteMatrix(n);
+//			}
+
+//			std::cout << 'x';
+//			return;
 		}
 	}
-	return d;
+//	std::cout << "\n";
+	Sort();
 }
 
-std::vector<double> Polygon3::GetXVectorD() const {
-	std::vector<double> temp;
-	temp.reserve(v.size());
-	for (const auto &vec : v)
-		temp.push_back((double) vec.x);
-	return temp;
-}
+#define SELFCHECK_GREATER_THAN(idx, type, var, rhs) if(var > rhs){ \
+	std::cerr << "The " << type << " " << idx << " has in " << #var \
+	<< " a value greater than " << rhs << ". (" << #var << " = " << var \
+	<< ".\n"; errorCount++; passed = false;}
 
-std::vector<double> Polygon3::GetYVectorD() const {
-	std::vector<double> temp;
-	temp.reserve(v.size());
-	for (const auto &vec : v)
-		temp.push_back((double) vec.y);
-	return temp;
-}
+bool Polygon3::PassedPlaneCheck(size_t maxErrorsPerType) const {
+	// All checks are done on the data in the objects (vertex, edge, triangle).
+	// None of the methods of the objects are called.
 
-std::vector<double> Polygon3::GetZVectorD() const {
-	std::vector<double> temp;
-	temp.reserve(v.size());
-	for (const auto &vec : v)
-		temp.push_back((double) vec.z);
-	return temp;
-}
+	const size_t vcount = v.size();
+	const size_t ecount = e.size();
+	const size_t tcount = t.size();
 
-Vector3 Polygon3::GetCenter() const {
-	Vector3 c;
-	double wSum = 0.0;
-	for (const Edge &edge : e) {
-		const auto &v0 = v[edge.va];
-		const auto &v1 = v[edge.vb];
-		const double d = (v0 - v1).Abs();
-		const auto cw = (v0 + v1) / 2.0 * d;
-		wSum += d;
-		c += cw;
-	}
-	if (wSum > FLT_EPSILON)
-		c /= wSum;
-	return c;
-}
+	size_t errorCount = 0;
+	bool passed = true;
 
-Vector3 Polygon3::GetCenter(size_t group) const {
-	Vector3 c;
-	double wSum = 0.0;
-	for (const Edge &edge : e) {
-		if (edge.group == group) {
-			const auto &v0 = v[edge.va];
-			const auto &v1 = v[edge.vb];
-			const double d = (v0 - v1).Abs();
-			const auto cw = (v0 + v1) / 2.0 * d;
-			wSum += d;
-			c += cw;
+	for (size_t eidx = 0; eidx < ecount; eidx++) {
+		const Edge &edge = e[eidx];
+		SELFCHECK_GREATER_THAN(eidx, "edge", edge.trianglecount, 2);
+
+		if (errorCount >= maxErrorsPerType) {
+			std::cerr << "...\n";
+			break;
 		}
 	}
-	if (wSum > FLT_EPSILON)
-		c /= wSum;
-	return c;
-}
 
-double Polygon3::GetArea() const {
-	Vector3 temp;
-	for (const auto &edge : e) {
-		const auto &v0 = v[edge.GetVertexIndex(0)];
-		const auto &v1 = v[edge.GetVertexIndex(1)];
-		temp += (v0 * v1);
-	}
-	return temp.Abs() / 2.0;
-}
+	// Check for duplicated edges
+	// (without sorting first)
 
-Vector3 Polygon3::GetRotationalAxis() const {
-	if (e.size() < 2)
-		return Vector3();
-	const Vector3 center = GetCenter();
-	Vector3 temp;
-	for (const auto &edge : e) {
-		const auto &v0 = v[edge.GetVertexIndex(0)];
-		const auto &v1 = v[edge.GetVertexIndex(1)];
-		temp += (v0 - center) * (v1 - v0);
-	}
-	temp.Normalize();
-	return temp;
-}
+	for (size_t idx0 = 0; idx0 < ecount; idx0++) {
+		const Edge &e0 = e[idx0];
+		for (size_t idx1 = idx0 + 1; idx1 < ecount; idx1++) {
+			const Edge &e1 = e[idx1];
 
-Polygon3::Result Polygon3::At(double L) const {
-	const size_t N = v.size();
-	Result res;
-	if (N == 0)
-		return res;
-	if (N == 1) {
-		res.pos = v[0];
-		res.normal = v[0].n;
-		return res;
-	}
-	size_t n = 0;
-	double sL = 0.0;
-	double dL = (v[1] - v[0]).Abs();
-	while (n < (N - 2) && (sL + dL) < L) {
-		++n;
-		sL += dL;
-		dL = (v[n + 1] - v[n]).Abs();
-	}
-	res.rel = (L - sL);
-	res.idx = n;
-	res.dir = (v[n + 1] - v[n]).Normal();
-	res.pos = v[n].Interp(v[n + 1], res.rel / dL);
-	res.normal = v[n].n.Interp(v[n + 1].n, res.rel / dL);
-	return res;
-}
-
-Polygon3::Result Polygon3::AtU(double u) const {
-	const size_t N = v.size();
-	if (N <= 1)
-		return At(u);
-	Result res;
-	double L = v.back().u;
-	if (fabs(v.front().u) > DBL_EPSILON)
-		L = v.front().u;
-	while (u < 0.0)
-		u += L;
-	while (u > L)
-		u -= L;
-	size_t idx = 0;
-	while (u > v[e[idx].vb].u && (idx + 1) < N)
-		idx++;
-	if (idx >= N)
-		return res;
-	const Edge &ed = e[idx];
-	const Vertex &va = v[ed.va];
-	const Vertex &vb = v[ed.vb];
-
-	const double u0 = (ed.va == 0) ? 0.0 : va.u;
-	const double u1 = (ed.vb == 0) ? 0.0 : vb.u;
-	const double d = u1 - u0;
-	if (fabs(d) > DBL_EPSILON)
-		res.rel = u - u0;
-	else
-		res.rel = 0.0;
-	res.idx = idx;
-	res.dir = (vb - va).Normal();
-	res.pos = va.Interp(vb, res.rel / d);
-	res.normal = va.n.Interp(vb.n, res.rel / d);
-	return res;
-}
-
-std::tuple<size_t, size_t> Polygon3::ClosestPoint(const Vector3 &p) const {
-	size_t minimalIndex = 0;
-	double minimalDistance = DBL_MAX;
-	for (size_t n = 0; n < v.size(); ++n) {
-		const double distance = (v[n] - p).Abs();
-		if (distance < minimalDistance) {
-			minimalDistance = distance;
-			minimalIndex = n;
+			if (e0.va == e1.va && e0.vb == e1.vb) {
+				std::cerr << "The edge " << idx0
+						<< " contains the same vertices (" << e0.va << " and "
+						<< e0.vb << ") as the edge " << idx1 << ".";
+				errorCount++;
+				passed = false;
+			}
+			if (e0.va == e1.vb && e0.vb == e1.va) {
+				std::cerr << "The edge " << idx0
+						<< " contains the same vertices (" << e0.va << " and "
+						<< e0.vb << ") as the edge " << idx1 << " but flipped.";
+				errorCount++;
+				passed = false;
+			}
+			if (errorCount >= maxErrorsPerType) {
+				std::cerr << "...\n";
+				break;
+			}
 		}
 	}
-	return std::make_tuple(minimalIndex, v[minimalIndex].group); // @suppress("Function cannot be instantiated")
-}
 
-size_t Polygon3::ClosestPoint(const Vector3 &p, size_t group) const {
-	size_t minimalIndex = 0;
-	double minimalDistance = DBL_MAX;
-	for (size_t n = 0; n < v.size(); ++n) {
-		if (v[n].group != group)
-			continue;
-		const double distance = (v[n] - p).Abs();
-		if (distance < minimalDistance) {
-			minimalDistance = distance;
-			minimalIndex = n;
-		}
-	}
-	return minimalIndex;
+	return passed;
 }
-
-Polygon3::Intersections Polygon3::Intersect(Vector3 n, double d) const {
-	Polygon3::Intersections ret;
-	for (size_t idx = 0; idx < e.size(); ++idx) {
-		const auto &v0 = GetEdgeVertex(idx, 0);
-		const auto &v1 = GetEdgeVertex(idx, 1);
-		const double h0 = v0.Dot(n);
-		const double h1 = v1.Dot(n);
-		if (h0 <= d && h1 > d)
-			ret.positive.push_back(v0.Interp(v1, (d - h0) / (h1 - h0)));
-		if (h0 >= d && h1 < d)
-			ret.negative.push_back(v0.Interp(v1, (d - h0) / (h1 - h0)));
-	}
-	return ret;
-}
-
-std::string Polygon3::ToString() const {
-	std::ostringstream s;
-	s << '[';
-	bool first = true;
-	for (const auto &vert : v) {
-		if (first)
-			first = false;
-		else
-			s << ';';
-		s << vert.x << ',' << vert.y << ',' << vert.z;
-	}
-	s << ']';
-	return s.str();
-}
-

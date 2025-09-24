@@ -130,7 +130,7 @@ public:
 
 	void testTranspose3D() {
 		Matrix m(2, 3, 4);
-		for (size_t i = 1; i <= 24; ++i)
+		for (size_t i = 1; i <= 24; i++)
 			m.Insert((double) i);
 		CPPUNIT_ASSERT(m.IsFilled());
 

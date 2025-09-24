@@ -419,7 +419,7 @@ bool FrameMain::TransferDataToWindow() {
 		newStrings.Add(_("Custom"));
 		JSON &jsst = presets["Type"];
 		if (jsst.IsArray()) {
-			for (size_t n = 0; n < jsst.Size(); ++n)
+			for (size_t n = 0; n < jsst.Size(); n++)
 				newStrings.Add(jsst[n]["Name"].GetString());
 		}
 		wxArrayString temp = m_choicePresetShoeType->GetStrings();
@@ -433,7 +433,7 @@ bool FrameMain::TransferDataToWindow() {
 		newStrings.Add(_("Custom"));
 		JSON &jsh = presets["Height"];
 		if (jsh.IsArray()) {
-			for (size_t n = 0; n < jsh.Size(); ++n)
+			for (size_t n = 0; n < jsh.Size(); n++)
 				newStrings.Add(jsh[n]["Name"].GetString());
 		}
 		wxArrayString temp = m_choicePresetShoeStyle->GetStrings();
@@ -490,7 +490,7 @@ bool FrameMain::TransferDataToWindow() {
 		if (presets.IsObject() && presets.HasKey("Heel")) {
 			const JSON &js = presets["Heel"];
 			if (js.IsArray()) {
-				for (size_t n = 0; n < js.Size(); ++n) {
+				for (size_t n = 0; n < js.Size(); n++) {
 					const JSON &jsa = js[n];
 					wxString codeName;
 					if (jsa.HasKey("Name"))
@@ -502,7 +502,7 @@ bool FrameMain::TransferDataToWindow() {
 					if (jsa.HasKey("Variant")) {
 						const JSON &jsva = jsa["Variant"];
 						if (jsva.IsArray()) {
-							for (size_t m = 0; m < jsva.Size(); ++m) {
+							for (size_t m = 0; m < jsva.Size(); m++) {
 								const JSON &jsv = jsva[m];
 								wxString varname;
 								if (jsv.HasKey("Name"))
@@ -748,9 +748,9 @@ void FrameMain::OnTimer(wxTimerEvent &event) {
 	this->Refresh();
 #endif
 
-//	const auto x = m_canvas3D->unitAtOrigin;
-//	wxString stat = wxString::Format(_T("unitAtOrigin = %f"), x);
-//	SetStatusText(stat, 0);
+	const auto x = m_canvas3D->unitAtOrigin;
+	wxString stat = wxString::Format(_T("unitAtOrigin = %f"), x);
+	SetStatusText(stat, 0);
 }
 
 void FrameMain::RefreshCanvas(wxCommandEvent&WXUNUSED(event)) {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Symmetry.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -45,7 +45,7 @@ void Symmetry::Init(size_t N) {
 }
 
 void Symmetry::AddTransform(const FourierTransform &transform) {
-	for (size_t n = 0; n < transform.y.size(); ++n) {
+	for (size_t n = 0; n < transform.y.size(); n++) {
 		const int f = (int) round(transform.y[n].f);
 		const size_t F = (size_t) (abs(f));
 		if (f == 0)
@@ -57,7 +57,7 @@ void Symmetry::AddTransform(const FourierTransform &transform) {
 		// frequency, because the phase is rotating with the given frequency.
 		double a = -atan2(transform.y[n].im, transform.y[n].re) / (double) f;
 		const double da = M_PI / (double) f;
-		for (size_t m = 0; m < F; ++m) {
+		for (size_t m = 0; m < F; m++) {
 			Insert(a, Kernel::Epanechnikov, d, sigma);
 			a += da;
 		}

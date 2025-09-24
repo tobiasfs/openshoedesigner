@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : JSON.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   :
@@ -84,7 +84,7 @@ bool JSON::HasKey(const std::string &key) const {
 std::string JSON::GetKey(size_t index) const {
 	if (type == Type::Object) {
 		auto it = valueObject.cbegin();
-		for (size_t n = 0; n < index; ++n)
+		for (size_t n = 0; n < index; n++)
 			++it;
 		return it->first;
 	}
@@ -111,7 +111,7 @@ JSON& JSON::operator [](size_t index) {
 		return valueArray.at(index);
 	if (type == Type::Object) {
 		auto it = valueObject.begin();
-		for (size_t n = 0; n < index; ++n)
+		for (size_t n = 0; n < index; n++)
 			++it;
 		return (it->second);
 	}
@@ -123,7 +123,7 @@ const JSON& JSON::operator [](size_t index) const {
 		return valueArray.at(index);
 	if (type == Type::Object) {
 		auto it = valueObject.cbegin();
-		for (size_t n = 0; n < index; ++n)
+		for (size_t n = 0; n < index; n++)
 			++it;
 		return (it->second);
 	}
@@ -278,7 +278,7 @@ JSON JSON::Parse(FileTokenizer &ft, int maxRecursion) {
 
 std::string JSON::Token::Lower() const {
 	std::string temp = str;
-	for (size_t n = 0; n < temp.size(); ++n)
+	for (size_t n = 0; n < temp.size(); n++)
 		if (temp[n] >= 'A' && temp[n] <= 'Z')
 			temp[n] = (char) (temp[n] + 32);
 	return temp;
@@ -320,7 +320,7 @@ void JSON::FileTokenizer::NextToken() {
 			if (charsread <= buffersize) {
 				// Add a 0 byte to the end
 				buffer[charsread] = 0;
-				++charsread;
+				charsread++;
 			}
 			position = 0;
 		}
@@ -422,12 +422,12 @@ void JSON::ToStream(std::ostream &out, bool usenewline, size_t indent) const {
 		out << "[";
 		bool flag = false;
 		for (std::vector<JSON>::const_iterator it = valueArray.begin();
-				it != valueArray.end(); ++it) {
+				it != valueArray.end(); it++) {
 			if (flag)
 				out << ",";
 			if (usenewline) {
 				out << '\n';
-				for (size_t m = 0; m < indent; ++m)
+				for (size_t m = 0; m < indent; m++)
 					out << "  ";
 			}
 			it->ToStream(out, usenewline, indent + 1);
@@ -439,12 +439,12 @@ void JSON::ToStream(std::ostream &out, bool usenewline, size_t indent) const {
 	case Type::Object: {
 		out << "{";
 		bool flag = false;
-		for (auto it = valueObject.cbegin(); it != valueObject.cend(); ++it) {
+		for (auto it = valueObject.cbegin(); it != valueObject.cend(); it++) {
 			if (flag)
 				out << ",";
 			if (usenewline) {
 				out << '\n';
-				for (size_t m = 0; m < indent; ++m)
+				for (size_t m = 0; m < indent; m++)
 					out << "  ";
 			}
 			out << '"' << EscapeString(it->first) << '"';
@@ -464,12 +464,12 @@ void JSON::ToStream(std::ostream &out, bool usenewline, size_t indent) const {
 
 std::string JSON::EscapeString(const std::string &txt) {
 	std::string temp = txt;
-	for (size_t index = 0; index < temp.size(); ++index) {
+	for (size_t index = 0; index < temp.size(); index++) {
 		index = temp.find_first_of("\"\\", index);
 		if (index == std::string::npos)
 			break;
 		temp.insert(index, 1, '\\');
-		++index;
+		index++;
 	}
 	return temp;
 }
@@ -480,7 +480,7 @@ std::array<unsigned char, JSON::stateCount * JSON::charWidth * 2> JSON::lexerTab
 std::array<unsigned char, JSON::stateCount * JSON::charWidth * 2> JSON::InitTables() {
 	std::array<unsigned char, JSON::stateCount * JSON::charWidth * 2> table { };
 
-	for (size_t n = 0; n < 27 * 256 * 2; ++n) {
+	for (size_t n = 0; n < 27 * 256 * 2; n++) {
 		unsigned int m = (n % 512);
 		const unsigned int s = (unsigned char) (n >> 9);
 		if (m < 256) {

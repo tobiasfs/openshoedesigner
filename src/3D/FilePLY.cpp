@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FilePLY.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -135,7 +135,7 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 			v.resize(e.count);
 			vn.resize(e.count);
 			vc.resize(e.count);
-			for (size_t i = 0; i < e.count; ++i) {
+			for (size_t i = 0; i < e.count; i++) {
 				for (const Property &p : e.properties) {
 					if (p.IsList())
 						throw std::runtime_error(
@@ -199,11 +199,11 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 				throw std::runtime_error(
 						"FilePLY::ReadStreamAscii - The index in the list has to be an integer.");
 
-			for (size_t i = 0; i < e.count; ++i) {
+			for (size_t i = 0; i < e.count; i++) {
 				int N;
 				stream >> N;
 				std::vector<int> idx(N, 0);
-				for (int j = 0; j < N; ++j)
+				for (int j = 0; j < N; j++)
 					stream >> idx[j];
 
 				if (hasNormals)
@@ -226,7 +226,7 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 					geo.ResetAddColor();
 				geo.AddVertex(v[idx[1]]);
 				size_t idx1 = geo.CountVertices() - 1;
-				for (int j = 2; j < N; ++j) {
+				for (int j = 2; j < N; j++) {
 					if (hasNormals)
 						geo.SetAddNormal(vn[idx[j]]);
 					else
@@ -304,7 +304,7 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 					values_float.size() * sizeof(float));
 
 			size_t c = 0;
-			for (size_t i = 0; i < e.count; ++i) {
+			for (size_t i = 0; i < e.count; i++) {
 				for (const Property &p : e.properties) {
 					if (p.name == "x") {
 						v[i].x = values_float[c];
@@ -358,7 +358,7 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 						"FilePLY::ReadStreamBinaryLE - Expected uint8 for the ListSize entry (in current implementation).");
 
 			std::vector<uint32_t> idx;
-			for (size_t i = 0; i < e.count; ++i) {
+			for (size_t i = 0; i < e.count; i++) {
 				uint8_t N;
 				stream.read((char*) &N, sizeof(uint8_t));
 				idx.resize(N);
@@ -395,7 +395,7 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 					geo.ResetAddColor();
 				geo.AddVertex(v[idx[1]]);
 				size_t idx1 = geo.CountVertices() - 1;
-				for (int j = 2; j < N; ++j) {
+				for (int j = 2; j < N; j++) {
 					if (hasNormals)
 						geo.SetAddNormal(vn[idx[j]]);
 					else

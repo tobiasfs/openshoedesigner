@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : TestGrid.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -49,12 +49,12 @@ void TestGrid::SetCellSize(double d_) {
 
 void TestGrid::Reset() {
 	size_t i = 0;
-	for (size_t w = 0; w < W; ++w) {
-		for (size_t v = 0; v < V; ++v) {
-			for (size_t u = 0; u < U; ++u) {
+	for (size_t w = 0; w < W; w++) {
+		for (size_t v = 0; v < V; v++) {
+			for (size_t u = 0; u < U; u++) {
 				p[i] = Vector3(xmin + (double) u * d, ymin + (double) v * d,
 						zmin + (double) w * d);
-				++i;
+				i++;
 			}
 		}
 	}
@@ -77,10 +77,10 @@ void TestGrid::PaintPoints() const {
 void TestGrid::PaintLines() const {
 	const Vector3 c = this->GetCoordinateSystem().operator ()(0.5, 0.5, 0.5);
 
-	for (size_t w = 0; w < W; ++w) {
-		for (size_t v = 0; v < V; ++v) {
+	for (size_t w = 0; w < W; w++) {
+		for (size_t v = 0; v < V; v++) {
 			glBegin(GL_LINES);
-			for (size_t u = 1; u < U; ++u) {
+			for (size_t u = 1; u < U; u++) {
 				const Vector3 &v0 = p[(u - 1) + v * U + w * U * V];
 				const Vector3 &v1 = p[u + v * U + w * U * V];
 				Vector3 n =
@@ -93,10 +93,10 @@ void TestGrid::PaintLines() const {
 		}
 	}
 
-	for (size_t u = 0; u < U; ++u) {
-		for (size_t w = 0; w < W; ++w) {
+	for (size_t u = 0; u < U; u++) {
+		for (size_t w = 0; w < W; w++) {
 			glBegin(GL_LINES);
-			for (size_t v = 1; v < V; ++v) {
+			for (size_t v = 1; v < V; v++) {
 				const Vector3 &v0 = p[u + (v - 1) * U + w * U * V];
 				const Vector3 &v1 = p[u + v * U + w * U * V];
 				Vector3 n =
@@ -108,10 +108,10 @@ void TestGrid::PaintLines() const {
 			glEnd();
 		}
 	}
-	for (size_t v = 0; v < V; ++v) {
-		for (size_t u = 0; u < U; ++u) {
+	for (size_t v = 0; v < V; v++) {
+		for (size_t u = 0; u < U; u++) {
 			glBegin(GL_LINES);
-			for (size_t w = 1; w < W; ++w) {
+			for (size_t w = 1; w < W; w++) {
 				const Vector3 &v0 = p[u + v * U + (w - 1) * U * V];
 				const Vector3 &v1 = p[u + v * U + w * U * V];
 				Vector3 n =

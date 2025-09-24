@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FileOBJ.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -153,7 +153,7 @@ void FileOBJ::ReadStream(Geometry &geo) {
 				if (tok == "/") {
 					if (!flag)
 						ids.push_back(-1);
-					++m;
+					m++;
 					if (m > w)
 						w = m;
 					flag = false;
@@ -161,22 +161,22 @@ void FileOBJ::ReadStream(Geometry &geo) {
 					if (flag) {
 						while (m < w) {
 							ids.push_back(-1);
-							++m;
+							m++;
 						}
 						m = 0;
-						++n;
+						n++;
 					}
 					ids.push_back(std::atoi(tok.c_str()));
 					flag = true;
 				}
 				tok = NextToken();
 			}
-			++w;
+			w++;
 			// If there are 6 values per vertex, these are x,y,z,r,g,b
 			if (v_width == 6) {
 				// Loop over the face vertices to convert them into a triangle
 				// chain.
-				for (size_t i = 2; i <= n; ++i) {
+				for (size_t i = 2; i <= n; i++) {
 
 					size_t p0 = (ids[0 * w + 0] - 1) * v_width - v_offs;
 					size_t p1 = (ids[(i - 1) * w + 0] - 1) * v_width - v_offs;
@@ -212,7 +212,7 @@ void FileOBJ::ReadStream(Geometry &geo) {
 					geo.AddTriangle(idx0, idx1, idx2);
 				}
 			} else {
-				for (size_t i = 2; i <= n; ++i) {
+				for (size_t i = 2; i <= n; i++) {
 					size_t p0 = (ids[0 * w + 0] - 1) * v_width - v_offs;
 					size_t p1 = (ids[(i - 1) * w + 0] - 1) * v_width - v_offs;
 					size_t p2 = (ids[i * w + 0] - 1) * v_width - v_offs;

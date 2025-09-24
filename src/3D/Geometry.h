@@ -98,8 +98,16 @@ public:
 
 	/**\brief Edge between two vertices
 	 *
-	 * The vertices of the edge are stored so, that the first index is smaller
-	 * then the second one. This speeds up searching for edges.
+	 * If an edge is well-ordered (i.e. after a call to Fix()) the vertices are
+	 * ordered so that the first index va is smaller then the second one vb.
+	 *
+	 * The triangle indices ta and tb are also ordered. If two triangles are
+	 * attached then ta < tb. If only one triangle is connected, it is always
+	 * stored in ta.
+	 *
+	 * Derived classes may handle this ordering differently.
+	 * PassedSelfCheck() will not pass in this case if the parameter
+	 * checkWellOrdering is set to true.
 	 */
 	class Edge {
 	public:
@@ -107,8 +115,10 @@ public:
 
 		/**\brief Invert the order of vertices for this edge, if necessary
 		 *
-		 * This function only changes the order of the vertices. The order of
-		 * triangles stays unchanged.
+		 * This function only changes the order of the vertices. With
+		 * two or more triangles, the triangles are ordered such that ta < tb.
+		 * If only one triangle is attached to the edge, it is always stored in
+		 * ta.
 		 */
 		void Fix();
 
@@ -140,7 +150,7 @@ public:
 		 */
 		size_t GetOtherTriangle(size_t index) const;
 
-		size_t GetVertexIndex(uint_fast8_t index) const;
+		size_t GetVertexIndex(int_fast8_t index) const;
 
 		/** \brief Check if an edge is collapsed
 		 *
@@ -168,8 +178,15 @@ public:
 	/** \brief Triangle between three vertices
 	 *
 	 * The vertices of the triangle are stored in ascending order. The flip flag
-	 * indicates if the order has to be inverted (for painting). This speeds up
-	 * searching by making triangles sortable and comparable.
+	 * indicates if the order has to be inverted (for painting).
+	 *
+	 * The edges ea, eb, and ec always connect these vertices:
+	 *    ea : va to vb
+	 *    eb : vb to vc
+	 *    ec : va to vc
+	 *
+	 * The flipping of triangles does not affect the ordering or the edge
+	 * association.
 	 */
 	class Triangle {
 	public:
@@ -212,10 +229,10 @@ public:
 		 */
 		int GetDirection(size_t index0, size_t index1) const;
 
-		size_t GetVertexIndex(uint_fast8_t index) const;
-		size_t GetEdgeIndex(uint_fast8_t index) const;
-		uint_fast8_t GetVertexPosition(size_t idx) const;
-		uint_fast8_t GetEdgePosition(size_t idx) const;
+		size_t GetVertexIndex(int_fast8_t index) const;
+		size_t GetEdgeIndex(int_fast8_t index) const;
+		int_fast8_t GetVertexPosition(size_t idx) const;
+		int_fast8_t GetEdgePosition(size_t idx) const;
 
 		/** \brief Check if a triangle is collapsed
 		 *
@@ -238,7 +255,7 @@ public:
 		double tvb = 0.0;
 		double tuc = 0.0;
 		double tvc = 0.0;
-		bool flip = false; ///< A flipped triangle is painted in the order v0, v2, v1 instead of v0, v1, v2.
+		bool flip = false; ///< A flipped triangle is painted in the order va, vc, vb instead of va, vb, vc.
 		Vector3 t = Vector3();
 		Vector3 b = Vector3();
 		Vector3 n = Vector3();
@@ -306,6 +323,26 @@ public:
 	 * \{
 	 */
 
+	void AddVertex(const Geometry::Vertex &vertex);
+	void AddVertex(const std::vector<Vector3> &vertices);
+
+	void AddEdge(const Geometry::Vertex &vertex0,
+			const Geometry::Vertex &vertex1);
+//	void AddEdge(const Vector3 &vertex0, const Vector3 &vertex1);
+	void AddEdge(size_t vindex0, size_t vindex1);
+
+	void AddTriangle(const Geometry::Vertex &vertex0,
+			const Geometry::Vertex &vertex1, const Geometry::Vertex &vertex2);
+//	void AddTriangle(const Vector3 &vertex0, const Vector3 &vertex1,
+//			const Vector3 &vertex2);
+	void AddTriangle(size_t vindex0, size_t vindex1, size_t vindex2);
+	void AddTriangleFromEdges(size_t eindex0, size_t eindex1, size_t eindex2);
+
+	void AddQuad(const Vector3 &vertex0, const Vector3 &vertex1,
+			const Vector3 &vertex2, const Vector3 &vertex3);
+	void AddQuad(size_t vindex0, size_t vindex1, size_t vindex2,
+			size_t vindex3);
+
 	/** \brief Adds a vertex and sets up vmap for the given source-index.
 	 *
 	 * This function is used to copy vertices between geometries. by updating
@@ -318,10 +355,7 @@ public:
 	 * \param vertex Vertex to add
 	 * \param sourceIndex Index of the vertex in the source Geometry.
 	 */
-	void AddVertex(const Geometry::Vertex &vertex, size_t sourceIndex =
-			(size_t) -1);
-//	void AddVertex(const Vector3 &vertex);
-	void AddVertex(const std::vector<Vector3> &vertices);
+	void AddVertexWithIndex(const Geometry::Vertex &vertex, size_t sourceIndex);
 
 	/** \brief Adds an edge and sets up emap for the given source-index.
 	 *
@@ -335,11 +369,7 @@ public:
 	 * \param edge Edge to add
 	 * \param sourceIndex Index of the edge in the source Geometry.
 	 */
-	void AddEdge(const Geometry::Edge &edge, size_t sourceIndex = (size_t) -1);
-	void AddEdge(const Geometry::Vertex &vertex0,
-			const Geometry::Vertex &vertex1);
-//	void AddEdge(const Vector3 &vertex0, const Vector3 &vertex1);
-	void AddEdge(size_t index0, size_t index1);
+	void AddEdgeWithIndex(const Geometry::Edge &edge, size_t sourceIndex);
 
 	/** \brief Adds a triangle and sets up tmap for the given source-index.
 	 *
@@ -353,17 +383,8 @@ public:
 	 * \param triangle Triangle to add
 	 * \param sourceIndex Index of the triangle in the source Geometry.
 	 */
-	void AddTriangle(const Geometry::Triangle &triangle, size_t sourceIndex =
-			(size_t) -1);
-	void AddTriangle(const Geometry::Vertex &vertex0,
-			const Geometry::Vertex &vertex1, const Geometry::Vertex &vertex2);
-//	void AddTriangle(const Vector3 &vertex0, const Vector3 &vertex1,
-//			const Vector3 &vertex2);
-	void AddTriangle(size_t index0, size_t index1, size_t index2);
-
-	void AddQuad(const Vector3 &vertex0, const Vector3 &vertex1,
-			const Vector3 &vertex2, const Vector3 &vertex3);
-	void AddQuad(size_t index0, size_t index1, size_t index2, size_t index3);
+	void AddTriangleWithIndex(const Geometry::Triangle &triangle,
+			size_t sourceIndex);
 
 //	Geometry& operator=(const std::vector<Triangle> &triangles);
 //	void AddTrianglesFrom(const std::vector<Triangle> &triangles);
@@ -409,9 +430,6 @@ public:
 	 *
 	 * Join() is an extension to Sort() that does the steps Fix(), Sort() and
 	 * finally joins duplicated vertices, edges and triangles.
-	 *
-	 * \note The .group member variables of the vertices, edges and triangles
-	 * are set to incrementing values during this process.
 	 */
 	void Sort();
 
@@ -422,6 +440,9 @@ public:
 	 * identical because they connect the same vertices. These are dissolved.
 	 * (The normals and colors are interpolated between the two joined edges.)
 	 * The same is done for triangles.
+	 *
+	 * \note The .group member variables of the vertices, edges and triangles
+	 * are set to incrementing values during this process.
 	 */
 	void Join();
 
@@ -431,6 +452,10 @@ public:
 	 * triangles. Calculates the UV coordinate-systems in the triangles.
 	 */
 	void Finish();
+
+	/**\brief Remove vertices that do not belong to an edge.
+	 */
+	void CleanupVertices();
 
 	/** \brief Update the references based on the maps.
 	 *
@@ -509,7 +534,7 @@ public:
 	void FlipNormals();
 
 	void FlagUV(bool inVertices, bool inTriangles);
-
+	void FlagNormals(bool inVertices, bool inEdges, bool inTriangles);
 	void CalculateUVFromBox();
 	void CalculateUVFromAxis(const Vector3 &n, bool symmetric = false);
 	void CalculateUVFromCylinder(const Vector3 &n);
@@ -588,7 +613,7 @@ public:
 	 * \return Vertex
 	 */
 	const Vertex& GetEdgeVertex(const size_t indexEdge,
-			uint_fast8_t indexVertex) const;
+			int_fast8_t indexVertex) const;
 	/** \brief Return the vertices of a triangle.
 	 *
 	 * \param indexTriangle Return a vertex of a given triangle.
@@ -596,7 +621,7 @@ public:
 	 * \return Vertex
 	 */
 	const Vertex& GetTriangleVertex(const size_t indexTriangle,
-			uint_fast8_t indexVertex) const;
+			int_fast8_t indexVertex) const;
 
 	const Edge& GetEdge(const size_t index) const;
 	Edge& GetEdge(const size_t index);

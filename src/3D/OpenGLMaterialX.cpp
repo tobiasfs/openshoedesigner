@@ -61,7 +61,7 @@ static const std::regex regexXmlTokenizer(
 
 static const auto iterEnd = std::sregex_iterator();
 
-#define NextToken() ++xml_it; if(xml_it == iterEnd) return; token = (*xml_it)[1]
+#define NextToken() xml_it++; if(xml_it == iterEnd) return; token = (*xml_it)[1]
 
 void OpenGLMaterialX::Delete() {
 	OpenGLShader::Delete();
@@ -90,7 +90,7 @@ void OpenGLMaterialX::Load(const std::filesystem::path &filename_) {
 	}
 	zip_int64_t nentries = zip_get_num_entries(zip_file_handle, 0);
 	zip_int64_t idx_mtlx = -1;
-	for (zip_int64_t idx = 0; idx < nentries; ++idx) {
+	for (zip_int64_t idx = 0; idx < nentries; idx++) {
 		const char *temp = zip_get_name(zip_file_handle, idx, ZIP_FL_ENC_GUESS);
 		string name(temp);
 		if (std::regex_search(name, regexFileSearch)) {
@@ -472,15 +472,15 @@ void OpenGLMaterialX::Image::LoadFromString(std::string &imagedata) {
 
 void OpenGLMaterialX::Image::FlipY() {
 	unsigned int bytesPerLine = w * componentsPerPixel;
-	for (unsigned int i = 0; i < (h / 2); ++i) {
+	for (unsigned int i = 0; i < (h / 2); i++) {
 		uint8_t *p0 = data.data() + i * bytesPerLine;
 		uint8_t *p1 = data.data() + (h - i - 1) * bytesPerLine;
-		for (unsigned int j = 0; j < bytesPerLine; ++j) {
+		for (unsigned int j = 0; j < bytesPerLine; j++) {
 			const uint8_t temp = *p0;
 			*p0 = *p1;
 			*p1 = temp;
-			++p0;
-			++p1;
+			p0++;
+			p1++;
 		}
 	}
 }

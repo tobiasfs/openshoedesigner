@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : MatlabFile.cpp
-// Purpose            :
+// Purpose            : Store matrices in a MAT file format readable by Octave/Matlab.
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :

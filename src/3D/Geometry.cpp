@@ -154,7 +154,7 @@ size_t Geometry::Edge::GetOtherTriangle(size_t index) const {
 	return ta;
 }
 
-size_t Geometry::Edge::GetVertexIndex(uint_fast8_t index) const {
+size_t Geometry::Edge::GetVertexIndex(int_fast8_t index) const {
 	if (flip) {
 		switch (index) {
 		case 0:
@@ -258,7 +258,7 @@ int Geometry::Triangle::GetDirection(size_t idx0, size_t idx1) const {
 	return 0;
 }
 
-size_t Geometry::Triangle::GetVertexIndex(uint_fast8_t index) const {
+size_t Geometry::Triangle::GetVertexIndex(int_fast8_t index) const {
 	if (flip) {
 		switch (index) {
 		case 0:
@@ -286,7 +286,7 @@ size_t Geometry::Triangle::GetVertexIndex(uint_fast8_t index) const {
 	}
 }
 
-size_t Geometry::Triangle::GetEdgeIndex(uint_fast8_t index) const {
+size_t Geometry::Triangle::GetEdgeIndex(int_fast8_t index) const {
 	if (flip) {
 		switch (index) {
 		case 0:
@@ -314,24 +314,42 @@ size_t Geometry::Triangle::GetEdgeIndex(uint_fast8_t index) const {
 	}
 }
 
-uint_fast8_t Geometry::Triangle::GetVertexPosition(size_t idx) const {
-	if (idx == va)
-		return 0;
-	if (idx == vb)
-		return 1;
-	if (idx == vc)
-		return 2;
-	return (uint_fast8_t) -1;
+int_fast8_t Geometry::Triangle::GetVertexPosition(size_t idx) const {
+	if (flip) {
+		if (idx == va)
+			return 0;
+		if (idx == vb)
+			return 2;
+		if (idx == vc)
+			return 1;
+	} else {
+		if (idx == va)
+			return 0;
+		if (idx == vb)
+			return 1;
+		if (idx == vc)
+			return 2;
+	}
+	return (int_fast8_t) -1;
 }
 
-uint_fast8_t Geometry::Triangle::GetEdgePosition(size_t idx) const {
-	if (idx == ea)
-		return 0;
-	if (idx == eb)
-		return 1;
-	if (idx == ec)
-		return 2;
-	return (uint_fast8_t) -1;
+int_fast8_t Geometry::Triangle::GetEdgePosition(size_t idx) const {
+	if (flip) {
+		if (idx == ea)
+			return 2;
+		if (idx == eb)
+			return 1;
+		if (idx == ec)
+			return 0;
+	} else {
+		if (idx == ea)
+			return 0;
+		if (idx == eb)
+			return 1;
+		if (idx == ec)
+			return 2;
+	}
+	return (int_fast8_t) -1;
 }
 
 bool Geometry::Triangle::IsCollapsed() const {
@@ -403,9 +421,7 @@ bool Geometry::IsFinished() const {
 void Geometry::SetAddNormal(const Vector3 &n) {
 	addNormals = (fabs(n.x) > FLT_EPSILON || fabs(n.y) > FLT_EPSILON
 			|| fabs(n.z) > FLT_EPSILON);
-	addNormal.x = n.x;
-	addNormal.y = n.y;
-	addNormal.z = n.z;
+	addNormal = n;
 }
 
 void Geometry::SetAddNormal(double nx, double ny, double nz) {
@@ -458,20 +474,20 @@ void Geometry::ResetPresets() {
 	ResetAddMatrix();
 }
 
-void Geometry::AddVertex(const Geometry::Vertex &vertex, size_t sourceIndex) {
+void Geometry::AddVertex(const Geometry::Vertex &vertex) {
+	Geometry::Vertex temp = vertex;
+
+	if (addColors)
+		temp.c = addColor;
+	if (addNormals)
+		temp.n = addNormal;
+	if (useAddMatrix)
+		temp.Transform(addMatrix, addNormalMatrix);
+
 	verticesHaveNormal |= addNormals;
 	verticesHaveColor |= addColors;
-	if (sourceIndex != nothing) {
-		if (vmap.size() <= sourceIndex)
-			vmap.resize(sourceIndex + 1, nothing);
-		vmap[sourceIndex] = v.size();
-	}
-	v.push_back(vertex);
-	if (addNormals)
-		v.back().n = addNormal;
-	if (addColors)
-		v.back().c = addColor;
 
+	v.push_back(temp);
 }
 
 //void Geometry::AddVertex(const Vector3 &vertex) {
@@ -486,21 +502,6 @@ void Geometry::AddVertex(const Geometry::Vertex &vertex, size_t sourceIndex) {
 void Geometry::AddVertex(const std::vector<Vector3> &vertices) {
 	for (const Vector3 &vertex : vertices)
 		AddVertex(vertex);
-}
-
-void Geometry::AddEdge(const Geometry::Edge &edge, size_t sourceIndex) {
-	edgesHaveNormal |= addNormals;
-	edgesHaveColor |= addColors;
-	if (sourceIndex != nothing) {
-		if (emap.size() <= sourceIndex)
-			emap.resize(sourceIndex + 1, nothing);
-		emap[sourceIndex] = e.size();
-	}
-	e.push_back(edge);
-	if (addNormals)
-		e.back().n = addNormal;
-	if (addColors)
-		e.back().c = addColor;
 }
 
 void Geometry::AddEdge(const Geometry::Vertex &v0, const Geometry::Vertex &v1) {
@@ -519,44 +520,35 @@ void Geometry::AddEdge(const Geometry::Vertex &v0, const Geometry::Vertex &v1) {
 //	AddEdge(idx0, idx1);
 //}
 
-void Geometry::AddEdge(size_t idx0, size_t idx1) {
-	edgesHaveNormal |= addNormals;
-	edgesHaveColor |= addColors;
+void Geometry::AddEdge(size_t vidx0, size_t vidx1) {
 	Geometry::Edge edge;
-	edge.va = idx0;
-	edge.vb = idx1;
-	if (addNormals)
-		edge.n = addNormal;
+
+	edge.va = vidx0;
+	edge.vb = vidx1;
+
 	if (addColors)
 		edge.c = addColor;
-	e.push_back(edge);
-}
-
-void Geometry::AddTriangle(const Geometry::Triangle &triangle,
-		size_t sourceIndex) {
-	trianglesHaveNormal |= addNormals;
-	trianglesHaveColor |= addColors;
-	if (sourceIndex != nothing) {
-		if (tmap.size() <= sourceIndex)
-			tmap.resize(sourceIndex + 1, nothing);
-		tmap[sourceIndex] = t.size();
+	if (addNormals) {
+		edge.n = addNormal;
+		if (useAddMatrix)
+			e.back().n = addNormalMatrix.Transform(e.back().n);
 	}
-	t.push_back(triangle);
-	if (addNormals)
-		t.back().n = addNormal;
-	if (addColors)
-		t.back().c = addColor;
+
+	edgesHaveNormal |= addNormals;
+	edgesHaveColor |= addColors;
+
+	e.push_back(edge);
 }
 
 void Geometry::AddTriangle(const Geometry::Vertex &v0,
 		const Geometry::Vertex &v1, const Geometry::Vertex &v2) {
 	AddVertex(v0);
-	size_t idx0 = v.size() - 1;
+	size_t vidx0 = v.size() - 1;
 	AddVertex(v1);
-	size_t idx1 = v.size() - 1;
+	size_t vidx1 = v.size() - 1;
 	AddVertex(v2);
-	size_t idx2 = v.size() - 1;
-	AddTriangle(idx0, idx1, idx2);
+	size_t vidx2 = v.size() - 1;
+	AddTriangle(vidx0, vidx1, vidx2);
 }
 
 //void Geometry::AddTriangle(const Vector3 &v0, const Vector3 &v1,
@@ -570,61 +562,80 @@ void Geometry::AddTriangle(const Geometry::Vertex &v0,
 //	AddTriangle(idx0, idx1, idx2);
 //}
 
-void Geometry::AddTriangle(size_t idx0, size_t idx1, size_t idx2) {
+void Geometry::AddTriangle(size_t vidx0, size_t vidx1, size_t vidx2) {
+	AddEdge(vidx0, vidx1);
+	size_t eidx0 = size(e) - 1;
+	AddEdge(vidx1, vidx2);
+	size_t eidx1 = size(e) - 1;
+	AddEdge(vidx2, vidx0);
+	size_t eidx2 = size(e) - 1;
+	AddTriangleFromEdges(eidx0, eidx1, eidx2);
+}
+
+void Geometry::AddTriangleFromEdges(size_t eidx0, size_t eidx1, size_t eidx2) {
+
+	Geometry::Edge &edge0 = e[eidx0];
+	Geometry::Edge &edge1 = e[eidx1];
+	Geometry::Edge &edge2 = e[eidx2];
+
+	const bool flipped0 = (edge0.va == edge1.va) || (edge0.va == edge1.vb);
+	const bool flipped1 = (edge1.va == edge2.va) || (edge1.va == edge2.vb);
+	const bool flipped2 = (edge2.va == edge0.va) || (edge2.va == edge0.vb);
+
+	Geometry::Triangle tri;
+	tri.va = flipped0 ? edge0.vb : edge0.va;
+	tri.vb = flipped1 ? edge1.vb : edge1.va;
+	tri.vc = flipped2 ? edge2.vb : edge2.va;
+
+#ifdef DEBUG
+	// Check, if the edges actually belong together.
+	if (tri.va != edge2.va && tri.va != edge2.vb) {
+		throw std::logic_error(
+				"Geometry::AddTriangleFromEdges(): The edges edge2 and edge0 do not share a common vertex.");
+	}
+	if (tri.vb != edge0.va && tri.vb != edge0.vb) {
+		throw std::logic_error(
+				"Geometry::AddTriangleFromEdges(): The edges edge0 and edge1 do not share a common vertex.");
+	}
+	if (tri.vc != edge1.va && tri.vc != edge1.vb) {
+		throw std::logic_error(
+				"Geometry::AddTriangleFromEdges(): The edges edge1 and edge2 do not share a common vertex.");
+	}
+#endif
+
+	tri.ea = eidx0;
+	tri.eb = eidx1;
+	tri.ec = eidx2;
+
+	if (edge0.trianglecount == 0)
+		edge0.ta = size(t);
+	else if (edge0.trianglecount == 1)
+		edge0.tb = size(t);
+	edge0.trianglecount++;
+
+	if (edge1.trianglecount == 0)
+		edge1.ta = size(t);
+	else if (edge1.trianglecount == 1)
+		edge1.tb = size(t);
+	edge1.trianglecount++;
+
+	if (edge2.trianglecount == 0)
+		edge2.ta = size(t);
+	else if (edge2.trianglecount == 1)
+		edge2.tb = size(t);
+	edge2.trianglecount++;
+
+	if (addNormals) {
+		tri.n = addNormal;
+		if (useAddMatrix)
+			tri.n = addNormalMatrix.Transform(tri.n);
+	}
+	if (addColors)
+		tri.c = addColor;
 	trianglesHaveNormal |= addNormals;
 	trianglesHaveColor |= addColors;
-	Vector3 n;
-	if (addNormals) {
-		n = addNormal;
-	} else {
-		Vector3 a = v[idx1] - v[idx0];
-		Vector3 b = v[idx2] - v[idx1];
-		n = a * b;
-		double L = n.Abs();
-		if (fabs(L) > FLT_EPSILON)
-			n /= L;
-	}
-	Geometry::Triangle tri;
-	tri.va = idx0;
-	tri.vb = idx1;
-	tri.vc = idx2;
-	tri.n = n;
-	tri.c = addColor;
-
-	const size_t tidx = t.size();
-
-	Geometry::Edge edge0;
-	edge0.va = idx0;
-	edge0.vb = idx1;
-	edge0.ta = tidx;
-	edge0.n = n;
-	edge0.c = addColor;
-	edge0.trianglecount = 1;
-	tri.ea = e.size();
-	e.push_back(edge0);
-
-	Geometry::Edge edge1;
-	edge1.va = idx1;
-	edge1.vb = idx2;
-	edge1.ta = tidx;
-	edge1.n = n;
-	edge1.c = addColor;
-	edge1.trianglecount = 1;
-	tri.eb = e.size();
-	e.push_back(edge1);
-
-	Geometry::Edge edge2;
-	edge2.va = idx2;
-	edge2.vb = idx0;
-	edge2.ta = tidx;
-	edge2.n = n;
-	edge2.c = addColor;
-	edge2.trianglecount = 1;
-	tri.ec = e.size();
-	e.push_back(edge2);
 
 	t.push_back(tri);
-
 	finished = false;
 }
 
@@ -643,21 +654,73 @@ void Geometry::AddQuad(const Vector3 &va, const Vector3 &vb, const Vector3 &vc,
 
 void Geometry::AddQuad(size_t idx0, size_t idx1, size_t idx2, size_t idx3) {
 	AddTriangle(idx0, idx1, idx2);
-	t.back().tua = 0.0;
-	t.back().tva = 0.0;
-	t.back().tub = 1.0;
-	t.back().tvb = 0.0;
-	t.back().tuc = 1.0;
-	t.back().tvc = 1.0;
+	if (!verticesHaveTextur) {
+		t.back().tua = 0.0;
+		t.back().tva = 0.0;
+		t.back().tub = 1.0;
+		t.back().tvb = 0.0;
+		t.back().tuc = 1.0;
+		t.back().tvc = 1.0;
+	}
 	AddTriangle(idx0, idx2, idx3);
-	t.back().tua = 0.0;
-	t.back().tva = 0.0;
-	t.back().tub = 1.0;
-	t.back().tvb = 1.0;
-	t.back().tuc = 0.0;
-	t.back().tvc = 1.0;
-	trianglesHaveTexture = true;
+	if (!verticesHaveTextur) {
+		t.back().tua = 0.0;
+		t.back().tva = 0.0;
+		t.back().tub = 1.0;
+		t.back().tvb = 1.0;
+		t.back().tuc = 0.0;
+		t.back().tvc = 1.0;
+	}
 	finished = false;
+}
+
+void Geometry::AddVertexWithIndex(const Geometry::Vertex &vertex,
+		size_t sourceIndex) {
+	verticesHaveNormal |= addNormals;
+	verticesHaveColor |= addColors;
+	if (sourceIndex != nothing) {
+		if (vmap.size() <= sourceIndex)
+			vmap.resize(sourceIndex + 1, nothing);
+		vmap[sourceIndex] = v.size();
+	}
+	v.push_back(vertex);
+	if (addNormals)
+		v.back().n = addNormal;
+	if (addColors)
+		v.back().c = addColor;
+
+}
+
+void Geometry::AddEdgeWithIndex(const Geometry::Edge &edge,
+		size_t sourceIndex) {
+	edgesHaveNormal |= addNormals;
+	edgesHaveColor |= addColors;
+	if (sourceIndex != nothing) {
+		if (emap.size() <= sourceIndex)
+			emap.resize(sourceIndex + 1, nothing);
+		emap[sourceIndex] = e.size();
+	}
+	e.push_back(edge);
+	if (addNormals)
+		e.back().n = addNormal;
+	if (addColors)
+		e.back().c = addColor;
+}
+
+void Geometry::AddTriangleWithIndex(const Geometry::Triangle &triangle,
+		size_t sourceIndex) {
+	trianglesHaveNormal |= addNormals;
+	trianglesHaveColor |= addColors;
+	if (sourceIndex != nothing) {
+		if (tmap.size() <= sourceIndex)
+			tmap.resize(sourceIndex + 1, nothing);
+		tmap[sourceIndex] = t.size();
+	}
+	t.push_back(triangle);
+	if (addNormals)
+		t.back().n = addNormal;
+	if (addColors)
+		t.back().c = addColor;
 }
 
 void Geometry::AddFrom(const Geometry &other) {
@@ -702,7 +765,7 @@ void Geometry::AddSelectedFrom(const Geometry &other) {
 		vmap[n] = v.size();
 		v.push_back(other.v[n]);
 	}
-	for (size_t n = 0; n < other.e.size(); ++n) {
+	for (size_t n = 0; n < other.e.size(); n++) {
 		if (vmap[other.e[n].va] == nothing)
 			continue;
 		if (vmap[other.e[n].vb] == nothing)
@@ -710,7 +773,7 @@ void Geometry::AddSelectedFrom(const Geometry &other) {
 		emap[n] = e.size();
 		e.push_back(other.e[n]);
 	}
-	for (size_t n = 0; n < other.t.size(); ++n) {
+	for (size_t n = 0; n < other.t.size(); n++) {
 		if (vmap[other.t[n].va] == nothing)
 			continue;
 		if (vmap[other.t[n].vb] == nothing)
@@ -747,19 +810,19 @@ void Geometry::FlipMap() {
 	std::vector<size_t> temp;
 	if (!vmap.empty()) {
 		temp.resize(vmap.size());
-		for (size_t n = 0; n < vmap.size(); ++n)
+		for (size_t n = 0; n < vmap.size(); n++)
 			temp[vmap[n]] = n;
 		vmap.swap(temp);
 	}
 	if (!emap.empty()) {
 		temp.resize(emap.size());
-		for (size_t n = 0; n < emap.size(); ++n)
+		for (size_t n = 0; n < emap.size(); n++)
 			temp[emap[n]] = n;
 		emap.swap(temp);
 	}
 	if (!tmap.empty()) {
 		temp.resize(tmap.size());
-		for (size_t n = 0; n < tmap.size(); ++n)
+		for (size_t n = 0; n < tmap.size(); n++)
 			temp[tmap[n]] = n;
 		tmap.swap(temp);
 	}
@@ -768,14 +831,14 @@ void Geometry::FlipMap() {
 void Geometry::Remap(int vstart, int estart, int tstart) {
 	if (!vmap.empty()) {
 		for (std::vector<Edge>::iterator ed = e.begin() + estart; ed != e.end();
-				++ed) {
+				ed++) {
 			RANGE_CHECK(vmap, ed->va);
 			RANGE_CHECK(vmap, ed->vb);
 			ed->va = vmap[ed->va];
 			ed->vb = vmap[ed->vb];
 		}
 		for (std::vector<Triangle>::iterator tri = t.begin() + tstart;
-				tri != t.end(); ++tri) {
+				tri != t.end(); tri++) {
 			RANGE_CHECK(vmap, tri->va);
 			RANGE_CHECK(vmap, tri->vb);
 			RANGE_CHECK(vmap, tri->vc);
@@ -787,7 +850,7 @@ void Geometry::Remap(int vstart, int estart, int tstart) {
 	}
 	if (!emap.empty()) {
 		for (std::vector<Triangle>::iterator tri = t.begin() + tstart;
-				tri != t.end(); ++tri) {
+				tri != t.end(); tri++) {
 			RANGE_CHECK(emap, tri->ea);
 			RANGE_CHECK(emap, tri->eb);
 			RANGE_CHECK(emap, tri->ec);
@@ -799,7 +862,7 @@ void Geometry::Remap(int vstart, int estart, int tstart) {
 	}
 	if (!tmap.empty()) {
 		for (std::vector<Edge>::iterator ed = e.begin() + estart; ed != e.end();
-				++ed) {
+				ed++) {
 			if (ed->ta != nothing) {
 				RANGE_CHECK(tmap, ed->ta);
 				ed->ta = tmap[ed->ta];
@@ -818,15 +881,15 @@ void Geometry::Remap(int vstart, int estart, int tstart) {
 	if (!gmap.empty()) {
 
 		for (std::vector<Vertex>::iterator vec = v.begin() + vstart;
-				vec != v.end(); ++vec) {
+				vec != v.end(); vec++) {
 			vec->group = gmap[vec->group];
 		}
 		for (std::vector<Edge>::iterator ed = e.begin() + estart; ed != e.end();
-				++ed) {
+				ed++) {
 			ed->group = gmap[ed->group];
 		}
 		for (std::vector<Triangle>::iterator tri = t.begin() + tstart;
-				tri != t.end(); ++tri) {
+				tri != t.end(); tri++) {
 			tri->group = gmap[tri->group];
 		}
 		gmap.clear();
@@ -929,6 +992,9 @@ void Geometry::Sort() {
 	}
 	FlipMap();
 	Remap(0, 0, 0);
+
+	for (auto &ed : e)
+		ed.Fix();
 }
 
 void Geometry::Join() {
@@ -1002,11 +1068,11 @@ void Geometry::Join() {
 	};
 
 	// Enumerate everything
-	for (size_t i = 0; i < v.size(); ++i)
+	for (size_t i = 0; i < v.size(); i++)
 		v[i].group = i;
-	for (size_t i = 0; i < e.size(); ++i)
+	for (size_t i = 0; i < e.size(); i++)
 		e[i].group = i;
-	for (size_t i = 0; i < t.size(); ++i)
+	for (size_t i = 0; i < t.size(); i++)
 		t[i].group = i;
 
 	// Remove duplicated vertices
@@ -1016,12 +1082,12 @@ void Geometry::Join() {
 		std::sort(v.begin(), v.end(), vertex_less);
 		size_t j = 0;
 		vmap[v[j].group] = j;
-		for (size_t i = 1; i < v.size(); ++i) {
+		for (size_t i = 1; i < v.size(); i++) {
 			if (vertex_equal(v[j], v[i])) {
 				v[j].n += v[i].n;
 				vmap[v[i].group] = j;
 			} else {
-				++j;
+				j++;
 				v[j] = v[i];
 				vmap[v[j].group] = j;
 			}
@@ -1030,7 +1096,7 @@ void Geometry::Join() {
 
 		// Normalize normal vectors.
 		if (verticesHaveNormal)
-			for (size_t i = 0; i < v.size(); ++i)
+			for (size_t i = 0; i < v.size(); i++)
 				v[i].n.Normalize();
 
 		// Map edges and triangles
@@ -1059,7 +1125,7 @@ void Geometry::Join() {
 		size_t j = 0;
 
 		emap[e[j].group] = j;
-		for (size_t i = 1; i < e.size(); ++i) {
+		for (size_t i = 1; i < e.size(); i++) {
 			if (edge_equal(e[j], e[i])) {
 				emap[e[i].group] = j;
 				if (e[i].trianglecount > 0)
@@ -1071,16 +1137,19 @@ void Geometry::Join() {
 				e[j].c.a += e[i].c.a;
 				ecount[j]++;
 			} else {
-				++j;
+				j++;
 				e[j] = e[i];
 				emap[e[j].group] = j;
 			}
 		}
 		e.erase(e.begin() + (int) j + 1, e.end());
 		ecount.erase(ecount.begin() + (int) j + 1, ecount.end());
-
+#ifdef DEBUG
+		std::cout << "e.size() = " << e.size() << "\n";
+		std::cout << "ecount.size() = " << ecount.size() << "\n";
+#endif
 		// Normalize normal vectors
-		for (size_t i = 0; i < e.size(); ++i)
+		for (size_t i = 0; i < e.size(); i++)
 			e[i].n /= (double) ecount[i];
 
 		// Map triangles
@@ -1094,7 +1163,7 @@ void Geometry::Join() {
 			tri.Fix();
 		std::sort(t.begin(), t.end(), triangle_less);
 		size_t j = 0;
-		for (size_t i = 0; i < t.size(); ++i) {
+		for (size_t i = 0; i < t.size(); i++) {
 			if (t[i].IsCollapsed()) {
 				reassignEdges = true;
 				continue;
@@ -1115,7 +1184,7 @@ void Geometry::Join() {
 		for (Edge &ed : e)
 			ed.trianglecount = 0;
 		// Add all triangles anew
-		for (size_t i = 0; i < t.size(); ++i) {
+		for (size_t i = 0; i < t.size(); i++) {
 			const Triangle &tri = t[i];
 			if (e[tri.ea].trianglecount == 0)
 				e[tri.ea].ta = i;
@@ -1145,44 +1214,76 @@ void Geometry::Finish() {
 	finished = true;
 }
 
+void Geometry::CleanupVertices() {
+	vmap.clear();
+	emap.clear();
+	tmap.clear();
+
+	std::vector<bool> vused;
+	vused.resize(v.size(), false);
+	for (const Edge &ed : e) {
+		vused[ed.va] = true;
+		vused[ed.vb] = true;
+	}
+
+	vmap.resize(v.size(), nothing);
+	size_t idxNew = 0;
+	for (size_t idx = 0; idx < vused.size(); idx++) {
+		if (vused[idx]) {
+			vmap[idx] = idxNew;
+			v[idxNew] = v[idx];
+			idxNew++;
+		}
+	}
+	v.erase(v.begin() + idxNew, v.end());
+	if (v.size() != idxNew)
+		throw std::logic_error("Off by one error.");
+	Remap(0, 0, 0);
+}
+
 #define SELFCHECK_EQUAL(idxa, idxb, fielda, fieldb, typea, typeb) if(fielda != fieldb){ \
 	std::cerr << "The field " << #fielda << " of " << typea << " (" << idxa \
 	<< ") and the field " << #fieldb << " of " << typeb << " (" << idxb \
 	<< ") should be identical: " << fielda << " == " << fieldb << "\n"; \
-	++errorCount; passed = false;}
+	errorCount++; passed = false;}
 
 #define SELFCHECK_NOTEQUAL(idxa, idxb, fielda, fieldb, typea, typeb) if(fielda == fieldb){ \
 	std::cerr << "The field " << #fielda << " of " << typea << " (" << idxa \
 	<< ") and the field " << #fieldb << " of " << typeb << " (" << idxb \
 	<< ") should not be identical: " << fielda << " != " << fieldb << "\n"; \
-	++errorCount; passed = false;}
+	errorCount++; passed = false;}
+
+#define SELFCHECK_NOTSAME(idx, fielda, fieldb, typea, typeb) if(fielda == fieldb){ \
+	std::cerr << "The " << typea << " index in " << #fielda << " and " \
+	<< #fieldb << " of " << typeb << " (" << idx << ") should not be identical: " \
+	<< fielda << " != " << fieldb << "\n"; errorCount++; passed = false;}
 
 #define SELFCHECK_RANGE(idx, field, max, typea, typeb) if(field >= max){ \
 	std::cerr << "The " << typea << " " << idx << " refers in " << #field \
 	<< " to the " << typeb << " " << field << " but there are only " << max \
-	<< " " << typeb << "s.\n"; ++errorCount; passed = false;}
+	<< " " << typeb << "s.\n"; errorCount++; passed = false;}
 
 #define SELFCHECK_RANGE_NG(idx, field, max, typea, typeb) if(field != nothing && field >= max){ \
 	std::cerr << "The " << typea << " " << idx << " refers in " << #field \
 	<< " to the " << typeb << " " << field << " but there are only " << max \
-	<< " " << typeb << "s.\n"; ++errorCount; passed = false;}
+	<< " " << typeb << "s.\n"; errorCount++; passed = false;}
 
 #define SELFCHECK_EMPTY(idx, field, typea, typeb) if(field != nothing){ \
 	std::cerr << "The " << typea << " " << idx << " has in " << #field \
 	<< " a valid " << typeb <<"-index entry. Should be empty.\n"; \
-	++errorCount; passed = false;}
+	errorCount++; passed = false;}
 
 #define SELFCHECK_NOT_EMPTY(idx, field, typea, typeb) if(field == nothing){ \
 	std::cerr << "The " << typea << " " << idx << " has in " << #field \
-	<< " no valid " << typeb <<"-index entry.\n"; ++errorCount; passed = false;}
+	<< " no valid " << typeb <<"-index entry.\n"; errorCount++; passed = false;}
 
 #define SELFCHECK_LESS_THAN(idx, fielda, fieldb, typea, typeb) if(fielda == fieldb){ \
 	std::cerr << "The " << typea << " " << idx << " has in " << #fielda \
 	<< " and " << #fieldb << " the same " << typeb <<"-index (" << fielda \
-    << ").\n"; ++errorCount; passed = false;}if(fielda > fieldb) { \
+    << ").\n"; errorCount++; passed = false;}if(fielda > fieldb) { \
     std::cerr << "The " << typea << " " << idx << " has in " << #fielda \
 	<< " a greater " << typeb << "-index than in " << #fieldb << ". (" \
-	<< fielda << " is not smaller than " << fieldb << ")\n"; ++errorCount; \
+	<< fielda << " is not smaller than " << fieldb << ")\n"; errorCount++; \
 	passed = false;}
 
 #define SELFCHECK_EDGE_VERTEX(idx, edge, v0, v1) if(!((e[edge].va == v0 && e[edge].vb == v1) \
@@ -1191,15 +1292,16 @@ void Geometry::Finish() {
 	<< ") does not reference the triangles vertices " << #v0 << " (" << v0 \
 	<< ") and " << #v1 << " (" << v1 << "). Edge " << edge << " references " \
 	<< e[edge].va << " and " << e[edge].vb << ".\n"; \
-	++errorCount; passed = false;}
+	errorCount++; passed = false;}
 
 #define SELFCHECK_EDGE_TRIANGLE(idx, edge, idxb) if(idxb != nothing \
 		&& t[idxb].ea != edge && t[idxb].eb != edge && t[idxb].ec != edge) \
-		{std::cerr << "The triangles (" << idx << ") edge " << #edge << " (" << edge \
-	<< ") connects with triangle (" << idxb << "). " \
-	<< "This triangle does not  have a reference to the edge. Only to " \
+		{std::cerr << "The triangle " << idx << " connects over edge " \
+	<< #edge << " (t[" << idx << "]." << #edge << " = " << t[idx].edge << ")" \
+	<< " to triangle " << idxb << ". This triangle does not have a" \
+	<< " reference back to that edge. Only to the edges " \
 	<< t[idxb].ea << ", " << t[idxb].eb << ", and " << t[idxb].ec << ".\n"; \
-	++errorCount; passed = false;}
+	errorCount++; passed = false;}
 
 bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 		size_t maxErrorsPerType) const {
@@ -1210,16 +1312,35 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 	const size_t vcount = v.size();
 	const size_t ecount = e.size();
 	const size_t tcount = t.size();
+	size_t gcount = nothing;
 
 	size_t errorCount;
 	bool passed = true;
 	bool edgeOK = true;
 	bool triangleOK = true;
 
+	// Determine the max used group-number.
+
+	for (const Vertex &vert : v)
+		if (vert.group != nothing)
+			gcount =
+					(gcount == nothing || gcount < vert.group) ?
+							vert.group : gcount;
+	for (const Edge &ed : e)
+		if (ed.group != nothing)
+			gcount =
+					(gcount == nothing || gcount < ed.group) ?
+							ed.group : gcount;
+	for (const Triangle &tri : t)
+		if (tri.group != nothing)
+			gcount =
+					(gcount == nothing || gcount < tri.group) ?
+							tri.group : gcount;
+
 	// Check edges
 
 	errorCount = 0;
-	for (size_t idx = 0; idx < ecount; ++idx) {
+	for (size_t idx = 0; idx < ecount; idx++) {
 		// Check if the edges vertex indices and triangle-indices are either
 		// empty or less than the number of available vertices / triangles.
 		SELFCHECK_RANGE_NG(idx, e[idx].va, vcount, "edge", "vertex");
@@ -1248,6 +1369,11 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 			SELFCHECK_NOT_EMPTY(idx, e[idx].tb, "edge", "triangle");
 		}
 
+		// Both vertices should not be identical.
+		SELFCHECK_NOTSAME(idx, e[idx].va, e[idx].vb, "vertex", "edge");
+		if (e[idx].trianglecount >= 2)
+			SELFCHECK_NOTSAME(idx, e[idx].ta, e[idx].tb, "triangle", "edge");
+
 		if (errorCount >= maxErrorsPerType) {
 			std::cerr << "...\n";
 			break;
@@ -1258,7 +1384,7 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 	// Check triangles
 
 	errorCount = 0;
-	for (size_t idx = 0; idx < tcount; ++idx) {
+	for (size_t idx = 0; idx < tcount; idx++) {
 		// A triangle has to have 3 valid vertices and 3 valid edges.
 		SELFCHECK_RANGE_NG(idx, t[idx].va, vcount, "triangle", "vertex");
 		SELFCHECK_RANGE_NG(idx, t[idx].vb, vcount, "triangle", "vertex");
@@ -1272,6 +1398,15 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 		SELFCHECK_NOT_EMPTY(idx, t[idx].ea, "triangle", "edge");
 		SELFCHECK_NOT_EMPTY(idx, t[idx].eb, "triangle", "edge");
 		SELFCHECK_NOT_EMPTY(idx, t[idx].ec, "triangle", "edge");
+
+		SELFCHECK_NOTSAME(idx, t[idx].va, t[idx].vb, "vertex", "triangle");
+		SELFCHECK_NOTSAME(idx, t[idx].vb, t[idx].vc, "vertex", "triangle");
+		SELFCHECK_NOTSAME(idx, t[idx].vc, t[idx].va, "vertex", "triangle");
+
+		SELFCHECK_NOTSAME(idx, t[idx].ea, t[idx].eb, "edge", "triangle");
+		SELFCHECK_NOTSAME(idx, t[idx].eb, t[idx].ec, "edge", "triangle");
+		SELFCHECK_NOTSAME(idx, t[idx].ec, t[idx].ea, "edge", "triangle");
+
 		if (errorCount >= maxErrorsPerType) {
 			std::cerr << "...\n";
 			break;
@@ -1281,19 +1416,24 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 
 	// Check map sizes
 
-	if (!vmap.empty() && vmap.size() != v.size()) {
+	if (!vmap.empty() && vmap.size() != vcount) {
 		std::cerr << "The vmap has a size of " << vmap.size()
-				<< " but the v-vector has a size of " << v.size() << ".\n";
+				<< " but the v-vector has a size of " << vcount << ".\n";
 		passed = false;
 	}
-	if (!emap.empty() && emap.size() != e.size()) {
+	if (!emap.empty() && emap.size() != ecount) {
 		std::cerr << "The emap has a size of " << emap.size()
-				<< " but the e-vector has a size of " << e.size() << ".\n";
+				<< " but the e-vector has a size of " << ecount << ".\n";
 		passed = false;
 	}
-	if (!tmap.empty() && tmap.size() != t.size()) {
+	if (!tmap.empty() && tmap.size() != tcount) {
 		std::cerr << "The tmap has a size of " << tmap.size()
-				<< " but the t-vector has a size of " << t.size() << ".\n";
+				<< " but the t-vector has a size of " << tcount << ".\n";
+		passed = false;
+	}
+	if (!gmap.empty() && gcount != nothing && gmap.size() != gcount) {
+		std::cerr << "The gmap has a size of " << gmap.size()
+				<< " but there are groups assigned up to " << gcount << ".\n";
 		passed = false;
 	}
 
@@ -1314,7 +1454,7 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 
 		errorCount = 0;
 		if (edgeOK) {
-			for (size_t idx = 0; idx < ecount; ++idx) {
+			for (size_t idx = 0; idx < ecount; idx++) {
 				SELFCHECK_LESS_THAN(idx, e[idx].va, e[idx].vb, "edge", "vertex");
 
 				// If an edge has two triangle, tb has to be greater the ta.
@@ -1336,7 +1476,7 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 
 		errorCount = 0;
 		if (triangleOK) {
-			for (size_t idx = 0; idx < tcount; ++idx) {
+			for (size_t idx = 0; idx < tcount; idx++) {
 				SELFCHECK_LESS_THAN(idx, t[idx].va, t[idx].vb, "triangle",
 						"vertex");
 				SELFCHECK_LESS_THAN(idx, t[idx].vb, t[idx].vc, "triangle",
@@ -1347,7 +1487,7 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 				// vertices are ordered in a triangle:
 				// All vertices are sorted ascending and all edges are sorted
 				// by the vertices ascending.
-				// Therefor the va of ec is smaller then va of eb and ec is
+				// Therefore the va of ec is smaller then va of eb and ec is
 				// smaller than eb.
 				SELFCHECK_LESS_THAN(idx, t[idx].ec, t[idx].eb, "triangle",
 						"edge");
@@ -1368,10 +1508,12 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 		// Check triangle edge well ordering. This is only possible for edges,
 		// that are connected to one triangle. Otherwise the edge would be
 		// reversed for one of the triangles.
+		// This requirement is important for the outside of a patch or a hole
+		// in a hull.
 
 		errorCount = 0;
 		if (triangleOK && edgeOK) {
-			for (size_t idx = 0; idx < tcount; ++idx) {
+			for (size_t idx = 0; idx < tcount; idx++) {
 				const size_t ea = t[idx].ea;
 				const size_t eb = t[idx].eb;
 				const size_t ec = t[idx].ec;
@@ -1400,7 +1542,7 @@ bool Geometry::PassedSelfCheck(bool checkWellOrdering,
 
 	if (edgeOK && triangleOK) {
 		errorCount = 0;
-		for (size_t tidx = 0; tidx < tcount; ++tidx) {
+		for (size_t tidx = 0; tidx < tcount; tidx++) {
 			const size_t ea = t[tidx].ea;
 			const size_t eb = t[tidx].eb;
 			const size_t ec = t[tidx].ec;
@@ -1599,6 +1741,12 @@ void Geometry::FlipInsideOutside() {
 		ed.flip = !ed.flip;
 	for (Triangle &tri : t)
 		tri.flip = !tri.flip;
+}
+
+void Geometry::FlagNormals(bool inVertices, bool inEdges, bool inTriangles) {
+	verticesHaveNormal = inVertices;
+	edgesHaveNormal = inEdges;
+	trianglesHaveNormal = inTriangles;
 }
 
 void Geometry::FlagUV(bool inVertices, bool inTriangles) {
@@ -1891,11 +2039,11 @@ void Geometry::CalculateGroups(double angle) {
 	ResetGroups();
 	size_t currentGroup = nothing;
 
-	for (size_t i = 0; i < t.size(); ++i) {
+	for (size_t i = 0; i < t.size(); i++) {
 		if (t[i].group != nothing)
 			continue;
 
-		++currentGroup;
+		currentGroup++;
 		std::set<size_t> checklist;
 		checklist.insert(i);
 		while (!checklist.empty()) {
@@ -1937,7 +2085,7 @@ void Geometry::CalculateGroups(double angle) {
 	vecount.assign(v.size(), 0);
 	vea.resize(v.size());
 	veb.resize(v.size());
-	for (size_t n = 0; n < e.size(); ++n) {
+	for (size_t n = 0; n < e.size(); n++) {
 		if (!e[n].sharp)
 			continue;
 		const size_t ja = e[n].va;
@@ -1956,7 +2104,7 @@ void Geometry::CalculateGroups(double angle) {
 
 	// Assign groups
 	currentGroup = nothing;
-	for (size_t n = 0; n < e.size(); ++n) {
+	for (size_t n = 0; n < e.size(); n++) {
 		if (e[n].group != nothing || !e[n].sharp)
 			continue;
 		currentGroup++;
@@ -2002,7 +2150,7 @@ size_t Geometry::CalculateObjects() {
 	// If the Finish() method was called and everything is sorted, this group
 	// assignment should work with optimal speed. It always converges.
 
-	for (size_t i = 0; i < v.size(); ++i)
+	for (size_t i = 0; i < v.size(); i++)
 		v[i].group = i;
 
 	bool runagain = true;
@@ -2076,7 +2224,7 @@ Geometry::Vertex& Geometry::GetVertex(size_t index) {
 }
 
 const Geometry::Vertex& Geometry::GetEdgeVertex(const size_t indexEdge,
-		uint_fast8_t indexVertex) const {
+		int_fast8_t indexVertex) const {
 	const auto ed = e[indexEdge];
 	const size_t vidx = ed.GetVertexIndex(indexVertex);
 	if (vidx >= v.size())
@@ -2103,7 +2251,7 @@ Geometry::Triangle& Geometry::GetTriangle(const size_t index) {
 }
 
 const Geometry::Vertex& Geometry::GetTriangleVertex(const size_t indexTriangle,
-		uint_fast8_t indexVertex) const {
+		int_fast8_t indexVertex) const {
 	const auto &tri = t[indexTriangle];
 	const size_t vidx = tri.GetVertexIndex(indexVertex);
 	if (vidx >= v.size())
@@ -2421,7 +2569,7 @@ Polygon3 Geometry::IntersectPlane(const Vector3 &n_, double d) const {
  // Find all edges, that intersect with the plane. I.e one point is on or
  // smaller than the plane, the other is larger than the plane.
  std::set<size_t> edges;
- for (size_t i = 0; i < e.size(); ++i) {
+ for (size_t i = 0; i < e.size(); i++) {
  const Vector3 a = v[e[i].va];
  const Vector3 b = v[e[i].vb];
  const double da = a.Dot(n_unit);
@@ -2437,8 +2585,8 @@ Polygon3 Geometry::IntersectPlane(const Vector3 &n_, double d) const {
  size_t nt = e[ne].ta;
 
  // Find other edge.
- uint_fast8_t i0 = t[nt].PositionEdge(ne);
- uint_fast8_t i1 = i0;
+ int_fast8_t i0 = t[nt].PositionEdge(ne);
+ int_fast8_t i1 = i0;
  if (i0 != 0 && edges.find(t[nt].ea) != edges.end()) {
  i1 = 3;
  }
@@ -2516,7 +2664,7 @@ Polygon3 Geometry::IntersectPlane(const Vector3 &n_, double d) const {
 Vector3 Geometry::IntersectArrow(const Vector3 &p0, const Vector3 &dir) const {
 
 	// TODO Change to ranged loop.
-	for (size_t i = 0; i < t.size(); ++i) {
+	for (size_t i = 0; i < t.size(); i++) {
 		const Vertex a = GetTriangleVertex(i, 0);
 		const Vertex b = GetTriangleVertex(i, 1);
 		const Vertex c = GetTriangleVertex(i, 2);
@@ -2546,7 +2694,7 @@ size_t Geometry::Select(const std::set<size_t> &select) {
 
 size_t Geometry::SelectAll() {
 	const size_t n0 = selected.size();
-	for (size_t n = 0; n < v.size(); ++n)
+	for (size_t n = 0; n < v.size(); n++)
 		selected.insert(n);
 	return selected.size() - n0;
 }
@@ -2559,7 +2707,7 @@ size_t Geometry::UnselectAll() {
 
 size_t Geometry::SelectByPlane(const Vector3 &n, double d) {
 	const size_t n0 = selected.size();
-	for (size_t i = 0; i < v.size(); ++i) {
+	for (size_t i = 0; i < v.size(); i++) {
 		const double temp = v[i].Dot(n);
 		if (temp >= d)
 			selected.insert(i);
@@ -2569,7 +2717,7 @@ size_t Geometry::SelectByPlane(const Vector3 &n, double d) {
 
 size_t Geometry::UnselectByPlane(const Vector3 &n, double d) {
 	const size_t n0 = selected.size();
-	for (size_t i = 0; i < v.size(); ++i) {
+	for (size_t i = 0; i < v.size(); i++) {
 		const double temp = v[i].Dot(n);
 		if (temp >= d)
 			selected.erase(i);
@@ -2579,7 +2727,7 @@ size_t Geometry::UnselectByPlane(const Vector3 &n, double d) {
 
 size_t Geometry::SelectByNormal(const Vector3 &n, double limit) {
 	const size_t n0 = selected.size();
-	for (size_t i = 0; i < v.size(); ++i) {
+	for (size_t i = 0; i < v.size(); i++) {
 		const double temp = v[i].n.Dot(n);
 		if (temp >= limit)
 			selected.insert(i);
@@ -2589,7 +2737,7 @@ size_t Geometry::SelectByNormal(const Vector3 &n, double limit) {
 
 size_t Geometry::UnselectByNormal(const Vector3 &n, double limit) {
 	const size_t n0 = selected.size();
-	for (size_t i = 0; i < v.size(); ++i) {
+	for (size_t i = 0; i < v.size(); i++) {
 		const double temp = v[i].n.Dot(n);
 		if (temp >= limit)
 			selected.erase(i);
@@ -2839,20 +2987,23 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 			GLVertex(va);
 			if (verticesHaveTextur && !trianglesHaveTexture)
 				glTexCoord2d(vb.u, vb.v);
-			if (trianglesHaveTexture)
+			if (trianglesHaveTexture) {
 				if (tri.flip)
 					glTexCoord2d(tri.tuc, tri.tvc);
 				else
 					glTexCoord2d(tri.tub, tri.tvb);
+			}
 			if (verticesHaveColor)
 				GLColor(cb);
 			GLVertex(vb);
 			if (verticesHaveTextur && !trianglesHaveTexture)
 				glTexCoord2d(vc.u, vc.v);
-			if (tri.flip)
-				glTexCoord2d(tri.tub, tri.tvb);
-			else
-				glTexCoord2d(tri.tuc, tri.tvc);
+			if (trianglesHaveTexture) {
+				if (tri.flip)
+					glTexCoord2d(tri.tub, tri.tvb);
+				else
+					glTexCoord2d(tri.tuc, tri.tvc);
+			}
 			if (verticesHaveColor)
 				GLColor(cc);
 			GLVertex(vc);
@@ -2978,8 +3129,9 @@ void Geometry::PaintEdges(const std::set<size_t> &sel, bool invert) const {
 			GLVertex(t(0.7, 0, 0));
 			for (double a = 0.0; a < 2 * M_PI; a += M_PI / 3.0) {
 				GLNormal(
-						t.TransformWithoutShift(0.0, 0.2 * cos(a), 0.2 * sin(a)).Normal());
-				GLVertex(t(0.3, 0.2 * cos(a), 0.2 * sin(a)));
+						t.TransformWithoutShift(0.0, 0.05 * cos(a),
+								0.05 * sin(a)).Normal());
+				GLVertex(t(0.3, 0.05 * cos(a), 0.05 * sin(a)));
 			}
 			glEnd();
 		}
@@ -3050,7 +3202,7 @@ void Geometry::PaintSelected() const {
 	matrix.GLMultMatrix();
 	glBegin(GL_POINTS);
 	for (std::set<size_t>::iterator n = selected.begin(); n != selected.end();
-			++n) {
+			n++) {
 		size_t i = *n;
 		GLNormal(v[i].n);
 		GLVertex(v[i]);
@@ -3077,7 +3229,7 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 	return;
 #endif
 
-// Note: A glVertexAttributePointer can only handle up to 4 floats.
+	// Note: A glVertexAttributePointer can only handle up to 4 floats.
 
 	std::regex reFields("XYZ|XY|X|RGBA|RGB|RG|R|T|B|N|UV|.");
 	enum Op {
@@ -3127,14 +3279,14 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 			throw std::runtime_error(
 					"Geometry::SendToGLVertexArray - Fieldname not known.");
 		}
-		++it;
+		it++;
 	}
 
 	std::vector<GLfloat> vbo;
 	std::vector<GLuint> ebo;
 	GLuint vidx = 0;
 	for (const Triangle &tri : t) {
-		for (uint_fast8_t idx = 0; idx < 3; ++idx) {
+		for (int_fast8_t idx = 0; idx < 3; idx++) {
 			const Vertex &vert = v[tri.GetVertexIndex(idx)];
 			for (const Op op : ops) {
 				switch (op) {
@@ -3218,7 +3370,7 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 				}
 			}
 			ebo.push_back(vidx);
-			++vidx;
+			vidx++;
 		}
 	}
 
@@ -3243,7 +3395,7 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 	const unsigned int width = std::accumulate(widths.begin(), widths.end(),
 			(unsigned int) 0);
 	unsigned int offs = 0;
-	for (unsigned int i = 0; i < widths.size(); ++i) {
+	for (unsigned int i = 0; i < widths.size(); i++) {
 		glVertexAttribPointer(i, widths[i], GL_FLOAT, GL_FALSE,
 				width * sizeof(GLfloat), (void*) (offs * sizeof(GLfloat)));
 		glEnableVertexAttribArray(i);

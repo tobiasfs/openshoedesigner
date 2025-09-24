@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Bezier3.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -63,7 +63,7 @@ void Bezier3::UpdateSegments() {
 	const size_t N = Np - (closed ? 0 : 1);
 
 	// Update the continuity in all points.
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		Point &v1 = points[(n + 1) % Np];
 		switch (v1.continuity) {
 		case Continuity::Linear: {
@@ -126,7 +126,7 @@ void Bezier3::UpdateSegments() {
 		}
 	}
 	segments.resize(N);
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		Polynomial3 &s = segments[n];
 		Point &v0 = points[n];
 		Point &v1 = points[(n + 1) % Np];

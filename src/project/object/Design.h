@@ -31,9 +31,34 @@
  * 	\ingroup shoe
  * 	\code #include "Design.h"\endcode
  *
- * Describes multiple patches in a UV coordinate system. The design itself is
+ * Describes multiple patches in a UV-coordinate system. The design itself is
  * flat. The lines describes are the lines seen from the outside. Overlap and
  * depth order are set as an attribute of the patches.
+ *
+ * The UV coordinate system is cylindric in U. The vertices of the design can
+ * be placed on arbitrary coordinates, but are normalized to the
+ * range -M_PI < u <= M_PI and and clamped to -1 <= v <= 4.
+ *
+ * To determine, what way two points are warped around the cylinder, the
+ * closest distance in u is considered. E.g. -3.0 is closer to 3.0 than to -2.0
+ * (3.0 wraps to 3.0 - 2*M_PI = -3.2832 which has a distance of is 0.2832
+ * to -3.0)
+ *
+ *
+ * # Patches
+ *
+ * Each patch is created from a set of edges, if a loop can be formed using the
+ * given edges. Note that there is no "automatic" edge at v=0.0.
+ *
+ * All edges are evenly (in UV space or in XYZ space) sampled, while checking
+ * for edge/edge and edge/vertex intersections.
+ *
+ * Starting from one edge a connection graph is constructed. Only if one
+ * branch touches all selected edges and returns the the first edge, this is
+ * considered a valid patch border.
+ *
+ *
+ *
  *
  * # Coordinate system
  *
@@ -41,7 +66,6 @@
  * the UV is mapped to XY (with Z=0) in the generated geometry. The final
  * projection to 3D has to be done by applying a CoordinateSystem.
  *
- * The UV coordinate system is cylindric.
  *
  *  * U from -pi to pi, with 0 in front, positive angles to the outside,
  *  	negative angles to the inside of the shoe.
@@ -50,7 +74,8 @@
  *  	 0 is the sole,
  *  	 1 the ankle,
  *  	 2 the knee,
- *  	 3 the hip.
+ *  	 3 the hip,
+ *  	 4 the waist.
  *
  * # Class Design
  *
@@ -65,7 +90,7 @@
  * The solver uses Eigens CompleteOrthogonalDecomposition for solving a linear
  * equations system. This comes with some limitations for conditions regarding
  * the Polynomials with an order > 1. Here the conditions are only one-way,
- * i.e. a vertex on the polynomial (not the end-points or the handles).
+ * i.e. for a vertex on the polynomial (not the end-points or the handles).
  *
  * The design is self contained and does not use any data from
  * foot-measurements or the shoe.
@@ -76,6 +101,7 @@
 #include "../../3D/Geometry.h"
 #include "../../3D/Polygon3.h"
 #include "../../math/Polynomial.h"
+#include "../../3D/Vector2.h"
 
 #include <initializer_list>
 #include <string>
@@ -84,86 +110,106 @@
 class Design: public Object {
 
 public:
-	class Vector2 {
-	public:
-		Vector2() = default;
-		Vector2(double u_, double v_) :
-				u(u_), v(v_) {
-		}
-		Vector2 Interp(const Vector2 &b, const double mix) const {
-			return {u + (b.u - u) * mix, v + (b.v - v) * mix};
-		}
-		double Abs() const {
-			return std::sqrt(u * u + v * v);
-		}
-		Vector2 Normal() const;
-		void Normalize();
-		Vector2 Orthogonal() const {
-			return Vector2(-v, u);
-		}
-		Vector2 RotatedBy(double angle) const;
-		bool IsZero() const;
-		Vector2& operator+=(const Vector2 &a) {
-			this->u += a.u;
-			this->v += a.v;
-			return *this;
-		}
-		friend Vector2 operator+(Vector2 a, const Vector2 &b) {
-			a += b;
-			return a;
-		}
-		Vector2& operator-=(const Vector2 &a) {
-			this->u -= a.u;
-			this->v -= a.v;
-			return *this;
-		}
-		friend Vector2 operator-(Vector2 a, const Vector2 &b) {
-			a -= b;
-			return a;
-		}
-		friend double operator*(const Vector2 &a, const Vector2 &b) {
-			return a.u * b.u + a.v * b.v;
-		}
-		friend Vector2 operator*(double a, const Vector2 &b) {
-			return Vector2(a * b.u, a * b.v);
-		}
+	/**\class Vector2
+	 * \brief Stores a vector in UV space.
+	 *
+	 * Storage class for two values: u and v. Additional functions for
+	 * manipulating the vector. Only manipulations needed by the Design class
+	 * were added.
+	 *
+	 *   * +, -, +=, -= : Addition and subtraction
+	 *   * vector * vector : Dot-product between two vectors
+	 *   * double * vector : Scaling a vector
+	 *   * IsZero() : Check it U and V are zero
+	 *   * RotateBy(), Orthogonal() : Rotation of vector
+	 *   * Normal(), Normalize() : Normalize length
+	 *   * Abs() : Absolute length of a vector
+	 *   * Interp() : Interpolate between two vectors
+	 */
 
-		double u = 0.0;
-		double v = 0.0;
-	};
-	class Vertex: public Vector2 {
+	//TODO: Remove the Vertex as a separate concept to the Vector2 class
+	class PatchVertex: public Vector2 {
 	public:
-		Vertex(double u_, double v_) :
-				Vector2(u_, v_) {
+		PatchVertex(double u_, double v_, const std::string &name = "") :
+				Vector2(u_, v_), name(name) {
 		}
-
 		std::string name;
-
-//		bool constructed = false; ///< Indicates, that a vertex is constructed.
-
 	};
-	class Edge {
-	public:
-		Edge(std::initializer_list<size_t> idx) :
-				vidx(idx) {
-		}
 
-		void UpdatePolynomials(const std::vector<Vertex> &v);
+	/**\brief Interpolated edge through two or more vertices
+	 *
+	 * Uses Bezier interpolation to interpolate a bend line through some
+	 * vertices. For low number (up to 4) vertices a Bernstein/polynomial
+	 * interpolation is done. For higher number of vertices deCasteljaus
+	 * algorithm is used.
+	 *
+	 * Edges can be marked as construction edges. These types of edges
+	 * do not interact with the patches or intersect lines. The are purely to
+	 * enforce constraints and interact with point during solving.
+	 */
+	class PatchEdge {
+	public:
+		PatchEdge(std::initializer_list<size_t> idx, const std::string &name =
+				"") :
+				name(name), vidx(idx) {
+		}
+		/**\brief Update the polynomials in the edge
+		 *
+		 * This is a separate function, because the positions of the vertices
+		 * are not available to the edge class per se.
+		 *
+		 * \param v const reference to the vector with the vertices.
+		 */
+		void UpdatePolynomials(const std::vector<PatchVertex> &v);
 
 		/**\brief Return the 2D point at one position.
 		 * \param r Variable from 0 .. 1 to cover the length of the edge.
 		 */
 		Vector2 operator()(double r) const;
+		Vector2 Slope(double r, unsigned int order = 1) const;
+		void ShiftU(double shift);
 		size_t Size() const {
 			return iu.size();
 		}
+
+		/**\brief Find the closest point on an edge to a vertex
+		 *
+		 * Find the closest point of a vertex to an edge. The distance is
+		 * minimized using the Newton-Raphson algorithm. The position r is
+		 * returned. The position r is limited between (inclusive) 0 .. 1.
+		 *
+		 * If requested the distance to the found point is returned.
+		 *
+		 * \param v Vertex to find smallest distance to. Possibly the vertex is
+		 * 			on the edge.
+		 * \param returnDist (optional) pointer to a double variable. If given,
+		 *                   the smallest found distance is put into this
+		 *                   double.
+		 * \return The Running variable r of the edge. Clamped to 0..1.
+		 *         The distance returned above is also relative to the clamped
+		 *         found point.
+		 */
+		double FindR(const Vector2 &v, double *returnDist = nullptr) const;
+
 		std::string name;
-		bool construction = false;
+		std::vector<size_t> vidx; ///< Vector of vertex indices.
+		bool construction = false; ///< Mark edge as construction edge.
+		Polygon3 geo; ///< Sampled geometry of edge (for drawing the edge).
 
-		std::vector<size_t> vidx;
-		Polygon3 geo;
-
+		/**\name Bounding box
+		 * \{
+		 */
+		double u0 = -M_PI;
+		double u1 = M_PI;
+		double v0 = -1.0;
+		double v1 = 4.0;
+		/**\}
+		 */
+#ifdef DEBUG
+	public:
+#else
 	protected:
+#endif
 		/**\name Interpolation polynomials
 		 *
 		 * The data for the position interpolation is stored as an polynomial
@@ -179,13 +225,18 @@ public:
 		 */
 		Polynomial iu; ///< Interpolation polynomials for U
 		Polynomial iv; ///< Interpolation polynomials for V
+		Polynomial diu; ///< Interpolation polynomials for dU
+		Polynomial div; ///< Interpolation polynomials for dV
+		Polynomial ddiu; ///< Interpolation polynomials for ddU
+		Polynomial ddiv; ///< Interpolation polynomials for ddV
+
 		/**\}
 		 */
 	};
 
-	/**\brief Boundary conditions for points
+	/**\brief Constraints for vertices
 	 *
-	 * The boundary conditions act upon the vertices of the design.
+	 * The constraints act upon the vertices of the design.
 	 * For each vertex involved, a suggested position (p), a degree of
 	 * freedom (a) and a group degree of freedom (b) is defined, so that
 	 * new position = p + a*t + b*n. t is the tangential along the line and
@@ -201,7 +252,7 @@ public:
 	 * pairwise share mirrored version of t and n. (point symmetry: (t,n) and
 	 * (-t,-n), line symmetry: (t,n) and (t,-n) with t parallel to the line).
 	 *
-	 * The condition is constructed as follows:
+	 * The constraint is constructed as follows:
 	 *
 	 *  1. Construct the line
 	 *  	If only a vertex is given, a line from this vertex in the direction
@@ -219,19 +270,25 @@ public:
 	 *  3. Calculate t, n, and p0 for the line and p for each individual vertex
 	 *     as the initial solution.
 	 */
-	class Condition {
+	class Constraint {
 	public:
-
-		static Condition VertexOnEdge(size_t vidx, size_t eidx);
-		static Condition VertexOnEdge(size_t vidx, size_t eidx, double r);
-		static Condition VerticesOnHorizontalLine(
+		/**\name Creation functions
+		 *
+		 * Some common boundary conditions.
+		 * \{
+		 */
+		static Constraint VertexOnEdge(size_t vidx, size_t eidx);
+		static Constraint VertexOnEdge(size_t vidx, size_t eidx, double r);
+		static Constraint VerticesOnHorizontalLine(
 				std::initializer_list<size_t> idx, double v = 0.0);
-		static Condition VerticesOnVerticalLine(
+		static Constraint VerticesOnVerticalLine(
 				std::initializer_list<size_t> idx, double u = 0.0);
-		static Condition VerticesOnLine(std::initializer_list<size_t> idx,
+		static Constraint VerticesOnLine(std::initializer_list<size_t> idx,
 				double angle);
-		static Condition VerticesSymmetricOnLineThroughPoint(
+		static Constraint VerticesSymmetricOnLineThroughPoint(
 				std::initializer_list<size_t> idx, size_t vidx, double angle);
+		/**\}
+		 */
 
 		size_t CountEquations() const;
 		size_t CountFreeParameter() const;
@@ -259,34 +316,127 @@ public:
 		std::vector<Vector2> p; ///< Initial solutions for all vertices
 	};
 
-	class Patch: public Geometry {
+public:
+	class SplitVertex: public Vector2 {
 	public:
-		Patch() = default;
+		SplitVertex(double u_, double v_, size_t eidx_, double r_) :
+				Vector2(u_, v_), eidx(eidx_), r(r_) {
+		}
+		bool operator==(const SplitVertex &other) const;
+		bool operator<(const SplitVertex &other) const;
+		size_t eidx = (size_t) -1;
+		double r = 0.0;
+	};
+	class SplitEdge {
+	public:
+		SplitEdge() = default;
+		size_t eidx = (size_t) -1;
+		size_t vidx0 = (size_t) -1;
+		double r0 = 0.0;
+		size_t vidx1 = (size_t) -1;
+		double r1 = 1.0;
+		bool operator==(const SplitEdge &other) const;
+		bool operator<(const SplitEdge &other) const;
+		void Flip();
+	};
+
+public:
+
+	/**\brief Container for a patch
+	 *
+	 *
+	 *
+	 */
+	class Patch: public Polygon3 {
+	public:
+		Patch(std::initializer_list<size_t> eidx, const std::string &name =
+				std::string(""));
+
 		virtual ~Patch() = default;
-		void Update(double edgeLength);
+
+		void AddSplitEdge(const Design::PatchEdge &ed, double p0, double p1,
+				const Polynomial &scaleU, const Polynomial &scaleV,
+				double maxErr, double maxDist);
+
+		void Update(double edgeLength, const Polynomial &scaleU,
+				const Polynomial &scaleV);
+		void UpdateBoundingBox();
 
 		std::string name;
+		std::set<size_t> eidx;
+
+		double Umin;
+		double Umax;
+		double Vmin;
+		double Vmax;
+
+	private:
+		double SplitAddEdge(const Design::PatchEdge &ed, double p0, double p2,
+				const Vector2 &v0, const Vector2 &v2, double d02,
+				const Polynomial &scaleU, const Polynomial &scaleV,
+				double maxErr2, double maxDist);
 	};
 
 public:
 	Design();
 
-	void PrepareBoundaryConditions();
+	void Update();
 
+	/**\brief Apply all constraints and recalculate the edge interpolations
+	 */
 	void UpdateEdges();
-	void UpdatePatches();
 
+	void UpdateSplits();
+
+	/**\brief Use the edges to fill the patches with a grid of points.
+	 */
+	void UpdatePatches(double res, const Polynomial &scaleU =
+			Polynomial::ByValue(-M_PI, -0.28, M_PI, 0.28),
+			const Polynomial &scaleV = Polynomial::ByValue(0, 0, 1, 0.12));
+
+	/**\brief Paint the edges and patches in OpenGL
+	 *
+	 * The displaying of the pattern in 2D is done in CanvasPattern.
+	 */
 	void Paint() const;
 
 private:
-	size_t ConditionRow(size_t cidx, size_t vidx = 0) const;
-	size_t ConditionCol(size_t cidx, size_t vidx = 0) const;
+	/**\brief Prepare the constraints
+	 *
+	 * Update the inner structure of the constraints by calculation the
+	 * construction line and calculating initial solutions for the vertex
+	 * positions. (These initial solutions only solve the current constraint.)
+	 */
+	void PrepareConstraints();
+	/**\brief Find the row in the Matrix A and the vector b for a Constraint
+	 * \param cidx index of the constraint
+	 * \param vidx index of the vertex inside the constraint.
+	 */
+	size_t ConstraintRow(size_t cidx, size_t vidx = 0) const;
+	/**\brief Find the column in the Matrix A for a Constraint
+	 * \param cidx index of the constraint
+	 * \param vidx index of the vertex inside the constraint.
+	 */
+	size_t ConstraintCol(size_t cidx, size_t vidx = 0) const;
+
+	/**\brief Construct a loop using the split-edges list
+	 *
+	 * This function always returns a loop, if there is at least one edge and
+	 * the starting edge is within the edges of the splitedge vector.
+	 */
+	std::vector<SplitEdge> FindLoop(const SplitEdge &begin,
+			const std::set<size_t> &eidx) const;
 
 public:
-	std::vector<Vertex> vertices;
-	std::vector<Edge> edges;
-	std::vector<Condition> conditions;
+	std::vector<PatchVertex> vertices;
+	std::vector<PatchEdge> edges;
+	std::vector<Constraint> constraints;
 	std::vector<Patch> patches;
+
+public:
+	std::vector<Vector2> splitV;
+	std::vector<SplitEdge> splitE;
+
 };
 
 #endif /* OBJECT_DESIGN_H */

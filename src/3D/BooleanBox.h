@@ -54,7 +54,7 @@ public:
 	/*!\brief Translate BoundingBox by matrix
 	 *
 	 * Only the translatory components are used.
-	 * @param matrix AffineTransformMatrix
+	 * \param matrix AffineTransformMatrix
 	 */
 	void Translate(const AffineTransformMatrix &matrix);
 
@@ -68,9 +68,9 @@ public:
 
 	/*!\brief Resize the box
 	 * Sets up a new box without cutouts.
-	 * @param sx Width
-	 * @param sy Length
-	 * @param sz Height
+	 * \param sx Width
+	 * \param sy Length
+	 * \param sz Height
 	 */
 	void SetSize(float sx, float sy, float sz);
 

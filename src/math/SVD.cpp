@@ -61,15 +61,15 @@ void SVD::Decompose(const Matrix &A) {
 
 	// Detect empty columns, remove columns from matrix
 	empty.clear();
-	for (size_t i = 0; i < N0; ++i) {
+	for (size_t i = 0; i < N0; i++) {
 		bool flagEmpty = true;
 		size_t offs = i * M;
-		for (size_t j = 0; j < M; ++j) {
+		for (size_t j = 0; j < M; j++) {
 			if (fabs(Uc[offs]) > DBL_EPSILON) {
 				flagEmpty = false;
 				break;
 			}
-			++offs;
+			offs++;
 		}
 		if (flagEmpty)
 			empty.push_back(i);
@@ -99,25 +99,25 @@ void SVD::Decompose(const Matrix &A) {
 	// Householder reduction to bi-diagonal form
 	double ANORM = 0.0;
 	RV1c[0] = 0.0;
-	for (size_t I = 0; I < N; ++I) {
+	for (size_t I = 0; I < N; I++) {
 		double G = 0.0;
 		double SCALE = 0.0;
 		if (I <= (M - 1)) {
 			size_t offs1 = I + I * Ucol;
-			for (size_t K = I; K < M; ++K) {
+			for (size_t K = I; K < M; K++) {
 				SCALE += fabs(Uc[offs1]);
 				//SCALE = SCALE + fabs(U(K, I));
-				++offs1;
+				offs1++;
 			}
 			if (fabs(SCALE) > DBL_EPSILON) {
 				double S1 = 0.0;
 				size_t offs11 = I + I * Ucol;
-				for (size_t K = I; K < M; ++K) {
+				for (size_t K = I; K < M; K++) {
 					Uc[offs11] /= SCALE;
 					S1 += Uc[offs11] * Uc[offs11];
 					//U(K, I) /= SCALE;
 					//S1 += U(K, I) * U(K, I);
-					++offs11;
+					offs11++;
 				}
 				//const double F1 = U(I, I);
 				const double F1 = Uc[I + I * Ucol];
@@ -126,33 +126,33 @@ void SVD::Decompose(const Matrix &A) {
 				Uc[I + I * Ucol] = F1 - G;
 				//U(I, I) = F1 - G;
 				if (I != (N - 1)) {
-					for (size_t J = (I + 1); J < N; ++J) {
+					for (size_t J = (I + 1); J < N; J++) {
 						double S2 = 0.0;
 						size_t offs12 = I + I * Ucol;
 						size_t offs2 = I + J * Ucol;
-						for (size_t K = I; K < M; ++K) {
+						for (size_t K = I; K < M; K++) {
 							S2 += Uc[offs12] * Uc[offs2];
 							//S2 += U(K, I) * U(K, J);
-							++offs12;
-							++offs2;
+							offs12++;
+							offs2++;
 						}
 						const double F2 = S2 / H;
 						offs12 = I + I * Ucol;
 						offs2 = I + J * Ucol;
 
-						for (size_t K = I; K < M; ++K) {
+						for (size_t K = I; K < M; K++) {
 							Uc[offs2] += F2 * Uc[offs12];
 							//U(K, J) += F2 * U(K, I);
-							++offs12;
-							++offs2;
+							offs12++;
+							offs2++;
 						}
 					}
 				}
 				offs11 = I + I * Ucol;
-				for (size_t K = I; K < M; ++K) {
+				for (size_t K = I; K < M; K++) {
 					Uc[offs11] *= SCALE;
 					//U(K, I) *= SCALE;
-					++offs11;
+					offs11++;
 				}
 			}
 		}
@@ -162,7 +162,7 @@ void SVD::Decompose(const Matrix &A) {
 		if (I <= (M - 1) && I != (N - 1)) {
 			const size_t L = I + 1;
 			size_t offs1 = I + L * Ucol;
-			for (size_t K = L; K < N; ++K) {
+			for (size_t K = L; K < N; K++) {
 				SCALE += fabs(Uc[offs1]);
 				//SCALE += fabs(U(I, K));
 				offs1 += Ucol;
@@ -170,7 +170,7 @@ void SVD::Decompose(const Matrix &A) {
 			if (fabs(SCALE) > DBL_EPSILON) {
 				double S3 = 0.0;
 				size_t offs14 = I + L * Ucol;
-				for (size_t K = L; K < N; ++K) {
+				for (size_t K = L; K < N; K++) {
 					Uc[offs14] /= SCALE;
 					S3 += Uc[offs14] * Uc[offs14];
 					//U(I, K) /= SCALE;
@@ -184,32 +184,32 @@ void SVD::Decompose(const Matrix &A) {
 				Uc[I + L * Ucol] = F - G;
 				//U(I, L) = F - G;
 				offs14 = I + L * Ucol;
-				for (size_t K = L; K < N; ++K) {
+				for (size_t K = L; K < N; K++) {
 					RV1c[K] = Uc[offs14] * H;
 					//RV1c[K] = U(I, K) / H;
 					offs14 += Ucol;
 				}
 				if (I != (M - 1)) {
-					for (size_t J = L; J < M; ++J) {
+					for (size_t J = L; J < M; J++) {
 						double S2 = 0.0;
 						size_t offs15 = J + L * Ucol;
 						size_t offs2 = I + L * Ucol;
 						const size_t inc = Ucol;
-						for (size_t K = L; K < N; ++K) {
+						for (size_t K = L; K < N; K++) {
 							S2 += Uc[offs15] * Uc[offs2];
 							//S2 += U(J, K) * U(I, K);
 							offs15 += inc;
 							offs2 += inc;
 						}
 						offs15 = J + L * Ucol;
-						for (size_t K = L; K < N; ++K) {
+						for (size_t K = L; K < N; K++) {
 							Uc[offs15] += S2 * RV1c[K];
 							offs15 += inc;
 						}
 					}
 				}
 				offs14 = I + L * Ucol;
-				for (size_t K = L; K < N; ++K) {
+				for (size_t K = L; K < N; K++) {
 					Uc[offs14] *= SCALE;
 					//U(I, K) *= SCALE;
 					offs14 += Ucol;
@@ -231,41 +231,41 @@ void SVD::Decompose(const Matrix &A) {
 				//const double H = 1.0 / (U(I, L) * G);
 				size_t offs1 = L + I * Vcol;
 				size_t offs2 = I + L * Ucol;
-				for (size_t J = L; J < N; ++J) {
+				for (size_t J = L; J < N; J++) {
 					Vc[offs1] = Uc[offs2] * H;
 					//V(J, I) = U(I, J) * H; //(U(I, J) / U(I, L)) / G;
-					++offs1;
+					offs1++;
 					offs2 += Ucol;
 				}
-				for (size_t J = L; J < N; ++J) {
+				for (size_t J = L; J < N; J++) {
 					double S3 = 0.0;
 					size_t offs16 = I + L * Ucol;
 					size_t offs26 = L + J * Vcol;
-					for (size_t K = L; K < N; ++K) {
+					for (size_t K = L; K < N; K++) {
 						S3 += Uc[offs16] * Vc[offs26];
 						//S3 += U(I, K) * V(K, J);
 						offs16 += Ucol;
-						++offs26;
+						offs26++;
 					}
 					offs16 = L + J * Vcol;
 					offs26 = L + I * Vcol;
-					for (size_t K = L; K < N; ++K) {
+					for (size_t K = L; K < N; K++) {
 						Vc[offs16] += S3 * Vc[offs26];
 						//V(K, J) += S3 * V(K, I);
-						++offs16;
-						++offs26;
+						offs16++;
+						offs26++;
 					}
 				}
 			}
 			size_t offs1 = I + L * Vcol;
 			size_t offs2 = L + I * Vcol;
-			for (size_t J = L; J < N; ++J) {
+			for (size_t J = L; J < N; J++) {
 				Vc[offs1] = 0.0;
 				Vc[offs2] = 0.0;
 				//V(I, J) = 0.0;
 				//V(J, I) = 0.0;
 				offs1 += Vcol;
-				++offs2;
+				offs2++;
 			}
 		}
 		Vc[I + I * Vcol] = 1.0;
@@ -279,7 +279,7 @@ void SVD::Decompose(const Matrix &A) {
 		if (I < (N - 1)) {
 			size_t offs1 = I + L * Ucol;
 			size_t inc1 = Ucol;
-			for (size_t J = L; J < N; ++J) {
+			for (size_t J = L; J < N; J++) {
 				Uc[offs1] = 0.0;
 				//U(I, J) = 0.0;
 				offs1 += inc1;
@@ -288,40 +288,40 @@ void SVD::Decompose(const Matrix &A) {
 		if (fabs(G) > DBL_EPSILON) {
 			G = 1.0 / G;
 			if (I != (N - 1)) {
-				for (size_t J = L; J < N; ++J) {
+				for (size_t J = L; J < N; J++) {
 					double S4 = 0.0;
 					size_t offs1 = L + I * Ucol;
 					size_t offs2 = L + J * Ucol;
-					for (size_t K = L; K < M; ++K) {
+					for (size_t K = L; K < M; K++) {
 						S4 += Uc[offs1] * Uc[offs2];
 						//S4 += U(K, I) * U(K, J);
-						++offs1;
-						++offs2;
+						offs1++;
+						offs2++;
 					}
 					const double F = (S4 / Uc[I + I * Ucol]) * G;
 					//const double F = (S4 / U(I, I)) * G;
 					offs1 = I + J * Ucol;
 					offs2 = I + I * Ucol;
-					for (size_t K = I; K < M; ++K) {
+					for (size_t K = I; K < M; K++) {
 						Uc[offs1] += F * Uc[offs2];
 						//U(K, J) += F * U(K, I);
-						++offs1;
-						++offs2;
+						offs1++;
+						offs2++;
 					}
 				}
 			}
 			size_t offs1 = I + I * Ucol;
-			for (size_t J = I; J < M; ++J) {
+			for (size_t J = I; J < M; J++) {
 				Uc[offs1] *= G;
 				//U(J, I) *= G;
-				++offs1;
+				offs1++;
 			}
 		} else {
 			size_t offs1 = I + I * Ucol;
-			for (size_t J = I; J < M; ++J) {
+			for (size_t J = I; J < M; J++) {
 				Uc[offs1] = 0.0;
 				//U(J, I) = 0.0;
-				++offs1;
+				offs1++;
 			}
 		}
 		Uc[I + I * Ucol] += 1.0;
@@ -336,7 +336,7 @@ void SVD::Decompose(const Matrix &A) {
 	// Diagonalization of the bidiagonal form
 	for (size_t K = N; K-- > 0;) {
 		// Loop over singular values
-		for (size_t ITS = 0; ITS <= maxIterations; ++ITS) {
+		for (size_t ITS = 0; ITS <= maxIterations; ITS++) {
 			// Loop over allowed iterations
 			bool flagRun1 = true;
 			size_t L;
@@ -359,7 +359,7 @@ void SVD::Decompose(const Matrix &A) {
 				double C3 = 0.0;
 				double S3 = 1.0;
 
-				for (size_t I = L; I < (K + 1); ++I) {
+				for (size_t I = L; I < (K + 1); I++) {
 					const double F2 = S3 * RV1c[I];
 					if (fabs((fabs(F2) + ANORM) - ANORM) > DBL_EPSILON) {
 						const double G3 = Wc[I];
@@ -370,7 +370,7 @@ void SVD::Decompose(const Matrix &A) {
 						S3 = -F2 * H3;
 						size_t offs1 = NM0 * Ucol;
 						size_t offs2 = I * Ucol;
-						for (size_t J = 0; J < M; ++J) {
+						for (size_t J = 0; J < M; J++) {
 //							const double Y = Uc[offs1];
 //							const double Z = Uc[offs2];
 //							Uc[offs1] = Y * C + Z * S;
@@ -379,8 +379,8 @@ void SVD::Decompose(const Matrix &A) {
 							const double Z = U(J, I);
 							U(J, NM0) = Y * C3 + Z * S3;
 							U(J, I) = -Y * S3 + Z * C3;
-							++offs1;
-							++offs2;
+							offs1++;
+							offs2++;
 						}
 					}
 				}
@@ -394,10 +394,10 @@ void SVD::Decompose(const Matrix &A) {
 					// Singular value is made nonnegative
 					Wc[K] = -Z5;
 					size_t offs1 = K * Vcol;
-					for (size_t J = 0; J < N; ++J) {
+					for (size_t J = 0; J < N; J++) {
 						Vc[offs1] = -Vc[offs1];
 						//V(J, K) = -V(J, K);
-						++offs1;
+						offs1++;
 					}
 				}
 				break;
@@ -423,7 +423,7 @@ void SVD::Decompose(const Matrix &A) {
 			// Next QR Transformation
 			double C5 = 1.0;
 			double S5 = 1.0;
-			for (size_t J = L; J < (NM + 1); ++J) {
+			for (size_t J = L; J < (NM + 1); J++) {
 				size_t I = J + 1;
 				G5 = RV1c[I];
 				Y5 = Wc[I];
@@ -440,7 +440,7 @@ void SVD::Decompose(const Matrix &A) {
 
 				size_t offs1 = 0 + J * Vcol;
 				size_t offs2 = 0 + I * Vcol;
-				for (size_t JJ = 0; JJ < N; ++JJ) {
+				for (size_t JJ = 0; JJ < N; JJ++) {
 					const double X3 = Vc[offs1];
 					const double Z3 = Vc[offs2];
 					Vc[offs1] = X3 * C5 + Z3 * S5;
@@ -449,8 +449,8 @@ void SVD::Decompose(const Matrix &A) {
 					//Z = V(JJ, I);
 					//V(JJ, J) = X * C + Z * S;
 					//V(JJ, I) = -X * S + Z * C;
-					++offs1;
-					++offs2;
+					offs1++;
+					offs2++;
 				}
 				Z5 = sqrt(F5 * F5 + H5 * H5);
 				Wc[J] = Z5;
@@ -464,7 +464,7 @@ void SVD::Decompose(const Matrix &A) {
 				X5 = -S5 * G5 + C5 * Y5;
 				offs1 = J * Ucol;
 				offs2 = I * Ucol;
-				for (size_t JJ = 0; JJ < M; ++JJ) {
+				for (size_t JJ = 0; JJ < M; JJ++) {
 					const double Y3 = Uc[offs1];
 					const double Z3 = Uc[offs2];
 					Uc[offs1] = Y3 * C5 + Z3 * S5;
@@ -473,8 +473,8 @@ void SVD::Decompose(const Matrix &A) {
 					//const double Z = U(JJ, I);
 					//U(JJ, J) = Y * C + Z * S;
 					//U(JJ, I) = -Y * S + Z * C;
-					++offs1;
-					++offs2;
+					offs1++;
+					offs2++;
 				}
 			}
 			RV1c[L] = 0.0;
@@ -489,7 +489,7 @@ void SVD::Decompose(const Matrix &A) {
 		W.SetSize(N0);
 		V.MapRows(Matrix::Mode::AssignInverse, empty);
 		V.SetSize(V.Size(0), N0);
-		for (size_t i = 0; i < empty.size(); ++i)
+		for (size_t i = 0; i < empty.size(); i++)
 			V(empty[i], N + i) = 1.0;
 	}
 
@@ -505,7 +505,7 @@ void SVD::Decompose(const Matrix &A) {
 			return Wp[i1] > Wp[i2];
 		});
 		U.MapCols(Matrix::Mode::Assign, idx);
-		for (size_t n = Nw; n < N0; ++n)
+		for (size_t n = Nw; n < N0; n++)
 			idx.push_back(n);
 		W.MapRows(Matrix::Mode::Assign, idx);
 		V.MapCols(Matrix::Mode::Assign, idx);
@@ -551,24 +551,24 @@ Matrix SVD::Solve(const Matrix &Y, double maxCond, double minAllowed) const {
 	const size_t Ucol = U.Size(0);
 	const size_t Vcol = V.Size(0);
 
-	for (size_t J = 0; J < NJ; ++J) {
+	for (size_t J = 0; J < NJ; J++) {
 		const double SV = Wc[J];
 		if (SV < smin || SV < minAllowed || SV <= DBL_EPSILON)
 			continue;
 		const double SVI = 1.0 / SV;
-		for (size_t L = 0; L < NL; ++L) {
+		for (size_t L = 0; L < NL; L++) {
 			size_t idxY = L * NK;
 			size_t idxU = J * Ucol;
-			for (size_t K = 0; K < NK; ++K) {
+			for (size_t K = 0; K < NK; K++) {
 				size_t idxX = L * NI;
 				size_t idxV = J * Vcol;
-				for (size_t I = 0; I < NI; ++I) {
+				for (size_t I = 0; I < NI; I++) {
 					Xc[idxX] += Vc[idxV] * SVI * Uc[idxU] * Yc[idxY];
-					++idxV;
-					++idxX;
+					idxV++;
+					idxX++;
 				}
-				++idxU;
-				++idxY;
+				idxU++;
+				idxY++;
 			}
 		}
 	}
@@ -587,12 +587,12 @@ Matrix SVD::Variation(double maxCond, double minAllowed) const {
 	auto Vc = V.data();
 	const size_t Vcol = V.Size(0);
 
-	for (size_t J = 0; J < Vcol; ++J) {
+	for (size_t J = 0; J < Vcol; J++) {
 		const double SV = Wc[J];
 		if (SV < smin || SV < minAllowed || SV <= DBL_EPSILON)
 			continue;
-		for (size_t I = 0; I < NI; ++I) {
-			for (size_t K = 0; K < NI; ++K) {
+		for (size_t I = 0; I < NI; I++) {
+			for (size_t K = 0; K < NI; K++) {
 				X(I, K) -= V(I, J) * V(K, J);
 			}
 		}

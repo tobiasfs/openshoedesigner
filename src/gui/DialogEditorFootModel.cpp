@@ -108,7 +108,7 @@ DialogEditorFootModel::~DialogEditorFootModel() {
 void DialogEditorFootModel::SetMidi(std::shared_ptr<MidiDevice> midi) {
 	device = midi;
 
-	for (size_t n = 0; n < 32; ++n)
+	for (size_t n = 0; n < 32; n++)
 		device->cc[n] = 0;
 	device->cc[32] = 127;
 	device->Push(0, 56);
@@ -118,19 +118,19 @@ void DialogEditorFootModel::OnTimer(wxTimerEvent &event) {
 	if (device->Poll()) {
 
 		uint8_t temp = mode;
-		for (size_t n = 32; n < 48; ++n) {
+		for (size_t n = 32; n < 48; n++) {
 			if (n == mode)
 				continue;
 			if (device->cc[n])
 				temp = n;
 		}
 		if (temp != mode) {
-			for (size_t n = 32; n < 48; ++n) {
+			for (size_t n = 32; n < 48; n++) {
 				if (n != temp)
 					device->cc[n] = 0;
 			}
 			mode = temp;
-			for (uint8_t n = 48; n <= 55; ++n)
+			for (uint8_t n = 48; n <= 55; n++)
 				device->cc[n] = 0;
 
 			switch (mode) {

@@ -475,8 +475,8 @@ public:
 	 * Rotate the Volume around an axis. Some functions use this feature to
 	 * access the model from all sides.
 	 *
-	 * @param a Axis of rotation (enum X,Y or Z).
-	 * @param quarters Number of 90 degree turns to do.
+	 * \param a Axis of rotation (enum X, Y or Z).
+	 * \param quarters Number of 90 degree turns to do.
 	 */
 	void Rotate(Axis a, int quarters);
 
@@ -511,10 +511,10 @@ public:
 		const size_t N = matrix.Size(0);
 		const size_t M = matrix.Size(1);
 		os << "[";
-		for (size_t n = 0; n < N; ++n) {
+		for (size_t n = 0; n < N; n++) {
 			if (n > 0)
 				os << "; ";
-			for (size_t m = 0; m < M; ++m) {
+			for (size_t m = 0; m < M; m++) {
 				if (m > 0)
 					os << ", ";
 				os << matrix(n, m);

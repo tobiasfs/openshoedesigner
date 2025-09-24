@@ -659,7 +659,8 @@ void Builder::Connect(Project &project) {
 void Builder::Update(Project &project) {
 	error.clear();
 
-	project.design->UpdateEdges();
+	project.design->Update();
+
 	Setup(project);
 
 #ifdef DEBUG

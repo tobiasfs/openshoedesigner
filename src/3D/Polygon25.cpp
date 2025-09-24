@@ -115,7 +115,7 @@ void Polygon25::PolygonDiminish(double r) {
 bool Polygon25::IsElementInside(const Vector3 &vTest) const {
 	// Using the Jordan Polygon Theorem
 
-	// TODO Check the numerical stability of this algorithm. Some suspicious ==s are used.
+	//TODO Check the numerical stability of this algorithm. Some suspicious == are used.
 
 	int_fast8_t c = 1;
 	size_t E = v.size();

@@ -59,7 +59,7 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 	};
 
 //	dc.SetPen(*c);
-//	for (size_t n = 0; n < insole->CountEdges(); ++n) {
+//	for (size_t n = 0; n < insole->CountEdges(); n++) {
 //		const auto &ed = insole->GetEdge(n);
 //		if (ed.trianglecount >= 2)
 //			continue;
@@ -70,7 +70,7 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 //		dc.DrawLine(p0.x, p0.y, p1.x, p1.y);
 //	}
 
-	for (size_t n = 0; n < insole->outline.CountEdges(); ++n) {
+	for (size_t n = 0; n < insole->outline.CountEdges(); n++) {
 		const auto &ed = insole->outline.GetEdge(n);
 		const auto &v0 = insole->outline.GetEdgeVertex(n, 0);
 		const auto &v1 = insole->outline.GetEdgeVertex(n, 1);
@@ -151,7 +151,7 @@ void CanvasInsole::PaintInsole(wxDC &dc, const AffineTransformMatrix &m,
 	dc.DrawLine(P.x, P.y, J.x, J.y);
 	dc.DrawLine(J.x, J.y, M.x, M.y);
 
-//	for (size_t n = 0; n < insole->CountVertices(); ++n) {
+//	for (size_t n = 0; n < insole->CountVertices(); n++) {
 //		const auto &v1 = insole->GetVertex(n);
 //		Vector3 p3 = m.Transform(v1.u, v1.v);
 //		Vector3 p4 = m.Transform(v1.u + v1.n.x, v1.v + v1.n.y);

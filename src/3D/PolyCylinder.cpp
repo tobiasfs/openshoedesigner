@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : PolyCylinder.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -68,13 +68,13 @@ void PolyCylinder::CircleSection::Segment::Paint() const {
 }
 
 void PolyCylinder::CircleSection::Scale(double sy, double sz) {
-	for (size_t n = 0; n < segments.size(); ++n)
+	for (size_t n = 0; n < segments.size(); n++)
 		segments[n].Scale(sy, sz);
 }
 
 double PolyCylinder::CircleSection::GetLength() const {
 	double d = 0.0;
-	for (size_t n = 0; n < segments.size(); ++n)
+	for (size_t n = 0; n < segments.size(); n++)
 		d += segments[n].GetLength();
 	return d;
 }
@@ -93,13 +93,13 @@ Vector3 PolyCylinder::CircleSection::Evaluate(double r) const {
 }
 
 void PolyCylinder::CircleSection::Paint() const {
-	for (size_t n = 0; n < segments.size(); ++n)
+	for (size_t n = 0; n < segments.size(); n++)
 		segments[n].Paint();
 }
 
 void PolyCylinder::Scale(double sx, double sy, double sz) {
 	dx = sx;
-	for (size_t n = 0; n < sections.size(); ++n)
+	for (size_t n = 0; n < sections.size(); n++)
 		sections[n].Scale(sy, sz);
 }
 
@@ -179,9 +179,9 @@ void PolyCylinder::Load(std::string filename) {
 // Spread the data into the model.
 	sections.resize(dim[0]);
 	size_t p = 0;
-	for (size_t n = 0; n < dim[0]; ++n) {
+	for (size_t n = 0; n < dim[0]; n++) {
 		sections[n].segments.resize(dim[1]);
-		for (size_t m = 0; m < dim[1]; ++m) {
+		for (size_t m = 0; m < dim[1]; m++) {
 			sections[n].segments[m].z0.Resize(4);
 			sections[n].segments[m].y0.Resize(4);
 			sections[n].segments[m].z0[0] = temp[p++];
@@ -202,7 +202,7 @@ void PolyCylinder::Load(std::string filename) {
 
 void PolyCylinder::Paint() const {
 	glPushMatrix();
-	for (size_t n = 0; n < sections.size(); ++n) {
+	for (size_t n = 0; n < sections.size(); n++) {
 		sections[n].Paint();
 		glTranslatef(dx, 0, 0);
 	}
@@ -218,7 +218,7 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 	{
 		a.Zero();
 		double r = 0.0;
-		for (size_t m = 0; m < N; ++m) {
+		for (size_t m = 0; m < N; m++) {
 			a += sections[0].Evaluate(r);
 			r += dr;
 		}
@@ -226,7 +226,7 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 		a.x = -0.5 * dx;
 		r = 0.0;
 		b = sections[0].Evaluate(0);
-		for (size_t m = 0; m < N; ++m) {
+		for (size_t m = 0; m < N; m++) {
 			r += dr;
 			c = sections[0].Evaluate(r);
 			if (mirrored) {
@@ -238,13 +238,13 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 		}
 	}
 
-	for (size_t n = 1; n < sections.size(); ++n) {
+	for (size_t n = 1; n < sections.size(); n++) {
 		double r = 0.0;
 		a = sections[n - 1].Evaluate(r);
 		b = sections[n].Evaluate(r);
 		a.x = (n - 1) * dx;
 		b.x = (n) * dx;
-		for (size_t m = 0; m < N; ++m) {
+		for (size_t m = 0; m < N; m++) {
 			r += dr;
 			c = sections[n - 1].Evaluate(r);
 			d = sections[n].Evaluate(r);
@@ -262,7 +262,7 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 	{
 		a.Zero();
 		double r = 0.0;
-		for (size_t m = 0; m < N; ++m) {
+		for (size_t m = 0; m < N; m++) {
 			a += sections[sections.size() - 1].Evaluate(r);
 			r += dr;
 		}
@@ -271,7 +271,7 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 		r = 0.0;
 		b = sections[sections.size() - 1].Evaluate(0);
 		b.x = (sections.size() - 1) * dx;
-		for (size_t m = 0; m < N; ++m) {
+		for (size_t m = 0; m < N; m++) {
 			r += dr;
 			c = sections[sections.size() - 1].Evaluate(r);
 			c.x = (sections.size() - 1) * dx;

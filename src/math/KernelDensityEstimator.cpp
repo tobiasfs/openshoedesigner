@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : KernelDensityEstimator.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -87,7 +87,7 @@ void KernelDensityEstimator::Insert(double pos, double kernel(double),
 			p = p - CycleLength();
 		px = p + CycleLength() / 2.0;
 	}
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		double v;
 		if (IsCyclic()) {
 			v = X()[n] - (p + ((X()[n] >= px) ? CycleLength() : 0));
@@ -123,7 +123,7 @@ void KernelDensityEstimator::Attenuate(double pos, double kernel(double),
 			p = p - CycleLength();
 		px = p + CycleLength() / 2.0;
 	}
-	for (size_t n = 0; n < N; ++n) {
+	for (size_t n = 0; n < N; n++) {
 		double v;
 		if (IsCyclic()) {
 			v = X()[n] - (p + ((X()[n] >= px) ? CycleLength() : 0));
@@ -149,7 +149,7 @@ void KernelDensityEstimator::NormalizeByCoverage() {
 		throw std::logic_error(out.str());
 	}
 	const size_t N = Length();
-	for (size_t n = 0; n < N; ++n)
+	for (size_t n = 0; n < N; n++)
 		if (coverage[n] > FLT_EPSILON)
 			Y()[n] /= coverage[n];
 	coverage.assign(N, 0.0);

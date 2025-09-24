@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : HeightField.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -102,7 +102,7 @@ void HeightField::Clear() {
 void HeightField::SetValues(double *v, unsigned int size) {
 	if (size > N)
 		return;
-	for (size_t n = 0; n < size; ++n)
+	for (size_t n = 0; n < size; n++)
 		this->value[n] = v[n];
 }
 

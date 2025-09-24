@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : GeometrySplitter.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -41,7 +41,7 @@ void GeometrySplitter::Split() {
 			throw std::runtime_error(
 					"This should not happen. Vertex.group too large.");
 		}
-		objects[gr].AddVertex(vec, cv++);
+		objects[gr].AddVertexWithIndex(vec, cv++);
 	}
 	size_t ce = 0;
 	for (const auto &ed : e) {
@@ -50,7 +50,7 @@ void GeometrySplitter::Split() {
 			throw std::runtime_error(
 					"This should not happen. Edge.group too large.");
 		}
-		objects[gr].AddEdge(ed, ce++);
+		objects[gr].AddEdgeWithIndex(ed, ce++);
 	}
 	size_t ct = 0;
 	for (const auto &tri : t) {
@@ -59,7 +59,7 @@ void GeometrySplitter::Split() {
 			throw std::runtime_error(
 					"This should not happen. Triangle.group too large.");
 		}
-		objects[gr].AddTriangle(tri, ct++);
+		objects[gr].AddTriangleWithIndex(tri, ct++);
 	}
 
 	// Map all elements of all objects.
@@ -72,9 +72,9 @@ void GeometrySplitter::Split() {
 	bbs.assign(groupCount, BoundingBox());
 	size_t n = 0;
 	for (const auto &obj : objects) {
-		for (size_t m = 0; m < obj.CountVertices(); ++m) {
+		for (size_t m = 0; m < obj.CountVertices(); m++) {
 			bbs[n].Insert( { obj[m].x, obj[m].y, obj[m].z });
 		}
-		++n;
+		n++;
 	}
 }

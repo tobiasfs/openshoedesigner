@@ -72,7 +72,7 @@ AffineTransformMatrix::AffineTransformMatrix(const Vector3 &ex,
 AffineTransformMatrix::AffineTransformMatrix(const std::string &numbers) {
 	size_t pos = 0;
 	const std::string numchars("+-.ABCDEFINTXYabcdefintxy0123456789");
-	for (uint_fast8_t i = 0; i < 16; ++i) {
+	for (uint_fast8_t i = 0; i < 16; i++) {
 		const auto posStart = numbers.find_first_of(numchars, pos);
 		if (posStart == std::string::npos)
 			throw std::invalid_argument(
@@ -120,7 +120,7 @@ void AffineTransformMatrix::SetZero() {
 }
 
 void AffineTransformMatrix::ResetRotationAndScale() {
-	for (uint_fast8_t i = 0; i < 12; ++i)
+	for (uint_fast8_t i = 0; i < 12; i++)
 		a[i] = 0.0;
 	a[0] = 1.0;
 	a[5] = 1.0;
@@ -803,7 +803,7 @@ double AffineTransformMatrix::GlobalZ(double x, double y, double z) const {
 double AffineTransformMatrix::Distance(
 		const AffineTransformMatrix &other) const {
 	double temp = 0.0;
-	for (uint_fast8_t n = 0; n < 16; ++n)
+	for (uint_fast8_t n = 0; n < 16; n++)
 		temp += (a[n] - other.a[n]) * (a[n] - other.a[n]);
 	return sqrt(temp);
 
@@ -824,7 +824,7 @@ std::string AffineTransformMatrix::ToString() {
 	std::ostringstream out;
 	out << '[';
 	out << a[0];
-	for (uint_fast8_t n = 1; n < 16; ++n) {
+	for (uint_fast8_t n = 1; n < 16; n++) {
 		out << ',';
 		out << a[n];
 	}
@@ -840,7 +840,7 @@ void AffineTransformMatrix::GLSetUniformMatrix4(int location) const {
 	if (location == -1)
 		return;
 	std::array<GLfloat, 16> mat;
-	for (uint_fast8_t idx = 0; idx < 16; ++idx)
+	for (uint_fast8_t idx = 0; idx < 16; idx++)
 		mat[idx] = a[idx];
 	glUniformMatrix4fv(location, 1, GL_FALSE, mat.data());
 }
@@ -849,8 +849,8 @@ void AffineTransformMatrix::GLSetUniformMatrix3(int location) const {
 	if (location == -1)
 		return;
 	std::array<GLfloat, 9> mat;
-	for (uint_fast8_t col = 0; col < 3; ++col)
-		for (uint_fast8_t row = 0; row < 3; ++row)
+	for (uint_fast8_t col = 0; col < 3; col++)
+		for (uint_fast8_t row = 0; row < 3; row++)
 			mat[col * 3 + row] = a[col * 4 + row];
 	glUniformMatrix3fv(location, 1, GL_FALSE, mat.data());
 }
@@ -870,7 +870,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 		const double rad = 0.133 * param0;
 
 		AffineTransformMatrix c = *this;
-		for (uint_fast8_t i = 0; i < 3; ++i) {
+		for (uint_fast8_t i = 0; i < 3; i++) {
 			glPushName(i);
 			SetColor(useColors, i + 1, param1);
 
@@ -885,7 +885,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			const double n1 = sin(M_PI_4);
 			glBegin(GL_LINES);
 			const Vector3 p0 = c.Transform(len, 0, 0);
-			for (uint_fast8_t j = 0; j < NSides; ++j) {
+			for (uint_fast8_t j = 0; j < NSides; j++) {
 				const double ang = 2 * M_PI / NSides * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -992,7 +992,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 	case Style::Cylinder: {
 		const uint16_t N = ceil(param2 * 16.0);
 		AffineTransformMatrix c = *this;
-		for (uint_fast8_t i = 0; i < 3; ++i) {
+		for (uint_fast8_t i = 0; i < 3; i++) {
 			glPushName(i);
 			SetColor(useColors, i + 1, param2);
 
@@ -1000,7 +1000,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glBegin(GL_TRIANGLE_FAN);
 			GLNormal(n0);
 			GLVertex(c(0, 0, 0));
-			for (uint_fast16_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; j++) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -1008,7 +1008,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			}
 			glEnd();
 			glBegin(GL_QUAD_STRIP);
-			for (uint_fast16_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; j++) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -1019,7 +1019,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glEnd();
 			GLNormal(n0);
 			glBegin(GL_QUAD_STRIP);
-			for (uint_fast16_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; j++) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -1030,7 +1030,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glBegin(GL_TRIANGLE_FAN);
 			GLNormal(c(1, 0, 0));
 			GLVertex(c(1, 0, 0));
-			for (uint_fast16_t j = 0; j <= N; ++j) {
+			for (uint_fast16_t j = 0; j <= N; j++) {
 				const double ang = 2 * M_PI / N * (double) j;
 				const double co = cos(ang);
 				const double si = sin(ang);
@@ -1068,7 +1068,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 	case Style::Planes: {
 
 		AffineTransformMatrix c = *this;
-		for (uint_fast8_t i = 0; i < 3; ++i) {
+		for (uint_fast8_t i = 0; i < 3; i++) {
 			glPushName(i);
 			SetColor(useColors, i + 1, param1);
 			const Vector3 n0 = c.TransformWithoutShift(-M_SQRT1_2,
@@ -1100,7 +1100,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glPopName();
 		}
 		c = *this;
-		for (uint_fast8_t i = 0; i < 3; ++i) {
+		for (uint_fast8_t i = 0; i < 3; i++) {
 			glPushName(i);
 			SetColor(useColors, i + 1, param1);
 			const Vector3 n = c.TransformWithoutShift(-1, 0, 0);
@@ -1127,7 +1127,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 	case Style::BoxWithoutColors: {
 
 		AffineTransformMatrix c = *this;
-		for (uint_fast8_t i = 0; i < 3; ++i) {
+		for (uint_fast8_t i = 0; i < 3; i++) {
 			glPushName(i);
 
 			const Vector3 n0 = c.TransformWithoutShift(-M_SQRT1_2, -M_SQRT1_2,
@@ -1171,7 +1171,7 @@ void AffineTransformMatrix::Paint(const Style style, const double param0,
 			glPopName();
 		}
 		c = *this;
-		for (uint_fast8_t i = 0; i < 3; ++i) {
+		for (uint_fast8_t i = 0; i < 3; i++) {
 			glPushName(i);
 			if (style != Style::BoxWithoutColors)
 				SetColor(useColors, i + 1, param1);

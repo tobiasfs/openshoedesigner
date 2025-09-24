@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OrientedMatrix.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -54,7 +54,7 @@ public:
 	 * Set the origin of the Volume to this point. Together with SetCount or SetSize
 	 * it determines the start and end coordinates of the Volume.
 	 *
-	 * @param origin Vector3 of origin
+	 * \param origin Vector3 of origin
 	 */
 	void SetOrigin(Vector3 origin);
 	void SetSize(unsigned int nx, unsigned int ny, unsigned int nz,
@@ -66,8 +66,8 @@ public:
 	 * Returns the interpolated value of the field at the point p. Points
 	 * outside the volume are 0.
 	 *
-	 * @param p Vector3 point
-	 * @return Value at the point p
+	 * \param p Vector3 point
+	 * \return Value at the point p
 	 */
 	double GetValue(Vector3 p) const;
 
@@ -76,10 +76,10 @@ public:
 	 * Returns the interpolated value of the field at the point x,y,z. Points
 	 * outside the volume are 0.
 	 *
-	 * @param x coordinate
-	 * @param y coordinate
-	 * @param z coordinate
-	 * @return Value at the point p
+	 * \param x coordinate
+	 * \param y coordinate
+	 * \param z coordinate
+	 * \return Value at the point p
 	 */
 	double GetValue(double x, double y, double z) const;
 
@@ -87,8 +87,8 @@ public:
 	 *
 	 * Calculates the gradient in a point by deriving the value of the field in x,y and z.
 	 * The returned vector points in the direction of the steppest ascent in the field.
-	 * @param p Vector3 point
-	 * @return Vector3 gradient at point p
+	 * \param p Vector3 point
+	 * \return Vector3 gradient at point p
 	 */
 	Vector3 GetGrad(Vector3 p) const;
 
@@ -96,7 +96,7 @@ public:
 	 *
 	 * Calculate the lower surface of the volume and returns this data in a 2D-%Volume.
 	 *
-	 * @return Volume with heightfield
+	 * \return Volume with heightfield
 	 */
 	OrientedMatrix SurfaceField() const;
 
@@ -111,8 +111,8 @@ public:
 	 *
 	 * Rotate the Volume around an axis. Some functions use this feature to access the model from all sides.
 	 *
-	 * @param a Axis of rotation (enum X,Y or Z).
-	 * @param quarters Number of 90 degree turns to do.
+	 * \param a Axis of rotation (enum X,Y or Z).
+	 * \param quarters Number of 90 degree turns to do.
 	 */
 	void Rotate(Axis a, int quarters);
 

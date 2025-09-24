@@ -145,7 +145,7 @@ std::string Unit::ToString(bool useNegativeExponents,
 	int bestf = 0;
 	size_t pos = 0;
 	do {
-		for (size_t n = 0; n < derivedunitcount; ++n) {
+		for (size_t n = 0; n < derivedunitcount; n++) {
 			int cf = derivedUnits[n].Compare(temp);
 			if (first && cf <= 0)
 				continue;
@@ -158,7 +158,7 @@ std::string Unit::ToString(bool useNegativeExponents,
 		}
 		if (bestf != 0) {
 			f[pos] = bestf;
-			for (size_t n = 0; n < unitcount; ++n)
+			for (size_t n = 0; n < unitcount; n++)
 				temp[n] -= derivedUnits[pos].exp[n] * bestf;
 			bestv = derivedUnits[0].Diff(temp, 0);
 		}
@@ -167,7 +167,7 @@ std::string Unit::ToString(bool useNegativeExponents,
 
 	first = true;
 	int fractioncount = 0;
-	for (size_t n = 0; n < derivedunitcount; ++n) {
+	for (size_t n = 0; n < derivedunitcount; n++) {
 		if (f[n] < 0)
 			++fractioncount;
 		if (f[n] <= 0 && !useNegativeExponents)
@@ -196,7 +196,7 @@ std::string Unit::ToString(bool useNegativeExponents,
 	if (fractioncount > 1)
 		buf << '(';
 	first = true;
-	for (size_t n = 0; n < derivedunitcount; ++n) {
+	for (size_t n = 0; n < derivedunitcount; n++) {
 		if (f[n] >= 0)
 			continue;
 		if (first)
@@ -222,7 +222,7 @@ std::string Unit::ToString(bool useNegativeExponents,
 
 std::ostream& operator<<(std::ostream &out, const Unit &unit) {
 //	out << " [";
-//	for (size_t n = 0; n < Unit::unitcount; ++n) {
+//	for (size_t n = 0; n < Unit::unitcount; n++) {
 //		if (n > 0)
 //			out << ", ";
 //		out << unit.powerunit[n];
@@ -239,7 +239,7 @@ std::ostream& operator<<(std::ostream &out, const Unit &unit) {
 
 Unit& Unit::operator *=(const Unit &rhs) {
 
-	for (size_t i = 0; i < Unit::unitcount; ++i)
+	for (size_t i = 0; i < Unit::unitcount; i++)
 		this->powerunit[i] += rhs.powerunit[i];
 	this->otherName = "?";
 	return *this;
@@ -252,7 +252,7 @@ const Unit Unit::operator *(const Unit &rhs) const {
 }
 
 Unit& Unit::operator /=(const Unit &rhs) {
-	for (size_t i = 0; i < Unit::unitcount; ++i)
+	for (size_t i = 0; i < Unit::unitcount; i++)
 		this->powerunit[i] -= rhs.powerunit[i];
 	this->otherName = "?";
 	return *this;
@@ -265,7 +265,7 @@ const Unit Unit::operator /(const Unit &rhs) const {
 }
 
 bool Unit::operator==(const Unit &rhs) const {
-	for (size_t i = 0; i < Unit::unitcount; ++i)
+	for (size_t i = 0; i < Unit::unitcount; i++)
 		if (this->powerunit[i] != rhs.powerunit[i])
 			return false;
 	return true;
@@ -302,11 +302,11 @@ void Unit::Power(const double exponent) {
 	if (fabs(exponent) < 1.0) {
 		double f = (double) 1.0 / exponent;
 		double r = std::round(f);
-		for (size_t i = 0; i < Unit::unitcount; ++i)
+		for (size_t i = 0; i < Unit::unitcount; i++)
 			this->powerunit[i] /= f;
 
 	} else {
-		for (size_t i = 0; i < Unit::unitcount; ++i)
+		for (size_t i = 0; i < Unit::unitcount; i++)
 			this->powerunit[i] *= exponent;
 	}
 
@@ -344,7 +344,7 @@ int Unit::DerivedUnit::Compare(const std::array<int, unitcount> &rhs) const {
 int Unit::DerivedUnit::Diff(const std::array<int, unitcount> &rhs,
 		int factor) const {
 	int r = 0;
-	for (uint_fast8_t n = 0; n < unitcount; ++n)
+	for (uint_fast8_t n = 0; n < unitcount; n++)
 		r += std::abs(exp[n] * factor - rhs[n]);
 	return r;
 }
@@ -803,8 +803,8 @@ std::array<size_t, Unit::stateCount * Unit::charWidth> Unit::actionTable =
 
 std::array<size_t, Unit::stateCount * Unit::charWidth> Unit::InitStateTransitionTable() {
 	std::array<size_t, Unit::stateCount * Unit::charWidth> table { };
-	for (size_t state = 0; state < Unit::stateCount; ++state) {
-		for (uint16_t c = 0; c < Unit::charWidth; ++c) {
+	for (size_t state = 0; state < Unit::stateCount; state++) {
+		for (uint16_t c = 0; c < Unit::charWidth; c++) {
 			size_t value = 0;
 			if (state == 1) {
 				if (c == ' ')
@@ -1074,8 +1074,8 @@ std::array<size_t, Unit::stateCount * Unit::charWidth> Unit::InitStateTransition
 
 std::array<size_t, Unit::stateCount * Unit::charWidth> Unit::InitActionTable() {
 	std::array<size_t, Unit::stateCount * Unit::charWidth> table { };
-	for (size_t state = 0; state < Unit::stateCount; ++state) {
-		for (uint16_t c = 0; c < Unit::charWidth; ++c) {
+	for (size_t state = 0; state < Unit::stateCount; state++) {
+		for (uint16_t c = 0; c < Unit::charWidth; c++) {
 			size_t value = 0;
 			if (state == 1) {
 				if (c == 'E')

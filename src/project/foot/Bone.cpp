@@ -190,9 +190,9 @@ void Bone::Paint() const {
 			return Vector3(-cos(v), sin(v) * cos(w), sin(v) * sin(w));
 		};
 		if (r1 > r2) {
-			for (size_t m = 0; m < M; ++m) {
+			for (size_t m = 0; m < M; m++) {
 				glBegin(GL_QUAD_STRIP);
-				for (size_t n = 0; n <= N; ++n) {
+				for (size_t n = 0; n <= N; n++) {
 					const Vector3 v1 = sphere(n, m + 1);
 					const Vector3 v2 = sphere(n, m);
 					if (matrix.GetOrientation()
@@ -211,9 +211,9 @@ void Bone::Paint() const {
 				glEnd();
 			}
 		} else {
-			for (size_t m = 0; m < M; ++m) {
+			for (size_t m = 0; m < M; m++) {
 				glBegin(GL_QUAD_STRIP);
-				for (size_t n = 0; n <= N; ++n) {
+				for (size_t n = 0; n <= N; n++) {
 					const Vector3 v1 = sphere(n, m + 1);
 					const Vector3 v2 = sphere(n, m);
 					if (matrix.GetOrientation()

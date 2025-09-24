@@ -548,9 +548,9 @@ void Volume::CalcSurface() {
 	Vector3 p11;
 	Triangle t;
 	unsigned int c = 0;
-	for (size_t k = 0; k < Nz - 1; ++k) {
-		for (size_t j = 0; j < Ny - 1; ++j) {
-			for (size_t i = 0; i < Nx - 1; ++i) {
+	for (size_t k = 0; k < Nz - 1; k++) {
+		for (size_t j = 0; j < Ny - 1; j++) {
+			for (size_t i = 0; i < Nx - 1; i++) {
 
 				const double v0 = operator[](c);
 				const double v1 = operator[](c + 1);

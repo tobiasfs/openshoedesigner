@@ -50,7 +50,7 @@ OpenGLPick::OpenGLPick(size_t bufferSize) {
 //	size_t m = bufferSize;
 //	if (newSize < m)
 //		m = newSize;
-//	for (size_t n = 0; n < m; ++n)
+//	for (size_t n = 0; n < m; n++)
 //		temp[n] = buffer[n];
 //	if (buffer != nullptr)
 //		delete[] buffer;
@@ -96,7 +96,7 @@ void OpenGLPick::SortByNear() {
 	while (!sorted) {
 		sorted = true;
 		size_t p1 = 0;
-		for (size_t r = 0; r < results - 1; ++r) {
+		for (size_t r = 0; r < results - 1; r++) {
 			if (r > 0)
 				p1 += buffer[p1] + 3;
 			const size_t p2 = p1 + buffer[p1] + 3;
@@ -109,15 +109,15 @@ void OpenGLPick::SortByNear() {
 				const size_t N1 = buffer[p1] + 3; // Number of uints in result m
 				const size_t N2 = buffer[p2] + 3; // Number of uints in result m+1
 				// Copy everything to the sort buffer
-				for (size_t n = 0; n < (N1 + N2); ++n)
+				for (size_t n = 0; n < (N1 + N2); n++)
 					sort[n] = buffer[p1 + n];
 				// Pointer to keep track of position
 				size_t p = p1;
 				// Copy back result m+1
-				for (size_t n = 0; n < N2; ++n)
+				for (size_t n = 0; n < N2; n++)
 					buffer[p++] = sort[N1 + n];
 				// Copy back result m
-				for (size_t n = 0; n < N1; ++n)
+				for (size_t n = 0; n < N1; n++)
 					buffer[p++] = sort[n];
 
 				sorted = false;
@@ -176,7 +176,7 @@ GLuint OpenGLPick::Far(size_t idxHit) {
 std::string OpenGLPick::ToString() const {
 	std::stringstream out;
 
-	for (size_t idxHit = 0; idxHit < results; ++idxHit) {
+	for (size_t idxHit = 0; idxHit < results; idxHit++) {
 		MoveBufferPos(idxHit);
 		out << " " << idxHit << " -> ";
 		const size_t IDs = buffer[pos];
@@ -197,7 +197,7 @@ std::string OpenGLPick::ToString() const {
 
 //size_t OpenGLPick::NearestWithLevel0(size_t L0) {
 //	size_t temp = 0;
-//	for (size_t n = 0; n < results; ++n) {
+//	for (size_t n = 0; n < results; n++) {
 //		MoveBufferPos(n);
 //		GLuint N = buffer[pos];
 //		if (N < 1)

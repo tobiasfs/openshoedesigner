@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Dependencies.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -41,18 +41,18 @@ void Dependencies::Calculate() {
 	size_t kj = (size_t) -1;
 	size_t ki;
 //	size_t L = 0;
-	for (ki = 0; ki < N; ++ki) {
+	for (ki = 0; ki < N; ki++) {
 		double max;
 		size_t p;
 		do {
-			++kj;
+			kj++;
 			if (kj >= M)
 				break;
 			p = 0;
 			max = 0.0;
-			for (size_t i = ki; i < N; ++i) {
+			for (size_t i = ki; i < N; i++) {
 				double s = (double) 0.0;
-				for (size_t j = kj; j < M; ++j)
+				for (size_t j = kj; j < M; j++)
 					s += fabs(operator[](i + j * N));
 				if (s < DBL_EPSILON) {
 					continue;
@@ -72,42 +72,42 @@ void Dependencies::Calculate() {
 			continue;
 		if (p != ki) {
 			// Swap rows
-			for (size_t j = 0; j < M; ++j)
+			for (size_t j = 0; j < M; j++)
 				std::swap(operator[](ki + j * N), operator[](p + j * N)); // @suppress("Invalid arguments")
 		}
 //		L = ki;
 		const double pivot = operator[](ki + kj * N);
-		for (size_t j = 0; j < M; ++j)
+		for (size_t j = 0; j < M; j++)
 			operator[](ki + j * N) /= pivot;
-		for (size_t j = 0; j < M; ++j) {
+		for (size_t j = 0; j < M; j++) {
 			if (j != kj) {
-				for (size_t i = 0; i < N; ++i)
+				for (size_t i = 0; i < N; i++)
 					if (i != ki)
 						operator[](i + j * N) -= operator[](i + kj * N)
 								* operator[](ki + j * N);
 			}
 		}
-		for (size_t i = 0; i < N; ++i)
+		for (size_t i = 0; i < N; i++)
 			if (i != ki)
 				operator[](i + kj * N) -= operator[](ki + kj * N)
 						* operator[](i + kj * N);
 //		PlotMatrix();
 	}
 
-	for (size_t j = kj + 1; j < M; ++j)
+	for (size_t j = kj + 1; j < M; j++)
 		Q.push_back(j);
 
 	Dependencies temp = *this;
 	const size_t W = Q.size();
 	this->SetSize(M, W);
 	size_t k = 0;
-	for (size_t i = 0; i < M; ++i) {
+	for (size_t i = 0; i < M; i++) {
 		if (Q[k] == i) {
-			for (size_t g = 0; g < W; ++g)
+			for (size_t g = 0; g < W; g++)
 				operator[](i + g * M) = (g == k) ? 1.0 : 0.0;
-			++k;
+			k++;
 		} else {
-			for (size_t g = 0; g < W; ++g)
+			for (size_t g = 0; g < W; g++)
 				operator[](i + g * M) = -temp[i - k + Q[g] * N];
 		}
 	}
@@ -118,8 +118,8 @@ void Dependencies::PlotMatrix() const {
 	const size_t N = Size(0);
 	const size_t M = Size(1);
 	std::cout << "---\n";
-	for (size_t i = 0; i < N; ++i) {
-		for (size_t j = 0; j < M; ++j) {
+	for (size_t i = 0; i < N; i++) {
+		for (size_t j = 0; j < M; j++) {
 			if (j > 0)
 				std::cout << '\t';
 			std::cout << operator[](i + j * N);

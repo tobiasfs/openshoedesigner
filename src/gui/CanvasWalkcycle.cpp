@@ -131,7 +131,7 @@ void CanvasWalkcycle::PaintGrid(wxDC &dc) {
 	int y1 = (int) floor(unit.FromSI(maxY));
 
 	dc.SetPen(*c0);
-	for (int x = x0; x <= x1; ++x) {
+	for (int x = x0; x <= x1; x++) {
 		double xx = unit.ToSI((double) x);
 		if (x % multiplier == 0) {
 			if (x == 0)
@@ -149,7 +149,7 @@ void CanvasWalkcycle::PaintGrid(wxDC &dc) {
 
 	}
 	dc.SetPen(*c0);
-	for (int y = y0; y <= y1; ++y) {
+	for (int y = y0; y <= y1; y++) {
 		double yy = unit.ToSI((double) y);
 		if (y % multiplier == 0) {
 			if (y == 0)

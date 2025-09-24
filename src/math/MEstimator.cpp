@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : MEstimator.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -147,7 +147,7 @@ void MEstimator::EstimateY(const DependentVector &data,
 		return;
 	std::vector<double> width;
 	width.assign(data.Length(), 0.0);
-	for (size_t m = xstart; m <= xend; ++m) {
+	for (size_t m = xstart; m <= xend; m++) {
 		if (m == 0) {
 			width[m] = data.At(m + 1) - data.At(0);
 		} else {
@@ -162,20 +162,20 @@ void MEstimator::EstimateY(const DependentVector &data,
 //	std::vector <double> weight;
 	weight.assign(data.Length(), 0.0);
 	double L = 0.0;
-	for (size_t m = xstart; m <= xend; ++m) {
+	for (size_t m = xstart; m <= xend; m++) {
 		weight[m] = width[m] * weighting(((2.0 * L + width[m]) / L0) - 1.0);
 		L += width[m];
 	}
-	for (size_t n = 0; n < Length(); ++n) {
+	for (size_t n = 0; n < Length(); n++) {
 		double temp = 0.0;
-		for (size_t m = xstart; m <= xend; ++m) {
+		for (size_t m = xstart; m <= xend; m++) {
 			const double estimation = estimator.Rho(
 					(data.At(m, 1) - At(n)) / sigma);
 			temp += estimation * weight[m];
 		}
 		Y()[n] = temp;
 	}
-	for (size_t m = xstart; m <= xend; ++m)
+	for (size_t m = xstart; m <= xend; m++)
 		if (width[m] > 1e-9)
 			weight[m] /= width[m];
 }
@@ -194,7 +194,7 @@ void MEstimator::EstimateX(const DependentVector &data,
 
 //	std::vector <double> width;
 //	width.resize(data.Length());
-//	for(size_t m = xstart; m <= xend; ++m){
+//	for(size_t m = xstart; m <= xend; m++){
 //		if(m == 0){
 //			width[m] = data.X(m + 1) - data.X(0);
 //		}else{
@@ -208,13 +208,13 @@ void MEstimator::EstimateX(const DependentVector &data,
 
 	const size_t N = data.Length();
 	SetSize(N, 2);
-	for (size_t n = 0; n < N; ++n)
+	for (size_t n = 0; n < N; n++)
 		At(n) = data.At(n);
 
-	for (size_t m = 0; m < xstart; ++m)
+	for (size_t m = 0; m < xstart; m++)
 		Y()[m] = estimator.Rho(-DBL_MAX);
-	for (size_t m = xstart; m <= xend; ++m)
+	for (size_t m = xstart; m <= xend; m++)
 		Y()[m] = estimator.Rho((data.At(m, 1) - yValue) / sigma);
-	for (size_t m = xend + 1; m < N; ++m)
+	for (size_t m = xend + 1; m < N; m++)
 		Y()[m] = estimator.Rho(DBL_MAX);
 }

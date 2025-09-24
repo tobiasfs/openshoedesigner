@@ -204,16 +204,14 @@ bool openshoedesigner::OnInit() {
 	parent->Show(false);
 
 	try {
-		Project *project;
+
 		if (loadOnStartup.IsEmpty()) {
-			project = (Project*) docManager->CreateDocument(wxEmptyString,
-					wxDOC_NEW);
+			docManager->CreateDocument(wxEmptyString, wxDOC_NEW);
 		} else {
-			project = (Project*) docManager->CreateDocument(loadOnStartup, 0);
-//					wxDOC_SILENT);
+			docManager->CreateDocument(loadOnStartup, 0); // wxDOC_SILENT);
 		}
 	} catch (std::exception &exception) {
-		std::cerr << "Exeption caught on first CreateDocument:\n"
+		std::cerr << "Exception caught on first CreateDocument:\n"
 				<< exception.what() << "\n";
 	}
 

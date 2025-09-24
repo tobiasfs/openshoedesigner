@@ -130,7 +130,7 @@ public:
 
 	/*!\brief Transform BoundingBox by matrix
 	 *
-	 * @param matrix AffineTransformMatrix
+	 * \param matrix AffineTransformMatrix
 	 */
 	void Transform(const AffineTransformMatrix &matrix);
 

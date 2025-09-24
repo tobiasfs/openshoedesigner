@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OrientedMatrix.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -70,13 +70,15 @@ double OrientedMatrix::GetValue(double x, double y, double z) const {
 	const double px = floor(hx);
 	const double py = floor(hy);
 	const double pz = floor(hz);
+	if (px < 0.0 || py < 0.0 || pz < 0.0)
+		return 0.0;
 	const double mx = hx - px;
 	const double my = hy - py;
 	const double mz = hz - pz;
-	const int ix = (int) px;
-	const int iy = (int) py;
-	const int iz = (int) pz;
-	if (ix < 0 || iy < 0 || iz < 0 || ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz)
+	const size_t ix = (size_t) px;
+	const size_t iy = (size_t) py;
+	const size_t iz = (size_t) pz;
+	if (ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz)
 		return 0.0;
 	const int pos = ix + (iy + iz * Ny) * Nx;
 	double v = 0.0;
@@ -101,15 +103,16 @@ Vector3 OrientedMatrix::GetGrad(Vector3 p) const {
 	const double px = floor(hx);
 	const double py = floor(hy);
 	const double pz = floor(hz);
+	Vector3 temp;
+	if (px < 0.0 || py < 0.0 || pz < 0.0)
+		return temp;
 	const double mx = hx - px;
 	const double my = hy - py;
 	const double mz = hz - pz;
-	const int ix = (int) px;
-	const int iy = (int) py;
-	const int iz = (int) pz;
-
-	Vector3 temp;
-	if (ix < 0 || iy < 0 || iz < 0 || ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz)
+	const size_t ix = (size_t) px;
+	const size_t iy = (size_t) py;
+	const size_t iz = (size_t) pz;
+	if (ix + 2 > Nx || iy + 2 > Ny || iz + 2 > Nz)
 		return temp;
 	const size_t pos = ix + (iy + iz * Ny) * Nx;
 	const double v0 = operator[](pos);

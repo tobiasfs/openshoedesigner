@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version 3.10.1-0-g8feb16b)
+// C++ code generated with wxFormBuilder (version 4.2.1-85-gdf26f269)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -1139,9 +1139,9 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	sbSizerPatternElementProperties = new wxStaticBoxSizer( new wxStaticBox( m_panelPagePattern, wxID_ANY, _("Properties") ), wxVERTICAL );
 
 	m_propertyGridPatternElement = new wxPropertyGrid(sbSizerPatternElementProperties->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE|wxPG_HIDE_CATEGORIES|wxPG_HIDE_MARGIN|wxPG_SPLITTER_AUTO_CENTER|wxTAB_TRAVERSAL);
-	m_propertyGridItemName = m_propertyGridPatternElement->Append( new wxStringProperty( _("Name"), _("Name") ) );
-	m_propertyGridItemVisible = m_propertyGridPatternElement->Append( new wxBoolProperty( _("Visible"), _("Visible") ) );
-	m_propertyGridItemFabric = m_propertyGridPatternElement->Append( new wxMultiChoiceProperty( _("Fabric"), _("Fabric") ) );
+	m_propertyGridItemName = m_propertyGridPatternElement->Append( new wxStringProperty( _("Name") ) );
+	m_propertyGridItemVisible = m_propertyGridPatternElement->Append( new wxBoolProperty( _("Visible") ) );
+	m_propertyGridItemFabric = m_propertyGridPatternElement->Append( new wxMultiChoiceProperty( _("Fabric") ) );
 	sbSizerPatternElementProperties->Add( m_propertyGridPatternElement, 0, wxEXPAND|wxALL, 5 );
 
 
@@ -1219,7 +1219,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelCanvasPattern->SetSizer( bSizerCanvasPattern );
 	m_panelCanvasPattern->Layout();
 	bSizerCanvasPattern->Fit( m_panelCanvasPattern );
-	m_notebookCanvas->AddPage( m_panelCanvasPattern, _("Pattern"), false );
+	m_notebookCanvas->AddPage( m_panelCanvasPattern, _("Pattern"), true );
 	m_panelFlattening = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasFlattening;
 	bSizerCanvasFlattening = new wxBoxSizer( wxVERTICAL );
@@ -1236,7 +1236,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelFlattening->SetSizer( bSizerCanvasFlattening );
 	m_panelFlattening->Layout();
 	bSizerCanvasFlattening->Fit( m_panelFlattening );
-	m_notebookCanvas->AddPage( m_panelFlattening, _("Flattening"), true );
+	m_notebookCanvas->AddPage( m_panelFlattening, _("Flattening"), false );
 	m_panelCanvasTestStitch = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasTestStitch;
 	bSizerCanvasTestStitch = new wxBoxSizer( wxVERTICAL );
@@ -2813,14 +2813,14 @@ GUIFrameCalculator::GUIFrameCalculator( wxWindow* parent, wxWindowID id, const w
 	m_staticTextXMin->Wrap( -1 );
 	wSizerX->Add( m_staticTextXMin, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlXMin = new ExtendedTextCtrl( m_panelX, ID_XMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlXMin = new ExtendedTextCtrl( m_panelX, ID_XMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerX->Add( m_textCtrlXMin, 0, wxALL, 5 );
 
 	m_staticTextXMax = new wxStaticText( m_panelX, wxID_ANY, _("x max:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextXMax->Wrap( -1 );
 	wSizerX->Add( m_staticTextXMax, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlXMax = new ExtendedTextCtrl( m_panelX, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlXMax = new ExtendedTextCtrl( m_panelX, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerX->Add( m_textCtrlXMax, 0, wxALL, 5 );
 
 
@@ -2851,28 +2851,28 @@ GUIFrameCalculator::GUIFrameCalculator( wxWindow* parent, wxWindowID id, const w
 	m_staticTextXMin2->Wrap( -1 );
 	wSizerXY->Add( m_staticTextXMin2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlXMin2 = new ExtendedTextCtrl( m_panelXY, ID_XMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlXMin2 = new ExtendedTextCtrl( m_panelXY, ID_XMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXY->Add( m_textCtrlXMin2, 0, wxALL, 5 );
 
 	m_staticTextXMax2 = new wxStaticText( m_panelXY, wxID_ANY, _("x max:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextXMax2->Wrap( -1 );
 	wSizerXY->Add( m_staticTextXMax2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlXMax2 = new ExtendedTextCtrl( m_panelXY, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlXMax2 = new ExtendedTextCtrl( m_panelXY, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXY->Add( m_textCtrlXMax2, 0, wxALL, 5 );
 
 	m_staticTextYMin2 = new wxStaticText( m_panelXY, wxID_ANY, _("y min:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextYMin2->Wrap( -1 );
 	wSizerXY->Add( m_staticTextYMin2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlYMin2 = new ExtendedTextCtrl( m_panelXY, ID_YMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlYMin2 = new ExtendedTextCtrl( m_panelXY, ID_YMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXY->Add( m_textCtrlYMin2, 0, wxALL, 5 );
 
 	m_staticTextYMax2 = new wxStaticText( m_panelXY, wxID_ANY, _("y max:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextYMax2->Wrap( -1 );
 	wSizerXY->Add( m_staticTextYMax2, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlYMax2 = new ExtendedTextCtrl( m_panelXY, ID_YMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlYMax2 = new ExtendedTextCtrl( m_panelXY, ID_YMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXY->Add( m_textCtrlYMax2, 0, wxALL, 5 );
 
 
@@ -2910,35 +2910,35 @@ GUIFrameCalculator::GUIFrameCalculator( wxWindow* parent, wxWindowID id, const w
 	m_staticTextXMax3->Wrap( -1 );
 	wSizerXYZ->Add( m_staticTextXMax3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlXMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlXMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_XMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXYZ->Add( m_textCtrlXMax3, 0, wxALL, 5 );
 
 	m_staticTextYMin3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("y Min:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextYMin3->Wrap( -1 );
 	wSizerXYZ->Add( m_staticTextYMin3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlYMin3 = new ExtendedTextCtrl( m_panelXYZ, ID_YMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlYMin3 = new ExtendedTextCtrl( m_panelXYZ, ID_YMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXYZ->Add( m_textCtrlYMin3, 0, wxALL, 5 );
 
 	m_staticTextYMax3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("y max:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextYMax3->Wrap( -1 );
 	wSizerXYZ->Add( m_staticTextYMax3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlYMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_YMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlYMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_YMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXYZ->Add( m_textCtrlYMax3, 0, wxALL, 5 );
 
 	m_staticTextZMin3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("z min:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextZMin3->Wrap( -1 );
 	wSizerXYZ->Add( m_staticTextZMin3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlZMin3 = new ExtendedTextCtrl( m_panelXYZ, ID_ZMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlZMin3 = new ExtendedTextCtrl( m_panelXYZ, ID_ZMIN, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXYZ->Add( m_textCtrlZMin3, 0, wxALL, 5 );
 
 	m_staticTextZMax3 = new wxStaticText( m_panelXYZ, wxID_ANY, _("z max:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticTextZMax3->Wrap( -1 );
 	wSizerXYZ->Add( m_staticTextZMax3, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlZMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_ZMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_PROCESS_ENTER );
+	m_textCtrlZMax3 = new ExtendedTextCtrl( m_panelXYZ, ID_ZMAX, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTER|wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	wSizerXYZ->Add( m_textCtrlZMax3, 0, wxALL, 5 );
 
 
@@ -3081,7 +3081,7 @@ GUIFrameCalculator::GUIFrameCalculator( wxWindow* parent, wxWindowID id, const w
 	m_staticTextMaxSteps->Wrap( -1 );
 	bSizerCheckbox->Add( m_staticTextMaxSteps, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlMaxSteps = new ExtendedTextCtrl( m_panelRight, ID_MAXSTEPS, _("10000"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrlMaxSteps = new ExtendedTextCtrl( m_panelRight, ID_MAXSTEPS, _("10000"), wxDefaultPosition, wxDefaultSize, wxTE_DONTWRAP|wxTE_PROCESS_ENTER );
 	m_textCtrlMaxSteps->SetToolTip( _("Maximum number of instructions to execute. Prevents infinite loops.") );
 
 	bSizerCheckbox->Add( m_textCtrlMaxSteps, 0, wxALL, 5 );

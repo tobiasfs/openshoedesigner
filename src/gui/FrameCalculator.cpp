@@ -43,11 +43,11 @@ FrameCalculator::FrameCalculator(wxWindow *parent) :
 
 		wxFont font(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL,
 				wxFONTWEIGHT_NORMAL);
-		for (int n = wxSTC_C_DEFAULT; n <= wxSTC_STYLE_LASTPREDEFINED + 5; ++n)
+		for (int n = wxSTC_C_DEFAULT; n <= wxSTC_STYLE_LASTPREDEFINED + 5; n++)
 			m_textCtrlCode->StyleSetFont(n, font);
-		for (int n = wxSTC_C_DEFAULT; n <= wxSTC_STYLE_LASTPREDEFINED + 5; ++n)
+		for (int n = wxSTC_C_DEFAULT; n <= wxSTC_STYLE_LASTPREDEFINED + 5; n++)
 			m_textCtrlAsm->StyleSetFont(n, font);
-		for (int n = wxSTC_C_DEFAULT; n <= wxSTC_STYLE_LASTPREDEFINED + 5; ++n)
+		for (int n = wxSTC_C_DEFAULT; n <= wxSTC_STYLE_LASTPREDEFINED + 5; n++)
 			m_textCtrlStack->StyleSetFont(n, font);
 
 		m_textCtrlCode->StyleSetForeground(wxSTC_C_NUMBER, wxColour("BROWN"));
@@ -169,7 +169,7 @@ wxThread::ExitCode FrameCalculator::Entry() {
 		const size_t idxX = updaterVm.heap.GetIndex("x");
 		Polynomial mapX = Polynomial::ByValue(0, xmin.ToDouble(), Nx - 1,
 				xmax.ToDouble());
-		for (size_t nx = 0; nx < Nx; ++nx) {
+		for (size_t nx = 0; nx < Nx; nx++) {
 			updaterVm.Reset();
 			const double x = mapX((double) nx);
 			values1D->Insert(x, nx, 0);
@@ -180,7 +180,7 @@ wxThread::ExitCode FrameCalculator::Entry() {
 					width = updaterVm.stack.size() + 1;
 					values1D->SetSize(Nx, width);
 				}
-				for (size_t m = 0; m < updaterVm.stack.size(); ++m)
+				for (size_t m = 0; m < updaterVm.stack.size(); m++)
 					values1D->Insert(updaterVm.stack[m].ToDouble(), nx, m + 1);
 			} catch (const std::exception &ex) {
 			}
@@ -202,8 +202,8 @@ wxThread::ExitCode FrameCalculator::Entry() {
 				xmax.ToDouble());
 		Polynomial mapY = Polynomial::ByValue(0, ymin.ToDouble(), Ny - 1,
 				ymax.ToDouble());
-		for (size_t ny = 0; ny < Ny; ++ny) {
-			for (size_t nx = 0; nx < Nx; ++nx) {
+		for (size_t ny = 0; ny < Ny; ny++) {
+			for (size_t nx = 0; nx < Nx; nx++) {
 				updaterVm.Reset();
 				const double x = mapX((double) nx);
 				const double y = mapY((double) ny);
@@ -217,7 +217,7 @@ wxThread::ExitCode FrameCalculator::Entry() {
 						width = updaterVm.stack.size() + 2;
 						values2D->SetSize(Nx, width);
 					}
-					for (size_t m = 0; m < updaterVm.stack.size(); ++m)
+					for (size_t m = 0; m < updaterVm.stack.size(); m++)
 						values2D->Insert(updaterVm.stack[m].ToDouble(),
 								ny * Nx + nx, m + 2);
 				} catch (const std::exception &ex) {
@@ -250,9 +250,9 @@ wxThread::ExitCode FrameCalculator::Entry() {
 
 		values3D->SetSize(Nx, Ny, Nz, 1);
 
-		for (size_t nz = 0; nz < Nz; ++nz) {
-			for (size_t ny = 0; ny < Ny; ++ny) {
-				for (size_t nx = 0; nx < Nx; ++nx) {
+		for (size_t nz = 0; nz < Nz; nz++) {
+			for (size_t ny = 0; ny < Ny; ny++) {
+				for (size_t nx = 0; nx < Nx; nx++) {
 					updaterVm.Reset();
 					const double x = mapX((double) nx);
 					const double y = mapY((double) ny);
@@ -294,17 +294,17 @@ void FrameCalculator::OnThreadUpdate(wxThreadEvent &evt) {
 		const int Nx = 100;
 		const int Ny = 100;
 		if (plots > 0) {
-			for (size_t m = 0; m < plots; ++m) {
+			for (size_t m = 0; m < plots; m++) {
 				std::vector<Vector3> verts(rows);
-				for (size_t n = 0; n < rows; ++n) {
+				for (size_t n = 0; n < rows; n++) {
 					verts[n].x = values2D->operator()(n, 0);
 					verts[n].y = values2D->operator()(n, 1);
 					verts[n].z = values2D->operator()(n, m + 2);
 				}
 				const size_t offset = geo.CountVertices();
 				geo.AddVertex(verts);
-				for (size_t nx = 1; nx < Nx; ++nx)
-					for (size_t ny = 1; ny < Ny; ++ny) {
+				for (size_t nx = 1; nx < Nx; nx++)
+					for (size_t ny = 1; ny < Ny; ny++) {
 						const size_t idx0 = nx + ny * Nx + offset;
 						const size_t idx1 = idx0 - 1;
 						const size_t idx2 = idx1 - Nx;
@@ -692,7 +692,7 @@ void FrameCalculator::UpdateVariables() {
 
 	wxPropertyGridIterator it = m_propertyGridVariables->GetIterator();
 	bool alwaysAppend = false;
-	for (size_t idx = 0; idx < parser.vm.heap.size(); ++idx) {
+	for (size_t idx = 0; idx < parser.vm.heap.size(); idx++) {
 		const auto &var = parser.vm.heap[idx];
 		const std::string &label = var.name;
 
@@ -716,7 +716,7 @@ void FrameCalculator::UpdateStack() {
 		return;
 
 	std::string stack;
-	for (size_t n = 0; n < parser.vm.stack.size(); ++n) {
+	for (size_t n = 0; n < parser.vm.stack.size(); n++) {
 		if (n > 0)
 			stack += "\n";
 		stack += parser.vm.stack[n].ToString();
@@ -727,7 +727,7 @@ void FrameCalculator::UpdateStack() {
 bool FrameCalculator::UpdateInstructions() {
 
 	std::string instructions;
-	for (size_t n = 0; n < parser.vm.instructions.size(); ++n) {
+	for (size_t n = 0; n < parser.vm.instructions.size(); n++) {
 		if (n > 0)
 			instructions += "\n";
 		instructions += parser.vm.GetInstruction(n);
@@ -815,7 +815,7 @@ bool FrameCalculator::MidiIn() {
 
 	bool modified = false;
 
-	for (size_t n = 0; n < parser.vm.heap.size(); ++n) {
+	for (size_t n = 0; n < parser.vm.heap.size(); n++) {
 		const MathParser::VM::Variable &var = parser.vm.heap[n];
 		if (!var.isinput)
 			continue;
@@ -850,7 +850,7 @@ void FrameCalculator::MidiOut() {
 	if (!mididevice)
 		return;
 
-	for (size_t n = 0; n < parser.vm.heap.size(); ++n) {
+	for (size_t n = 0; n < parser.vm.heap.size(); n++) {
 		const MathParser::VM::Variable &var = parser.vm.heap[n];
 		if (!var.isoutput)
 			continue;

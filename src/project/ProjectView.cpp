@@ -179,6 +179,7 @@ void ProjectView::Paint(bool usePicking) const {
 		}
 		if (showUpper) {
 			glPushName(13);
+			OpenGLMaterial::EnableColors();
 			PaintUpper();
 			glPopName();
 		}
@@ -192,6 +193,7 @@ void ProjectView::Paint(bool usePicking) const {
 
 		if (showCoordinateSystem) {
 			glPushName(15);
+			OpenGLMaterial::EnableColors();
 			project->csL->Paint();
 			glPopName();
 		}
@@ -260,6 +262,7 @@ void ProjectView::Paint(bool usePicking) const {
 		}
 		if (showUpper) {
 			glPushName(13);
+			OpenGLMaterial::EnableColors();
 			PaintUpper();
 			glPopName();
 		}
@@ -273,6 +276,7 @@ void ProjectView::Paint(bool usePicking) const {
 
 		if (showCoordinateSystem) {
 			glPushName(15);
+			OpenGLMaterial::EnableColors();
 			project->csR->Paint();
 			glPopName();
 		}
@@ -328,8 +332,8 @@ void ProjectView::PaintFloor() const {
 
 	glBegin(GL_QUADS);
 
-	for (int n = -N; n < N; ++n) {
-		for (int m = -N; m < N; ++m) {
+	for (int n = -N; n < N; n++) {
+		for (int m = -N; m < N; m++) {
 
 			glVertex3f((n - 1) * dd, (m - 1) * dd, 0);
 			glVertex3f((n + 1) * dd, (m - 1) * dd, 0);
@@ -346,7 +350,7 @@ void ProjectView::PaintBackground(bool showBehind) const {
 	if (!showBackground)
 		return;
 	for (std::vector<BackgroundImage>::const_iterator image =
-			background.begin(); image != background.end(); ++image) {
+			background.begin(); image != background.end(); image++) {
 		if (image->showBehindGeometry == showBehind)
 			image->Paint();
 	}

@@ -49,7 +49,7 @@ void FileGTS::ReadStream(Geometry &geo) {
 
 	std::vector<Vector3> vectors;
 	vectors.resize(nv);
-	for (size_t i = 0; i < nv; ++i) {
+	for (size_t i = 0; i < nv; i++) {
 		double x;
 		double y;
 		double z;
@@ -64,7 +64,7 @@ void FileGTS::ReadStream(Geometry &geo) {
 	std::vector<size_t> e1;
 	e0.resize(ne);
 	e1.resize(ne);
-	for (size_t i = 0; i < ne; ++i) {
+	for (size_t i = 0; i < ne; i++) {
 		size_t v0;
 		size_t v1;
 		*inp >> v0 >> v1;
@@ -74,7 +74,7 @@ void FileGTS::ReadStream(Geometry &geo) {
 		e1[i] = v1;
 	}
 
-	for (size_t i = 0; i < nf; ++i) {
+	for (size_t i = 0; i < nf; i++) {
 		size_t v0;
 		size_t v1;
 		size_t v2;

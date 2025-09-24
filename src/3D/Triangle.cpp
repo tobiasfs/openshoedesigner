@@ -100,7 +100,7 @@ std::string Triangle::ToString() const {
 }
 
 void Triangle::Paint(bool useNormals, bool useColors) const {
-	for (uint_fast8_t i = 0; i < 3; ++i) {
+	for (uint_fast8_t i = 0; i < 3; i++) {
 		if (useNormals)
 			::glNormal3f(n[i].x, n[i].y, n[i].z);
 		if (useColors)
