@@ -32,7 +32,7 @@
 #ifdef USE_EIGEN
 #include <Eigen/Dense>
 #else
-#include "../math/SVD.h"
+#include "../../math/SVD.h"
 #endif
 
 #include <algorithm>

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : UpperFlatten.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -81,6 +81,14 @@ bool UpperFlatten::HasToRun() {
 
 void UpperFlatten::Run() {
 	*out = *in;
+
+	for (Geometry &geo : out->patches) {
+		for (size_t vidx = 0; vidx < geo.CountVertices(); vidx++) {
+			Geometry::Vertex &v = geo.GetVertex(vidx);
+			v.u = v.u / 10.0;
+			v.v = v.v / 2.0;
+		}
+	}
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

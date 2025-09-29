@@ -59,6 +59,8 @@ Project::Project() :
 	thread0 = nullptr;
 	thread1 = nullptr;
 
+	// Init the (potential) inputs to the build process.
+
 	design = std::make_shared<Design>();
 
 	insoleFlatL = std::make_shared<Insole>();

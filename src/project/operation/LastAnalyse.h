@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastAnalyse.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   :
@@ -58,7 +58,9 @@ public:
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
+#ifdef DEBUG
 	virtual void Paint() const override;
+#endif
 
 private:
 	void AnalyseForm();

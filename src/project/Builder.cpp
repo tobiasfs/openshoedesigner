@@ -209,49 +209,50 @@ void Builder::Setup(Project &project) {
 }
 
 #ifdef DEBUG
+
 void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out << "digraph{\n";
 	out << "rankdir=TB;\n";
 	out
-			<< "opCoordinateSystemConstruct [shape=record,label=\"{ <i1> in }| opCoordinateSystemConstruct | { <o1> out }\"];\n";
+			<< "opCoordinateSystemConstruct [shape=record,label=\"{ <i1> in } | opCoordinateSystemConstruct | { <o1> out }\"];\n";
 	out << "\"" << opCoordinateSystemConstruct->in
 			<< "\" -> opCoordinateSystemConstruct:i1;\n";
 	out << "opCoordinateSystemConstruct:o1 -> \""
 			<< opCoordinateSystemConstruct->out << "\";\n";
 	out
-			<< "opFootModelLoad [shape=record,label=\"{  }| opFootModelLoad | { <o1> out }\"];\n";
+			<< "opFootModelLoad [shape=record,label=\"{  } | opFootModelLoad | { <o1> out }\"];\n";
 	out << "opFootModelLoad:o1 -> \"" << opFootModelLoad->out << "\";\n";
 	out
-			<< "opFootModelUpdate [shape=record,label=\"{ <i1> in }| opFootModelUpdate | { <o1> out }\"];\n";
+			<< "opFootModelUpdate [shape=record,label=\"{ <i1> in } | opFootModelUpdate | { <o1> out }\"];\n";
 	out << "\"" << opFootModelUpdate->in << "\" -> opFootModelUpdate:i1;\n";
 	out << "opFootModelUpdate:o1 -> \"" << opFootModelUpdate->out << "\";\n";
 	out
-			<< "opFootScanLoad [shape=record,label=\"{  }| opFootScanLoad | { <o1> out }\"];\n";
+			<< "opFootScanLoad [shape=record,label=\"{  } | opFootScanLoad | { <o1> out }\"];\n";
 	out << "opFootScanLoad:o1 -> \"" << opFootScanLoad->out << "\";\n";
 	out
-			<< "opHeelCenter [shape=record,label=\"{ <i1> heel_in | <i2> insole_in }| opHeelCenter | { <o1> heel_out | <o2> insole_out }\"];\n";
+			<< "opHeelCenter [shape=record,label=\"{ <i1> heel_in | <i2> insole_in } | opHeelCenter | { <o1> heel_out | <o2> insole_out }\"];\n";
 	out << "\"" << opHeelCenter->heel_in << "\" -> opHeelCenter:i1;\n";
 	out << "\"" << opHeelCenter->insole_in << "\" -> opHeelCenter:i2;\n";
 	out << "opHeelCenter:o1 -> \"" << opHeelCenter->heel_out << "\";\n";
 	out << "opHeelCenter:o2 -> \"" << opHeelCenter->insole_out << "\";\n";
 	out
-			<< "opHeelConstruct [shape=record,label=\"{ <i1> in }| opHeelConstruct | { <o1> out }\"];\n";
+			<< "opHeelConstruct [shape=record,label=\"{ <i1> in } | opHeelConstruct | { <o1> out }\"];\n";
 	out << "\"" << opHeelConstruct->in << "\" -> opHeelConstruct:i1;\n";
 	out << "opHeelConstruct:o1 -> \"" << opHeelConstruct->out << "\";\n";
 	out
-			<< "opHeelExtractInsole [shape=record,label=\"{ <i1> in }| opHeelExtractInsole | { <o1> out }\"];\n";
+			<< "opHeelExtractInsole [shape=record,label=\"{ <i1> in } | opHeelExtractInsole | { <o1> out }\"];\n";
 	out << "\"" << opHeelExtractInsole->in << "\" -> opHeelExtractInsole:i1;\n";
 	out << "opHeelExtractInsole:o1 -> \"" << opHeelExtractInsole->out
 			<< "\";\n";
 	out
-			<< "opHeelLoad [shape=record,label=\"{  }| opHeelLoad | { <o1> out }\"];\n";
+			<< "opHeelLoad [shape=record,label=\"{  } | opHeelLoad | { <o1> out }\"];\n";
 	out << "opHeelLoad:o1 -> \"" << opHeelLoad->out << "\";\n";
 	out
-			<< "opHeelNormalize [shape=record,label=\"{ <i1> in }| opHeelNormalize | { <o1> out }\"];\n";
+			<< "opHeelNormalize [shape=record,label=\"{ <i1> in } | opHeelNormalize | { <o1> out }\"];\n";
 	out << "\"" << opHeelNormalize->in << "\" -> opHeelNormalize:i1;\n";
 	out << "opHeelNormalize:o1 -> \"" << opHeelNormalize->out << "\";\n";
 	out
-			<< "opInsoleAnalyze [shape=record,label=\"{ <i1> insole_in | <i2> insoleFlat_in }| opInsoleAnalyze | { <o1> insole_out | <o2> insoleFlat_out }\"];\n";
+			<< "opInsoleAnalyze [shape=record,label=\"{ <i1> insole_in | <i2> insoleFlat_in } | opInsoleAnalyze | { <o1> insole_out | <o2> insoleFlat_out }\"];\n";
 	out << "\"" << opInsoleAnalyze->insole_in << "\" -> opInsoleAnalyze:i1;\n";
 	out << "\"" << opInsoleAnalyze->insoleFlat_in
 			<< "\" -> opInsoleAnalyze:i2;\n";
@@ -259,53 +260,55 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 	out << "opInsoleAnalyze:o2 -> \"" << opInsoleAnalyze->insoleFlat_out
 			<< "\";\n";
 	out
-			<< "opInsoleConstruct [shape=record,label=\"{  }| opInsoleConstruct | { <o1> out }\"];\n";
+			<< "opInsoleConstruct [shape=record,label=\"{  } | opInsoleConstruct | { <o1> out }\"];\n";
 	out << "opInsoleConstruct:o1 -> \"" << opInsoleConstruct->out << "\";\n";
 	out
-			<< "opInsoleFlatten [shape=record,label=\"{ <i1> in }| opInsoleFlatten | { <o1> out }\"];\n";
+			<< "opInsoleFlatten [shape=record,label=\"{ <i1> in } | opInsoleFlatten | { <o1> out }\"];\n";
 	out << "\"" << opInsoleFlatten->in << "\" -> opInsoleFlatten:i1;\n";
 	out << "opInsoleFlatten:o1 -> \"" << opInsoleFlatten->out << "\";\n";
 	out
-			<< "opInsoleTransform [shape=record,label=\"{ <i1> in }| opInsoleTransform | { <o1> out }\"];\n";
+			<< "opInsoleTransform [shape=record,label=\"{ <i1> in } | opInsoleTransform | { <o1> out }\"];\n";
 	out << "\"" << opInsoleTransform->in << "\" -> opInsoleTransform:i1;\n";
 	out << "opInsoleTransform:o1 -> \"" << opInsoleTransform->out << "\";\n";
 	out
-			<< "opLastAnalyse [shape=record,label=\"{ <i1> in }| opLastAnalyse | { <o1> out }\"];\n";
+			<< "opLastAnalyse [shape=record,label=\"{ <i1> in } | opLastAnalyse | { <o1> out }\"];\n";
 	out << "\"" << opLastAnalyse->in << "\" -> opLastAnalyse:i1;\n";
 	out << "opLastAnalyse:o1 -> \"" << opLastAnalyse->out << "\";\n";
 	out
-			<< "opLastConstruct [shape=record,label=\"{ <i1> insole | <i2> cs }| opLastConstruct | { <o1> out }\"];\n";
+			<< "opLastConstruct [shape=record,label=\"{ <i1> insole | <i2> cs } | opLastConstruct | { <o1> out }\"];\n";
 	out << "\"" << opLastConstruct->insole << "\" -> opLastConstruct:i1;\n";
 	out << "\"" << opLastConstruct->cs << "\" -> opLastConstruct:i2;\n";
 	out << "opLastConstruct:o1 -> \"" << opLastConstruct->out << "\";\n";
 	out
-			<< "opLastLoad [shape=record,label=\"{  }| opLastLoad | { <o1> out }\"];\n";
+			<< "opLastLoad [shape=record,label=\"{  } | opLastLoad | { <o1> out }\"];\n";
 	out << "opLastLoad:o1 -> \"" << opLastLoad->out << "\";\n";
 	out
-			<< "opLastNormalize [shape=record,label=\"{ <i1> in }| opLastNormalize | { <o1> out }\"];\n";
+			<< "opLastNormalize [shape=record,label=\"{ <i1> in } | opLastNormalize | { <o1> out }\"];\n";
 	out << "\"" << opLastNormalize->in << "\" -> opLastNormalize:i1;\n";
 	out << "opLastNormalize:o1 -> \"" << opLastNormalize->out << "\";\n";
 	out
-			<< "opLastUpdate [shape=record,label=\"{ <i1> in }| opLastUpdate | { <o1> out }\"];\n";
+			<< "opLastUpdate [shape=record,label=\"{ <i1> in } | opLastUpdate | { <o1> out }\"];\n";
 	out << "\"" << opLastUpdate->in << "\" -> opLastUpdate:i1;\n";
 	out << "opLastUpdate:o1 -> \"" << opLastUpdate->out << "\";\n";
 	out
-			<< "opUpperConstruct [shape=record,label=\"{ <i1> design_in | <i2> cs_in }| opUpperConstruct | { <o1> out }\"];\n";
+			<< "opUpperConstruct [shape=record,label=\"{ <i1> design_in | <i2> cs_in } | opUpperConstruct | { <o1> out }\"];\n";
 	out << "\"" << opUpperConstruct->design_in
 			<< "\" -> opUpperConstruct:i1;\n";
 	out << "\"" << opUpperConstruct->cs_in << "\" -> opUpperConstruct:i2;\n";
 	out << "opUpperConstruct:o1 -> \"" << opUpperConstruct->out << "\";\n";
 	out
-			<< "opUpperFlatten [shape=record,label=\"{ <i1> in }| opUpperFlatten | { <o1> out }\"];\n";
+			<< "opUpperFlatten [shape=record,label=\"{ <i1> in } | opUpperFlatten | { <o1> out }\"];\n";
 	out << "\"" << opUpperFlatten->in << "\" -> opUpperFlatten:i1;\n";
 	out << "opUpperFlatten:o1 -> \"" << opUpperFlatten->out << "\";\n";
 	out
-			<< "project [shape=record,label=\"{ <i1> insoleFlatL | <i2> insoleL | <i3> heelL | <i4> lastL | <i5> csL}| project | { }\"];\n";
+			<< "project [shape=record,label=\"{ <i1> insoleFlatL | <i2> insoleL | <i3> heelL | <i4> lastL | <i5> csL | <i6> upperL | <i7> flatteningL } | project | { }\"];\n";
 	out << "\"" << project.insoleFlatL << "\" -> project:i1;\n";
 	out << "\"" << project.insoleL << "\" -> project:i2;\n";
 	out << "\"" << project.heelL << "\" -> project:i3;\n";
 	out << "\"" << project.lastL << "\" -> project:i4;\n";
 	out << "\"" << project.csL << "\" -> project:i5;\n";
+	out << "\"" << project.upperL << "\" -> project:i6;\n";
+	out << "\"" << project.flatteningL << "\" -> project:i7;\n";
 	out << "}\n";
 }
 
@@ -612,8 +615,11 @@ void Builder::Connect(Project &project) {
 	opUpperConstruct->design_in = project.design;
 	opUpperConstruct->cs_in = opCoordinateSystemConstruct->out;
 	opUpperFlatten->in = opUpperConstruct->out;
-	project.upperL = opUpperFlatten->out;
-	project.upperR = opUpperFlatten->out;
+
+	project.upperL = opUpperConstruct->out;
+	project.upperR = opUpperConstruct->out;
+	project.flatteningL = opUpperFlatten->out;
+	project.flatteningR = opUpperFlatten->out;
 	project.csL = opCoordinateSystemConstruct->out;
 	project.csR = opCoordinateSystemConstruct->out;
 

@@ -141,6 +141,11 @@ public:
 	std::shared_ptr<Upper> upperL;
 	std::shared_ptr<Upper> upperR;
 
+	std::shared_ptr<Upper> flatteningL;
+	std::shared_ptr<Upper> flatteningR;
+
+
+
 //	FootModel footL;
 //	FootModel footR;
 

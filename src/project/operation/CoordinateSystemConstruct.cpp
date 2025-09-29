@@ -493,9 +493,9 @@ void CoordinateSystemConstruct::Run() {
 	out->MarkNeeded(false);
 }
 
-void CoordinateSystemConstruct::Paint() const {
 #ifdef DEBUG
+void CoordinateSystemConstruct::Paint() const {
 //	for (const Bezier3 &ellipse : ellipses)
 //		ellipse.Paint();
-#endif
 }
+#endif

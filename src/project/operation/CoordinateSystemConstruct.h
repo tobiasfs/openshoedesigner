@@ -53,7 +53,9 @@ public:
 	virtual bool Propagate() override;
 	virtual bool HasToRun() override;
 	virtual void Run() override;
+#ifdef DEBUG
 	virtual void Paint() const override;
+#endif
 
 public:
 	std::shared_ptr<Insole> in;
