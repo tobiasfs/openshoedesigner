@@ -7,8 +7,8 @@ Shoe design for manufacturing.
 
 # Status
 
-> [!CAUTION] Not working right now. It will quickly crash upon start because the triangulation algorithm needs fixing.
-
+> [!CAUTION]
+> The code is not working right now. It will compile, but quickly crash after start because the triangulation algorithm needs fixing.
 
 | Feature | Status |
 | ------- | ------ |
