@@ -5,23 +5,35 @@ openshoedesigner
 *.pdf
 *.blend?
 test*
-
 gmon.out
-
+/*.zip
 /output
+/notes.md
 
+/material/*.zip
+/pdf
 /references
 /blender
 /rawWWW
 /WWW
 /www
+/Video
+
+/doc/html
+/doc/latex
+
+/doc/*.aux
+/doc/*.toc
+/doc/*.pdf
+/doc/*.backup
+/doc/*.dvi
 
 /build
 /bin_linux
+/bin_win
 /bin_debug
+/bin_release
 /Debug_Linux
 /Debug
 /Release
 
-/doc/html
-/doc/latex
