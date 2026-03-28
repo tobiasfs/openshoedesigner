@@ -89,7 +89,7 @@ public:
 	size_t GeometriesInFile() const;
 
 protected:
-	std::string StringTrim(const std::string &x) const;
+	static std::string StringTrim(const std::string &x);
 
 	std::string filename; ///< Last file read / last file written to
 	std::istream *inp = nullptr;
@@ -97,7 +97,10 @@ protected:
 
 	size_t geometryCount = 0;
 
+	static void GenerateMissingEdges(Geometry &geometry);
+
 public:
+	bool cleanup = true; ///< Joins and sorts the vertices, edges and triangles. It also adds missing edged after reading the triangles from a file.
 	bool joinGeometries = true; ///< If a file contains multiple geometries, these are joint into the same geometry object.
 	std::vector<Geometry> geometries; ///< Other geometries, if not joined.
 

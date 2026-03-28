@@ -34,7 +34,7 @@
 
 static JSON nullobject;
 
-JSON JSON::Load(const std::string &filename) {
+JSON JSON::Load(const fs::path &filename) {
 	std::ifstream in;
 	in.open(filename.c_str(), std::ifstream::in | std::ios::binary);
 	if (!in.good()) {

@@ -35,21 +35,20 @@
 class ControlSpaceOrb: public Control3DAbstract {
 public:
 	ControlSpaceOrb();
-	virtual ~ControlSpaceOrb() = default;
 
-	uint8_t ReturnID() const {
+	uint8_t ReturnID() const override {
 		return CONTROLSPACEORB_ID;
 	}
 
 protected:
-	void InitDevice();
-	bool ProcessPacket();
-	void DataIn(uint8_t c);
+	void InitDevice() override;
+	bool ProcessPacket() override;
+	void DataIn(uint8_t c) override;
 
 private:
 	static const size_t maxDataLength = 64;
-	unsigned char Data[maxDataLength];
-	int idx;
+	std::array<unsigned char, maxDataLength> data;
+	int idx = 0;
 };
 
 #endif // CONTROLSPACEORB_H

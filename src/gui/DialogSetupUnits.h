@@ -28,7 +28,7 @@
 #define DIALOGSETUPUNITS_H
 
 /*!\class DialogSetupUnits
- * \brief Dialog to det the units
+ * \brief Dialog to set the units
  *
  * For length, small distances and angles the unis can be set in this dialog.
  */

@@ -45,7 +45,7 @@ public:
 protected:
 	wxString loadOnStartup;
 	wxLocale locale;
-	wxConfig *config;
+	wxConfig *config = nullptr;
 
 public:
 	void OnAbout(wxCommandEvent&);

@@ -28,16 +28,13 @@
 
 DialogQuickInitFoot::DialogQuickInitFoot(wxWindow *parent) :
 		GUIDialogQuickInitFoot(parent) {
-//	parser.ResetVariables(false);
-//	parser.autoEvaluate = true;
-	length = 0;
-	width = 0;
+	// parser.ResetVariables(false);
+	// parser.autoEvaluate = true;
 }
 
 void DialogQuickInitFoot::OnTextEnter(wxCommandEvent &event) {
 	ParseText(event.GetString().ToStdString());
-
-	//	m_textCtrlShoeSize->Navigate();
+	// m_textCtrlShoeSize->Navigate();
 	// m_buttonInit->SetFocus();
 }
 

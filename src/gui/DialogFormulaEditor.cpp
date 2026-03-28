@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogFormulaEditor.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -31,8 +31,8 @@ DialogFormulaEditor::DialogFormulaEditor(wxWindow *parent) :
 }
 
 void DialogFormulaEditor::OnItemActivated(wxDataViewEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void DialogFormulaEditor::OnButtonClear(wxCommandEvent &event) {
@@ -40,11 +40,11 @@ void DialogFormulaEditor::OnButtonClear(wxCommandEvent &event) {
 }
 
 void DialogFormulaEditor::OnButtonCopy(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void DialogFormulaEditor::OnTextEnter(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }

@@ -192,7 +192,7 @@ void Canvas3D::OnMouseEvent(wxMouseEvent &event) {
 	event.Skip();
 	if (projectview == nullptr)
 		return;
-	Project *project = wxStaticCast(projectview->GetDocument(), Project);
+	const Project *project = wxStaticCast(projectview->GetDocument(), Project);
 
 	int x = event.GetX();
 	int y = event.GetY();

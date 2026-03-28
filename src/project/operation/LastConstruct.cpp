@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastConstruct.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -42,10 +42,10 @@ bool LastConstruct::CanRun() {
 
 	if (!upperLevel)
 		missing = "\"upperLevel\"";
-	if (!insole)
-		missing += missing.empty() ? "\"insole\"" : ", \"insole\"";
-	if (!cs)
-		missing += missing.empty() ? "\"cs\"" : ", \"cs\"";
+	if (!insole_in)
+		missing += missing.empty() ? "\"insole_in\"" : ", \"insole_in\"";
+	if (!cs_in)
+		missing += missing.empty() ? "\"cs_in\"" : ", \"cs_in\"";
 	if (!out)
 		missing += missing.empty() ? "\"out\"" : ", \"out\"";
 
@@ -68,12 +68,12 @@ bool LastConstruct::CanRun() {
 }
 
 bool LastConstruct::Propagate() {
-	if (!upperLevel || !insole || !cs || !out)
+	if (!upperLevel || !insole_in || !cs_in || !out)
 		return false;
 
 	bool parameterModified = false;
-	parameterModified |= !insole->IsValid();
-	parameterModified |= !cs->IsValid();
+	parameterModified |= !insole_in->IsValid();
+	parameterModified |= !cs_in->IsValid();
 	parameterModified |= upperLevel->IsModified();
 
 	bool modify = false;
@@ -82,21 +82,21 @@ bool LastConstruct::Propagate() {
 		out->MarkValid(false);
 	}
 	if (out->IsNeeded()) {
-		modify |= !insole->IsNeeded();
-		modify |= !cs->IsNeeded();
-		insole->MarkNeeded(true);
-		cs->MarkNeeded(true);
+		modify |= !insole_in->IsNeeded();
+		modify |= !cs_in->IsNeeded();
+		insole_in->MarkNeeded(true);
+		cs_in->MarkNeeded(true);
 	}
 	return modify;
 }
 
 bool LastConstruct::HasToRun() {
-	return insole && insole->IsValid() && cs && cs->IsValid() && out
+	return insole_in && insole_in->IsValid() && cs_in && cs_in->IsValid() && out
 			&& !out->IsValid() && out->IsNeeded();
 }
 
 void LastConstruct::Run() {
-	*out = cs->ExtractByUVPlane(0, -1, -upperLevel->ToDouble());
+	*out = cs_in->ExtractByUVPlane(0, -1, -upperLevel->ToDouble());
 
 	//TODO Extend algorithm to stitch the insole to the bottom of the last.
 	DEBUGOUT << GetName() << ": Operation not fully implemented.\n";

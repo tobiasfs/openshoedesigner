@@ -69,10 +69,10 @@ public:
 	class Image {
 	public:
 		Image() = delete;
-		Image(const std::filesystem::path &filename_);
+		explicit Image(const std::filesystem::path &filename_);
 		virtual ~Image();
 
-		void LoadFromString(std::string &data);
+		void LoadFromString(const std::string &data);
 		/**\brief Loads the image-data into the GPU.
 		 *
 		 *  Copies the image into the GPU, assign a texture and assigns the
@@ -106,8 +106,8 @@ public:
 		enum Direction {
 			VAR, PARAM, IN, OUT, UNIFORM
 		};
-		Variable(Direction dir_, std::string type_, std::string name_,
-				int location_ = -1);
+		Variable(Direction dir_, const std::string &type_,
+				const std::string &name_, int location_ = -1);
 		std::string ToDeclaration() const;
 		std::string ToDefinition() const;
 		std::string operator()() const;
@@ -153,7 +153,6 @@ public:
 
 public:
 	OpenGLMaterialX() = default;
-	virtual ~OpenGLMaterialX() = default;
 
 	/**\brief Delete the loaded images and the shader itself from the context
 	 *

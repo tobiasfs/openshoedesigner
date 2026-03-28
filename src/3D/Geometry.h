@@ -63,12 +63,11 @@
 class Polygon3;
 
 class Geometry {
+	friend class Polygon3;
 public:
 
-	class Color {
+	struct Color {
 	public:
-		Color() = default;
-
 		float r = 0.8f;
 		float g = 0.8f;
 		float b = 0.8f;
@@ -77,10 +76,17 @@ public:
 
 	class Vertex: public Vector3 {
 	public:
+		Vector3 n = Vector3();
+		Color c = Color();
+		size_t group = (size_t) -1;
+		double u = 0.0; // Texture u coordinate
+		double v = 0.0; // Texture v coordinate
+
 		Vertex() = default;
 		Vertex(double x_, double y_, double z_ = 0.0, double u_ = 0.0,
 				double v_ = 0.0);
-		Vertex(const Vector3 &vector, const Vector3 &normal = Vector3());
+		explicit Vertex(const Vector3 &vector, const Vector3 &normal =
+				Vector3());
 
 		void Transform(const AffineTransformMatrix &m);
 		void Transform(const AffineTransformMatrix &m,
@@ -89,11 +95,37 @@ public:
 
 		Vertex Interp(const Vertex &b, const double mix) const;
 
-		Vector3 n = Vector3();
-		Color c = Color();
-		size_t group = (size_t) -1;
-		double u = 0.0; // Texture u coordinate
-		double v = 0.0; // Texture v coordinate
+//		Vertex& operator+=(const Vertex &rhs);
+//		Vertex& operator-=(const Vertex &rhs);
+//		Vertex& operator+=(const Vector3 &rhs);
+//		Vertex& operator-=(const Vector3 &rhs);
+//		Vertex& operator*=(double &a);
+//		Vertex& operator/=(double &a);
+
+		friend Vertex operator+(Vertex lhs, const Vertex &rhs) {
+			lhs += rhs;
+			return lhs;
+		}
+		friend Vertex operator-(Vertex lhs, const Vertex &rhs) {
+			lhs -= rhs;
+			return lhs;
+		}
+		friend Vertex operator+(Vertex lhs, const Vector3 &rhs) {
+			lhs += rhs;
+			return lhs;
+		}
+		friend Vertex operator-(Vertex lhs, const Vector3 &rhs) {
+			lhs -= rhs;
+			return lhs;
+		}
+		friend Vertex operator*(Vertex lhs, double rhs) {
+			lhs *= rhs;
+			return lhs;
+		}
+		friend Vertex operator/(Vertex lhs, double rhs) {
+			lhs /= rhs;
+			return lhs;
+		}
 	};
 
 	/**\brief Edge between two vertices
@@ -111,6 +143,19 @@ public:
 	 */
 	class Edge {
 	public:
+		size_t va = (size_t) -1;
+		size_t vb = (size_t) -1;
+		size_t ta = (size_t) -1;
+		size_t tb = (size_t) -1;
+
+		Vector3 n = Vector3();
+		Color c = Color();
+		size_t group = (size_t) -1;
+
+		uint_least8_t trianglecount = 0;
+		bool sharp = false;
+		bool flip = false;
+
 		Edge() = default;
 
 		/**\brief Invert the order of vertices for this edge, if necessary
@@ -160,19 +205,6 @@ public:
 		 * \return True if collapsed.
 		 */
 		bool IsCollapsed() const;
-
-		size_t va = (size_t) -1;
-		size_t vb = (size_t) -1;
-		size_t ta = (size_t) -1;
-		size_t tb = (size_t) -1;
-
-		Vector3 n = Vector3();
-		Color c = Color();
-		size_t group = (size_t) -1;
-
-		uint_least8_t trianglecount = 0;
-		bool sharp = false;
-		bool flip = false;
 	};
 
 	/** \brief Triangle between three vertices
@@ -185,11 +217,31 @@ public:
 	 *    eb : vb to vc
 	 *    ec : va to vc
 	 *
-	 * The flipping of triangles does not affect the ordering or the edge
-	 * association.
+	 * The flipping of triangles does not affect this ordering or the edge
+	 * association; it only inverts the flipped-flag.
 	 */
 	class Triangle {
 	public:
+		size_t va = (size_t) -1;
+		size_t vb = (size_t) -1;
+		size_t vc = (size_t) -1;
+		size_t ea = (size_t) -1;
+		size_t eb = (size_t) -1;
+		size_t ec = (size_t) -1;
+		double tua = 0.0;
+		double tva = 0.0;
+		double tub = 0.0;
+		double tvb = 0.0;
+		double tuc = 0.0;
+		double tvc = 0.0;
+
+		Vector3 n = Vector3();
+		Vector3 t = Vector3();
+		Vector3 b = Vector3();
+		Color c = Color();
+		size_t group = (size_t) -1;
+		bool flip = false; ///< A flipped triangle is painted in the order va, vc, vb instead of va, vb, vc.
+
 		Triangle() = default;
 
 		/**\brief Sort the order of the vertices for this triangle
@@ -223,7 +275,7 @@ public:
 		 *
 		 * \param index0 Reference
 		 * \param index1 Next index
-		 * \return +1 for mathematically positiv, -1 for mathematically
+		 * \return +1 for mathematically positive, -1 for mathematically
 		 * 	       negative, and 0 if one or both vertices do not belong to
 		 * 	       the triangle.
 		 */
@@ -242,25 +294,6 @@ public:
 		 * \return True is collapsed.
 		 */
 		bool IsCollapsed() const;
-
-		size_t va = (size_t) -1;
-		size_t vb = (size_t) -1;
-		size_t vc = (size_t) -1;
-		size_t ea = (size_t) -1;
-		size_t eb = (size_t) -1;
-		size_t ec = (size_t) -1;
-		double tua = 0.0;
-		double tva = 0.0;
-		double tub = 0.0;
-		double tvb = 0.0;
-		double tuc = 0.0;
-		double tvc = 0.0;
-		bool flip = false; ///< A flipped triangle is painted in the order va, vc, vb instead of va, vb, vc.
-		Vector3 t = Vector3();
-		Vector3 b = Vector3();
-		Vector3 n = Vector3();
-		Color c = Color();
-		size_t group = (size_t) -1;
 	};
 
 public:
@@ -281,10 +314,10 @@ public:
 
 	void CopyPropertiesFrom(const Geometry &other);
 
-	void Clear(); ///< Remove all triangles, edges and vertices from the object.
+	virtual void Clear(); ///< Remove all triangles, edges and vertices from the object.
 	bool IsEmpty() const;
 	bool IsClosed() const; ///< Test, if the hull is perfectly closed.
-	bool IsFinished() const; ///< Test if the Finish() function has been called after adding geometries.
+//	bool IsFinished() const; ///< Test if the Finish() function has been called after adding geometries.
 
 	/**\}
 	 * \name Presets for adding geometry
@@ -323,23 +356,38 @@ public:
 	 * \{
 	 */
 
-	void AddVertex(const Geometry::Vertex &vertex);
-	void AddVertex(const std::vector<Vector3> &vertices);
+	/**\brief Generate a number of empty vertices
+	 *
+	 * Change the number of vertices in the geometry object to a given count.
+	 */
+	void SetVertexCount(size_t count);
+	/**\brief Generate a number of empty edges
+	 *
+	 * Change the number of edges in the geometry object to a given count.
+	 */
+	void SetEdgeCount(size_t count);
+	/**\brief Generate a number of empty triangle
+	 *
+	 * Change the number of triangles in the geometry object to a given count.
+	 */
+	void SetTriangleCount(size_t count);
 
-	void AddEdge(const Geometry::Vertex &vertex0,
-			const Geometry::Vertex &vertex1);
+	void AddVertex(const Vertex &vertex);
+	void AddVertex(const std::vector<Vertex> &vertices);
+
+	void AddEdge(const Vertex &vertex0, const Vertex &vertex1);
 //	void AddEdge(const Vector3 &vertex0, const Vector3 &vertex1);
 	void AddEdge(size_t vindex0, size_t vindex1);
 
-	void AddTriangle(const Geometry::Vertex &vertex0,
-			const Geometry::Vertex &vertex1, const Geometry::Vertex &vertex2);
+	void AddTriangle(const Vertex &vertex0, const Vertex &vertex1,
+			const Vertex &vertex2);
 //	void AddTriangle(const Vector3 &vertex0, const Vector3 &vertex1,
 //			const Vector3 &vertex2);
 	void AddTriangle(size_t vindex0, size_t vindex1, size_t vindex2);
 	void AddTriangleFromEdges(size_t eindex0, size_t eindex1, size_t eindex2);
 
-	void AddQuad(const Vector3 &vertex0, const Vector3 &vertex1,
-			const Vector3 &vertex2, const Vector3 &vertex3);
+	void AddQuad(const Vertex &vertex0, const Vertex &vertex1,
+			const Vertex &vertex2, const Vertex &vertex3);
 	void AddQuad(size_t vindex0, size_t vindex1, size_t vindex2,
 			size_t vindex3);
 
@@ -533,14 +581,41 @@ public:
 	 */
 	void FlipNormals();
 
-	void FlagUV(bool inVertices, bool inTriangles);
-	void FlagNormals(bool inVertices, bool inEdges, bool inTriangles);
+//	void FlagUV(bool inVertices, bool inTriangles);
+//	void FlagNormals(bool inVertices, bool inEdges, bool inTriangles);
+//	void FlagColors(bool inVertices, bool inEdges, bool inTriangles);
+
 	void CalculateUVFromBox();
 	void CalculateUVFromAxis(const Vector3 &n, bool symmetric = false);
 	void CalculateUVFromCylinder(const Vector3 &n);
 	void CalculateUVFromSphere(const Vector3 &n);
 
 	void TransformUV(const AffineTransformMatrix &matrix);
+
+//	bool VerticesHaveNormal() const {
+//		return verticesHaveNormal;
+//	}
+//	bool VerticesHaveColor() const {
+//		return verticesHaveColor;
+//	}
+//	bool VerticesHaveTexture() const {
+//		return verticesHaveTextur;
+//	}
+//	bool EdgesHaveNormal() const {
+//		return edgesHaveNormal;
+//	}
+//	bool EdgesHaveColor() const {
+//		return edgesHaveColor;
+//	}
+//	bool TrianglesHaveNormal() const {
+//		return trianglesHaveNormal;
+//	}
+//	bool TrianglesHaveColor() const {
+//		return trianglesHaveColor;
+//	}
+//	bool TrianglesHaveTexture() const {
+//		return trianglesHaveTexture;
+//	}
 
 	/**\brief Calculate the UV coordinate system with normal, tangent and
 	 * bi-tangent.
@@ -600,8 +675,8 @@ public:
 	size_t CountEdges() const; ///< Size of the vector with the vertices.
 	size_t CountTriangles() const; ///< Size of the vector with the vertices.
 
-	const Vertex& operator[](size_t index) const; ///< Overloaded operator to view the vertices
-	Vertex& operator[](size_t index); ///< Overloaded operator to manipulate the vertices
+	virtual const Vertex& operator[](size_t index) const; ///< Overloaded operator to view the vertices
+	virtual Vertex& operator[](size_t index); ///< Overloaded operator to manipulate the vertices
 
 	const Vertex& GetVertex(size_t index) const; ///< Operator to view the vertices
 	Vertex& GetVertex(size_t index); ///< Operator to manipulate the vertices
@@ -699,7 +774,7 @@ public:
 
 	Vector3 GetCenterOfVertices() const; // Center of all vertices.
 	Vector3 GetCenterOfMass() const; // Center of gravity of geometry.
-	double GetArea() const;
+	virtual double GetArea() const;
 	double GetVolume() const;
 
 	/**\brief Sum of all angles at edges with two triangles.
@@ -751,7 +826,7 @@ public:
 	 * \{
 	 */
 
-	void Paint() const;
+	virtual void Paint() const;
 	void PaintTriangles(const std::set<size_t> &sel = std::set<size_t>(),
 			bool invert = true) const;
 	void PaintEdges(const std::set<size_t> &sel = std::set<size_t>(),
@@ -759,7 +834,7 @@ public:
 	void PaintVertices() const;
 	void PaintSelected() const;
 
-	void SendToGLVertexArray(const std::string fields);
+	void SendToGLVertexArray(const std::string &fields);
 	void DeleteGLVertexArray();
 	void Bind();
 
@@ -787,23 +862,21 @@ public:
 	bool paintDirection = false;
 	bool paintSelected = false;
 
-	size_t dotSize = 0; ///< If > 0, dots (GL_POINTS) of this size are shown at the vertices
-
-protected:
-	std::vector<Vertex> v = { }; ///< Vertices
-	std::vector<Edge> e = { }; ///< Edges
-	std::vector<Triangle> t = { }; ///< Triangles
-
 	bool verticesHaveNormal = false;
 	bool verticesHaveColor = false;
-	bool verticesHaveTextur = false;
+	bool verticesHaveTexture = false;
 	bool edgesHaveNormal = false;
 	bool edgesHaveColor = false;
 	bool trianglesHaveNormal = false;
 	bool trianglesHaveColor = false;
 	bool trianglesHaveTexture = false;
 
-	bool finished = false;
+	size_t dotSize = 0; ///< If > 0, dots (GL_POINTS) of this size are shown at the vertices
+
+protected:
+	std::vector<Vertex> v = { }; ///< Vertices
+	std::vector<Edge> e = { }; ///< Edges
+	std::vector<Triangle> t = { }; ///< Triangles
 
 	/**\brief Maps the inserted vertices to the internal indices
 	 *

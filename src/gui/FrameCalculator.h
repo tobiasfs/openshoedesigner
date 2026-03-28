@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameCalculator.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -55,7 +55,7 @@
 
 class FrameCalculator: public GUIFrameCalculator, public wxThreadHelper {
 public:
-	FrameCalculator(wxWindow *parent);
+	explicit FrameCalculator(wxWindow *parent);
 	virtual ~FrameCalculator();
 
 	bool CodeParse();
@@ -81,8 +81,8 @@ protected:
 	virtual void OnStcModified(wxStyledTextEvent &event);
 	virtual void OnTextEnter(wxCommandEvent &event) override;
 
-    void OnClose(wxCloseEvent& evt);
-    void OnThreadUpdate(wxThreadEvent& evt);
+	void OnClose(wxCloseEvent &evt) override;
+	void OnThreadUpdate(wxThreadEvent &evt);
 	virtual void OnTimer(wxTimerEvent &event);
 	virtual wxThread::ExitCode Entry();
 	wxCriticalSection m_dataCS;

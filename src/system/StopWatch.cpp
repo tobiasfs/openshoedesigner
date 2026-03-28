@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : StopWatch.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -27,8 +27,6 @@
 #include "StopWatch.h"
 
 StopWatch::StopWatch() {
-	deltaCPU = 0.0;
-	deltaWall = 0.0;
 	t0CPU = clock();
 #if __cplusplus >= 201103L
 	t0Wall = std::chrono::steady_clock::now();

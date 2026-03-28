@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLImage.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -231,15 +231,15 @@ void OpenGLImage::Paint() const {
 #endif
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0, this->tex_h);
-	glVertex3f(0, 0, 0);
+	glNormal3d(0, 0, 1);
+	glTexCoord2f(.0f, this->tex_h);
+	glVertex3d(0, 0, 0);
 	glTexCoord2f(this->tex_w, this->tex_h);
-	glVertex3f(this->w, 0, 0);
-	glTexCoord2f(this->tex_w, 0);
-	glVertex3f(this->w, this->h, 0);
-	glTexCoord2f(0, 0);
-	glVertex3f(0, this->h, 0);
+	glVertex3f(this->w, .0f, .0f);
+	glTexCoord2f(this->tex_w, .0f);
+	glVertex3f(this->w, this->h, .0f);
+	glTexCoord2d(0, 0);
+	glVertex3f(.0f, this->h, .0f);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_TEXTURE_2D);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameSetupBackgroundImages.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -34,36 +34,36 @@ FrameSetupBackgroundImages::FrameSetupBackgroundImages(wxWindow *parent,
 }
 
 void FrameSetupBackgroundImages::OnButtonAdd(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameSetupBackgroundImages::OnButtonRemove(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameSetupBackgroundImages::OnTextEnter(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameSetupBackgroundImages::OnSpin(wxSpinEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameSetupBackgroundImages::OnRightDown(wxMouseEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameSetupBackgroundImages::OnScroll(wxScrollEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameSetupBackgroundImages::OnCheckBox(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }

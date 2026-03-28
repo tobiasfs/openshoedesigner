@@ -33,8 +33,9 @@ void TransformationMixer::SetBackground(double strength,
 	this->backgroundstrength = strength;
 	this->backgroundtransformation = matrix;
 }
-size_t TransformationMixer::AddSphere(Vector3 center,
-		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
+size_t TransformationMixer::AddSphere(const Vector3 &center,
+		std::function<double(double)> kernel,
+		std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Sphere;
 	temp->v = center;
@@ -44,8 +45,9 @@ size_t TransformationMixer::AddSphere(Vector3 center,
 	return elements.size() - 1;
 }
 
-size_t TransformationMixer::AddCylinder(Vector3 center, Vector3 normal,
-		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
+size_t TransformationMixer::AddCylinder(const Vector3 &center,
+		const Vector3 &normal, std::function<double(double)> kernel,
+		std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Cylinder;
 	temp->v = center;
@@ -56,8 +58,9 @@ size_t TransformationMixer::AddCylinder(Vector3 center, Vector3 normal,
 	return elements.size() - 1;
 }
 
-size_t TransformationMixer::AddPlane(double distance, Vector3 normal,
-		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
+size_t TransformationMixer::AddPlane(double distance, const Vector3 &normal,
+		std::function<double(double)> kernel,
+		std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Plane;
 	temp->n = normal.Normal();
@@ -68,8 +71,9 @@ size_t TransformationMixer::AddPlane(double distance, Vector3 normal,
 	return elements.size() - 1;
 }
 
-size_t TransformationMixer::AddPlane(Vector3 pointonplane, Vector3 normal,
-		std::function<double(double)> kernel, std::function<Vector3(Vector3)> matrix) {
+size_t TransformationMixer::AddPlane(const Vector3 &pointonplane,
+		const Vector3 &normal, std::function<double(double)> kernel,
+		std::function<Vector3(Vector3)> matrix) {
 	auto temp = elements.emplace(elements.end());
 	temp->type = Element::Type::Plane;
 	temp->n = normal.Normal();

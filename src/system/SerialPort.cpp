@@ -370,7 +370,7 @@ size_t SerialPort::SendData(const char *buffer, size_t size) {
 #endif
 }
 
-size_t SerialPort::SendData(std::string data) {
+size_t SerialPort::SendData(const std::string &data) {
 #ifdef __WIN
 	if (m_hIDComDev == NULL)
 		return (0);
@@ -406,7 +406,7 @@ size_t SerialPort::ReadDataWaiting() {
 		return 0;
 	//	tcflush(fd,TCIOFLUSH);
 	while ((buffer_WR + 1) % BUFFER_LEN != buffer_RD) {
-		if (1 != read(fd, m_buffer + buffer_WR, 1))
+		if (1 != read(fd, m_buffer.data() + buffer_WR, 1))
 			break;
 		buffer_WR++;
 		buffer_WR %= BUFFER_LEN;

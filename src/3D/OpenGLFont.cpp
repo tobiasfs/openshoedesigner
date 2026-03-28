@@ -26,11 +26,34 @@
 #include "OpenGLFont.h"
 
 #include "../system/UTF8.h"
+#include "GeometrySplitter.h"
 
 #include <algorithm>
 #include <iostream>
 
 #include "OpenGL.h"
+#include "FilePLY.h"
+#include "FileSTL.h"
+
+std::vector<OpenGLFont> OpenGLFont::ParseGeometry(const fs::path &filename,
+		const size_t font_count, const std::string &glyph_names_) {
+
+	GeometrySplitter fontGeometry;
+	fs::path extension = filename.extension();
+	if (extension == ".ply") {
+		FilePLY ply(filename);
+		ply.Read(fontGeometry);
+	} else if (extension == ".stl") {
+		FileSTL stl(filename);
+		stl.Read(fontGeometry);
+	} else {
+		throw std::runtime_error("Not implementation to handle font geometry.");
+	}
+//	if (!fontGeometry.PassedSelfCheck())
+//		throw std::runtime_error("The data read from fonts.ply is broken.");
+	fontGeometry.Join();
+	return OpenGLFont::ParseGeometry(fontGeometry, glyph_names_, font_count);
+}
 
 std::vector<OpenGLFont> OpenGLFont::ParseGeometry(GeometrySplitter &geometry,
 		const std::string &glyph_names_, const size_t font_count) {
@@ -170,7 +193,7 @@ OpenGLFont::Glyph::Glyph(const Geometry &geometry) {
 	AddFrom(geometry);
 }
 
-void OpenGLFont::Paint(const std::string &txt) const {
+void OpenGLFont::Write(const std::string &txt) const {
 	const auto cps = UTF8::GetCodepoints(txt);
 	double x = 0.0;
 	double y = 0.0;

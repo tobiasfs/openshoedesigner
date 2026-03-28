@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CanvasFlattening.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -39,13 +39,13 @@
 
 class CanvasFlattening: public CanvasMeasurementGrid {
 public:
-	CanvasFlattening(wxWindow *parent, wxWindowID id = wxID_ANY,
+	explicit CanvasFlattening(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
 			const wxString &name = wxPanelNameStr);
 	virtual ~CanvasFlattening();
 
-	void OnPaint(wxPaintEvent &event);
+	void OnPaint(wxPaintEvent &event) override;
 
 };
 

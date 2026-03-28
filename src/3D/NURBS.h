@@ -50,7 +50,7 @@ public:
 
 	void Initialize(size_t nu, size_t nv, bool cyclicU = false, bool cyclicV =
 			false, bool normalizeU = false, bool normalizeV = false);
-	void InsertData(Vector3 v, double w);
+	void InsertData(const Vector3 &v, double w);
 
 	double GetU(int block, int subBlock = -1);
 	double GetV(int block, int subBlock = -1);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : NagataPatch.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -28,10 +28,9 @@
 
 #include  "OpenGL.h"
 
-void NagataPatch::Set(const Vector3& x00, const Vector3& n00,
-		const Vector3& x10, const Vector3& n10, const Vector3& x11,
-		const Vector3& n11, const Vector3& x01, const Vector3& n01)
-{
+void NagataPatch::Set(const Vector3 &x00, const Vector3 &n00,
+		const Vector3 &x10, const Vector3 &n10, const Vector3 &x11,
+		const Vector3 &n11, const Vector3 &x01, const Vector3 &n01) {
 	// Eq. 48:
 	const Vector3 d1 = x10 - x00;
 	const Vector3 d2 = x11 - x10;
@@ -54,8 +53,7 @@ void NagataPatch::Set(const Vector3& x00, const Vector3& n00,
 	c21 = c3 - c1;
 }
 
-Vector3 NagataPatch::c(const Vector3& d, const Vector3& n0, const Vector3 n1)
-{
+Vector3 NagataPatch::c(const Vector3 &d, const Vector3 &n0, const Vector3 &n1) {
 	// Eq. 15:
 	const Vector3 v_ = (n0 + n1) / 2.0;
 	const Vector3 dv = (n0 - n1) / 2.0;
@@ -63,19 +61,18 @@ Vector3 NagataPatch::c(const Vector3& d, const Vector3& n0, const Vector3 n1)
 	const float dd = d.Dot(dv);
 	const float c_ = n0.Dot(n0 - dv * 2.0);
 	const float dc = n0.Dot(dv);
-	if(c_ >= 1.0 || c_ <= -1.0) return Vector3();
+	if (c_ >= 1.0 || c_ <= -1.0)
+		return Vector3();
 	return v_ * (dd / (1 - dc)) + dv * (d_ / dc);
 }
 
-Vector3 NagataPatch::operator ()(const float u, const float v) const
-{
+Vector3 NagataPatch::operator ()(const float u, const float v) const {
 	// Eq. 46:
 	return c00 + c10 * u + c01 * v + c11 * u * v + c20 * u * u + c02 * v * v
 			+ c21 * u * u * v + c12 * u * v * v;
 }
 
-Vector3 NagataPatch::Normal(const float u, const float v) const
-{
+Vector3 NagataPatch::Normal(const float u, const float v) const {
 	// Derivatives of Eq. 46:
 	// d/du
 	const Vector3 nu = c12 * v * v + c21 * 2 * u * v + c11 * v + c20 * 2 * u
@@ -87,11 +84,10 @@ Vector3 NagataPatch::Normal(const float u, const float v) const
 	return (nu * nv).Normal();
 }
 
-void NagataPatch::Paint() const
-{
+void NagataPatch::Paint() const {
 	const float du = 0.1;
 	const float dv = 0.1;
-	for(float u = 0.0; u < 1.0; u += du){
+	for (float u = 0.0; u < 1.0; u += du) {
 		glBegin(GL_QUAD_STRIP);
 		Vector3 v0 = this->operator()(u, 0.0);
 		Vector3 v1 = this->operator()(u + du, 0.0);
@@ -101,7 +97,7 @@ void NagataPatch::Paint() const
 		glVertex3f(v0.x, v0.y, v0.z);
 		glNormal3f(n1.x, n1.y, n1.z);
 		glVertex3f(v1.x, v1.y, v1.z);
-		for(float v = 0.0; v < 1.0; v += dv){
+		for (float v = 0.0; v < 1.0; v += dv) {
 			Vector3 v0 = this->operator()(u, v + dv);
 			Vector3 v1 = this->operator()(u + du, v + dv);
 			Vector3 n0 = Normal(u, v + dv);

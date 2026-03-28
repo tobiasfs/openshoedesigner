@@ -47,7 +47,6 @@ public:
 
 public:
 	OrientedMatrix() = default;
-	virtual ~OrientedMatrix() = default;
 
 	/*! \brief Set the Origin
 	 *
@@ -56,10 +55,9 @@ public:
 	 *
 	 * \param origin Vector3 of origin
 	 */
-	void SetOrigin(Vector3 origin);
-	void SetSize(unsigned int nx, unsigned int ny, unsigned int nz,
-			float resolution = 1.0);
-	void SetExtent(float x, float y, float z, float resolution = 1.0);
+	void SetOrigin(const Vector3 &origin);
+	void SetResolution(float resolution);
+	void SetExtent(float x, float y, float z, float resolution);
 
 	/*! \brief Return the Value at a point
 	 *
@@ -69,7 +67,7 @@ public:
 	 * \param p Vector3 point
 	 * \return Value at the point p
 	 */
-	double GetValue(Vector3 p) const;
+	double GetValue(const Vector3 &p) const;
 
 	/*! \brief Return the Value at a point
 	 *

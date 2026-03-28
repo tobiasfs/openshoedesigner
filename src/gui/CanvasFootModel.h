@@ -39,7 +39,7 @@ class Project;
 
 class CanvasFootModel: public OpenGLCanvas {
 public:
-	CanvasFootModel(wxWindow *parent, wxWindowID id = wxID_ANY,
+	explicit CanvasFootModel(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style = 0,
 			const wxString &name = _T("CanvasFootModel"));

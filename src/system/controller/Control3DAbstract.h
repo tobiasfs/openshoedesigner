@@ -28,6 +28,8 @@
 #define CONTROL3DABSTRACT_H
 
 #include "../SerialPort.h"
+
+#include <array>
 #include <string>
 #include <stdint.h>
 
@@ -42,7 +44,7 @@ public:
 	///\brief Closes the connection to the serial port.
 	void Close();
 	///\brief Sets a new port address
-	void SetPort(std::string connection);
+	void SetPort(const std::string &connection);
 	///\brief Returns the port address
 	std::string GetPort() const;
 	///\brief Shows whether the connection is established.
@@ -76,9 +78,9 @@ public:
 protected:
 	SerialPort port; //< Serial port to 6-DOF controller
 	std::string connection; //< Name of the connection /dev/ttyUSB, COM1, ...
-	int Button[maxButtons]; //< Button states
-	int Axis[6]; //< The six axes of the controller
-	bool hasChanged; //< Indicates a change during the last pumping of data
+	std::array<int, maxButtons> button; //< Button states
+	std::array<int, 6> axis; //< The six axes of the controller
+	bool hasChanged = false; //< Indicates a change during the last pumping of data
 };
 
 #endif /* CONTROL3DABSTRACT_H */

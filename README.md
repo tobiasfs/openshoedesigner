@@ -7,13 +7,14 @@ Shoe design for manufacturing.
 
 # Status
 
-> [!CAUTION] Not working right now. It will quickly crash upon start because the triangulation algorithm needs fixing.
+> [!CAUTION] 
+> The MVP has not been reached. The software is pretty useless in the current state.
 
 
 | Feature | Status |
 | ------- | ------ |
-| Shoe upper triangulation | In Progress |
-| Flattening of patches | Open |
+| Shoe upper triangulation | Done |
+| Flattening of patches | In Progress |
 | SDF for heel calculation | Open |
 | Last adaption | Open |
 | Exporter | Open |

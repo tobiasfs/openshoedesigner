@@ -38,14 +38,13 @@
 
 class DialogQuickInitFoot: public GUIDialogQuickInitFoot {
 public:
-	DialogQuickInitFoot(wxWindow *parent);
-	virtual ~DialogQuickInitFoot() = default;
+	explicit DialogQuickInitFoot(wxWindow *parent);
 
 	virtual void OnTextEnter(wxCommandEvent &event) override;
 	virtual void OnClose(wxCommandEvent &event) override;
 
-	double length;
-	double width;
+	double length = 0.0;
+	double width = 0.0;
 
 private:
 	void ParseText(std::string text);

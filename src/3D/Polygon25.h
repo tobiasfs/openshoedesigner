@@ -32,8 +32,8 @@
  *
  * Expansion of the Polygon3 class with functions for 2.5D polygons.
  *
- * All polygons are used as if they were flat polygons in the XY plane with a height assigned
- * to each point.
+ * All polygons are used as if they were flat polygons in the XY plane with a
+ * height assigned to each point.
  */
 
 #include "Polygon3.h"

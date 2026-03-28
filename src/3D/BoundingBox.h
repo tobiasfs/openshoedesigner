@@ -40,7 +40,6 @@
 #include <cfloat>
 
 struct Vector3;
-class Triangle;
 
 class BoundingBox {
 	// Constructor / Destructor
@@ -68,9 +67,6 @@ public:
 
 	//! Insert another BoungingBox.
 	void Insert(const BoundingBox &bbox);
-
-	//! Insert a single Triangle.
-	void Insert(const Triangle &tri);
 
 	BoundingBox& operator+=(const BoundingBox &rhs);
 	const BoundingBox operator+(const BoundingBox &rhs) const;

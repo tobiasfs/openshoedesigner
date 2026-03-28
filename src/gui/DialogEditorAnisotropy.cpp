@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogEditorAnisotropy.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -30,13 +30,12 @@ DialogEditorAnisotropy::DialogEditorAnisotropy(wxWindow *parent) :
 		GUIDialogAnisotropy(parent) {
 }
 
-
 void DialogEditorAnisotropy::OnButtonAdd(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void DialogEditorAnisotropy::OnButtonRemove(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }

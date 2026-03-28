@@ -75,7 +75,7 @@ void Polygon25::PolygonSmooth() {
 	auto temp = v;
 
 	for (size_t i = 0; i < v.size(); i++) {
-		Vector3 d;
+		Geometry::Vertex d;
 		if (i == 0)
 			d = v[v.size() - 1];
 		else
@@ -93,13 +93,12 @@ void Polygon25::PolygonSmooth() {
 void Polygon25::PolygonExpand(double r) {
 	if (v.size() < 2)
 		return;
-	size_t i;
-	Vector3 o, n, d;
-	o = v[0];
-	for (i = 1; i < v.size(); i++) {
-		n = v[i];
+	Geometry::Vertex o = v[0];
+	for (size_t i = 1; i < v.size(); i++) {
+		const Geometry::Vertex &n = v[i];
 		o = n - o;
 		o.Normalize();
+		Geometry::Vertex d;
 		d.x = o.y;
 		d.y = -o.x;
 		d.z = o.z;
@@ -201,9 +200,10 @@ void Polygon25::SortPolygonsFromOutside(std::vector<Polygon25> *array) {
 double Polygon25::DistanceToElement(const size_t elementInPolygon,
 		const double x, const double y, const double vx,
 		const double vy) const {
-	double qx, qy, px, py;
-	px = v[elementInPolygon].x;
-	py = v[elementInPolygon].y;
+	double px = v[elementInPolygon].x;
+	double py = v[elementInPolygon].y;
+	double qx;
+	double qy;
 	if (elementInPolygon + 1 == v.size()) {
 		qx = v[0].x;
 		qy = v[0].y;
@@ -233,15 +233,14 @@ double Polygon25::DistanceToElement(const size_t elementInPolygon,
 double Polygon25::DistanceToPolygon(const Polygon25 &polygon, double vx,
 		double vy) const {
 	//TODO: Make this faster!
-	size_t i, j;
 	double dmin = DBL_MAX;
-	double d;
 	size_t n = polygon.v.size();
 	if (!polygon.IsClosed() && (n > 0))
 		n--;
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < this->v.size(); j++) {
-			d = polygon.DistanceToElement(i, v[j].x, v[j].y, vx, vy);
+	for (size_t i = 0; i < n; i++) {
+		for (size_t j = 0; j < this->v.size(); j++) {
+			const double d = polygon.DistanceToElement(i, v[j].x, v[j].y, vx,
+					vy);
 			if (d < dmin)
 				dmin = d;
 		}
@@ -254,7 +253,6 @@ void Polygon25::RotatePolygonStart(double x, double y) {
 	if (v.size() == 0)
 		return;
 
-	size_t i;
 	Vector3 t;
 	double d;
 	double dmin = DBL_MAX;
@@ -262,7 +260,7 @@ void Polygon25::RotatePolygonStart(double x, double y) {
 
 	// Find element with minimal distance to (x,y)
 	size_t nshift = 0;
-	for (i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		t = v[i];
 		d = (t.x - x) * (t.x - x) + (t.y - y) * (t.y - y);
 		if (d < dmin) {
@@ -273,10 +271,9 @@ void Polygon25::RotatePolygonStart(double x, double y) {
 
 	// Shift by -nshift (so nshift becomes 0)
 	//	nshift = n - nshift;
-	size_t j;
 	std::vector<Geometry::Vertex> temp;
-	for (i = 0; i < n; i++) {
-		j = (i + nshift) % n;
+	for (size_t i = 0; i < n; i++) {
+		const size_t j = (i + nshift) % n;
 		temp.push_back(v[j]);
 	}
 	v.swap(temp);

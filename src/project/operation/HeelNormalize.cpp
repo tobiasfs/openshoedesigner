@@ -87,9 +87,9 @@ void HeelNormalize::Run() {
 	*out = *in;
 
 	if (in->PassedSelfCheck()) {
-		DEBUGOUT << "in is OK\n";
+		DEBUGOUT << "\t\"in\" is OK\n";
 	} else {
-		DEBUGOUT << "in is NOK\n";
+		DEBUGOUT << "\t\"in\" is NOK\n";
 	}
 
 	if (heelReorient->GetSelectionIdx() == 1) {

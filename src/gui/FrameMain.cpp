@@ -173,7 +173,7 @@ FrameMain::~FrameMain() {
 }
 
 void FrameMain::OnDestroy(wxWindowDestroyEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) called.\n";
 
 	timer.Stop();
@@ -705,7 +705,7 @@ void FrameMain::OnClose(wxCloseEvent &event) {
 }
 
 void FrameMain::OnMouseWheel(wxMouseEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 }
 
@@ -770,7 +770,7 @@ void FrameMain::UpdateProject(wxCommandEvent &event) {
 }
 
 void FrameMain::OnChar(wxKeyEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 	event.Skip();
 }
@@ -792,7 +792,7 @@ void FrameMain::OnCheckBox(wxCommandEvent &event) {
 	}
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented\n";
 		break;
 	}
@@ -827,7 +827,7 @@ void FrameMain::OnChoice(wxCommandEvent &event) {
 		key = "HeelVariant";
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		event.Skip();
 		return;
@@ -879,7 +879,7 @@ void FrameMain::OnChoice(wxCommandEvent &event) {
 }
 
 void FrameMain::OnDataViewListCtrlItemEditingDone(wxDataViewEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 }
 
@@ -913,7 +913,7 @@ void FrameMain::OnKillFocus(wxFocusEvent &event) {
 }
 
 void FrameMain::OnListCtrlOnSelectionChanged(wxDataViewEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 }
 
@@ -925,7 +925,8 @@ void FrameMain::OnNotebookPageChanged(wxNotebookEvent &event) {
 		return;
 
 	int newPage = event.GetSelection();
-	if (newPage >= 0 && newPage <= 3) {
+	if (newPage >= (int) ProjectView::Display::Shoe
+			&& newPage <= (int) ProjectView::Display::Analysis) {
 		projectview->display = (ProjectView::Display) newPage;
 		project->Update();
 		Refresh();
@@ -964,7 +965,7 @@ void FrameMain::OnPageChanged(wxNotebookEvent &event) {
 						m_choicebookConstruction->GetSelection()));
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		return;
 	}
@@ -989,7 +990,7 @@ void FrameMain::OnRadioButton(wxCommandEvent &event) {
 		projectview->active = ProjectView::Side::Right;
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		break;
 	}
@@ -1095,14 +1096,10 @@ void FrameMain::OnTextEnter(wxCommandEvent &event) {
 }
 
 void FrameMain::On3DSelect(wxMouseEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) called.\n";
 	int x = event.GetX();
 	int y = event.GetY();
-
-
-
-
 
 	return;
 	OpenGLPick result;
@@ -1158,7 +1155,7 @@ void FrameMain::OnConstructionChanged(wxCommandEvent &event) {
 	if (!locker.IsOK())
 		return;
 
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 
 	Project *project = wxStaticCast(GetDocument(), Project);
@@ -1231,7 +1228,7 @@ void FrameMain::OnMeasurementsCopy(wxCommandEvent &event) {
 						ProjectView::Side::Left));
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		break;
 		return;
@@ -1269,7 +1266,7 @@ void FrameMain::OnModelChanged(wxCommandEvent &event) {
 	SemaphoreTryLocker locker(loopGuard);
 	if (!locker.IsOK())
 		return;
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " )\n";
 
 	Project *project = wxStaticCast(GetDocument(), Project);
@@ -1296,7 +1293,7 @@ void FrameMain::OnModelChanged(wxCommandEvent &event) {
 				ID_LASTCONSTRUCTIONTYPE, 1));
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		break;
 	}
@@ -1305,12 +1302,12 @@ void FrameMain::OnModelChanged(wxCommandEvent &event) {
 }
 
 void FrameMain::OnPatternSelect(wxTreeListEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 }
 
 void FrameMain::OnPatternSelectFabric(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetSelection() << " ) not implemented.\n";
 }
 
@@ -1352,7 +1349,7 @@ void FrameMain::OnViewChanged(wxCommandEvent &event) {
 		// TODO Check if showLeft and showRight can also be merged into that function.
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 	}
 	TransferDataToWindow();
@@ -1361,17 +1358,17 @@ void FrameMain::OnViewChanged(wxCommandEvent &event) {
 }
 
 void FrameMain::OnButtonAdd(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 }
 
 void FrameMain::OnButtonCopy(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 }
 
 void FrameMain::OnButtonDelete(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+	DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 			<< event.GetId() << " ) not implemented.\n";
 }
 
@@ -1392,7 +1389,7 @@ void FrameMain::OnObjectEdit(wxCommandEvent &event) {
 		break;
 
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		break;
 	}
@@ -1431,7 +1428,7 @@ void FrameMain::OnObjectLoad(wxCommandEvent &event) {
 	}
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		break;
 	}
@@ -1466,8 +1463,8 @@ void FrameMain::OnObjectSave(wxCommandEvent &event) {
 			} catch (const std::exception &ex) {
 				std::cerr << "Could not save bone-model: " << ex.what() << '\n';
 			}
-			DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
-					<< event.GetId() << " ) not implemented.\n";
+			DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__
+					<< "( " << event.GetId() << " ) not implemented.\n";
 		}
 	}
 		break;
@@ -1492,13 +1489,13 @@ void FrameMain::OnObjectSave(wxCommandEvent &event) {
 			//					projectview->active != ProjectView::Side::Right,
 			//					projectview->active == ProjectView::Side::Right);
 			//		}
-			DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
-					<< event.GetId() << " ) not implemented.\n";
+			DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__
+					<< "( " << event.GetId() << " ) not implemented.\n";
 		}
 	}
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		break;
 	}

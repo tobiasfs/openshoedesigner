@@ -73,7 +73,7 @@ public:
 		Turntable //!< Rotate the object like a turntable. X rotates always around the Z axis, while Y rotates around the X axis.
 	};
 
-	OpenGLCanvas(wxWindow *parent, wxWindowID id = wxID_ANY,
+	explicit OpenGLCanvas(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style = 0,
 			const wxString &name = _T("OpenGLCanvas"));
@@ -170,7 +170,7 @@ public:
 	Arrow GetPosition(int x, int y) const;
 
 protected:
-	virtual void Render() = 0;
+	virtual void Render();
 	virtual void RenderPick();
 
 	void OnPaint(wxPaintEvent&WXUNUSED(event));

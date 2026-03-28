@@ -365,14 +365,14 @@ void Geometry::SetEpsilon(double newEpsilon) {
 }
 
 void Geometry::CopyPropertiesFrom(const Geometry &other) {
-	epsilon = other.epsilon;
 	this->verticesHaveNormal = other.verticesHaveNormal;
 	this->verticesHaveColor = other.verticesHaveColor;
+	this->verticesHaveTexture = other.verticesHaveTexture;
 	this->edgesHaveNormal = other.edgesHaveNormal;
 	this->edgesHaveColor = other.edgesHaveColor;
 	this->trianglesHaveNormal = other.trianglesHaveNormal;
 	this->trianglesHaveColor = other.trianglesHaveColor;
-	this->finished = other.finished;
+	this->trianglesHaveTexture = other.trianglesHaveTexture;
 	this->matrix = other.matrix;
 	this->smooth = other.smooth;
 	this->paintEdges = other.paintEdges;
@@ -382,6 +382,8 @@ void Geometry::CopyPropertiesFrom(const Geometry &other) {
 	this->paintDirection = other.paintDirection;
 	this->paintSelected = other.paintSelected;
 	this->dotSize = other.dotSize;
+	this->epsilon = other.epsilon;
+//	this->finished = other.finished;
 }
 
 void Geometry::Clear() {
@@ -399,11 +401,13 @@ void Geometry::Clear() {
 	matrix.SetIdentity();
 	verticesHaveNormal = false;
 	verticesHaveColor = false;
+	verticesHaveTexture = false;
 	edgesHaveNormal = false;
 	edgesHaveColor = false;
 	trianglesHaveNormal = false;
 	trianglesHaveColor = false;
-	finished = false;
+	trianglesHaveTexture = false;
+//	finished = false;
 }
 
 bool Geometry::IsEmpty() const {
@@ -414,9 +418,9 @@ bool Geometry::IsClosed() const {
 	return (openedges.empty() && openvertices.empty());
 }
 
-bool Geometry::IsFinished() const {
-	return finished;
-}
+//bool Geometry::IsFinished() const {
+//	return finished;
+//}
 
 void Geometry::SetAddNormal(const Vector3 &n) {
 	addNormals = (fabs(n.x) > FLT_EPSILON || fabs(n.y) > FLT_EPSILON
@@ -474,6 +478,18 @@ void Geometry::ResetPresets() {
 	ResetAddMatrix();
 }
 
+void Geometry::SetVertexCount(size_t count) {
+	v.resize(count);
+}
+
+void Geometry::SetEdgeCount(size_t count) {
+	e.resize(count);
+}
+
+void Geometry::SetTriangleCount(size_t count) {
+	t.resize(count);
+}
+
 void Geometry::AddVertex(const Geometry::Vertex &vertex) {
 	Geometry::Vertex temp = vertex;
 
@@ -499,8 +515,8 @@ void Geometry::AddVertex(const Geometry::Vertex &vertex) {
 //	AddVertex(temp2);
 //}
 
-void Geometry::AddVertex(const std::vector<Vector3> &vertices) {
-	for (const Vector3 &vertex : vertices)
+void Geometry::AddVertex(const std::vector<Geometry::Vertex> &vertices) {
+	for (const Vertex &vertex : vertices)
 		AddVertex(vertex);
 }
 
@@ -636,25 +652,25 @@ void Geometry::AddTriangleFromEdges(size_t eidx0, size_t eidx1, size_t eidx2) {
 	trianglesHaveColor |= addColors;
 
 	t.push_back(tri);
-	finished = false;
+//	finished = false;
 }
 
-void Geometry::AddQuad(const Vector3 &va, const Vector3 &vb, const Vector3 &vc,
-		const Vector3 &vd) {
-	AddVertex(va);
+void Geometry::AddQuad(const Vertex &vertex0, const Vertex &vertex1,
+		const Vertex &vertex2, const Vertex &vertex3) {
+	AddVertex(vertex0);
 	size_t idx0 = v.size() - 1;
-	AddVertex(vb);
+	AddVertex(vertex1);
 	size_t idx1 = v.size() - 1;
-	AddVertex(vc);
+	AddVertex(vertex2);
 	size_t idx2 = v.size() - 1;
-	AddVertex(vd);
+	AddVertex(vertex3);
 	size_t idx3 = v.size() - 1;
 	AddQuad(idx0, idx1, idx2, idx3);
 }
 
 void Geometry::AddQuad(size_t idx0, size_t idx1, size_t idx2, size_t idx3) {
 	AddTriangle(idx0, idx1, idx2);
-	if (!verticesHaveTextur) {
+	if (!verticesHaveTexture) {
 		t.back().tua = 0.0;
 		t.back().tva = 0.0;
 		t.back().tub = 1.0;
@@ -663,7 +679,7 @@ void Geometry::AddQuad(size_t idx0, size_t idx1, size_t idx2, size_t idx3) {
 		t.back().tvc = 1.0;
 	}
 	AddTriangle(idx0, idx2, idx3);
-	if (!verticesHaveTextur) {
+	if (!verticesHaveTexture) {
 		t.back().tua = 0.0;
 		t.back().tva = 0.0;
 		t.back().tub = 1.0;
@@ -671,7 +687,7 @@ void Geometry::AddQuad(size_t idx0, size_t idx1, size_t idx2, size_t idx3) {
 		t.back().tuc = 0.0;
 		t.back().tvc = 1.0;
 	}
-	finished = false;
+//	finished = false;
 }
 
 void Geometry::AddVertexWithIndex(const Geometry::Vertex &vertex,
@@ -851,12 +867,18 @@ void Geometry::Remap(int vstart, int estart, int tstart) {
 	if (!emap.empty()) {
 		for (std::vector<Triangle>::iterator tri = t.begin() + tstart;
 				tri != t.end(); tri++) {
-			RANGE_CHECK(emap, tri->ea);
-			RANGE_CHECK(emap, tri->eb);
-			RANGE_CHECK(emap, tri->ec);
-			tri->ea = emap[tri->ea];
-			tri->eb = emap[tri->eb];
-			tri->ec = emap[tri->ec];
+			if (tri->ea != nothing) {
+				RANGE_CHECK(emap, tri->ea);
+				tri->ea = emap[tri->ea];
+			}
+			if (tri->eb != nothing) {
+				RANGE_CHECK(emap, tri->eb);
+				tri->eb = emap[tri->eb];
+			}
+			if (tri->ec != nothing) {
+				RANGE_CHECK(emap, tri->ec);
+				tri->ec = emap[tri->ec];
+			}
 		}
 		emap.clear();
 	}
@@ -882,15 +904,18 @@ void Geometry::Remap(int vstart, int estart, int tstart) {
 
 		for (std::vector<Vertex>::iterator vec = v.begin() + vstart;
 				vec != v.end(); vec++) {
-			vec->group = gmap[vec->group];
+			if (vec->group != nothing)
+				vec->group = gmap[vec->group];
 		}
 		for (std::vector<Edge>::iterator ed = e.begin() + estart; ed != e.end();
 				ed++) {
-			ed->group = gmap[ed->group];
+			if (ed->group != nothing)
+				ed->group = gmap[ed->group];
 		}
 		for (std::vector<Triangle>::iterator tri = t.begin() + tstart;
 				tri != t.end(); tri++) {
-			tri->group = gmap[tri->group];
+			if (tri->group != nothing)
+				tri->group = gmap[tri->group];
 		}
 		gmap.clear();
 	}
@@ -990,6 +1015,7 @@ void Geometry::Sort() {
 			temp.push_back(t[idx]);
 		t.swap(temp);
 	}
+	gmap.clear();
 	FlipMap();
 	Remap(0, 0, 0);
 
@@ -1001,6 +1027,7 @@ void Geometry::Join() {
 	vmap.clear();
 	emap.clear();
 	tmap.clear();
+	gmap.clear();
 
 	if (v.empty())
 		return;
@@ -1145,8 +1172,8 @@ void Geometry::Join() {
 		e.erase(e.begin() + (int) j + 1, e.end());
 		ecount.erase(ecount.begin() + (int) j + 1, ecount.end());
 #ifdef DEBUG
-		std::cout << "e.size() = " << e.size() << "\n";
-		std::cout << "ecount.size() = " << ecount.size() << "\n";
+//		std::cout << "e.size() = " << e.size() << "\n";
+//		std::cout << "ecount.size() = " << ecount.size() << "\n";
 #endif
 		// Normalize normal vectors
 		for (size_t i = 0; i < e.size(); i++)
@@ -1211,13 +1238,14 @@ void Geometry::Finish() {
 	PropagateNormals();
 	CalculateUVCoordinateSystems();
 	Join();
-	finished = true;
+//	finished = true;
 }
 
 void Geometry::CleanupVertices() {
 	vmap.clear();
 	emap.clear();
 	tmap.clear();
+	gmap.clear();
 
 	std::vector<bool> vused;
 	vused.resize(v.size(), false);
@@ -1673,7 +1701,7 @@ void Geometry::PropagateNormals() {
 		if (!verticesHaveNormal) {
 			for (Vertex &vert : v)
 				vert.n.Zero();
-			for (Edge &ed : e) {
+			for (const Edge &ed : e) {
 				v[ed.va].n += ed.n;
 				v[ed.vb].n += ed.n;
 			}
@@ -1695,7 +1723,7 @@ void Geometry::PropagateNormals() {
 			for (Vertex &vert : v)
 				vert.n.Zero();
 
-			for (Triangle &tri : t) {
+			for (const Triangle &tri : t) {
 				v[tri.va].n += tri.n;
 				v[tri.vb].n += tri.n;
 				v[tri.vc].n += tri.n;
@@ -1707,7 +1735,7 @@ void Geometry::PropagateNormals() {
 		if (!edgesHaveNormal && !e.empty()) {
 			for (Edge &ed : e)
 				ed.n.Zero();
-			for (Triangle &tri : t) {
+			for (const Triangle &tri : t) {
 				e[tri.ea].n += tri.n;
 				e[tri.eb].n += tri.n;
 				e[tri.ec].n += tri.n;
@@ -1742,17 +1770,23 @@ void Geometry::FlipInsideOutside() {
 	for (Triangle &tri : t)
 		tri.flip = !tri.flip;
 }
-
-void Geometry::FlagNormals(bool inVertices, bool inEdges, bool inTriangles) {
-	verticesHaveNormal = inVertices;
-	edgesHaveNormal = inEdges;
-	trianglesHaveNormal = inTriangles;
-}
-
-void Geometry::FlagUV(bool inVertices, bool inTriangles) {
-	verticesHaveTextur = inVertices;
-	trianglesHaveTexture = inTriangles;
-}
+//
+//void Geometry::FlagNormals(bool inVertices, bool inEdges, bool inTriangles) {
+//	verticesHaveNormal = inVertices;
+//	edgesHaveNormal = inEdges;
+//	trianglesHaveNormal = inTriangles;
+//}
+//
+//void Geometry::FlagColors(bool inVertices, bool inEdges, bool inTriangles) {
+//	verticesHaveColor = inVertices;
+//	edgesHaveColor = inEdges;
+//	trianglesHaveColor = inTriangles;
+//}
+//
+//void Geometry::FlagUV(bool inVertices, bool inTriangles) {
+//	verticesHaveTextur = inVertices;
+//	trianglesHaveTexture = inTriangles;
+//}
 
 void Geometry::CalculateUVFromBox() {
 	for (Triangle &tri : t) {
@@ -1941,7 +1975,7 @@ void Geometry::TransformUV(const AffineTransformMatrix &matrix) {
 }
 
 void Geometry::CalculateUVCoordinateSystems() {
-	if (verticesHaveTextur && !trianglesHaveTexture) {
+	if (verticesHaveTexture && !trianglesHaveTexture) {
 		for (Triangle &tri : t) {
 			tri.tua = v[tri.va].u;
 			tri.tva = v[tri.va].v;
@@ -1984,8 +2018,8 @@ void Geometry::CalculateUVCoordinateSystems() {
 		if (texturesFlat)
 			trianglesHaveTexture = false;
 	}
-	if (trianglesHaveTexture && !verticesHaveTextur) {
-		for (Triangle &tri : t) {
+	if (trianglesHaveTexture && !verticesHaveTexture) {
+		for (const Triangle &tri : t) {
 			v[tri.va].u = tri.tua;
 			v[tri.va].v = tri.tva;
 			v[tri.vb].u = tri.tub;
@@ -1993,7 +2027,7 @@ void Geometry::CalculateUVCoordinateSystems() {
 			v[tri.vc].u = tri.tuc;
 			v[tri.vc].v = tri.tvc;
 		}
-		verticesHaveTextur = true;
+		verticesHaveTexture = true;
 	}
 }
 
@@ -2156,7 +2190,7 @@ size_t Geometry::CalculateObjects() {
 	bool runagain = true;
 	while (runagain) {
 		runagain = false;
-		for (Edge &ed : e) {
+		for (const Edge &ed : e) {
 			if (v[ed.va].group < v[ed.vb].group) {
 				v[ed.vb].group = v[ed.va].group;
 				runagain = true;
@@ -2794,7 +2828,7 @@ void Geometry::Paint() const {
 }
 
 void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
-	const double normalscale = 0.005;
+	const double normalscale = 0.05;
 	glPushMatrix();
 	matrix.GLMultMatrix();
 	//	OpenGLMaterial::EnableColors();
@@ -2902,24 +2936,25 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 					nc = v[idx_c].n;
 				}
 			}
-
+			if (!verticesHaveColor && trianglesHaveColor)
+				GLColor(tri.c);
 			if (useNormals)
 				GLNormal(na);
-			if (verticesHaveTextur)
+			if (verticesHaveTexture)
 				glTexCoord2d(va.u, va.v);
 			if (verticesHaveColor)
 				GLColor(ca);
 			GLVertex(va);
 			if (useNormals)
 				GLNormal(nb);
-			if (verticesHaveTextur)
+			if (verticesHaveTexture)
 				glTexCoord2d(vb.u, vb.v);
 			if (verticesHaveColor)
 				GLColor(cb);
 			GLVertex(vb);
 			if (useNormals)
 				GLNormal(nc);
-			if (verticesHaveTextur)
+			if (verticesHaveTexture)
 				glTexCoord2d(vc.u, vc.v);
 			if (verticesHaveColor)
 				GLColor(cc);
@@ -2976,16 +3011,18 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 			const auto cb = v[idx_b].c;
 			const auto cc = v[idx_c].c;
 
+			if (!verticesHaveColor && trianglesHaveColor)
+				GLColor(tri.c);
 			if (trianglesHaveNormal)
 				GLNormal(n);
-			if (verticesHaveTextur && !trianglesHaveTexture)
+			if (verticesHaveTexture && !trianglesHaveTexture)
 				glTexCoord2d(va.u, va.v);
 			if (trianglesHaveTexture)
 				glTexCoord2d(tri.tua, tri.tva);
 			if (verticesHaveColor)
 				GLColor(ca);
 			GLVertex(va);
-			if (verticesHaveTextur && !trianglesHaveTexture)
+			if (verticesHaveTexture && !trianglesHaveTexture)
 				glTexCoord2d(vb.u, vb.v);
 			if (trianglesHaveTexture) {
 				if (tri.flip)
@@ -2996,7 +3033,7 @@ void Geometry::PaintTriangles(const std::set<size_t> &sel, bool invert) const {
 			if (verticesHaveColor)
 				GLColor(cb);
 			GLVertex(vb);
-			if (verticesHaveTextur && !trianglesHaveTexture)
+			if (verticesHaveTexture && !trianglesHaveTexture)
 				glTexCoord2d(vc.u, vc.v);
 			if (trianglesHaveTexture) {
 				if (tri.flip)
@@ -3219,11 +3256,7 @@ inline void Geometry::GLNormal(const Vector3 &n) {
 	glNormal3d(n.x, n.y, n.z);
 }
 
-inline void Geometry::GLColor(const Color &c) {
-	glColor4d(c.r, c.g, c.b, c.a);
-}
-
-void Geometry::SendToGLVertexArray(const std::string fields) {
+void Geometry::SendToGLVertexArray(const std::string &fields) {
 
 #ifndef USE_GLAD
 	return;
@@ -3401,6 +3434,10 @@ void Geometry::SendToGLVertexArray(const std::string fields) {
 		glEnableVertexAttribArray(i);
 		offs += widths[i];
 	}
+}
+
+inline void Geometry::GLColor(const Color &c) {
+	glColor4f(c.r, c.g, c.b, c.a);
 }
 
 void Geometry::DeleteGLVertexArray() {

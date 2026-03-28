@@ -41,19 +41,19 @@ DialogSetup6DOFController::DialogSetup6DOFController(wxWindow *parent) :
 	radioDeviceSelect->SetItemToolTip(2,
 			_("Spacemouse by Logitech/3DConnexion"));
 
-	control = NULL;
+	control = nullptr;
 
 	timer.SetOwner(this);
 	this->Connect(wxEVT_TIMER,
-			wxTimerEventHandler(DialogSetup6DOFController::OnTimer),
-			NULL, this);
+			wxTimerEventHandler(DialogSetup6DOFController::OnTimer), nullptr,
+			this);
 	timer.Start(100);
 }
 
 DialogSetup6DOFController::~DialogSetup6DOFController() {
 	this->Disconnect(wxEVT_TIMER,
-			wxTimerEventHandler(DialogSetup6DOFController::OnTimer),
-			NULL, this);
+			wxTimerEventHandler(DialogSetup6DOFController::OnTimer), nullptr,
+			this);
 }
 
 void DialogSetup6DOFController::InsertController(Control3D &control) {
@@ -62,7 +62,7 @@ void DialogSetup6DOFController::InsertController(Control3D &control) {
 }
 
 bool DialogSetup6DOFController::TransferDataToWindow() {
-	if (control == NULL)
+	if (control == nullptr)
 		return false;
 
 	if (control->IsOpen()) {
@@ -97,7 +97,7 @@ bool DialogSetup6DOFController::TransferDataToWindow() {
 }
 
 void DialogSetup6DOFController::OnConnect(wxCommandEvent &event) {
-	if (control == NULL)
+	if (control == nullptr)
 		return;
 
 	unsigned char i = radioDeviceSelect->GetSelection() + 1;
@@ -127,7 +127,7 @@ void DialogSetup6DOFController::OnConnect(wxCommandEvent &event) {
 }
 
 void DialogSetup6DOFController::OnDisconnect(wxCommandEvent &event) {
-	if (control == NULL)
+	if (control == nullptr)
 		return;
 	control->Close();
 	wxLogMessage
@@ -139,7 +139,7 @@ void DialogSetup6DOFController::OnClose(wxCommandEvent &event) {
 }
 
 void DialogSetup6DOFController::OnTimer(wxTimerEvent &event) {
-	if (control == NULL)
+	if (control == nullptr)
 		return;
 	if (!control->IsOpen())
 		return;

@@ -216,12 +216,12 @@ void InsoleAnalyze::Run() {
 	const double LFoot = footLength->ToDouble()
 			/ (footLength->ToDouble() + extraLength->ToDouble()) * LLast;
 
-	std::cout << "Insole length: " << LLast * 100 << " cm\n";
-	std::cout << "Mapped foot length: " << LFoot * 100 << " cm\n";
+	std::cout << "\tInsole length: " << LLast * 100 << " cm\n";
+	std::cout << "\tMapped foot length: " << LFoot * 100 << " cm\n";
 
 	const Geometry::Vertex &v0 = insoleFlat_out->outline.GetVertex(idx0);
 	const Geometry::Vertex &v1 = insoleFlat_out->outline.GetVertex(idx1);
-	const Geometry::Vertex dir = Normal(Diff(v1, v0));
+//	const Geometry::Vertex dir = Normal(Diff(v1, v0));
 
 // Find the orientation and the exact positioning of the insole by sampling
 // at 0.2, 0.4, 0.5, 0.6, 0.8 of the distance between v0 and v1.
@@ -517,9 +517,13 @@ void InsoleAnalyze::Run() {
 			flagFlipped = true;
 		insoleFlat_out->outline.Reverse();
 	}
-	insoleFlat_out->FlagUV(true, false);
+	insoleFlat_out->verticesHaveTexture = true;
+	insoleFlat_out->trianglesHaveTexture = false;
 	insoleFlat_out->CalculateUVCoordinateSystems();
-	insole_out->FlagUV(true, false);
+
+	insole_out->verticesHaveTexture = true;
+	insole_out->trianglesHaveTexture = false;
+
 	insole_out->CalculateUVCoordinateSystems();
 
 	// Sort and map the outline to the unflattened insole.

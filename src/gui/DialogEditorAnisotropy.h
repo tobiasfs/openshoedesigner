@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogEditorAnisotropy.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -37,8 +37,7 @@
 
 class DialogEditorAnisotropy: public GUIDialogAnisotropy {
 public:
-	DialogEditorAnisotropy(wxWindow *parent);
-	virtual ~DialogEditorAnisotropy() = default;
+	explicit DialogEditorAnisotropy(wxWindow *parent);
 
 protected:
 	void OnButtonAdd(wxCommandEvent &event) override;

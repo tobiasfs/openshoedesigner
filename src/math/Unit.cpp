@@ -387,7 +387,7 @@ void Unit::ParseString(const std::string &txt) {
 	factor *= std::pow(10.0, (double) powerprefix);
 }
 
-bool Unit::IsUnit(std::string txt) {
+bool Unit::IsUnit(const std::string &txt) {
 	size_t state = 1;
 	for (unsigned char c : txt) {
 		state = transitionTable[(state << 8) + c];

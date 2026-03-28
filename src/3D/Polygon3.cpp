@@ -34,6 +34,7 @@
 #include <list>
 #include <queue>
 #include <sstream>
+#include <cassert>
 
 #include "OpenGL.h"
 
@@ -43,13 +44,6 @@ static const Vector3 nullvector(0.0, 0.0, 0.0);
 static const Vector3 nonnullvector(0.0, 0.0, 1.0);
 static const size_t nothing = (size_t) -1;
 
-Polygon3::Polygon3() {
-	paintTriangles = false;
-	paintEdges = true;
-//	paintVertices = false;
-//	paintNormals = true;
-//	smooth = false;
-}
 void Polygon3::Clear() {
 	Geometry::Clear();
 	groupCount = 0;
@@ -336,6 +330,10 @@ void Polygon3::CalculateNormals(const CalculateNormalMethod method) {
 	case CalculateNormalMethod::InPlaneZX:
 		CalculateNormalsAroundVector( { 0, 1, 0 });
 		break;
+	case CalculateNormalMethod::Geometry:
+		Geometry::CalculateNormals();
+		break;
+
 	}
 }
 
@@ -647,447 +645,711 @@ std::string Polygon3::ToString() const {
 void Polygon3::Triangulate() {
 	if (e.empty())
 		return;
+
+	// 1. Classify lines into two sets:
+	//    - Edges, that are outlines, i.e. have a triangle on their left side.
+	// 	    That is, an mathematically positive loop encloses a filled area,
+	//      a mathematical negative loop encloses a hole. The right side of
+	//      these edges might contain a triangle or not.
+	//    - Support edges, that already exist. These have a triangle on both
+	//      sides. Edges, that are generated to make sub areas x-monotonous are
+	//      also of this type.
+	// 2. Identify corners in x-direction in areas that are to be triangulated.
+	//    Add additional edges to make all areas x-monotonous. Add the
+	//    additionally created edges to the support edge set.
+	// 3. Identify the upper and lower edges of each area.
+	// 4. Triangulate areas.
+
+	// Cleanup: Vertices with only one edge attached are removed together with
+	//          the edge connecting it to the rest.
+
+	// Count edges in vertices
+	std::vector<size_t> edInVert(v.size(), 0);
+	for (const Edge &ed : e) {
+		edInVert[ed.va]++;
+		edInVert[ed.vb]++;
+	}
+	std::vector<bool> edDelete(e.size(), false);
+	bool flagRerun = true;
+	while (flagRerun) {
+		flagRerun = false;
+		for (size_t eidx = 0; eidx < e.size(); eidx++) {
+			if (edDelete[eidx])
+				continue;
+			const Edge &ed = e[eidx];
+			if (edInVert[ed.va] == 1 || edInVert[ed.vb] == 1) {
+				if (edInVert[ed.va] == 0)
+					throw std::runtime_error(
+							"The vertex va has already 0 connections.");
+				if (edInVert[ed.vb] == 0)
+					throw std::runtime_error(
+							"The vertex vb has already 0 connections.");
+				edInVert[ed.va]--;
+				edInVert[ed.vb]--;
+				edDelete[eidx] = true;
+				flagRerun = true;
+			}
+		}
+	}
+	// Remap edges and remove unbound vertices.
+	vmap.clear();
+	emap.clear();
+	tmap.clear();
+	gmap.clear();
+	size_t eidxNew = 0;
+	for (size_t eidx = 0; eidx < e.size(); eidx++) {
+		if (edDelete[eidx]) {
+			emap.push_back(nothing);
+			continue;
+		}
+		emap.push_back(eidxNew);
+		e[eidxNew] = e[eidx];
+		eidxNew++;
+	}
+	e.erase(e.begin() + (int) eidxNew, e.end());
+	Remap(0, 0, 0);
+	CleanupVertices();
+
+	// Sort the vertices and fix the edges, so that va <= vb.
 	Sort();
 
-	// If some triangles already exist, correct the triangle edge assignment.
-	// i.e. swapping e[].ta and e[].tb so that from above in the direction
-	// of the edge ta is left and tb is right. This is needed to find edges,
-	// that already have been processed.
+	// There are two types of edges: edges where both sides are connected to
+	// triangles, i.e. the edges introduced to create monotonous regions, and
+	// edges on the outline or on holes that only connect to one triangle.
 
-	for (Edge &ed : e) {
-		if (ed.trianglecount != 1)
-			continue;
-		// After sorting, trianglecount is correct and ta always contains the
-		// triangle if trianglecount == 1.
-//		Triangle &tri = t[ed.ta];
-		// Orient the edges, so that they point mathematically negative. The
-		// existing triangles look like holes this way.
-//		ed.flip = (tri.GetDirection(ed.va, ed.vb) == 1);
-		if (!ed.flip)
-			std::swap(ed.ta, ed.tb);
+	// At this point single-sided edges are the norm. Only if the edges belong
+	// to the group-id below, the edges are considered double-sided.
+
+	size_t doubleSidedGroupNr = 1000; // ID for group that contains extra edges.
+
+	const double inf =
+			(std::numeric_limits<double>::has_infinity) ?
+					std::numeric_limits<double>::infinity() : DBL_MAX;
+
+	std::set<size_t> outline;
+	std::set<size_t> extra;
+
+	for (size_t eidx = 0; eidx < e.size(); eidx++) {
+		const Edge &ed = e[eidx];
+		if (ed.group == doubleSidedGroupNr)
+			extra.insert(eidx);
+		else if (ed.trianglecount == 0) {
+			outline.insert(eidx);
+		} else if (ed.trianglecount == 1) {
+			const Triangle &tri = t[ed.ta];
+			const int dir = tri.GetDirection(ed.GetVertexIndex(0),
+					ed.GetVertexIndex(1));
+			if (dir < 0)
+				outline.insert(eidx);
+		}
 	}
 
-	// Add edges to generate areas that are x-monotone.
+	// Add additional edges to create x-monotonous regions.
 
-	// Collect some information on the vertices.
+	// Count the edges connected to and from each vertex.
 
-	std::vector<size_t> left_count(v.size(), 0);
-	std::vector<size_t> right_count(v.size(), 0);
-	std::vector<int> dir(v.size(), 0);
-//	std::vector<double> eslope;
-//	eslope.reserve(e.size());
-	std::vector<double> vslope(v.size(), 0);
+	struct edgeStat_t {
+		std::set<size_t> left;
+		std::set<size_t> right;
+		std::set<size_t> vertical;
+	};
+	std::vector<edgeStat_t> vstat(v.size());
 
-	for (const Edge &ed : e) {
-		if (ed.trianglecount >= 2) {
-//			eslope.push_back(0.0);
-			continue;
-		}
-		left_count[ed.vb]++;
-		right_count[ed.va]++;
-		if (ed.flip) {
-			dir[ed.va]--;
-			dir[ed.vb]--;
+//	std::vector<size_t> left_count(v.size(), 0);
+//	std::vector<size_t> right_count(v.size(), 0);
+//	std::vector<double> vslope(v.size(), 0);
+
+	for (size_t eidx : outline) {
+		const Edge &ed = e[eidx];
+		const Vertex &v0 = GetEdgeVertex(eidx, 0);
+		const Vertex &v1 = GetEdgeVertex(eidx, 1);
+		if (fabs(v0.x - v1.x) <= FLT_EPSILON) {
+			vstat[ed.GetVertexIndex(0)].vertical.insert(eidx);
+			vstat[ed.GetVertexIndex(1)].vertical.insert(eidx);
+		} else if (v0.x < v1.x) {
+			vstat[ed.GetVertexIndex(0)].right.insert(eidx);
+			vstat[ed.GetVertexIndex(1)].left.insert(eidx);
 		} else {
-			dir[ed.va]++;
-			dir[ed.vb]++;
+			vstat[ed.GetVertexIndex(0)].left.insert(eidx);
+			vstat[ed.GetVertexIndex(1)].right.insert(eidx);
 		}
-		const Vertex &va = v[ed.va];
-		const Vertex &vb = v[ed.vb];
-		const double dx = vb.x - va.x;
-		const double dy = vb.y - va.y;
-		double es = 0.0;
-		if (fabs(dx) < FLT_EPSILON)
-			es = std::numeric_limits<double>::infinity();
-		else
-			es = dy / dx;
-		if (ed.flip)
-			es = -es;
-//		eslope.push_back(es);
-		vslope[ed.va] += es;
-		vslope[ed.vb] += es;
 	}
 
-//	verticesHaveColor = true;
-//	paintVertices = true;
-//	for (size_t n = 0; n < v.size(); n++) {
-//		v[n].c.r = fmin(fmax(-vslope[n] * 2.0, 0), 1);
-//		v[n].c.g = fmin(fmax(vslope[n] * 2.0, 0), 1);
-//		v[n].c.b = 0.0;
-//	}
+	// Add existing extra edges into the mix (if any)
 
-	// Mark all existing edges as "sharp" to separate them from the extra edges.
-
-	for (Edge &ed : e)
-		ed.sharp |= (ed.group == nothing || ed.group == 0);
-
-	// Add extra edges
-
-	for (size_t idx = 0; idx < v.size(); idx++) {
-		if (right_count[idx] == 0 && vslope[idx] < -DBL_EPSILON) {
-			//TODO Check if the vertex found is inside or outside using the .sharp flag.
-
-			size_t idx1 = idx;
-			bool crossed = false;
-			do {
-				idx1++;
-				if (idx1 >= v.size()) {
-					throw std::logic_error(
-							"Triangulate(): The vertex search algorithm returned a vertex outside the number of available vertices.");
-				}
-
-				// Check if some other edge is crossed.
-				crossed = false;
-				for (Edge &ed : e) {
-					if (ed.vb <= idx)
-						continue;
-					if (ed.va >= idx1)
-						break;
-					const Vertex &v0a = v[idx];
-					const Vertex &v0b = v[idx1];
-					const Vertex &v1a = v[ed.va];
-					const Vertex &v1b = v[ed.vb];
-
-					const double det = (v0b.x - v0a.x) * v1b.y
-							+ (v0a.y - v0b.y) * v1b.x + (v0a.x - v0b.x) * v1a.y
-							+ (v0b.y - v0a.y) * v1a.x;
-					if (fabs(det) < FLT_EPSILON)
-						continue; // Parallel edges
-
-					const double r = ((v1a.x - v0a.x) * v1b.y
-							+ (v0a.y - v1a.y) * v1b.x + v0a.x * v1a.y
-							- v0a.y * v1a.x) / det;
-					const double s = -((v0b.x - v0a.x) * v1a.y
-							+ (v0a.y - v0b.y) * v1a.x + v0a.x * v0b.y
-							- v0a.y * v0b.x) / det;
-					if (r > FLT_EPSILON && r < 1.0 - FLT_EPSILON
-							&& s > FLT_EPSILON && s < 1.0 - FLT_EPSILON) {
-						crossed = true;
-						break;
-					}
-				}
-			} while (crossed);
-
-			// The extra edges are added pointing from left to right by
-			// construction.
-			AddEdge(idx, idx1);
-			e.back().n = (v[idx].n + v[idx1].n) / 2.0;
+	for (size_t eidx : extra) {
+		const Edge &ed = e[eidx];
+		const Vertex &v0 = GetEdgeVertex(eidx, 0);
+		const Vertex &v1 = GetEdgeVertex(eidx, 1);
+		if (fabs(v0.x - v1.x) <= FLT_EPSILON) {
+			vstat[ed.GetVertexIndex(0)].vertical.insert(eidx);
+			vstat[ed.GetVertexIndex(1)].vertical.insert(eidx);
+		} else if (v0.x < v1.x) {
+			vstat[ed.GetVertexIndex(0)].right.insert(eidx);
+			vstat[ed.GetVertexIndex(1)].left.insert(eidx);
+		} else {
+			vstat[ed.GetVertexIndex(0)].left.insert(eidx);
+			vstat[ed.GetVertexIndex(1)].right.insert(eidx);
 		}
-		if (left_count[idx] == 0 && vslope[idx] > DBL_EPSILON) {
-			//TODO Check if the vertex found is inside or outside using the .sharp flag.
-			size_t idx0 = idx;
-			bool crossed = false;
-			do {
-				if (idx0 == 0) {
-					throw std::logic_error(
-							"Triangulate(): The vertex search algorithm returned a vertex smaller than 0.");
+	}
+
+	// Search for candidate and calculate the edge angles to find left and
+	// right anchor points for extra edges to generate.
+
+	std::set<size_t> vidxToRight;
+	std::set<size_t> vidxToLeft;
+
+	for (size_t vidx = 0; vidx < v.size(); vidx++) {
+		const edgeStat_t &stat = vstat[vidx];
+
+		if (!stat.right.empty() && !stat.left.empty())
+			continue;
+
+		const Vertex &v0 = v[vidx];
+
+		if (stat.right.empty() && stat.left.empty()) {
+			if (!stat.vertical.empty()) {
+
+				// Check if all vertical edges are pointing up or all vertical
+				// edges are pointing down.
+				bool vup = false;
+				bool vdown = false;
+				for (size_t eidx : stat.vertical) {
+					const Edge &ed = e[eidx];
+					const Vertex &v1 = v[(vidx == ed.vb) ? ed.va : ed.vb];
+					if (v1.y > v0.y)
+						vup = true;
+					if (v1.y < v0.y)
+						vdown = true;
 				}
-				idx0--;
+				if ((vup && !vdown) || (!vup && vdown))
+					vidxToRight.insert(vidx);
+			}
+			continue;
+		}
 
-				// Check if some other edge is crossed.
-				crossed = false;
-				for (Edge &ed : e) {
-					if (ed.vb <= idx0)
-						continue;
-					if (ed.va >= idx)
-						break;
-					const Vertex &v0a = v[idx0];
-					const Vertex &v0b = v[idx];
-					const Vertex &v1a = v[ed.va];
-					const Vertex &v1b = v[ed.vb];
+		// Find the highest and lowest edges.
 
-					const double det = (v0b.x - v0a.x) * v1b.y
-							+ (v0a.y - v0b.y) * v1b.x + (v0a.x - v0b.x) * v1a.y
-							+ (v0b.y - v0a.y) * v1a.x;
-					if (fabs(det) < FLT_EPSILON)
-						continue; // Parallel edges
+		size_t eidxmax = nothing;
+		size_t eidxmin = nothing;
+		double amax = -inf;
+		double amin = inf;
 
-					const double r = ((v1a.x - v0a.x) * v1b.y
-							+ (v0a.y - v1a.y) * v1b.x + v0a.x * v1a.y
-							- v0a.y * v1a.x) / det;
-					const double s = -((v0b.x - v0a.x) * v1a.y
-							+ (v0a.y - v0b.y) * v1a.x + v0a.x * v0b.y
-							- v0a.y * v0b.x) / det;
-					if (r > FLT_EPSILON && r < 1.0 - FLT_EPSILON
-							&& s > FLT_EPSILON && s < 1.0 - FLT_EPSILON) {
-						crossed = true;
-						break;
-					}
+		for (size_t eidx : stat.left) {
+			const Edge &ed = e[eidx];
+			// Sanity check: The vb of every edge should be vidx.
+			assert(ed.vb == vidx);
+			const Vertex &v1 = v[ed.va];
+			double a = (v1.y - v0.y) / (v1.x - v0.x);
+			if (a < amin && !ed.flip) {
+				amin = a;
+				eidxmin = eidx;
+			}
+			if (a > amax && ed.flip) {
+				amax = a;
+				eidxmax = eidx;
+			}
+		}
+		for (size_t eidx : stat.right) {
+			const Edge &ed = e[eidx];
+			// Sanity check: The va of every edge should be vidx.
+			assert(ed.va == vidx);
+			const Vertex &v1 = v[ed.vb];
+			double a = (v1.y - v0.y) / (v1.x - v0.x);
+			if (a < amin && ed.flip) {
+				amin = a;
+				eidxmin = eidx;
+			}
+			if (a > amax && !ed.flip) {
+				amax = a;
+				eidxmax = eidx;
+			}
+		}
+		for (size_t eidx : stat.vertical) {
+			const Edge &ed = e[eidx];
+			// Depending on the orientation, the max or min. values are
+			// immediately set to +/-infinity.
+			const Vertex &v1 = v[(vidx == ed.vb) ? ed.va : ed.vb];
+			double a = (v1.y > v0.y) ? inf : -inf;
+			if (!stat.left.empty())
+				a = -a;
+
+			if (ed.va == vidx) {
+				if (ed.flip) {
+					amin = a;
+					eidxmin = eidx;
+				} else {
+					amax = a;
+					eidxmax = eidx;
 				}
-			} while (crossed);
+			} else {
+				//TODO: Test orientation of code below.
+				if (ed.flip) {
+					amin = a; // -a ?
+					eidxmin = eidx;
+				} else {
+					amax = a; // -a ?
+					eidxmax = eidx;
+				}
 
-			// Check if the edge already exists. Needs only to be done for the
-			// left-hand-side edges, because there could already been a
-			// right-hand-side edge in the same place. These are always
-			// generated first.
-			bool edgeexists = false;
-			for (const auto &ed : e) {
-				// No shortcuts possible, as edges are not sorted here.
-				if (ed.va == idx0 && ed.vb == idx) {
-					edgeexists = true;
+			}
+		}
+
+		if (amin < amax) {
+			if (stat.right.empty())
+				vidxToRight.insert(vidx);
+			if (stat.left.empty())
+				vidxToLeft.insert(vidx);
+		}
+	}
+
+	//	for (auto &x : vstat[1242].left)
+	//		std::cout << "L: " << x << "\n";
+	//	for (auto &x : vstat[1242].right)
+	//		std::cout << "R: " << x << "\n";
+	//	for (auto &x : vstat[1242].vertical)
+	//		std::cout << "V: " << x << "\n";
+	// for (size_t x : vidxToRight)
+	// 	std::cout << "2R: " << x << "\n";
+	// for (size_t x : vidxToLeft)
+	// 	std::cout << "2L: " << x << "\n";
+
+	for (size_t vidx : vidxToRight) {
+		// Already connected, but this cannot be the case if the algorithm above is not broken.
+		assert(vstat[vidx].right.empty());
+
+		size_t idx1 = vidx;
+		bool crossed = false;
+		do {
+			idx1++;
+			if (idx1 >= v.size()) {
+				throw std::logic_error(
+						"Triangulate(): The vertex search algorithm returned a vertex outside the number of available vertices.");
+			}
+
+			// Check if some other edge is crossed.
+			crossed = false;
+			for (const Edge &ed : e) {
+				if (ed.vb <= vidx)
+					continue;
+				if (ed.va >= idx1)
+					break;
+				const Vertex &v0a = v[vidx];
+				const Vertex &v0b = v[idx1];
+				const Vertex &v1a = v[ed.va];
+				const Vertex &v1b = v[ed.vb];
+
+				const double det = (v0b.x - v0a.x) * v1b.y
+						+ (v0a.y - v0b.y) * v1b.x + (v0a.x - v0b.x) * v1a.y
+						+ (v0b.y - v0a.y) * v1a.x;
+				if (fabs(det) < FLT_EPSILON)
+					continue; // Parallel edges
+
+				const double r = ((v1a.x - v0a.x) * v1b.y
+						+ (v0a.y - v1a.y) * v1b.x + v0a.x * v1a.y
+						- v0a.y * v1a.x) / det;
+				const double s = -((v0b.x - v0a.x) * v1a.y
+						+ (v0a.y - v0b.y) * v1a.x + v0a.x * v0b.y
+						- v0a.y * v0b.x) / det;
+				if (r > FLT_EPSILON && r < 1.0 - FLT_EPSILON && s > FLT_EPSILON
+						&& s < 1.0 - FLT_EPSILON) {
+					crossed = true;
 					break;
 				}
 			}
-			if (!edgeexists) {
-				AddEdge(idx0, idx);
-				e.back().n = (v[idx0].n + v[idx].n) / 2.0;
+		} while (crossed);
+
+		// The extra edges are added pointing from left to right by
+		// construction.
+		vstat[vidx].right.insert(e.size());
+		vstat[idx1].left.insert(e.size());
+		extra.insert(e.size());
+		AddEdge(vidx, idx1);
+		e.back().n = (v[vidx].n + v[idx1].n) / 2.0;
+	}
+
+	for (size_t vidx : vidxToLeft) {
+		if (!vstat[vidx].left.empty()) {
+			// Already connected.
+			continue;
+		}
+
+		size_t idx0 = vidx;
+		bool crossed = false;
+		do {
+			if (idx0 == 0) {
+				throw std::logic_error(
+						"Triangulate(): The vertex search algorithm returned a vertex smaller than 0.");
+			}
+			idx0--;
+
+			// Check if some other edge is crossed.
+			crossed = false;
+			for (const Edge &ed : e) {
+				if (ed.vb <= idx0)
+					continue;
+				if (ed.va >= vidx)
+					break;
+				const Vertex &v0a = v[idx0];
+				const Vertex &v0b = v[vidx];
+				const Vertex &v1a = v[ed.va];
+				const Vertex &v1b = v[ed.vb];
+
+				const double det = (v0b.x - v0a.x) * v1b.y
+						+ (v0a.y - v0b.y) * v1b.x + (v0a.x - v0b.x) * v1a.y
+						+ (v0b.y - v0a.y) * v1a.x;
+				if (fabs(det) < FLT_EPSILON)
+					continue; // Parallel edges
+
+				const double r = ((v1a.x - v0a.x) * v1b.y
+						+ (v0a.y - v1a.y) * v1b.x + v0a.x * v1a.y
+						- v0a.y * v1a.x) / det;
+				const double s = -((v0b.x - v0a.x) * v1a.y
+						+ (v0a.y - v0b.y) * v1a.x + v0a.x * v0b.y
+						- v0a.y * v0b.x) / det;
+				if (r > FLT_EPSILON && r < 1.0 - FLT_EPSILON && s > FLT_EPSILON
+						&& s < 1.0 - FLT_EPSILON) {
+					crossed = true;
+					break;
+				}
+			}
+		} while (crossed);
+
+		// Check if the edge already exists. Needs only to be done for the
+		// left-hand-side edges, because there could already been a
+		// right-hand-side edge in the same place. These are always
+		// generated first.
+
+		// TODO: Check if this is really necessary. Should never trigger, because it is already checked.
+		bool edgeexists = false;
+		for (const auto &ed : e) {
+			// No shortcuts possible, as edges are not sorted here.
+			if (ed.va == idx0 && ed.vb == vidx) {
+				edgeexists = true;
+				break;
 			}
 		}
-	}
-	Sort();
-	// Reposition existing triangles to the outside of single-triangle-edges.
-	for (Edge &ed : e)
-		if (ed.trianglecount == 1 && !ed.flip)
-			std::swap(ed.ta, ed.tb);
+		if (edgeexists)
+			continue;
 
-	// Redo the statistics with the added edges
-
-	left_count.assign(v.size(), 0);
-	right_count.assign(v.size(), 0);
-	dir.assign(v.size(), 0);
-	std::vector<double> eslope;
-	eslope.reserve(e.size());
-	vslope.assign(v.size(), 0);
-	for (const Edge &ed : e) {
-		left_count[ed.vb]++;
-		right_count[ed.va]++;
-		if (ed.flip) {
-			dir[ed.va]--;
-			dir[ed.vb]--;
-		} else {
-			dir[ed.va]++;
-			dir[ed.vb]++;
-		}
-		const Vertex &va = v[ed.va];
-		const Vertex &vb = v[ed.vb];
-		const double dx = vb.x - va.x;
-		const double dy = vb.y - va.y;
-		double es = 0.0;
-		if (fabs(dx) < FLT_EPSILON)
-			es = std::numeric_limits<double>::infinity();
-		else
-			es = dy / dx;
-		eslope.push_back(es);
-		if (ed.flip) {
-			vslope[ed.va] -= es;
-			vslope[ed.vb] -= es;
-		} else {
-			vslope[ed.va] += es;
-			vslope[ed.vb] += es;
-		}
+		vstat[idx0].right.insert(e.size());
+		vstat[vidx].left.insert(e.size());
+		extra.insert(e.size());
+		AddEdge(idx0, vidx);
+		e.back().n = (v[idx0].n + v[vidx].n) / 2.0;
 	}
 
 	// Generate triangles
 
-	std::vector<size_t> idx_top;
-	std::vector<size_t> idx_bot;
+	// Find all starting vertices with the top and bottom edges.
+	// A vertex can be the start of multiple areas to tesselate.
+	struct StartingPoint {
+		size_t vidx;
+		size_t eidxTop;
+		size_t eidxBot;
+	};
+	std::vector<StartingPoint> startingPoints;
+
+	std::vector<double> eslope(e.size(), 0.0);
+	auto sortEdges = [&eslope](size_t lhs, size_t rhs) {
+		return eslope[lhs] < eslope[rhs];
+	};
+
+	{
+		for (size_t vidx = 0; vidx < v.size(); vidx++) {
+			const edgeStat_t &stat = vstat[vidx];
+			int count = stat.right.size();
+			for (size_t eidx : stat.vertical) {
+				if (e[eidx].va == vidx)
+					count++;
+			}
+			if (count <= 1)
+				continue;
+
+			std::vector<size_t> candidates;
+
+			for (size_t eidx : stat.vertical) {
+				eslope[eidx] = inf;
+				if (e[eidx].va == vidx)
+					candidates.push_back(eidx);
+			}
+			const Vertex &v0 = v[vidx];
+			for (size_t eidx : stat.right) {
+				const Edge &ed = e[eidx];
+				assert(ed.va == vidx);
+				const Vertex &v1 = v[ed.vb];
+				eslope[eidx] = (v1.y - v0.y) / (v1.x - v0.x);
+				candidates.push_back(eidx);
+			}
+			assert(candidates.size() == count);
+			std::sort(candidates.begin(), candidates.end(), sortEdges);
+			for (size_t n = 1; n < candidates.size(); n++) {
+				// Check if the edges are part of an inside loop.
+				size_t eidxbot = candidates[n - 1];
+				size_t eidxtop = candidates[n];
+				if (e[eidxbot].flip && extra.find(eidxbot) == extra.end())
+					continue;
+				if (!e[eidxtop].flip && extra.find(eidxtop) == extra.end())
+					continue;
+				StartingPoint sp;
+				sp.vidx = vidx;
+				sp.eidxBot = candidates[n - 1];
+				sp.eidxTop = candidates[n];
+				startingPoints.push_back(sp);
+			}
+		}
+	}
 
 	// Store the current number of edges, as the generation of triangles also
 	// generates edges, that need to be ignored here.
 	const size_t Ne = e.size();
 
-	bool runagain = true; // For each area in the polygon
-	while (runagain) {
-		runagain = false;
+	for (const StartingPoint &sp : startingPoints) {
+		std::vector<size_t> eidx_top;
+		std::vector<size_t> eidx_bot;
 
-		// Search for a starting point.
-		size_t vidx = (size_t) -1;
-		size_t eidx = 0;
-		while ((vidx + 1) < v.size() || vidx == (size_t) -1) {
-			vidx++;
+		// Identify the edges along the top and the bottom of the x-continuous
+		// area to tesselate.
 
-//			if (vidx == 2 || vidx == 3) {
-//				std::cout << "x\n";
-//			}
+		eidx_top.push_back(sp.eidxTop);
 
-			// Search for a starting point
-			if (right_count[vidx] < 2)
-				continue;
-
-			size_t e_top = nothing;
-			size_t e_bot = nothing;
-
-			// Search for the first edge for a given vertex.
-			while (eidx < Ne && e[eidx].va < vidx)
-				eidx++;
-			if (eidx >= Ne) {
-				throw std::logic_error(
-						"Triangulate(): Free-floating vertex without edges connected found.");
-			}
-			size_t e_first = eidx;
-
-			// Find top-most valid edge (e_top)
-			for (eidx = e_first; eidx < Ne && e[eidx].va == vidx; eidx++) {
-
-				// Skip already processed areas.
-				if (e[eidx].tb != nothing)
+		size_t vidx = sp.vidx;
+		while (true) {
+			vidx = e[eidx_top.back()].GetOtherVertex(vidx);
+			std::vector<size_t> enext;
+			for (size_t eidx : outline) {
+				const Edge &ed = e[eidx];
+				if (ed.va != vidx && ed.vb != vidx)
+					continue;
+				if (eidx == eidx_top.back())
 					continue;
 
-				if (e[eidx].sharp) {
-					if (e[eidx].flip)
-						e_top = eidx;
+				if (ed.va == vidx && !ed.flip)
+					continue;
+				if (ed.vb == vidx && ed.flip)
+					continue;
+
+				const Vertex &v0 = v[ed.va];
+				const Vertex &v1 = v[ed.vb];
+
+				if (ed.vb == vidx && v0.x - FLT_EPSILON < v1.x)
+					continue;
+				double a;
+				if (fabs(v1.x - v0.x) < FLT_EPSILON) {
+					a = (v1.y > v0.y) ? inf : -inf;
+					if (ed.vb == vidx)
+						a = -a;
 				} else {
-					// A generated edge is always in a valid area on both sides.
-					e_top = eidx;
+					a = (v1.y - v0.y) / (v1.x - v0.x);
 				}
+				eslope[eidx] = a;
+				enext.push_back(eidx);
 			}
-			if (e_top == nothing) {
-				continue;
-			}
-
-			// Find the highest valid edge below the top edge (=bottom edge of
-			// area)
-
-			double esl = -DBL_MAX;
-			for (eidx = e_first; eidx < Ne && e[eidx].va == vidx; eidx++) {
-				if (eidx == e_top || e[eidx].ta != nothing)
+			for (size_t eidx : extra) {
+				const Edge &ed = e[eidx];
+				if (ed.va != vidx && ed.vb != vidx)
 					continue;
-
-				if (eslope[eidx] > eslope[e_top])
+				if (eidx == eidx_top.back())
 					continue;
-
-				if (eslope[eidx] > esl) {
-					e_bot = eidx;
-					esl = eslope[eidx];
+				const Vertex &v0 = v[ed.va];
+				const Vertex &v1 = v[ed.vb];
+				if (ed.vb == vidx && v0.x - FLT_EPSILON < v1.x)
+					continue;
+				double a;
+				if (fabs(v1.x - v0.x) < FLT_EPSILON) {
+					a = (v1.y > v0.y) ? inf : -inf;
+					if (ed.vb == vidx)
+						a = -a;
+				} else {
+					a = (v1.y - v0.y) / (v1.x - v0.x);
 				}
+				eslope[eidx] = a;
+				enext.push_back(eidx);
 			}
+			if (enext.empty())
+				break;
+			std::sort(enext.begin(), enext.end(), sortEdges);
+			eidx_top.push_back(enext.front());
+		}
 
-			if (e_bot == nothing) {
-				continue;
-			}
+		eidx_bot.push_back(sp.eidxBot);
+		vidx = sp.vidx;
+		while (true) {
+			vidx = e[eidx_bot.back()].GetOtherVertex(vidx);
 
-			auto check_triangle = [&vref = v](size_t i0, size_t i1, size_t i2) {
-				// Cross-product to check, if the triangle is mathematically
-				// positive.
-				const double dx0 = vref[i1].x - vref[i0].x;
-				const double dx1 = vref[i2].x - vref[i1].x;
-				const double dy0 = vref[i1].y - vref[i0].y;
-				const double dy1 = vref[i2].y - vref[i1].y;
-				return dx0 * dy1 - dx1 * dy0;
-			};
-
-			idx_top.clear();
-			idx_bot.clear();
-
-			idx_top.push_back(e[e_top].va);
-			idx_bot.push_back(e[e_bot].va);
-
-			for (; vidx < v.size(); vidx++) {
-				int c = 0;
-				if (vidx == e[e_top].vb) {
-
-					// Check if there was a reflexive chain, that could be
-					// resolved.
-					while (idx_top.size() > 1) {
-						const size_t idx0 = idx_top[idx_top.size() - 1];
-						const size_t idx1 = idx_top[idx_top.size() - 2];
-						const double v = check_triangle(vidx, idx0, idx1);
-						if (v > FLT_EPSILON) {
-							AddTriangleMinimal(vidx, idx0, idx1);
-							idx_top.pop_back();
-						} else {
-							break;
-						}
-					}
-					if (idx_bot.size() > 1) {
-						if (idx_top.size() != 1)
-							throw std::logic_error(
-									"Triangulate(): The idx_top should contain exactly 1 element here.");
-						for (size_t n = 1; n < idx_bot.size(); n++) {
-							AddTriangleMinimal(idx_bot[n - 1], idx_bot[n],
-									vidx);
-						}
-						idx_top.assign(1, idx_bot.back());
-						idx_bot.assign(1, idx_bot.back());
-					}
-
-					idx_top.push_back(vidx);
-					c++;
-
-					// Search for the next top edge
-					eidx = e_top;
-					e_top = nothing;
-					for (; eidx < Ne && e[eidx].va <= vidx; eidx++) {
-						if (e[eidx].va < vidx)
-							continue;
-						if (e[eidx].tb != nothing)
-							continue;
-						if (e_top == nothing) {
-							e_top = eidx;
-						} else {
-							if (eslope[eidx] < eslope[e_top])
-								e_top = eidx;
-						}
-					}
+			std::vector<size_t> enext;
+			for (size_t eidx : outline) {
+				const Edge &ed = e[eidx];
+				if (ed.va != vidx && ed.vb != vidx)
+					continue;
+				if (eidx == eidx_bot.back())
+					continue;
+				if (ed.va == vidx && ed.flip)
+					continue;
+				if (ed.vb == vidx && !ed.flip)
+					continue;
+				const Vertex &v0 = v[ed.va];
+				const Vertex &v1 = v[ed.vb];
+				if (ed.vb == vidx && v0.x - FLT_EPSILON < v1.x)
+					continue;
+				double a;
+				if (fabs(v1.x - v0.x) < FLT_EPSILON) {
+					a = (v1.y > v0.y) ? inf : -inf;
+					if (ed.vb == vidx)
+						a = -a;
+				} else {
+					a = (v1.y - v0.y) / (v1.x - v0.x);
 				}
+				eslope[eidx] = a;
+				enext.push_back(eidx);
+			}
+			for (size_t eidx : extra) {
+				const Edge &ed = e[eidx];
+				if (ed.va != vidx && ed.vb != vidx)
+					continue;
+				if (eidx == eidx_bot.back())
+					continue;
+				const Vertex &v0 = v[ed.va];
+				const Vertex &v1 = v[ed.vb];
+				if (ed.vb == vidx && v0.x - FLT_EPSILON < v1.x)
+					continue;
+				double a;
+				if (fabs(v1.x - v0.x) < FLT_EPSILON) {
+					a = (v1.y > v0.y) ? inf : -inf;
+					if (ed.vb == vidx)
+						a = -a;
+				} else {
+					a = (v1.y - v0.y) / (v1.x - v0.x);
+				}
+				eslope[eidx] = a;
+				enext.push_back(eidx);
+			}
+			if (enext.empty())
+				break;
+			std::sort(enext.begin(), enext.end(), sortEdges);
+			eidx_bot.push_back(enext.back());
+		}
 
-				if (vidx == e[e_bot].vb) {
-					if (c >= 1)
+		if (eidx_top.empty())
+			throw std::runtime_error("The top edge chain is empty.");
+		if (eidx_bot.empty())
+			throw std::runtime_error("The bottom edge chain is empty.");
+
+		struct Chainvertex_t {
+			enum struct Side {
+				BOTH, TOP, BOTTOM
+			} side;
+			size_t vidx;
+		};
+		std::vector<Chainvertex_t> vidx_chain;
+		{
+			Chainvertex_t vert;
+			vert.side = Chainvertex_t::Side::BOTH;
+			vert.vidx = sp.vidx;
+			vidx_chain.push_back(vert);
+
+			size_t idx_top = 0;
+			size_t idx_bot = 0;
+			size_t vidx_top = e[eidx_top.front()].GetOtherVertex(sp.vidx);
+			size_t vidx_bot = e[eidx_bot.front()].GetOtherVertex(sp.vidx);
+
+			while (true) {
+				const Vertex &v_top = v[vidx_top];
+				const Vertex &v_bot = v[vidx_bot];
+				if (v_top.x < v_bot.x) {
+					vert.side = Chainvertex_t::Side::TOP;
+					vert.vidx = vidx_top;
+					vidx_chain.push_back(vert);
+					idx_top++;
+					if (idx_top >= eidx_top.size() || vidx_top == vidx_bot) {
+						vidx_chain.back().side = Chainvertex_t::Side::BOTH;
 						break;
-					while (idx_bot.size() > 1) {
-						const size_t idx0 = idx_bot[idx_bot.size() - 1];
-						const size_t idx1 = idx_bot[idx_bot.size() - 2];
-						const double v = check_triangle(vidx, idx1, idx0);
-						if (v > FLT_EPSILON) {
-							AddTriangleMinimal(vidx, idx1, idx0);
-							idx_bot.pop_back();
+					}
+					vidx_top = e[eidx_top[idx_top]].GetOtherVertex(vidx_top);
+				} else {
+					vert.side = Chainvertex_t::Side::BOTTOM;
+					vert.vidx = vidx_bot;
+					vidx_chain.push_back(vert);
+					idx_bot++;
+					if (idx_bot >= eidx_bot.size() || vidx_top == vidx_bot) {
+						vidx_chain.back().side = Chainvertex_t::Side::BOTH;
+						break;
+					}
+					vidx_bot = e[eidx_bot[idx_bot]].GetOtherVertex(vidx_bot);
+				}
+			}
+		}
+
+		auto check_triangle = [&vref = v](size_t i0, size_t i1, size_t i2) {
+			// Cross-product to check, if the triangle is mathematically
+			// positive.
+			const double dx0 = vref[i1].x - vref[i0].x;
+			const double dx1 = vref[i2].x - vref[i1].x;
+			const double dy0 = vref[i1].y - vref[i0].y;
+			const double dy1 = vref[i2].y - vref[i1].y;
+			return dx0 * dy1 - dx1 * dy0;
+		};
+
+		std::vector<Chainvertex_t> chain;
+		for (const Chainvertex_t &vt : vidx_chain) {
+			if (chain.size() < 2) {
+				chain.push_back(vt);
+				continue;
+			}
+			if (vt.side != chain.back().side) {
+				// A triangle can always be drawn.
+				if (vt.side == Chainvertex_t::Side::TOP) {
+					for (size_t idx = 1; idx < chain.size(); idx++)
+						AddTriangleMinimal(vt.vidx, chain[idx - 1].vidx,
+								chain[idx].vidx);
+				} else if (vt.side == Chainvertex_t::Side::BOTTOM) {
+					for (size_t idx = 1; idx < chain.size(); idx++)
+						AddTriangleMinimal(vt.vidx, chain[idx].vidx,
+								chain[idx - 1].vidx);
+				} else {
+					for (size_t idx = 1; idx < chain.size(); idx++) {
+						if (chain[idx].side == Chainvertex_t::Side::BOTTOM) {
+							AddTriangleMinimal(vt.vidx, chain[idx - 1].vidx,
+									chain[idx].vidx);
+						} else {
+							AddTriangleMinimal(vt.vidx, chain[idx].vidx,
+									chain[idx - 1].vidx);
+						}
+					}
+				}
+				chain[0] = chain.back();
+				chain.resize(1);
+			} else {
+				// Check for reflexive chain.
+				while (chain.size() >= 2) {
+					size_t v0 = chain[chain.size() - 1].vidx;
+					size_t v1 = chain[chain.size() - 2].vidx;
+					if (vt.side == Chainvertex_t::Side::TOP) {
+						if (check_triangle(vt.vidx, v0, v1) > FLT_EPSILON) {
+							AddTriangleMinimal(vt.vidx, v0, v1);
+							chain.pop_back();
+						} else {
+							break;
+						}
+					} else {
+						if (check_triangle(vt.vidx, v1, v0) > FLT_EPSILON) {
+							AddTriangleMinimal(vt.vidx, v1, v0);
+							chain.pop_back();
 						} else {
 							break;
 						}
 					}
-					if (idx_top.size() > 1) {
-						if (idx_bot.size() != 1)
-							throw std::logic_error(
-									"Triangulate(): The idx_bot should contain exactly 1 element here.");
-						for (size_t n = 1; n < idx_top.size(); n++) {
-							AddTriangleMinimal(idx_top[n], idx_top[n - 1],
-									vidx);
-						}
-						idx_bot.assign(1, idx_top.back());
-						idx_top.assign(1, idx_top.back());
-					}
-					idx_bot.push_back(vidx);
-					// Search for the next bottom edge
-					eidx = e_bot;
-					e_bot = nothing;
-					for (; eidx < Ne && e[eidx].va <= vidx; eidx++) {
-						if (e[eidx].va < vidx)
-							continue;
-						if (e[eidx].ta != nothing)
-							continue;
-						if (e_bot == nothing) {
-							e_bot = eidx;
-						} else {
-							if (eslope[eidx] > eslope[e_bot])
-								e_bot = eidx;
-						}
-					}
 				}
-
 			}
-
-			runagain = true;
-
-			// Final vertex of this group.
-			if ((idx_top.size() + idx_bot.size()) > 3)
-				throw std::logic_error(
-						"Triangulate(): Additional unprocessed vertices found.");
-			paintTriangles = false;
-
+			chain.push_back(vt);
 		}
 	}
 
-	// Clean up edges
-	for (Edge &ed : e)
-		ed.Fix();
-	for (Triangle &tri : t)
-		tri.Fix();
-
-	Sort();
-
-	PropagateNormals();
-	CalculateUVCoordinateSystems();
-//	Finish(); // Sort the triangles into a consistent order
+	//	Fix();
+	//	Sort();
+	//	PropagateNormals();
+	//	CalculateUVCoordinateSystems();
+	//	Finish();
 }
 
 void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
@@ -1120,39 +1382,50 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 	tri.Fix();
 	const size_t tidx = t.size();
 
+#ifdef DEBUG
+	for (size_t idx = 0; idx < tidx; idx++) {
+		const Triangle &tr = t[idx];
+		if (tri.va == tr.va && tri.vb == tr.vb && tri.vc == tr.vc) {
+			std::cerr << __FILE__ << ":" << __LINE__
+					<< " : The triangle to be added already exists in t[" << idx
+					<< "].\n";
+		}
+	}
+
+#endif
+
 	for (size_t idx = 0; idx < e.size(); idx++) {
 		Geometry::Edge &ed = e[idx];
-
 		if (ed.va == tri.va && ed.vb == tri.vb) {
 			tri.ea = idx;
-
-			if (tri.flip)
-				ed.tb = tidx;
-			else
+			if (ed.ta == nothing) {
 				ed.ta = tidx;
-
-			ed.trianglecount = ((ed.ta == nothing) ? 0 : 1)
-					+ ((ed.tb == nothing) ? 0 : 1);
+				ed.trianglecount = 1;
+			} else {
+				ed.tb = tidx;
+				ed.trianglecount = 2;
+			}
 		}
 		if (ed.va == tri.vb && ed.vb == tri.vc) {
 			tri.eb = idx;
-
-			if (tri.flip)
-				ed.tb = tidx;
-			else
+			if (ed.ta == nothing) {
 				ed.ta = tidx;
-			ed.trianglecount = ((ed.ta == nothing) ? 0 : 1)
-					+ ((ed.tb == nothing) ? 0 : 1);
+				ed.trianglecount = 1;
+			} else {
+				ed.tb = tidx;
+				ed.trianglecount = 2;
+			}
 		}
 		if (ed.va == tri.va && ed.vb == tri.vc) {
 			tri.ec = idx;
 
-			if (tri.flip)
+			if (ed.ta == nothing) {
 				ed.ta = tidx;
-			else
+				ed.trianglecount = 1;
+			} else {
 				ed.tb = tidx;
-			ed.trianglecount = ((ed.ta == nothing) ? 0 : 1)
-					+ ((ed.tb == nothing) ? 0 : 1);
+				ed.trianglecount = 2;
+			}
 		}
 	}
 
@@ -1160,10 +1433,7 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 		Geometry::Edge edge0;
 		edge0.va = tri.va;
 		edge0.vb = tri.vb;
-		if (tri.flip)
-			edge0.tb = tidx;
-		else
-			edge0.ta = tidx;
+		edge0.ta = tidx;
 		edge0.n = n;
 		edge0.c = addColor;
 		edge0.trianglecount = 1;
@@ -1174,10 +1444,7 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 		Geometry::Edge edge1;
 		edge1.va = tri.vb;
 		edge1.vb = tri.vc;
-		if (tri.flip)
-			edge1.tb = tidx;
-		else
-			edge1.ta = tidx;
+		edge1.ta = tidx;
 		edge1.n = n;
 		edge1.c = addColor;
 		edge1.trianglecount = 1;
@@ -1189,10 +1456,7 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 		Geometry::Edge edge2;
 		edge2.va = tri.va;
 		edge2.vb = tri.vc;
-		if (tri.flip)
-			edge2.ta = tidx;
-		else
-			edge2.tb = tidx;
+		edge2.ta = tidx;
 		edge2.n = n;
 		edge2.c = addColor;
 		edge2.trianglecount = 1;
@@ -1200,7 +1464,6 @@ void Polygon3::AddTriangleMinimal(size_t idx0, size_t idx1, size_t idx2) {
 		e.push_back(edge2);
 	}
 	t.push_back(tri);
-	finished = false;
 }
 
 Polygon3 Polygon3::Voronoi() const {
@@ -1732,7 +1995,7 @@ Polygon3 Polygon3::Voronoi() const {
 	double xmax = -DBL_MIN;
 	double ymin = DBL_MAX;
 	double ymax = -DBL_MIN;
-	for (Vertex &vert : Q.v) {
+	for (const Vertex &vert : Q.v) {
 		if (vert.x < xmin)
 			xmin = vert.x;
 		if (vert.x > xmax)
@@ -1742,7 +2005,7 @@ Polygon3 Polygon3::Voronoi() const {
 		if (vert.y > ymax)
 			ymax = vert.y;
 	}
-	for (Vertex &vert : ret.v) {
+	for (const Vertex &vert : ret.v) {
 		if (vert.x < xmin)
 			xmin = vert.x;
 		if (vert.x > xmax)
@@ -2020,8 +2283,13 @@ void Polygon3::Regularize() {
 			size_t idxv1 = ta.GetVertexIndex((idxeta + 2) % 3);
 			size_t idxv2 = tb.GetVertexIndex((idxetb + 1) % 3);
 			size_t idxv3 = tb.GetVertexIndex((idxetb + 2) % 3);
-			if (idxv0 == idxv2)
-				throw std::runtime_error("One of the triangles is flipped.");
+			if (idxv0 == idxv2) {
+				std::ostringstream err;
+				err << __FILE__ << ":" << __LINE__ << " : ";
+				err << "One of the triangles on edge " << eidx
+						<< " is flipped.";
+				throw std::runtime_error(err.str());
+			}
 
 			size_t idxe0 = ta.GetEdgeIndex((idxeta + 1) % 3);
 			size_t idxe1 = ta.GetEdgeIndex((idxeta + 2) % 3);
@@ -2195,6 +2463,8 @@ bool Polygon3::PassedPlaneCheck(size_t maxErrorsPerType) const {
 	size_t errorCount = 0;
 	bool passed = true;
 
+	// Check if there are edges connected to more than two triangles.
+
 	for (size_t eidx = 0; eidx < ecount; eidx++) {
 		const Edge &edge = e[eidx];
 		SELFCHECK_GREATER_THAN(eidx, "edge", edge.trianglecount, 2);
@@ -2216,14 +2486,15 @@ bool Polygon3::PassedPlaneCheck(size_t maxErrorsPerType) const {
 			if (e0.va == e1.va && e0.vb == e1.vb) {
 				std::cerr << "The edge " << idx0
 						<< " contains the same vertices (" << e0.va << " and "
-						<< e0.vb << ") as the edge " << idx1 << ".";
+						<< e0.vb << ") as the edge " << idx1 << ".\n";
 				errorCount++;
 				passed = false;
 			}
 			if (e0.va == e1.vb && e0.vb == e1.va) {
 				std::cerr << "The edge " << idx0
 						<< " contains the same vertices (" << e0.va << " and "
-						<< e0.vb << ") as the edge " << idx1 << " but flipped.";
+						<< e0.vb << ") as the edge " << idx1
+						<< " but flipped.\n";
 				errorCount++;
 				passed = false;
 			}
@@ -2232,6 +2503,33 @@ bool Polygon3::PassedPlaneCheck(size_t maxErrorsPerType) const {
 				break;
 			}
 		}
+		if (errorCount >= maxErrorsPerType)
+			break;
+	}
+
+	// Check for duplicated triangles
+	// (also without sorting)
+
+	for (size_t idx0 = 0; idx0 < tcount; idx0++) {
+		const Triangle &t0 = t[idx0];
+		for (size_t idx1 = idx0 + 1; idx1 < tcount; idx1++) {
+			const Triangle &t1 = t[idx1];
+
+			if (t0.va == t1.va && t0.vb == t1.vb && t0.vc == t1.vc) {
+				std::cerr << "The triangle " << idx0
+						<< " contains the same vertices (" << t0.va << ", "
+						<< t0.vb << ", and " << t0.vc << ") as triangle "
+						<< idx1 << ".\n";
+				errorCount++;
+				passed = false;
+			}
+			if (errorCount >= maxErrorsPerType) {
+				std::cerr << "...\n";
+				break;
+			}
+		}
+		if (errorCount >= maxErrorsPerType)
+			break;
 	}
 
 	return passed;

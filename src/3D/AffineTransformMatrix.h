@@ -181,11 +181,11 @@ public:
 	static AffineTransformMatrix Zero(); ///< Function returning an all-zero matrix.
 
 	static AffineTransformMatrix Translation(double x, double y, double z);
-	static AffineTransformMatrix Translation(Vector3 translation);
+	static AffineTransformMatrix Translation(const Vector3 &translation);
 
 	static AffineTransformMatrix Scaling(double scale);
 	static AffineTransformMatrix Scaling(double x, double y, double z);
-	static AffineTransformMatrix Scaling(Vector3 scale);
+	static AffineTransformMatrix Scaling(const Vector3 &scale);
 
 	/*!\brief Rotation matrix around a given vector.
 	 *

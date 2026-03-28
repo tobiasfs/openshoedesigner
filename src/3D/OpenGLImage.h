@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLImage.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -64,7 +64,7 @@ public:
 	void SetAlphaColor(unsigned char red, unsigned char green,
 			unsigned char blue);
 
-	void Paint() const;
+	virtual void Paint() const;
 protected:
 	void Update() const;
 	mutable bool refresh;

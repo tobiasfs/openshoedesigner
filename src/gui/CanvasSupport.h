@@ -38,22 +38,17 @@
 
 class CanvasSupport: public CanvasMeasurementGrid {
 public:
-	CanvasSupport(wxWindow *parent,
-            wxWindowID id = wxID_ANY,
-            const wxPoint& pos = wxDefaultPosition,
-            const wxSize& size = wxDefaultSize,
-            long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-            const wxString& name = wxPanelNameStr);
+	explicit CanvasSupport(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
+					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+			const wxString &name = wxPanelNameStr);
 	virtual ~CanvasSupport();
 
-	void OnPaint(wxPaintEvent &event);
-//	void OnSize(wxSizeEvent &event);
+	void OnPaint(wxPaintEvent &event) override;
+//	void OnSize(wxSizeEvent &event) override;
 //
-//	void OnMotion(wxMouseEvent &event);
-//	void OnLeftDown(wxMouseEvent &event);
-
-private:
-
+//	void OnMotion(wxMouseEvent &event) override;
+//	void OnLeftDown(wxMouseEvent &event) override;
 };
 
 #endif /* CANVASSUPPORT_H */

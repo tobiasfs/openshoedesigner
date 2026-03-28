@@ -28,16 +28,16 @@
 
 Control3DAbstract::Control3DAbstract() {
 	for (uint_fast8_t i = 0; i < 6; i++)
-		Axis[i] = 0;
+		axis[i] = 0;
 	for (uint_fast8_t i = 0; i < maxButtons; i++)
-		Button[i] = false;
+		button[i] = false;
 	hasChanged = false;
 }
 
 void Control3DAbstract::InitDevice() {
 }
 
-void Control3DAbstract::SetPort(std::string connection) {
+void Control3DAbstract::SetPort(const std::string &connection) {
 	this->connection = connection;
 }
 
@@ -54,15 +54,15 @@ void Control3DAbstract::Close() {
 }
 
 int Control3DAbstract::GetButton(uint8_t idx) const {
-	if (idx > maxButtons)
+	if (idx >= maxButtons)
 		return false;
-	return Button[idx];
+	return button[idx];
 }
 
 int Control3DAbstract::GetAxis(uint8_t idx) const {
-	if (idx > 5)
+	if (idx >= 6)
 		return 0;
-	return Axis[idx];
+	return axis[idx];
 }
 
 bool Control3DAbstract::Pump() {

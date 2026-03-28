@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version 4.2.1-85-gdf26f269)
+// C++ code generated with wxFormBuilder (version 4.2.1-115-g11c2dec8)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -390,7 +390,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerShoeSizes->Add( m_buttonQuickSetup, 0, wxALL|wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizerShoeSizes;
-	sbSizerShoeSizes = new wxStaticBoxSizer( new wxStaticBox( m_panelMeasurementBased, wxID_ANY, _("Shoesizes") ), wxVERTICAL );
+	sbSizerShoeSizes = new wxStaticBoxSizer( wxVERTICAL, m_panelMeasurementBased, _("Shoesizes") );
 
 	wxFlexGridSizer* fgSizerShoeSizes;
 	fgSizerShoeSizes = new wxFlexGridSizer( 6, 2, 0, 0 );
@@ -608,7 +608,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_choicebookLastConstructionType = new wxChoicebook( m_panelPageLast, ID_LASTCONSTRUCTIONTYPE, wxDefaultPosition, wxDefaultSize, wxCHB_DEFAULT );
 	m_panelLastConstruct = new wxPanel( m_choicebookLastConstructionType, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxStaticBoxSizer* sbSizerShapeParameter;
-	sbSizerShapeParameter = new wxStaticBoxSizer( new wxStaticBox( m_panelLastConstruct, wxID_ANY, _("Insole shape") ), wxVERTICAL );
+	sbSizerShapeParameter = new wxStaticBoxSizer( wxVERTICAL, m_panelLastConstruct, _("Insole shape") );
 
 	wxFlexGridSizer* fgSizerShapePatameter;
 	fgSizerShapePatameter = new wxFlexGridSizer( 8, 2, 0, 0 );
@@ -771,7 +771,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerShoe = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticBoxSizer* sbSizerHeelStyle;
-	sbSizerHeelStyle = new wxStaticBoxSizer( new wxStaticBox( m_panelPageShoe, wxID_ANY, _("Heel style") ), wxVERTICAL );
+	sbSizerHeelStyle = new wxStaticBoxSizer( wxVERTICAL, m_panelPageShoe, _("Heel style") );
 
 	wxArrayString m_choicePresetShoeTypeChoices;
 	m_choicePresetShoeType = new wxChoice( sbSizerHeelStyle->GetStaticBox(), ID_PRESETSHOETYPE, wxDefaultPosition, wxDefaultSize, m_choicePresetShoeTypeChoices, 0 );
@@ -819,7 +819,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerShoe->Add( sbSizerHeelStyle, 0, wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizerShoeStyle;
-	sbSizerShoeStyle = new wxStaticBoxSizer( new wxStaticBox( m_panelPageShoe, wxID_ANY, _("Shoe style") ), wxVERTICAL );
+	sbSizerShoeStyle = new wxStaticBoxSizer( wxVERTICAL, m_panelPageShoe, _("Shoe style") );
 
 	wxArrayString m_choicePresetShoeStyleChoices;
 	m_choicePresetShoeStyle = new wxChoice( sbSizerShoeStyle->GetStaticBox(), ID_PRESETSHOEHEIGHT, wxDefaultPosition, wxDefaultSize, m_choicePresetShoeStyleChoices, 0 );
@@ -954,7 +954,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerHeel = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticBoxSizer* sbSizerWalkcycleSupport;
-	sbSizerWalkcycleSupport = new wxStaticBoxSizer( new wxStaticBox( m_panelPageHeel, wxID_ANY, _("Walkcycle Support Heel") ), wxVERTICAL );
+	sbSizerWalkcycleSupport = new wxStaticBoxSizer( wxVERTICAL, m_panelPageHeel, _("Walkcycle Support Heel") );
 
 	wxFlexGridSizer* fgSizerWalkcycleSupport;
 	fgSizerWalkcycleSupport = new wxFlexGridSizer( 4, 2, 0, 0 );
@@ -1136,7 +1136,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerPatternRight->Add( m_buttonOnPatternAddAccessory, 0, wxALL|wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizerPatternElementProperties;
-	sbSizerPatternElementProperties = new wxStaticBoxSizer( new wxStaticBox( m_panelPagePattern, wxID_ANY, _("Properties") ), wxVERTICAL );
+	sbSizerPatternElementProperties = new wxStaticBoxSizer( wxVERTICAL, m_panelPagePattern, _("Properties") );
 
 	m_propertyGridPatternElement = new wxPropertyGrid(sbSizerPatternElementProperties->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE|wxPG_HIDE_CATEGORIES|wxPG_HIDE_MARGIN|wxPG_SPLITTER_AUTO_CENTER|wxTAB_TRAVERSAL);
 	m_propertyGridItemName = m_propertyGridPatternElement->Append( new wxStringProperty( _("Name") ) );
@@ -1148,7 +1148,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerPatternRight->Add( sbSizerPatternElementProperties, 0, wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizerFabric;
-	sbSizerFabric = new wxStaticBoxSizer( new wxStaticBox( m_panelPagePattern, wxID_ANY, _("Fabrics") ), wxVERTICAL );
+	sbSizerFabric = new wxStaticBoxSizer( wxVERTICAL, m_panelPagePattern, _("Fabrics") );
 
 	m_listBoxFabric = new wxListBox( sbSizerFabric->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 	m_listBoxFabric->Append( _("Leather - black") );
@@ -1219,7 +1219,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelCanvasPattern->SetSizer( bSizerCanvasPattern );
 	m_panelCanvasPattern->Layout();
 	bSizerCanvasPattern->Fit( m_panelCanvasPattern );
-	m_notebookCanvas->AddPage( m_panelCanvasPattern, _("Pattern"), true );
+	m_notebookCanvas->AddPage( m_panelCanvasPattern, _("Pattern"), false );
 	m_panelFlattening = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasFlattening;
 	bSizerCanvasFlattening = new wxBoxSizer( wxVERTICAL );
@@ -1236,7 +1236,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	m_panelFlattening->SetSizer( bSizerCanvasFlattening );
 	m_panelFlattening->Layout();
 	bSizerCanvasFlattening->Fit( m_panelFlattening );
-	m_notebookCanvas->AddPage( m_panelFlattening, _("Flattening"), false );
+	m_notebookCanvas->AddPage( m_panelFlattening, _("Flattening"), true );
 	m_panelCanvasTestStitch = new wxPanel( m_notebookCanvas, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizerCanvasTestStitch;
 	bSizerCanvasTestStitch = new wxBoxSizer( wxVERTICAL );
@@ -1260,7 +1260,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerAnalysisSupport = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticBoxSizer* sbSizerCycle;
-	sbSizerCycle = new wxStaticBoxSizer( new wxStaticBox( m_panelCanvasAnalysis, wxID_ANY, _("Walkcycle") ), wxVERTICAL );
+	sbSizerCycle = new wxStaticBoxSizer( wxVERTICAL, m_panelCanvasAnalysis, _("Walkcycle") );
 
 	m_canvasCycle = new CanvasWalkcycle( sbSizerCycle->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizerCycle->Add( m_canvasCycle, 1, wxALL|wxEXPAND, 5 );
@@ -1284,7 +1284,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerAnalysisSupport->Add( sbSizerCycle, 1, wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizerPlot;
-	sbSizerPlot = new wxStaticBoxSizer( new wxStaticBox( m_panelCanvasAnalysis, wxID_ANY, _("Forces, Moments") ), wxVERTICAL );
+	sbSizerPlot = new wxStaticBoxSizer( wxVERTICAL, m_panelCanvasAnalysis, _("Forces, Moments") );
 
 	wxString m_choiceDisplayChoices[] = { _("Kneeline"), _("Force"), _("Moment"), _("Crossforce") };
 	int m_choiceDisplayNChoices = sizeof( m_choiceDisplayChoices ) / sizeof( wxString );
@@ -2097,7 +2097,7 @@ GUIDialogQuickInitFoot::GUIDialogQuickInitFoot( wxWindow* parent, wxWindowID id,
 	m_staticTextShoeSize->Wrap( -1 );
 	bSizerSize->Add( m_staticTextShoeSize, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrlShoeSize = new ExtendedTextCtrl( this, wxID_ANY, _("39"), wxDefaultPosition, wxDefaultSize, wxTE_RIGHT );
+	m_textCtrlShoeSize = new ExtendedTextCtrl( this, wxID_ANY, _("39"), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RIGHT );
 	bSizerSize->Add( m_textCtrlShoeSize, 0, wxALL|wxEXPAND, 5 );
 
 	wxString m_choiceUnitChoices[] = { _("EU"), _("US"), _("CN"), _("UK"), _("JP"), _("AU"), _("mm"), _("cm"), _("in"), _("ft") };
@@ -2242,12 +2242,12 @@ GUIDialogFormulaEditor::GUIDialogFormulaEditor( wxWindow* parent, wxWindowID id,
 
 	bSizerMain->Add( bSizerVariableName, 0, wxEXPAND, 5 );
 
-	m_textCtrlFormula = new ExtendedTextCtrl( this, ID_FORMULA, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrlFormula = new ExtendedTextCtrl( this, ID_FORMULA, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	m_textCtrlFormula->SetToolTip( _("Enter formula or value. \nAllowed operations are: +, -, *, /, ^, cos, sin, tan, acos, asin, atan, exp, log, sqrt, cbrt, ceil, floor, round, abs") );
 
 	bSizerMain->Add( m_textCtrlFormula, 0, wxALL|wxEXPAND, 5 );
 
-	m_textCtrlResult = new ExtendedTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	m_textCtrlResult = new ExtendedTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_READONLY );
 	m_textCtrlResult->SetToolTip( _("Result") );
 
 	bSizerMain->Add( m_textCtrlResult, 0, wxALL|wxEXPAND, 5 );
@@ -2305,7 +2305,7 @@ GUIFrameSetupUnits::GUIFrameSetupUnits( wxWindow* parent, wxWindowID id, const w
 	bSizer25 = new wxBoxSizer( wxVERTICAL );
 
 	wxStaticBoxSizer* sbSizer6;
-	sbSizer6 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, _("Units ") ), wxVERTICAL );
+	sbSizer6 = new wxStaticBoxSizer( wxVERTICAL, this, _("Units ") );
 
 	wxFlexGridSizer* fgSizer6;
 	fgSizer6 = new wxFlexGridSizer( 3, 2, 0, 0 );
@@ -2449,7 +2449,7 @@ GUIFrameSetupBackgroundImages::GUIFrameSetupBackgroundImages( wxWindow* parent, 
 	wxBoxSizer* bSizerScale;
 	bSizerScale = new wxBoxSizer( wxHORIZONTAL );
 
-	m_textCtrlScale = new ExtendedTextCtrl( this, ID_SCALE, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrlScale = new ExtendedTextCtrl( this, ID_SCALE, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	bSizerScale->Add( m_textCtrlScale, 1, wxTOP|wxBOTTOM|wxLEFT, 5 );
 
 	m_spinBtnScale = new wxSpinButton( this, ID_SCALE, wxDefaultPosition, wxDefaultSize, 0 );
@@ -2465,7 +2465,7 @@ GUIFrameSetupBackgroundImages::GUIFrameSetupBackgroundImages( wxWindow* parent, 
 	wxBoxSizer* bSizerHorizontalOffset;
 	bSizerHorizontalOffset = new wxBoxSizer( wxHORIZONTAL );
 
-	m_textCtrlOffsHor = new ExtendedTextCtrl( this, ID_OFFSETHORIZONTAL, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrlOffsHor = new ExtendedTextCtrl( this, ID_OFFSETHORIZONTAL, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	bSizerHorizontalOffset->Add( m_textCtrlOffsHor, 1, wxTOP|wxBOTTOM|wxLEFT, 5 );
 
 	m_spinBtnOffsHor = new wxSpinButton( this, ID_OFFSETHORIZONTAL, wxDefaultPosition, wxDefaultSize, 0 );
@@ -2481,7 +2481,7 @@ GUIFrameSetupBackgroundImages::GUIFrameSetupBackgroundImages( wxWindow* parent, 
 	wxBoxSizer* bSizerVerticalOffset;
 	bSizerVerticalOffset = new wxBoxSizer( wxHORIZONTAL );
 
-	m_textCtrlOffsVert = new ExtendedTextCtrl( this, ID_OFFSETVERTICAL, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrlOffsVert = new ExtendedTextCtrl( this, ID_OFFSETVERTICAL, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	bSizerVerticalOffset->Add( m_textCtrlOffsVert, 1, wxTOP|wxBOTTOM|wxLEFT, 5 );
 
 	m_spinBtnOffsVert = new wxSpinButton( this, ID_OFFSETVERTICAL, wxDefaultPosition, wxDefaultSize, 0 );

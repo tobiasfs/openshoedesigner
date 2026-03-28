@@ -36,7 +36,6 @@
  */
 
 // http://www.parashift.com/c++-faq-lite/operator-overloading.html
-
 #include <cmath>
 #include <initializer_list>
 #include <ostream>
@@ -44,6 +43,10 @@
 
 struct Vector3 {
 public:
+	double x = 0.0;
+	double y = 0.0;
+	double z = 0.0;
+
 	Vector3() = default;
 	Vector3(double x_, double y_, double z_ = 0.0) :
 			x(x_), y(y_), z(z_) {
@@ -268,11 +271,6 @@ public:
 		output << "[" << v.x << ", " << v.y << ", " << v.z << "]";
 		return output;
 	}
-
-public:
-	double x = 0.0;
-	double y = 0.0;
-	double z = 0.0;
 };
 
 #endif // L3D_VECTOR3_H

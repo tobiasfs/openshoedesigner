@@ -44,7 +44,7 @@ public:
 	OpenGLText();
 	virtual ~OpenGLText();
 
-	void Paint(const std::string &text) const;
+	void Write(const std::string &text) const;
 
 private:
 	unsigned int nx;

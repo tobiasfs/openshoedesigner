@@ -34,28 +34,25 @@
  */
 
 #include "CanvasMeasurementGrid.h"
-#include "../project/object/Design.h"
+#include "../project/Design.h"
 
 #include <memory>
 #include <wx/panel.h>
 
 class CanvasPattern: public CanvasMeasurementGrid {
 public:
-	CanvasPattern(wxWindow *parent, wxWindowID id = wxID_ANY,
+	explicit CanvasPattern(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
 			const wxString &name = wxPanelNameStr);
 	virtual ~CanvasPattern();
 
 protected:
-	void OnPaint(wxPaintEvent &event);
-//	void OnSize(wxSizeEvent &event);
+	void OnPaint(wxPaintEvent &event) override;
+//	void OnSize(wxSizeEvent &event) override;
 //
-//	void OnMotion(wxMouseEvent &event);
-//	void OnLeftDown(wxMouseEvent &event);
-
-private:
-
+//	void OnMotion(wxMouseEvent &event) override;
+//	void OnLeftDown(wxMouseEvent &event) override;
 
 public:
 	std::shared_ptr<Design> design;

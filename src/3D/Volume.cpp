@@ -28,8 +28,6 @@
 
 #include "../StdInclude.h"
 
-#include "Triangle.h"
-
 #include <cassert>
 #include <cfloat>
 #include <cmath>
@@ -533,20 +531,20 @@ void Volume::CalcSurface() {
 	const size_t Nz = Size(2);
 
 	geometry.Clear();
-	Vector3 p(0, 0, 0);
-	Vector3 p0;
-	Vector3 p1;
-	Vector3 p2;
-	Vector3 p3;
-	Vector3 p4;
-	Vector3 p5;
-	Vector3 p6;
-	Vector3 p7;
-	Vector3 p8;
-	Vector3 p9;
-	Vector3 p10;
-	Vector3 p11;
-	Triangle t;
+	Geometry::Vertex p(0, 0, 0);
+	Geometry::Vertex p0;
+	Geometry::Vertex p1;
+	Geometry::Vertex p2;
+	Geometry::Vertex p3;
+	Geometry::Vertex p4;
+	Geometry::Vertex p5;
+	Geometry::Vertex p6;
+	Geometry::Vertex p7;
+	Geometry::Vertex p8;
+	Geometry::Vertex p9;
+	Geometry::Vertex p10;
+	Geometry::Vertex p11;
+	std::array<Geometry::Vertex, 3> t;
 	unsigned int c = 0;
 	for (size_t k = 0; k < Nz - 1; k++) {
 		for (size_t j = 0; j < Ny - 1; j++) {
@@ -671,56 +669,56 @@ void Volume::CalcSurface() {
 							break;
 						switch (tri[h2]) {
 						case 0:
-							t.p[2 - (n % 3)] = p0;
+							t[2 - (n % 3)] = p0;
 							break;
 						case 1:
-							t.p[2 - (n % 3)] = p1;
+							t[2 - (n % 3)] = p1;
 							break;
 						case 2:
-							t.p[2 - (n % 3)] = p2;
+							t[2 - (n % 3)] = p2;
 							break;
 						case 3:
-							t.p[2 - (n % 3)] = p3;
+							t[2 - (n % 3)] = p3;
 							break;
 						case 4:
-							t.p[2 - (n % 3)] = p4;
+							t[2 - (n % 3)] = p4;
 							break;
 						case 5:
-							t.p[2 - (n % 3)] = p5;
+							t[2 - (n % 3)] = p5;
 							break;
 						case 6:
-							t.p[2 - (n % 3)] = p6;
+							t[2 - (n % 3)] = p6;
 							break;
 						case 7:
-							t.p[2 - (n % 3)] = p7;
+							t[2 - (n % 3)] = p7;
 							break;
 						case 8:
-							t.p[2 - (n % 3)] = p8;
+							t[2 - (n % 3)] = p8;
 							break;
 						case 9:
-							t.p[2 - (n % 3)] = p9;
+							t[2 - (n % 3)] = p9;
 							break;
 						case 10:
-							t.p[2 - (n % 3)] = p10;
+							t[2 - (n % 3)] = p10;
 							break;
 						case 11:
-							t.p[2 - (n % 3)] = p11;
+							t[2 - (n % 3)] = p11;
 							break;
 						default:
 							break;
 						}
 
-//					if(t.p[2 - (n % 3)].Abs() < 0.001){
+//					if(t[2 - (n % 3)].Abs() < 0.001){
 //						break;
 //					}
 
 						if (n % 3 == 2) {
 							const size_t idx0 = geometry.CountVertices();
-							geometry.AddVertex(t.p[0]);
+							geometry.AddVertex(t[0]);
 							const size_t idx1 = geometry.CountVertices();
-							geometry.AddVertex(t.p[1]);
+							geometry.AddVertex(t[1]);
 							const size_t idx2 = geometry.CountVertices();
-							geometry.AddVertex(t.p[2]);
+							geometry.AddVertex(t[2]);
 							geometry.AddTriangle(idx0, idx1, idx2);
 						}
 						h2++;
@@ -739,28 +737,28 @@ void Volume::CalcSurface() {
 				 if(cap[h] == -1) break;
 				 switch(cap[h]){
 				 case 0:
-				 t.p[n % 3] = p;
+				 t[n % 3] = p;
 				 break;
 				 case 1:
-				 t.p[n % 3] = p3;
+				 t[n % 3] = p3;
 				 break;
 				 case 2:
-				 t.p[n % 3].Set(p.x, p.y + dy, p.z);
+				 t[n % 3].Set(p.x, p.y + dy, p.z);
 				 break;
 				 case 3:
-				 t.p[n % 3] = p11;
+				 t[n % 3] = p11;
 				 break;
 				 case 4:
-				 t.p[n % 3].Set(p.x, p.y + dy, p.z + dz);
+				 t[n % 3].Set(p.x, p.y + dy, p.z + dz);
 				 break;
 				 case 5:
-				 t.p[n % 3] = p7;
+				 t[n % 3] = p7;
 				 break;
 				 case 6:
-				 t.p[n % 3].Set(p.x, p.y, p.z + dz);
+				 t[n % 3].Set(p.x, p.y, p.z + dz);
 				 break;
 				 case 7:
-				 t.p[n % 3] = p8;
+				 t[n % 3] = p8;
 				 break;
 				 }
 				 if(n % 3 == 2) geometry.AddTriangle(t, false);
@@ -783,28 +781,28 @@ void Volume::CalcSurface() {
 				 if(cap[h] == -1) break;
 				 switch(cap[h]){
 				 case 0:
-				 t.p[n % 3].Set(p.x + dx, p.y, p.z);
+				 t[n % 3].Set(p.x + dx, p.y, p.z);
 				 break;
 				 case 1:
-				 t.p[n % 3] = p9;
+				 t[n % 3] = p9;
 				 break;
 				 case 2:
-				 t.p[n % 3].Set(p.x + dx, p.y, p.z + dz);
+				 t[n % 3].Set(p.x + dx, p.y, p.z + dz);
 				 break;
 				 case 3:
-				 t.p[n % 3] = p5;
+				 t[n % 3] = p5;
 				 break;
 				 case 4:
-				 t.p[n % 3].Set(p.x + dx, p.y + dy, p.z + dz);
+				 t[n % 3].Set(p.x + dx, p.y + dy, p.z + dz);
 				 break;
 				 case 5:
-				 t.p[n % 3] = p10;
+				 t[n % 3] = p10;
 				 break;
 				 case 6:
-				 t.p[n % 3].Set(p.x + dx, p.y + dy, p.z);
+				 t[n % 3].Set(p.x + dx, p.y + dy, p.z);
 				 break;
 				 case 7:
-				 t.p[n % 3] = p1;
+				 t[n % 3] = p1;
 				 break;
 				 }
 				 if(n % 3 == 2) geometry.AddTriangle(t, false);
@@ -827,28 +825,28 @@ void Volume::CalcSurface() {
 				 if(cap[h] == -1) break;
 				 switch(cap[h]){
 				 case 0:
-				 t.p[n % 3] = p;
+				 t[n % 3] = p;
 				 break;
 				 case 1:
-				 t.p[n % 3] = p8;
+				 t[n % 3] = p8;
 				 break;
 				 case 2:
-				 t.p[n % 3].Set(p.x, p.y, p.z + dz);
+				 t[n % 3].Set(p.x, p.y, p.z + dz);
 				 break;
 				 case 3:
-				 t.p[n % 3] = p4;
+				 t[n % 3] = p4;
 				 break;
 				 case 4:
-				 t.p[n % 3].Set(p.x + dx, p.y, p.z + dz);
+				 t[n % 3].Set(p.x + dx, p.y, p.z + dz);
 				 break;
 				 case 5:
-				 t.p[n % 3] = p9;
+				 t[n % 3] = p9;
 				 break;
 				 case 6:
-				 t.p[n % 3].Set(p.x + dx, p.y, p.z);
+				 t[n % 3].Set(p.x + dx, p.y, p.z);
 				 break;
 				 case 7:
-				 t.p[n % 3] = p0;
+				 t[n % 3] = p0;
 				 break;
 				 }
 				 if(n % 3 == 2) geometry.AddTriangle(t, false);
@@ -871,28 +869,28 @@ void Volume::CalcSurface() {
 				 if(cap[h] == -1) break;
 				 switch(cap[h]){
 				 case 0:
-				 t.p[n % 3].Set(p.x, p.y + dy, p.z);
+				 t[n % 3].Set(p.x, p.y + dy, p.z);
 				 break;
 				 case 1:
-				 t.p[n % 3] = p2;
+				 t[n % 3] = p2;
 				 break;
 				 case 2:
-				 t.p[n % 3].Set(p.x + dx, p.y + dy, p.z);
+				 t[n % 3].Set(p.x + dx, p.y + dy, p.z);
 				 break;
 				 case 3:
-				 t.p[n % 3] = p10;
+				 t[n % 3] = p10;
 				 break;
 				 case 4:
-				 t.p[n % 3].Set(p.x + dx, p.y + dy, p.z + dz);
+				 t[n % 3].Set(p.x + dx, p.y + dy, p.z + dz);
 				 break;
 				 case 5:
-				 t.p[n % 3] = p6;
+				 t[n % 3] = p6;
 				 break;
 				 case 6:
-				 t.p[n % 3].Set(p.x, p.y + dy, p.z + dz);
+				 t[n % 3].Set(p.x, p.y + dy, p.z + dz);
 				 break;
 				 case 7:
-				 t.p[n % 3] = p11;
+				 t[n % 3] = p11;
 				 break;
 				 }
 				 if(n % 3 == 2) geometry.AddTriangle(t, false);
@@ -915,28 +913,28 @@ void Volume::CalcSurface() {
 				 if(cap[h] == -1) break;
 				 switch(cap[h]){
 				 case 0:
-				 t.p[n % 3] = p;
+				 t[n % 3] = p;
 				 break;
 				 case 1:
-				 t.p[n % 3] = p0;
+				 t[n % 3] = p0;
 				 break;
 				 case 2:
-				 t.p[n % 3].Set(p.x + dx, p.y, p.z);
+				 t[n % 3].Set(p.x + dx, p.y, p.z);
 				 break;
 				 case 3:
-				 t.p[n % 3] = p1;
+				 t[n % 3] = p1;
 				 break;
 				 case 4:
-				 t.p[n % 3].Set(p.x + dx, p.y + dy, p.z);
+				 t[n % 3].Set(p.x + dx, p.y + dy, p.z);
 				 break;
 				 case 5:
-				 t.p[n % 3] = p2;
+				 t[n % 3] = p2;
 				 break;
 				 case 6:
-				 t.p[n % 3].Set(p.x, p.y + dy, p.z);
+				 t[n % 3].Set(p.x, p.y + dy, p.z);
 				 break;
 				 case 7:
-				 t.p[n % 3] = p3;
+				 t[n % 3] = p3;
 				 break;
 				 }
 				 if(n % 3 == 2) geometry.AddTriangle(t, false);
@@ -959,28 +957,28 @@ void Volume::CalcSurface() {
 				 if(cap[h] == -1) break;
 				 switch(cap[h]){
 				 case 0:
-				 t.p[n % 3].Set(p.x, p.y, p.z + dz);
+				 t[n % 3].Set(p.x, p.y, p.z + dz);
 				 break;
 				 case 1:
-				 t.p[n % 3] = p7;
+				 t[n % 3] = p7;
 				 break;
 				 case 2:
-				 t.p[n % 3].Set(p.x, p.y + dy, p.z + dz);
+				 t[n % 3].Set(p.x, p.y + dy, p.z + dz);
 				 break;
 				 case 3:
-				 t.p[n % 3] = p6;
+				 t[n % 3] = p6;
 				 break;
 				 case 4:
-				 t.p[n % 3].Set(p.x + dx, p.y + dy, p.z + dz);
+				 t[n % 3].Set(p.x + dx, p.y + dy, p.z + dz);
 				 break;
 				 case 5:
-				 t.p[n % 3] = p5;
+				 t[n % 3] = p5;
 				 break;
 				 case 6:
-				 t.p[n % 3].Set(p.x + dx, p.y, p.z + dz);
+				 t[n % 3].Set(p.x + dx, p.y, p.z + dz);
 				 break;
 				 case 7:
-				 t.p[n % 3] = p4;
+				 t[n % 3] = p4;
 				 break;
 				 }
 				 if(n % 3 == 2) geometry.AddTriangle(t, false);

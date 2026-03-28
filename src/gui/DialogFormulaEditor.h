@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogFormulaEditor.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -37,8 +37,7 @@
 
 class DialogFormulaEditor: public GUIDialogFormulaEditor {
 public:
-	DialogFormulaEditor(wxWindow *parent);
-	virtual ~DialogFormulaEditor() = default;
+	explicit DialogFormulaEditor(wxWindow *parent);
 
 protected:
 	void OnItemActivated(wxDataViewEvent &event) override;

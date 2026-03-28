@@ -66,21 +66,24 @@ Polygon3 Ellipse::SteinerConstruction(size_t nrOfPoints) const {
 		const double r = d;
 		const double r2 = r * r;
 		const double rd = 1.0 / (1 + r2);
-		Geometry::Vertex vert = Transform((r2 - 1.0) * rd, 2.0 * d * r);
+		Geometry::Vertex vert = Geometry::Vertex(
+				Transform((r2 - 1.0) * rd, 2.0 * d * r));
 		ret.AddEdgeToVertex(vert);
 	}
 	for (; d < 3.0; d += dd) {
 		const double r = d - 1.0;
 		const double r2 = d * d;
 		const double rd = 1.0 / (1 + r2);
-		Geometry::Vertex vert = Transform(-(r2 - 1.0) * rd, -2.0 * r * rd);
+		Geometry::Vertex vert = Geometry::Vertex(
+				Transform(-(r2 - 1.0) * rd, -2.0 * r * rd));
 		ret.AddEdgeToVertex(vert);
 	}
 	for (; d < (4.0 - dd / 2.0); d += dd) {
 		const double r = d - 3.0;
 		const double r2 = r * r;
 		const double rd = 1.0 / (1 + r2);
-		Geometry::Vertex vert = Transform((r2 - 1.0) * rd, 2.0 * d * r);
+		Geometry::Vertex vert = Geometry::Vertex(
+				Transform((r2 - 1.0) * rd, 2.0 * d * r));
 		ret.AddEdgeToVertex(vert);
 	}
 	ret.CloseLoopNextGroup();

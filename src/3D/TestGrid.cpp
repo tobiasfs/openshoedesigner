@@ -65,7 +65,7 @@ void TestGrid::PaintPoints() const {
 
 	glPointSize(3);
 	glBegin(GL_POINTS);
-	for (auto &v : p) {
+	for (const auto &v : p) {
 		const Vector3 n = (v - c).Normal();
 		glNormal3f(n.x, n.y, n.z);
 		glVertex3f(v.x, v.y, v.z);

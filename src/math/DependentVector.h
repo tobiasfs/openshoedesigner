@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DependentVector.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -57,7 +57,7 @@ private:
 
 public:
 	DependentVector() = default;
-	DependentVector(size_t N, size_t NAxes = 1);
+	explicit DependentVector(size_t N, size_t NAxes = 1);
 	virtual ~DependentVector() = default;
 
 private:
@@ -103,9 +103,10 @@ public:
 
 	/** \brief Resize all vectors to N points.
 	 */
-	void SetSize(size_t N, size_t NAxes = 1);
-	void SetSize(const std::vector<size_t> &dims);
-	void SetSize(const DependentVector &other);
+	void SetSize(size_t N, size_t NAxes = 1, size_t S2 = 1,
+			size_t S3 = 1);
+	void SetSize(const std::vector<size_t> &dims) override;
+	void SetSize(const Matrix &other);
 
 	size_t Length() const; ///< Number of samples
 	size_t AxesCount() const; ///< Number of axes

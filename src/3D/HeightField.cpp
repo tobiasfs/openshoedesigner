@@ -99,7 +99,7 @@ void HeightField::Clear() {
 		value[i] = 0.0;
 }
 
-void HeightField::SetValues(double *v, unsigned int size) {
+void HeightField::SetValues(const double *v, unsigned int size) {
 	if (size > N)
 		return;
 	for (size_t n = 0; n < size; n++)
@@ -109,11 +109,11 @@ void HeightField::SetValues(double *v, unsigned int size) {
 Polygon3 HeightField::GetUnderline() const {
 	Polygon3 temp;
 
-	Vector3 p(0, 0, 0);
-	unsigned int i, j, c = 0;
-	for (i = 0; i < Nx; i++) {
+	Geometry::Vertex p(0, 0, 0);
+	unsigned int c = 0;
+	for (unsigned int i = 0; i < Nx; i++) {
 		p.z = 0.0;
-		for (j = 0; j < Ny; j++) {
+		for (unsigned int j = 0; j < Ny; j++) {
 			double v0 = value[c];
 			if (v0 > 0.0) {
 				if (p.z > 0.0) {
@@ -145,9 +145,9 @@ void HeightField::Paint() const {
 	glBegin(GL_POINTS);
 
 	Vector3 p(0, 0, 0);
-	unsigned int i, j, c = 0;
-	for (j = 0; j < Ny; j++) {
-		for (i = 0; i < Nx; i++) {
+	unsigned int c = 0;
+	for (unsigned int j = 0; j < Ny; j++) {
+		for (unsigned int i = 0; i < Nx; i++) {
 			double v0 = value[c];
 
 			glColor3f(v0 * 5, v0 * 5, v0 * 5);

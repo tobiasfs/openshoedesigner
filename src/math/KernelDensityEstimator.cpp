@@ -136,7 +136,8 @@ void KernelDensityEstimator::Attenuate(double pos, double kernel(double),
 }
 
 void KernelDensityEstimator::Normalize() {
-	operator/=(Y().Area());
+	const double a = Y().Area();
+	Matrix::operator/=(a);
 	count = 0;
 	weightsum = 1.0;
 }

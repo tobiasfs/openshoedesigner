@@ -44,6 +44,7 @@ void Builder::Setup(Project &project) {
 		auto &config = project.config;
 		auto &footL = project.footL;
 		auto &footR = project.footR;
+		auto &design = project.design;
 
 		if (!opCoordinateSystemConstruct) {
 			opCoordinateSystemConstruct = std::make_shared<
@@ -77,6 +78,11 @@ void Builder::Setup(Project &project) {
 			opCoordinateSystemConstruct->overAnkleBoneLevel =
 					footL.overAnkleBoneLevel;
 			operations.push_back(opCoordinateSystemConstruct);
+		}
+		if (!opDesignSolve) {
+			opDesignSolve = std::make_shared<DesignSolve>();
+			opDesignSolve->design = design;
+			operations.push_back(opDesignSolve);
 		}
 		if (!opFootModelLoad) {
 			opFootModelLoad = std::make_shared<FootModelLoad>();
@@ -204,6 +210,7 @@ void Builder::Setup(Project &project) {
 			opUpperFlatten = std::make_shared<UpperFlatten>();
 			operations.push_back(opUpperFlatten);
 		}
+
 	}
 	Connect(project);
 }
@@ -217,88 +224,137 @@ void Builder::ToDot(std::ostream &out, const Project &project) const {
 			<< "opCoordinateSystemConstruct [shape=record,label=\"{ <i1> in } | opCoordinateSystemConstruct | { <o1> out }\"];\n";
 	out << "\"" << opCoordinateSystemConstruct->in
 			<< "\" -> opCoordinateSystemConstruct:i1;\n";
+	out << "\"" << opCoordinateSystemConstruct->out
+			<< "\" [shape=ellipse, label=\"CoordinateSystem\"];\n";
 	out << "opCoordinateSystemConstruct:o1 -> \""
 			<< opCoordinateSystemConstruct->out << "\";\n";
 	out
+			<< "opDesignSolve [shape=record,label=\"{  } | opDesignSolve | { <o1> out }\"];\n";
+	out << "\"" << opDesignSolve->out
+			<< "\" [shape=ellipse, label=\"DesignSolution\"];\n";
+	out << "opDesignSolve:o1 -> \"" << opDesignSolve->out << "\";\n";
+	out
 			<< "opFootModelLoad [shape=record,label=\"{  } | opFootModelLoad | { <o1> out }\"];\n";
+	out << "\"" << opFootModelLoad->out
+			<< "\" [shape=ellipse, label=\"FootModel\"];\n";
 	out << "opFootModelLoad:o1 -> \"" << opFootModelLoad->out << "\";\n";
 	out
 			<< "opFootModelUpdate [shape=record,label=\"{ <i1> in } | opFootModelUpdate | { <o1> out }\"];\n";
 	out << "\"" << opFootModelUpdate->in << "\" -> opFootModelUpdate:i1;\n";
+	out << "\"" << opFootModelUpdate->out
+			<< "\" [shape=ellipse, label=\"FootModel\"];\n";
 	out << "opFootModelUpdate:o1 -> \"" << opFootModelUpdate->out << "\";\n";
 	out
 			<< "opFootScanLoad [shape=record,label=\"{  } | opFootScanLoad | { <o1> out }\"];\n";
+	out << "\"" << opFootScanLoad->out
+			<< "\" [shape=ellipse, label=\"FootModel\"];\n";
 	out << "opFootScanLoad:o1 -> \"" << opFootScanLoad->out << "\";\n";
 	out
 			<< "opHeelCenter [shape=record,label=\"{ <i1> heel_in | <i2> insole_in } | opHeelCenter | { <o1> heel_out | <o2> insole_out }\"];\n";
 	out << "\"" << opHeelCenter->heel_in << "\" -> opHeelCenter:i1;\n";
 	out << "\"" << opHeelCenter->insole_in << "\" -> opHeelCenter:i2;\n";
+	out << "\"" << opHeelCenter->heel_out
+			<< "\" [shape=ellipse, label=\"ObjectGeometry\"];\n";
 	out << "opHeelCenter:o1 -> \"" << opHeelCenter->heel_out << "\";\n";
+	out << "\"" << opHeelCenter->insole_out
+			<< "\" [shape=ellipse, label=\"Insole\"];\n";
 	out << "opHeelCenter:o2 -> \"" << opHeelCenter->insole_out << "\";\n";
 	out
 			<< "opHeelConstruct [shape=record,label=\"{ <i1> in } | opHeelConstruct | { <o1> out }\"];\n";
 	out << "\"" << opHeelConstruct->in << "\" -> opHeelConstruct:i1;\n";
+	out << "\"" << opHeelConstruct->out
+			<< "\" [shape=ellipse, label=\"ObjectGeometry\"];\n";
 	out << "opHeelConstruct:o1 -> \"" << opHeelConstruct->out << "\";\n";
 	out
 			<< "opHeelExtractInsole [shape=record,label=\"{ <i1> in } | opHeelExtractInsole | { <o1> out }\"];\n";
 	out << "\"" << opHeelExtractInsole->in << "\" -> opHeelExtractInsole:i1;\n";
+	out << "\"" << opHeelExtractInsole->out
+			<< "\" [shape=ellipse, label=\"Insole\"];\n";
 	out << "opHeelExtractInsole:o1 -> \"" << opHeelExtractInsole->out
 			<< "\";\n";
 	out
 			<< "opHeelLoad [shape=record,label=\"{  } | opHeelLoad | { <o1> out }\"];\n";
+	out << "\"" << opHeelLoad->out
+			<< "\" [shape=ellipse, label=\"ObjectGeometry\"];\n";
 	out << "opHeelLoad:o1 -> \"" << opHeelLoad->out << "\";\n";
 	out
 			<< "opHeelNormalize [shape=record,label=\"{ <i1> in } | opHeelNormalize | { <o1> out }\"];\n";
 	out << "\"" << opHeelNormalize->in << "\" -> opHeelNormalize:i1;\n";
+	out << "\"" << opHeelNormalize->out
+			<< "\" [shape=ellipse, label=\"ObjectGeometry\"];\n";
 	out << "opHeelNormalize:o1 -> \"" << opHeelNormalize->out << "\";\n";
 	out
 			<< "opInsoleAnalyze [shape=record,label=\"{ <i1> insole_in | <i2> insoleFlat_in } | opInsoleAnalyze | { <o1> insole_out | <o2> insoleFlat_out }\"];\n";
 	out << "\"" << opInsoleAnalyze->insole_in << "\" -> opInsoleAnalyze:i1;\n";
 	out << "\"" << opInsoleAnalyze->insoleFlat_in
 			<< "\" -> opInsoleAnalyze:i2;\n";
+	out << "\"" << opInsoleAnalyze->insole_out
+			<< "\" [shape=ellipse, label=\"Insole\"];\n";
 	out << "opInsoleAnalyze:o1 -> \"" << opInsoleAnalyze->insole_out << "\";\n";
+	out << "\"" << opInsoleAnalyze->insoleFlat_out
+			<< "\" [shape=ellipse, label=\"Insole\"];\n";
 	out << "opInsoleAnalyze:o2 -> \"" << opInsoleAnalyze->insoleFlat_out
 			<< "\";\n";
 	out
 			<< "opInsoleConstruct [shape=record,label=\"{  } | opInsoleConstruct | { <o1> out }\"];\n";
+	out << "\"" << opInsoleConstruct->out
+			<< "\" [shape=ellipse, label=\"Insole\"];\n";
 	out << "opInsoleConstruct:o1 -> \"" << opInsoleConstruct->out << "\";\n";
 	out
 			<< "opInsoleFlatten [shape=record,label=\"{ <i1> in } | opInsoleFlatten | { <o1> out }\"];\n";
 	out << "\"" << opInsoleFlatten->in << "\" -> opInsoleFlatten:i1;\n";
+	out << "\"" << opInsoleFlatten->out
+			<< "\" [shape=ellipse, label=\"Insole\"];\n";
 	out << "opInsoleFlatten:o1 -> \"" << opInsoleFlatten->out << "\";\n";
 	out
 			<< "opInsoleTransform [shape=record,label=\"{ <i1> in } | opInsoleTransform | { <o1> out }\"];\n";
 	out << "\"" << opInsoleTransform->in << "\" -> opInsoleTransform:i1;\n";
+	out << "\"" << opInsoleTransform->out
+			<< "\" [shape=ellipse, label=\"Insole\"];\n";
 	out << "opInsoleTransform:o1 -> \"" << opInsoleTransform->out << "\";\n";
 	out
 			<< "opLastAnalyse [shape=record,label=\"{ <i1> in } | opLastAnalyse | { <o1> out }\"];\n";
 	out << "\"" << opLastAnalyse->in << "\" -> opLastAnalyse:i1;\n";
+	out << "\"" << opLastAnalyse->out
+			<< "\" [shape=ellipse, label=\"LastModel\"];\n";
 	out << "opLastAnalyse:o1 -> \"" << opLastAnalyse->out << "\";\n";
 	out
-			<< "opLastConstruct [shape=record,label=\"{ <i1> insole | <i2> cs } | opLastConstruct | { <o1> out }\"];\n";
-	out << "\"" << opLastConstruct->insole << "\" -> opLastConstruct:i1;\n";
-	out << "\"" << opLastConstruct->cs << "\" -> opLastConstruct:i2;\n";
+			<< "opLastConstruct [shape=record,label=\"{ <i1> insole_in | <i2> cs_in } | opLastConstruct | { <o1> out }\"];\n";
+	out << "\"" << opLastConstruct->insole_in << "\" -> opLastConstruct:i1;\n";
+	out << "\"" << opLastConstruct->cs_in << "\" -> opLastConstruct:i2;\n";
+	out << "\"" << opLastConstruct->out
+			<< "\" [shape=ellipse, label=\"ObjectGeometry\"];\n";
 	out << "opLastConstruct:o1 -> \"" << opLastConstruct->out << "\";\n";
 	out
 			<< "opLastLoad [shape=record,label=\"{  } | opLastLoad | { <o1> out }\"];\n";
+	out << "\"" << opLastLoad->out
+			<< "\" [shape=ellipse, label=\"ObjectGeometry\"];\n";
 	out << "opLastLoad:o1 -> \"" << opLastLoad->out << "\";\n";
 	out
 			<< "opLastNormalize [shape=record,label=\"{ <i1> in } | opLastNormalize | { <o1> out }\"];\n";
 	out << "\"" << opLastNormalize->in << "\" -> opLastNormalize:i1;\n";
+	out << "\"" << opLastNormalize->out
+			<< "\" [shape=ellipse, label=\"ObjectGeometry\"];\n";
 	out << "opLastNormalize:o1 -> \"" << opLastNormalize->out << "\";\n";
 	out
 			<< "opLastUpdate [shape=record,label=\"{ <i1> in } | opLastUpdate | { <o1> out }\"];\n";
 	out << "\"" << opLastUpdate->in << "\" -> opLastUpdate:i1;\n";
+	out << "\"" << opLastUpdate->out
+			<< "\" [shape=ellipse, label=\"LastModel\"];\n";
 	out << "opLastUpdate:o1 -> \"" << opLastUpdate->out << "\";\n";
 	out
 			<< "opUpperConstruct [shape=record,label=\"{ <i1> design_in | <i2> cs_in } | opUpperConstruct | { <o1> out }\"];\n";
 	out << "\"" << opUpperConstruct->design_in
 			<< "\" -> opUpperConstruct:i1;\n";
 	out << "\"" << opUpperConstruct->cs_in << "\" -> opUpperConstruct:i2;\n";
+	out << "\"" << opUpperConstruct->out
+			<< "\" [shape=ellipse, label=\"Upper\"];\n";
 	out << "opUpperConstruct:o1 -> \"" << opUpperConstruct->out << "\";\n";
 	out
 			<< "opUpperFlatten [shape=record,label=\"{ <i1> in } | opUpperFlatten | { <o1> out }\"];\n";
 	out << "\"" << opUpperFlatten->in << "\" -> opUpperFlatten:i1;\n";
+	out << "\"" << opUpperFlatten->out
+			<< "\" [shape=ellipse, label=\"Upper\"];\n";
 	out << "opUpperFlatten:o1 -> \"" << opUpperFlatten->out << "\";\n";
 	out
 			<< "project [shape=record,label=\"{ <i1> insoleFlatL | <i2> insoleL | <i3> heelL | <i4> lastL | <i5> csL | <i6> upperL | <i7> flatteningL } | project | { }\"];\n";
@@ -382,14 +438,16 @@ void Builder::ToCSV(std::ostream &out) const {
 	out << " : " << (opLastAnalyse->in->IsValid() ? "   OK  " : "invalid")
 			<< "\n";
 	out << std::left << std::setw(25) << opLastConstruct->GetName();
-	out << std::left << " : " << std::setw(15) << "insole";
-	out << " : " << (opLastConstruct->insole->IsNeeded() ? "needed" : "   -  ");
-	out << " : " << (opLastConstruct->insole->IsValid() ? "   OK  " : "invalid")
+	out << std::left << " : " << std::setw(15) << "insole_in";
+	out << " : "
+			<< (opLastConstruct->insole_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : "
+			<< (opLastConstruct->insole_in->IsValid() ? "   OK  " : "invalid")
 			<< "\n";
 	out << std::left << std::setw(25) << opLastConstruct->GetName();
-	out << std::left << " : " << std::setw(15) << "cs";
-	out << " : " << (opLastConstruct->cs->IsNeeded() ? "needed" : "   -  ");
-	out << " : " << (opLastConstruct->cs->IsValid() ? "   OK  " : "invalid")
+	out << std::left << " : " << std::setw(15) << "cs_in";
+	out << " : " << (opLastConstruct->cs_in->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opLastConstruct->cs_in->IsValid() ? "   OK  " : "invalid")
 			<< "\n";
 	out << std::left << std::setw(25) << opLastNormalize->GetName();
 	out << std::left << " : " << std::setw(15) << "in";
@@ -427,6 +485,11 @@ void Builder::ToCSV(std::ostream &out) const {
 	out << " : "
 			<< (opCoordinateSystemConstruct->out->IsValid() ?
 					"   OK  " : "invalid") << "\n";
+	out << std::left << std::setw(25) << opDesignSolve->GetName();
+	out << std::left << " : " << std::setw(15) << "out";
+	out << " : " << (opDesignSolve->out->IsNeeded() ? "needed" : "   -  ");
+	out << " : " << (opDesignSolve->out->IsValid() ? "   OK  " : "invalid")
+			<< "\n";
 	out << std::left << std::setw(25) << opFootModelLoad->GetName();
 	out << std::left << " : " << std::setw(15) << "out";
 	out << " : " << (opFootModelLoad->out->IsNeeded() ? "needed" : "   -  ");
@@ -547,6 +610,7 @@ void Builder::ToCSV(std::ostream &out) const {
 
 void Builder::ResetState() {
 	opCoordinateSystemConstruct->out->MarkNeeded(false);
+	opDesignSolve->out->MarkNeeded(false);
 	opFootModelLoad->out->MarkNeeded(false);
 	opFootModelUpdate->out->MarkNeeded(false);
 	opFootScanLoad->out->MarkNeeded(false);
@@ -612,7 +676,8 @@ void Builder::Connect(Project &project) {
 	}
 
 	opCoordinateSystemConstruct->in = project.insoleL;
-	opUpperConstruct->design_in = project.design;
+
+	opUpperConstruct->design_in = opDesignSolve->out;
 	opUpperConstruct->cs_in = opCoordinateSystemConstruct->out;
 	opUpperFlatten->in = opUpperConstruct->out;
 
@@ -624,8 +689,8 @@ void Builder::Connect(Project &project) {
 	project.csR = opCoordinateSystemConstruct->out;
 
 	if (config.lastConstructionType->IsSelection("construct")) {
-		opLastConstruct->cs = project.csL;
-		opLastConstruct->insole = project.insoleL;
+		opLastConstruct->cs_in = project.csL;
+		opLastConstruct->insole_in = project.insoleL;
 		opLastAnalyse->in = opLastConstruct->out;
 		project.lastL = opLastAnalyse->out;
 	}
@@ -665,7 +730,7 @@ void Builder::Connect(Project &project) {
 void Builder::Update(Project &project) {
 	error.clear();
 
-	project.design->Update();
+//	project.design->Update();
 
 	Setup(project);
 
@@ -703,7 +768,7 @@ void Builder::Update(Project &project) {
 		return;
 	}
 
-// Single threaded execution for debugging
+	// Single threaded execution for debugging
 
 	bool hasToRun = false;
 	for (auto &op : operations)

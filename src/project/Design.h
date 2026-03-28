@@ -58,8 +58,6 @@
  * considered a valid patch border.
  *
  *
- *
- *
  * # Coordinate system
  *
  * This class exclusively works only in UV space. For convenience reasons
@@ -97,17 +95,17 @@
  *
  */
 
-#include "Object.h"
-#include "../../3D/Geometry.h"
-#include "../../3D/Polygon3.h"
-#include "../../math/Polynomial.h"
-#include "../../3D/Vector2.h"
+#include "../3D/Geometry.h"
+#include "../3D/Polygon3.h"
+#include "../math/Polynomial.h"
+#include "../3D/Vector2.h"
 
 #include <initializer_list>
 #include <string>
 #include <vector>
 
-class Design: public Object {
+class Design {
+	friend class DesignSolve;
 
 public:
 	/**\class Vector2
@@ -316,7 +314,12 @@ public:
 		std::vector<Vector2> p; ///< Initial solutions for all vertices
 	};
 
+#ifdef DEBUG
 public:
+#else
+	protected:
+#endif
+
 	class SplitVertex: public Vector2 {
 	public:
 		SplitVertex(double u_, double v_, size_t eidx_, double r_) :
@@ -327,6 +330,7 @@ public:
 		size_t eidx = (size_t) -1;
 		double r = 0.0;
 	};
+
 	class SplitEdge {
 	public:
 		SplitEdge() = default;
@@ -347,52 +351,21 @@ public:
 	 *
 	 *
 	 */
-	class Patch: public Polygon3 {
+	class Patch {
 	public:
 		Patch(std::initializer_list<size_t> eidx, const std::string &name =
 				std::string(""));
-
-		virtual ~Patch() = default;
-
-		void AddSplitEdge(const Design::PatchEdge &ed, double p0, double p1,
-				const Polynomial &scaleU, const Polynomial &scaleV,
-				double maxErr, double maxDist);
-
-		void Update(double edgeLength, const Polynomial &scaleU,
-				const Polynomial &scaleV);
-		void UpdateBoundingBox();
-
 		std::string name;
 		std::set<size_t> eidx;
-
-		double Umin;
-		double Umax;
-		double Vmin;
-		double Vmax;
-
-	private:
-		double SplitAddEdge(const Design::PatchEdge &ed, double p0, double p2,
-				const Vector2 &v0, const Vector2 &v2, double d02,
-				const Polynomial &scaleU, const Polynomial &scaleV,
-				double maxErr2, double maxDist);
 	};
 
 public:
 	Design();
 
+	void Modify(bool modified = true); ///< Set the modification flag.
+	bool IsModified() const; ///< Retrieve the modification flag.
+
 	void Update();
-
-	/**\brief Apply all constraints and recalculate the edge interpolations
-	 */
-	void UpdateEdges();
-
-	void UpdateSplits();
-
-	/**\brief Use the edges to fill the patches with a grid of points.
-	 */
-	void UpdatePatches(double res, const Polynomial &scaleU =
-			Polynomial::ByValue(-M_PI, -0.28, M_PI, 0.28),
-			const Polynomial &scaleV = Polynomial::ByValue(0, 0, 1, 0.12));
 
 	/**\brief Paint the edges and patches in OpenGL
 	 *
@@ -401,6 +374,12 @@ public:
 	void Paint() const;
 
 private:
+	/**\brief Apply all constraints and recalculate the edge interpolations
+	 */
+	void UpdateEdges();
+
+	void UpdateSplits();
+
 	/**\brief Prepare the constraints
 	 *
 	 * Update the inner structure of the constraints by calculation the
@@ -433,9 +412,12 @@ public:
 	std::vector<Constraint> constraints;
 	std::vector<Patch> patches;
 
-public:
+protected:
 	std::vector<Vector2> splitV;
 	std::vector<SplitEdge> splitE;
+
+private:
+	bool modified = true;
 
 };
 

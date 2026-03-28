@@ -34,9 +34,7 @@
 
 using std::swap;
 
-void OrientedMatrix::SetSize(unsigned int nx, unsigned int ny, unsigned int nz,
-		float resolution) {
-	Matrix::SetSize(nx, ny, nz);
+void OrientedMatrix::SetResolution(float resolution) {
 	dx = resolution;
 	dy = resolution;
 	dz = resolution;
@@ -52,11 +50,11 @@ void OrientedMatrix::SetExtent(float x, float y, float z, float resolution) {
 	dz = resolution;
 }
 
-void OrientedMatrix::SetOrigin(Vector3 origin) {
+void OrientedMatrix::SetOrigin(const Vector3 &origin) {
 	this->origin = origin;
 }
 
-double OrientedMatrix::GetValue(Vector3 p) const {
+double OrientedMatrix::GetValue(const Vector3 &p) const {
 	return GetValue(p.x, p.y, p.z);
 }
 

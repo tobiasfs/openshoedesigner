@@ -51,7 +51,8 @@ void EnergyRelease::InitByPCA(Geometry &geo) {
 		v.u = m.LocalX(v) * 1.0;
 		v.v = m.LocalY(v) * 1.0;
 	}
-	geo.FlagUV(true, false);
+	geo.verticesHaveTexture = true;
+	geo.trianglesHaveTexture = false;
 }
 
 void EnergyRelease::InitByUniformDimension(Geometry &geo,
@@ -111,7 +112,8 @@ void EnergyRelease::InitByUniformDimension(Geometry &geo,
 //			}
 		}
 	}
-	geo.FlagUV(true, false);
+	geo.verticesHaveTexture = true;
+	geo.trianglesHaveTexture = false;
 }
 
 void EnergyRelease::InitByConstruction(Geometry &geo) {
@@ -189,7 +191,7 @@ void EnergyRelease::Calculate(Geometry &geo) {
 	// in 3D space.
 	for (size_t tidx = 0; tidx < geo.CountTriangles(); tidx++) {
 		const auto &tri = geo.GetTriangle(tidx);
-		for (uint_fast8_t vidx = 0; vidx < 3; vidx++) {
+		for (int_fast8_t vidx = 0; vidx < 3; vidx++) {
 			const auto &vert = geo.GetTriangleVertex(tidx, vidx);
 			const size_t eidx = tri.GetEdgeIndex((vidx + 1) % 3);
 			const auto &va = geo.GetEdgeVertex(eidx, 0);
@@ -257,7 +259,7 @@ void EnergyRelease::Calculate(Geometry &geo) {
 	std::vector<Vector3> F(geo.CountVertices()); // Force
 	std::vector<Vector3> ddq(geo.CountVertices()); // Acceleration
 	std::vector<Vector3> dq(geo.CountVertices()); // Speed
-	std::vector<Vector3> q(geo.CountVertices()); // Position
+	std::vector<Geometry::Vertex> q(geo.CountVertices()); // Position
 
 	// Initialize positions
 	for (size_t n = 0; n < geo.CountVertices(); n++) {
@@ -280,7 +282,7 @@ void EnergyRelease::Calculate(Geometry &geo) {
 
 	// Calculate the current area and the direction changes of all triangles
 	for (size_t tidx = 0; tidx < geo.CountTriangles(); tidx++) {
-		Geometry::Triangle &tri = geo.GetTriangle(tidx);
+		const Geometry::Triangle &tri = geo.GetTriangle(tidx);
 		const size_t vaidx = tri.GetVertexIndex(0);
 		const size_t vbidx = tri.GetVertexIndex(1);
 		const size_t vcidx = tri.GetVertexIndex(2);
@@ -298,7 +300,7 @@ void EnergyRelease::Calculate(Geometry &geo) {
 	}
 	// Calculate the length of all edges
 	for (size_t eidx = 0; eidx < geo.CountEdges(); eidx++) {
-		auto &ed = geo.GetEdge(eidx);
+		const auto &ed = geo.GetEdge(eidx);
 		Vector3 dir = q[ed.vb] - q[ed.va];
 		const double d = dir.Abs();
 		eLength[eidx] = d;
@@ -322,7 +324,7 @@ void EnergyRelease::Calculate(Geometry &geo) {
 
 		// Springs in edges, "structural springs" (Provot1995)
 		for (size_t eidx = 0; eidx < geo.CountEdges(); eidx++) {
-			auto &ed = geo.GetEdge(eidx);
+			const auto &ed = geo.GetEdge(eidx);
 			Vector3 dir = q[ed.vb] - q[ed.va];
 			const double d = dir.Abs();
 			eLength[eidx] = d;
@@ -375,7 +377,7 @@ void EnergyRelease::Calculate(Geometry &geo) {
 			dirA.Normalize();
 			dirB.Normalize();
 			dirC.Normalize();
-			Vector3 nA(-dirB.y, dirB.x);
+			Geometry::Vertex nA(-dirB.y, dirB.x);
 			Vector3 nB(-dirC.y, dirC.x);
 			Vector3 nC(-dirA.y, dirA.x);
 			nA.Normalize();

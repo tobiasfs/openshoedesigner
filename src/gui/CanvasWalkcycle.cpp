@@ -113,9 +113,9 @@ void CanvasWalkcycle::OnPaint(wxPaintEvent &event) {
 void CanvasWalkcycle::PaintGrid(wxDC &dc) {
 	wxSize sd = dc.GetSize();
 
-	wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(200, 200, 200), 1);
-	wxPen *c1 = wxThePenList->FindOrCreatePen(wxColour(150, 150, 150), 1);
-	wxPen *c2 = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1);
+	const wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(200, 200, 200), 1);
+	const wxPen *c1 = wxThePenList->FindOrCreatePen(wxColour(150, 150, 150), 1);
+	const wxPen *c2 = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1);
 
 	Vector3 topleft = gRev( { 0, 0, 0 });
 	Vector3 bottomright = gRev(Vector3(sd.x, sd.y, 0));

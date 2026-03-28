@@ -43,7 +43,7 @@
 
 class CanvasGraph: public wxPanel {
 public:
-	CanvasGraph(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
+	explicit CanvasGraph(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
 			wxDefaultPosition, const wxSize &size = wxDefaultSize,
 			long style = wxTAB_TRAVERSAL | wxNO_BORDER, const wxString &name =
 					wxPanelNameStr);
@@ -58,7 +58,7 @@ private:
 	class Axis {
 	public:
 		Axis() = default;
-		Axis(const Unit &unit_);
+		explicit Axis(const Unit &unit_);
 		void Set(double vmin, double vmax, size_t tickCount);
 		void Paint(wxDC &dc, const AffineTransformMatrix &s) const;
 

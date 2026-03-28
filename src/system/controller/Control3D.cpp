@@ -37,7 +37,11 @@ Control3D::~Control3D() {
 		delete controller;
 }
 
-bool Control3D::SetType(char id) {
+void Control3D::Init(const std::string &type, const std::string &port,
+		bool activate) {
+}
+
+bool Control3D::SetType(uint8_t id) {
 	if (controller != nullptr) {
 		if (id == controller->ReturnID())
 			return true;
@@ -60,13 +64,51 @@ bool Control3D::SetType(char id) {
 	return true;
 }
 
-char Control3D::GetType() {
+bool Control3D::SetTypeString(const std::string &type) {
+	if (type == "Spaceball") {
+		return SetType(CONTROLSPACEBALL_ID);
+	}
+	if (type == "Spaceorb") {
+		return SetType(CONTROLSPACEORB_ID);
+	}
+	if (type == "Spacemouse") {
+		return SetType(CONTROLSPACEMOUSE_ID);
+	}
+	return false;
+}
+
+bool Control3D::SetPort(const std::string &port) {
+	if (controller == nullptr)
+		return false;
+	controller->SetPort(port);
+	return true;
+}
+
+uint8_t Control3D::GetType() const {
 	if (controller == nullptr)
 		return 0;
 	return controller->ReturnID();
 }
 
-bool Control3D::Open(std::string connection) {
+std::string Control3D::GetTypeString() const {
+	switch (GetType()) {
+	case CONTROLSPACEBALL_ID:
+		return "Spaceball";
+	case CONTROLSPACEORB_ID:
+		return "Spaceorb";
+	case CONTROLSPACEMOUSE_ID:
+		return "Spacemouse";
+	}
+	return "";
+}
+
+std::string Control3D::GetPort() const {
+	if (controller == nullptr)
+		return std::string("");
+	return controller->GetPort();
+}
+
+bool Control3D::Open(const std::string &connection) {
 	if (controller == nullptr)
 		return false;
 	Close();
@@ -91,13 +133,11 @@ bool Control3D::IsOpen() const {
 	return controller->IsConnected();
 }
 
-bool Control3D::HasChanged() {
-	if (controller == nullptr)
-		return 0;
-	return controller->HasChanged();
+bool Control3D::IsActive() const {
+	return IsOpen();
 }
 
-bool Control3D::IsIdle() {
+bool Control3D::IsIdle() const {
 	if (controller == nullptr)
 		return true;
 	unsigned char i;
@@ -110,29 +150,22 @@ bool Control3D::IsIdle() {
 	return true;
 }
 
-int Control3D::GetButton(unsigned char i) {
+bool Control3D::HasChanged() const {
+	if (controller == nullptr)
+		return 0;
+	return controller->HasChanged();
+}
+
+int Control3D::GetButton(unsigned char i) const {
 	if (controller == nullptr)
 		return 0;
 	return controller->GetButton(i);
 }
 
-int Control3D::GetAxis(unsigned char i) {
+int Control3D::GetAxis(unsigned char i) const {
 	if (controller == nullptr)
 		return 0;
 	return controller->GetAxis(i);
-}
-
-std::string Control3D::GetPort() {
-	if (controller == nullptr)
-		return std::string("");
-	return controller->GetPort();
-}
-
-bool Control3D::SetPort(std::string port) {
-	if (controller == nullptr)
-		return false;
-	controller->SetPort(port);
-	return true;
 }
 
 bool Control3D::Pump() {
@@ -141,68 +174,60 @@ bool Control3D::Pump() {
 	return controller->Pump();
 }
 
-bool Control3D::Load(wxConfig *config) {
-	wxASSERT(config!=nullptr);
+//bool Control3D::Load(wxConfig *config) {
+//	wxASSERT(config != nullptr);
+//
+//	wxString str;
+//
+//	if (config->Read(_T("Control_Type"), &str)) {
 
-	wxString str;
-
-	if (config->Read(_T("Control_Type"), &str)) {
-		if (str == _T("Spaceball")) {
-			SetType(CONTROLSPACEBALL_ID);
-		}
-		if (str == _T("Spaceorb")) {
-			SetType(CONTROLSPACEORB_ID);
-		}
-		if (str == _T("Spacemouse")) {
-			SetType(CONTROLSPACEMOUSE_ID);
-		}
-
-	}
-
-	bool found = config->Read(_T("Control_Port"), &str);
-
-	if (!found || str.IsEmpty()) {
-#ifdef __LINUX
-		str = _T("/dev/ttyS0");
-#endif
-#ifdef __WIN
-		str = _T("COM1");
-#endif
-	}
-	SetPort(str.ToStdString());
-	if (config->Read(_T("Control_ActivateOnStartUp"), &str)) {
-		if (str == _T("Yes")) {
-			this->Open();
-		}
-	}
-	return true;
-}
-
-bool Control3D::Save(wxConfig *config) {
-	wxASSERT(config!=nullptr);
-
-	if (controller == nullptr)
-		return false;
-
-	switch (GetType()) {
-	case CONTROLSPACEBALL_ID:
-		config->Write(_T("Control_Type"), _T("Spaceball"));
-		break;
-	case CONTROLSPACEORB_ID:
-		config->Write(_T("Control_Type"), _T("Spaceorb"));
-		break;
-	case CONTROLSPACEMOUSE_ID:
-		config->Write(_T("Control_Type"), _T("Spacemouse"));
-		break;
-	}
-
-	config->Write(_T("Control_Port"), wxString(GetPort()));
-
-	if (IsOpen()) {
-		config->Write(_T("Control_ActivateOnStartUp"), _T("Yes"));
-	} else {
-		config->Write(_T("Control_ActivateOnStartUp"), _T("No"));
-	}
-
-	return true;
-}
+//
+//	}
+//
+//	bool found = config->Read(_T("Control_Port"), &str);
+//
+//	if (!found || str.IsEmpty()) {
+//#ifdef __LINUX
+//		str = _T("/dev/ttyS0");
+//#endif
+//#ifdef __WIN
+//		str = _T("COM1");
+//#endif
+//	}
+//	SetPort(str.ToStdString());
+//	if (config->Read(_T("Control_ActivateOnStartUp"), &str)) {
+//		if (str == _T("Yes")) {
+//			this->Open();
+//		}
+//	}
+//	return true;
+//}
+//
+//bool Control3D::Save(wxConfig *config) {
+//	wxASSERT(config != nullptr);
+//
+//	if (controller == nullptr)
+//		return false;
+//
+//	switch (GetType()) {
+//	case CONTROLSPACEBALL_ID:
+//		config->Write(_T("Control_Type"), _T("Spaceball"));
+//		break;
+//	case CONTROLSPACEORB_ID:
+//		config->Write(_T("Control_Type"), _T("Spaceorb"));
+//		break;
+//	case CONTROLSPACEMOUSE_ID:
+//		config->Write(_T("Control_Type"), _T("Spacemouse"));
+//		break;
+//	}
+//
+//	config->Write(_T("Control_Port"), wxString(GetPort()));
+//
+//	if (IsOpen()) {
+//		config->Write(_T("Control_ActivateOnStartUp"), _T("Yes"));
+//	} else {
+//		config->Write(_T("Control_ActivateOnStartUp"), _T("No"));
+//	}
+//
+//	return true;
+//}

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DependentVector.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -100,12 +100,12 @@ void DependentVector::Clear() {
 	Sync();
 }
 
-void DependentVector::SetSize(size_t N, size_t NAxes) {
+void DependentVector::SetSize(size_t N, size_t NAxes, size_t S2, size_t S3) {
 	if (!empty() && N != 0 && NAxes != 0) {
 		throw std::runtime_error(
 				"Not implemented (implement in Matrix::SetSize()");
 	}
-	Matrix::SetSize(N, NAxes);
+	Matrix::SetSize(N, NAxes, S2, S3);
 	Sync();
 }
 
@@ -114,7 +114,7 @@ void DependentVector::SetSize(const std::vector<size_t> &dims) {
 	Sync();
 }
 
-void DependentVector::SetSize(const DependentVector &other) {
+void DependentVector::SetSize(const Matrix &other) {
 	Matrix::SetSize(other.Size());
 	Sync();
 }
@@ -985,8 +985,8 @@ DependentVector::Point DependentVector::PatV(double value, size_t axis,
 		idx1--;
 	}
 	const double x0 = operator[](idx0);
-	const double x1 =
-			operator[](idx1) + (cyclic && idx1 < idx0) ? cycleLength : 0.0;
+	const double x1 = operator[](idx1)
+			+ ((cyclic && idx1 < idx0) ? cycleLength : 0.0);
 	const size_t offs = axis * N;
 	const double y0 = operator[](offs + idx0);
 	const double y1 = operator[](offs + idx1);
@@ -1061,10 +1061,10 @@ void DependentVector::Paint() const {
 void DependentVector::PaintCircle(double radius) {
 	glBegin(GL_LINE_LOOP);
 	for (size_t n = 0; n < 100; n++) {
-		const float co = cos(2 * M_PI / 100 * n);
-		const float si = sin(2 * M_PI / 100 * n);
-		glNormal3f(co, si, 0);
-		glVertex2f(co * radius, si * radius);
+		const double co = cos(2 * M_PI / 100 * n);
+		const double si = sin(2 * M_PI / 100 * n);
+		glNormal3d(co, si, 0.0);
+		glVertex2d(co * radius, si * radius);
 	}
 	glEnd();
 }

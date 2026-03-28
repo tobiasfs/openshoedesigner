@@ -49,7 +49,7 @@ public:
 	void SetCount(unsigned int nx, unsigned int ny, float resolution);
 	void SetSize(float x, float y, float resolution);
 
-	void SetValues(double *v, unsigned int size);
+	void SetValues(const double *v, unsigned int size);
 
 	Polygon3 GetUnderline() const;
 

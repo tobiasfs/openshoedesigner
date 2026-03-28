@@ -849,7 +849,7 @@ void Surface::SetA(const std::vector<double> &values, size_t posFrom,
 
 }
 
-void Surface::SetB(const Vector3 value, size_t posTo) {
+void Surface::SetB(const Vector3 &value, size_t posTo) {
 	if (softBoundaries) {
 		bsoft[posTo + 0] = value.x;
 		bsoft[posTo + 1] = value.y;
@@ -888,8 +888,8 @@ void Surface::Calculate() {
 
 				if (b.IsPoints()) {
 					for (size_t idxp = 0; idxp < b.values.size(); idxp++) {
-						std::vector<double> x;
 						{
+							std::vector<double> x;
 							if (b.order == 0) {
 								p.Fill(x, b.u[idxp], b.v[idxp]);
 							} else {
@@ -927,10 +927,10 @@ void Surface::Calculate() {
 								continue;
 							if (p.Nv != p2.Nv)
 								continue;
-
-							std::cout << "Adding U-continuity: from " << idx2
+#ifdef DEBUG
+							std::cout << "\tAdding U-continuity: from " << idx2
 									<< " to " << idx << "\n";
-
+#endif
 							size_t n = IncreaseAB((b.order + 1) * p.Nv);
 							std::vector<double> conn0;
 							std::vector<double> conn1;
@@ -972,9 +972,10 @@ void Surface::Calculate() {
 								continue;
 							if (p.Nu != p2.Nu)
 								continue;
-							std::cout << "Adding V-continuity: from " << idx2
+#ifdef DEBUG
+							std::cout << "\tAdding V-continuity: from " << idx2
 									<< " to " << idx << "\n";
-
+#endif
 							size_t n = IncreaseAB((b.order + 1) * p.Nu);
 							std::vector<double> conn0;
 							std::vector<double> conn1;
@@ -1111,10 +1112,10 @@ void Surface::Calculate() {
 			b1(i, j) = bsoft[p++];
 
 #ifdef DEBUG
-	std::cout << "A0: [" << A0.rows() << "x" << A0.cols() << "]\n";
-	std::cout << "A1: [" << A1.rows() << "x" << A1.cols() << "]\n";
-	std::cout << "b0: [" << b0.rows() << "x" << b0.cols() << "]\n";
-	std::cout << "b1: [" << b1.rows() << "x" << b1.cols() << "]\n";
+	std::cout << "\tA0: [" << A0.rows() << "x" << A0.cols() << "]\n";
+	std::cout << "\tA1: [" << A1.rows() << "x" << A1.cols() << "]\n";
+	std::cout << "\tb0: [" << b0.rows() << "x" << b0.cols() << "]\n";
+	std::cout << "\tb1: [" << b1.rows() << "x" << b1.cols() << "]\n";
 #endif
 
 //	Eigen::MatrixXd c = A0.completeOrthogonalDecomposition().solve(b0);
@@ -1146,8 +1147,8 @@ void Surface::Calculate() {
 	const size_t N1 = N - Dec0.rank();
 	const size_t N2 = N1 - Dec1.rank();
 #ifdef DEBUG
-	std::cout << "Exact solution: DOF " << N << " -> " << N1 << '\n';
-	std::cout << "Interpolation: DOF " << N1 << " -> " << N2 << '\n';
+	std::cout << "\tExact solution: DOF " << N << " -> " << N1 << '\n';
+	std::cout << "\tInterpolation: DOF " << N1 << " -> " << N2 << '\n';
 #endif
 #else
 	Ahard.Transpose();
@@ -1172,13 +1173,13 @@ void Surface::Calculate() {
 #ifdef DEBUG
 	{
 		Exporter exp("/tmp/surf.mat");
-		exp.AddPoint(Ahard, "Ahard");
-		exp.AddPoint(bhard, "bhard");
-		exp.AddPoint(Asoft, "Asoft");
-		exp.AddPoint(bsoft, "bsoft");
-		exp.AddPoint(svdhard.U, "U");
-		exp.AddPoint(svdhard.W, "S");
-		exp.AddPoint(svdhard.V, "V");
+		exp.Add(Ahard, "Ahard");
+		exp.Add(bhard, "bhard");
+		exp.Add(Asoft, "Asoft");
+		exp.Add(bsoft, "bsoft");
+		exp.Add(svdhard.U, "U");
+		exp.Add(svdhard.W, "S");
+		exp.Add(svdhard.V, "V");
 	}
 #endif
 
@@ -1269,7 +1270,10 @@ void Surface::Apply(Geometry &geo) {
 		vert.z = addi.z;
 		vert.n = addi.n;
 	}
-	geo.FlagNormals(true, false, false);
+//	geo.FlagNormals(true, false, false);
+	geo.verticesHaveNormal = true;
+	geo.edgesHaveNormal = false;
+	geo.trianglesHaveNormal = false;
 	geo.CalculateUVCoordinateSystems();
 }
 
@@ -1278,7 +1282,7 @@ void Surface::Update() {
 	SetAddColor(1.0, 1.0, 0.0);
 	for (auto &patch : patches)
 		patch.AddToGeometry(*this);
-	this->verticesHaveTextur = true;
+	this->verticesHaveTexture = true;
 	this->verticesHaveColor = false;
 	Geometry::PropagateNormals();
 	Geometry::CalculateUVCoordinateSystems();
@@ -1365,10 +1369,13 @@ void Surface::PrintProblem(const Matrix &A, const Matrix &b) const {
 			rhs << "[" << b(i, 0) << "," << b(i, 1) << "," << b(i, 2) << "]";
 		}
 		if (!rhsfirst || !lhsfirst) {
-			r << i + 1 << ": " << lhs.str() << " = " << rhs.str() << '\n';
+			r << "\t" << i + 1 << ": " << lhs.str() << " = " << rhs.str()
+					<< '\n';
 		}
 	}
+#ifdef DEBUG
 	std::cout << r.str();
+#endif
 }
 
 Geometry Surface::ExtractByUVPlane(double u_, double v_, double d) {

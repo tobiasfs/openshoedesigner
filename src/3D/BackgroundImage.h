@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : BackgroundImage.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -41,18 +41,17 @@ public:
 	};
 
 	BackgroundImage() = default;
-	virtual ~BackgroundImage() = default;
 
-	void Paint() const;
+	void Paint() const override;
 
 	Orientation orientation = Orientation::Right;
 	bool showBehindGeometry = false;
 	bool showFront = true;
 	bool showBack = true;
-	float scale = 0.35;
-	float centerx = 0.35;
-	float centery = 0.3;
-	float rotate = 0.1;
+	double scale = 0.35;
+	double centerx = 0.35;
+	double centery = 0.3;
+	double rotate = 0.1;
 };
 
 #endif /* L3D_BACKGROUNDIMAGE_H */

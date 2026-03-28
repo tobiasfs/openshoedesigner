@@ -233,9 +233,10 @@ public:
 	void Reset();
 	bool IsEmpty() const;
 
-	void SetSize(const size_t S0, size_t S1 = 1, size_t S2 = 1, size_t S3 = 1);
-	void SetSize(const std::vector<size_t> &dims);
-	void SetSize(const Matrix &other);
+	virtual void SetSize(const size_t S0, size_t S1 = 1, size_t S2 = 1,
+			size_t S3 = 1);
+	virtual void SetSize(const std::vector<size_t> &dims);
+	virtual void SetSize(const Matrix &other);
 
 	/**
 	 * \brief Size of the matrix along one dimension.

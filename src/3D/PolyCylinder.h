@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : PolyCylinder.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -66,7 +66,7 @@ public:
 		std::vector<Segment> segments;
 		CircleSection() = default;
 		void Scale(double sy = 1.0, double sz = 1.0);
-		Vector3 Evaluate(double r) const;
+		Geometry::Vertex Evaluate(double r) const;
 		double GetLength() const;
 		void Paint() const;
 	};
@@ -76,7 +76,7 @@ public:
 
 	void Scale(double sx, double sy = 1.0, double sz = 1.0);
 
-	void Load(std::string filename);
+	void Load(const std::string &filename);
 
 	void Paint() const;
 	Geometry GenerateGeometry(bool mirrored = false) const;

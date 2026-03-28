@@ -79,7 +79,7 @@ double PolyCylinder::CircleSection::GetLength() const {
 	return d;
 }
 
-Vector3 PolyCylinder::CircleSection::Evaluate(double r) const {
+Geometry::Vertex PolyCylinder::CircleSection::Evaluate(double r) const {
 	if (r < 0.0)
 		r = 1.0 - fmod(-r, 1.0);
 	const size_t M = segments.size();
@@ -89,7 +89,8 @@ Vector3 PolyCylinder::CircleSection::Evaluate(double r) const {
 	size_t m = (size_t) p;
 	if (m >= M)
 		m -= M;
-	return Vector3(0, segments[m].y(q), segments[m].z(q));
+	// TODO If this class is ever used again, add normal vectors.
+	return Geometry::Vertex(0, segments[m].y(q), segments[m].z(q));
 }
 
 void PolyCylinder::CircleSection::Paint() const {
@@ -103,7 +104,7 @@ void PolyCylinder::Scale(double sx, double sy, double sz) {
 		sections[n].Scale(sy, sz);
 }
 
-void PolyCylinder::Load(std::string filename) {
+void PolyCylinder::Load(const std::string &filename) {
 	using namespace std;
 	std::ostringstream err;
 	err << __FILE__ << ":" << __FUNCTION__ << " - ";
@@ -213,10 +214,10 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 	Geometry geometry;
 	size_t N = 64;
 	const double dr = 1.0 / (double) N;
-	Vector3 a, b, c, d;
+//	Vector3 c, d;
 
 	{
-		a.Zero();
+		Geometry::Vertex a;
 		double r = 0.0;
 		for (size_t m = 0; m < N; m++) {
 			a += sections[0].Evaluate(r);
@@ -225,10 +226,10 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 		a /= N;
 		a.x = -0.5 * dx;
 		r = 0.0;
-		b = sections[0].Evaluate(0);
+		Geometry::Vertex b = sections[0].Evaluate(0);
 		for (size_t m = 0; m < N; m++) {
 			r += dr;
-			c = sections[0].Evaluate(r);
+			Geometry::Vertex c = sections[0].Evaluate(r);
 			if (mirrored) {
 				geometry.AddTriangle(a, b, c);
 			} else {
@@ -240,14 +241,14 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 
 	for (size_t n = 1; n < sections.size(); n++) {
 		double r = 0.0;
-		a = sections[n - 1].Evaluate(r);
-		b = sections[n].Evaluate(r);
+		Geometry::Vertex a = sections[n - 1].Evaluate(r);
+		Geometry::Vertex b = sections[n].Evaluate(r);
 		a.x = (n - 1) * dx;
 		b.x = (n) * dx;
 		for (size_t m = 0; m < N; m++) {
 			r += dr;
-			c = sections[n - 1].Evaluate(r);
-			d = sections[n].Evaluate(r);
+			Geometry::Vertex c = sections[n - 1].Evaluate(r);
+			Geometry::Vertex d = sections[n].Evaluate(r);
 			c.x = (n - 1) * dx;
 			d.x = (n) * dx;
 			if (mirrored) {
@@ -260,7 +261,7 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 		}
 	}
 	{
-		a.Zero();
+		Geometry::Vertex a;
 		double r = 0.0;
 		for (size_t m = 0; m < N; m++) {
 			a += sections[sections.size() - 1].Evaluate(r);
@@ -269,11 +270,11 @@ Geometry PolyCylinder::GenerateGeometry(bool mirrored) const {
 		a /= N;
 		a.x = ((double) (sections.size() - 1) + 0.5) * dx;
 		r = 0.0;
-		b = sections[sections.size() - 1].Evaluate(0);
+		Geometry::Vertex b = sections[sections.size() - 1].Evaluate(0);
 		b.x = (sections.size() - 1) * dx;
 		for (size_t m = 0; m < N; m++) {
 			r += dr;
-			c = sections[sections.size() - 1].Evaluate(r);
+			Geometry::Vertex c = sections[sections.size() - 1].Evaluate(r);
 			c.x = (sections.size() - 1) * dx;
 			if (mirrored) {
 				geometry.AddTriangle(a, c, b);

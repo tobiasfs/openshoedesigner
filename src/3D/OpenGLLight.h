@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLLight.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -35,12 +35,12 @@
  * source handles has to be passed.
  *
  * lightsource can be set from GL_LIGHT0 to GL_MAX_LIGHTS - 1
- * 
+ *
  * \code
  * GLint maxLights;
  * glGetIntegerv(GL_MAX_LIGHTS, &maxLights);
  * \endcode
- * 
+ *
  */
 
 #include "Vector3.h"
@@ -70,7 +70,7 @@ private:
 	GLenum lightsource;
 	Vector3 position;
 
-	std::array<GLfloat, 4> buffer; ///< Internal buffer
+	std::array<GLfloat, 4> buffer = { 0.0f, 0.0f, 0.0f, 1.0f }; ///< Internal buffer
 };
 
 #endif /* L3D_OPENGLLIGHT_H */

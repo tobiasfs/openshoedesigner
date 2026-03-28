@@ -48,6 +48,7 @@ public:
 	double operator()();
 	void Set(double v);
 	void Reset();
+	void Increment(int diff);
 
 	std::shared_ptr<MidiDevice> md;
 private:

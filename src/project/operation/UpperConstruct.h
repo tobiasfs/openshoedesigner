@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : UpperConstruct.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -36,7 +36,7 @@
 #include "Operation.h"
 #include "../../3D/Surface.h"
 #include "../CoordinateSystem.h"
-#include "../object/Design.h"
+#include "../object/DesignSolution.h"
 #include "../object/ObjectGeometry.h"
 #include "../object/Upper.h"
 
@@ -53,7 +53,7 @@ public:
 	virtual void Run() override;
 
 public:
-	std::shared_ptr<Design> design_in;
+	std::shared_ptr<DesignSolution> design_in;
 	std::shared_ptr<CoordinateSystem> cs_in;
 	std::shared_ptr<Upper> out;
 

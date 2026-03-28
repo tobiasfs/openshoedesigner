@@ -374,7 +374,7 @@ void LastNormalize::ReorientLeftRight() {
 	for (double cut = 0.1; cut < 0.91; cut += 0.1) {
 		Polygon3 section = out->IntersectPlane(Vector3(1, 0, 0),
 				bbc.GlobalX(cut));
-		loop.AddEdgeToVertex(section.GetCenter());
+		loop.AddEdgeToVertex(Geometry::Vertex(section.GetCenter()));
 
 		//			BoundingBox bb2;
 		//			for(size_t n = 0; n < section.Size(); n++)

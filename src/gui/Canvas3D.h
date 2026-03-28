@@ -41,7 +41,7 @@
 
 class Canvas3D: public OpenGLCanvas {
 public:
-	Canvas3D(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
+	explicit Canvas3D(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos =
 			wxDefaultPosition, const wxSize &size = wxDefaultSize, long style =
 			0, const wxString &name = _T("Canvas3D"));
 	Canvas3D(const Canvas3D&) = delete;
@@ -59,7 +59,7 @@ public:
 	bool backfaceCulling = true;
 
 protected:
-	void OnMouseEvent(wxMouseEvent &event);
+	void OnMouseEvent(wxMouseEvent &event) override;
 
 private:
 	const ProjectView *projectview;

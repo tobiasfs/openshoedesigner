@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : ObjectLoad.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -149,9 +149,9 @@ void ObjectLoad::Run() {
 	}
 	out->CalculateNormals();
 	if (out->IsClosed()) {
-		DEBUGOUT << "Fully closed hull loaded." << "\n";
+		DEBUGOUT << "\tFully closed hull loaded." << "\n";
 	} else {
-		DEBUGOUT << "Geometry has open edges." << "\n";
+		DEBUGOUT << "\tGeometry has open edges." << "\n";
 	}
 	lastModified = std::filesystem::last_write_time(filepath);
 	out->MarkValid(true);

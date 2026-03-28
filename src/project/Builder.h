@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Builder.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -148,6 +148,7 @@
  */
 
 #include "operation/CoordinateSystemConstruct.h"
+#include "operation/DesignSolve.h"
 #include "operation/FootModelLoad.h"
 #include "operation/FootModelUpdate.h"
 #include "operation/FootScanLoad.h"
@@ -204,26 +205,27 @@ public:
 private:
 	std::vector<std::shared_ptr<Operation>> operations;
 
-    std::shared_ptr<CoordinateSystemConstruct> opCoordinateSystemConstruct;
-    std::shared_ptr<FootModelLoad> opFootModelLoad;
-    std::shared_ptr<FootModelUpdate> opFootModelUpdate;
-    std::shared_ptr<FootScanLoad> opFootScanLoad;
-    std::shared_ptr<HeelCenter> opHeelCenter;
-    std::shared_ptr<HeelConstruct> opHeelConstruct;
-    std::shared_ptr<HeelExtractInsole> opHeelExtractInsole;
-    std::shared_ptr<ObjectLoad> opHeelLoad;
-    std::shared_ptr<HeelNormalize> opHeelNormalize;
-    std::shared_ptr<InsoleAnalyze> opInsoleAnalyze;
-    std::shared_ptr<InsoleConstruct> opInsoleConstruct;
-    std::shared_ptr<InsoleFlatten> opInsoleFlatten;
-    std::shared_ptr<InsoleTransform> opInsoleTransform;
-    std::shared_ptr<LastAnalyse> opLastAnalyse;
-    std::shared_ptr<LastConstruct> opLastConstruct;
-    std::shared_ptr<ObjectLoad> opLastLoad;
-    std::shared_ptr<LastNormalize> opLastNormalize;
-    std::shared_ptr<LastUpdate> opLastUpdate;
-    std::shared_ptr<UpperConstruct> opUpperConstruct;
-    std::shared_ptr<UpperFlatten> opUpperFlatten;
+	std::shared_ptr<CoordinateSystemConstruct> opCoordinateSystemConstruct;
+	std::shared_ptr<DesignSolve> opDesignSolve;
+	std::shared_ptr<FootModelLoad> opFootModelLoad;
+	std::shared_ptr<FootModelUpdate> opFootModelUpdate;
+	std::shared_ptr<FootScanLoad> opFootScanLoad;
+	std::shared_ptr<HeelCenter> opHeelCenter;
+	std::shared_ptr<HeelConstruct> opHeelConstruct;
+	std::shared_ptr<HeelExtractInsole> opHeelExtractInsole;
+	std::shared_ptr<ObjectLoad> opHeelLoad;
+	std::shared_ptr<HeelNormalize> opHeelNormalize;
+	std::shared_ptr<InsoleAnalyze> opInsoleAnalyze;
+	std::shared_ptr<InsoleConstruct> opInsoleConstruct;
+	std::shared_ptr<InsoleFlatten> opInsoleFlatten;
+	std::shared_ptr<InsoleTransform> opInsoleTransform;
+	std::shared_ptr<LastAnalyse> opLastAnalyse;
+	std::shared_ptr<LastConstruct> opLastConstruct;
+	std::shared_ptr<ObjectLoad> opLastLoad;
+	std::shared_ptr<LastNormalize> opLastNormalize;
+	std::shared_ptr<LastUpdate> opLastUpdate;
+	std::shared_ptr<UpperConstruct> opUpperConstruct;
+	std::shared_ptr<UpperFlatten> opUpperFlatten;
 
 #ifdef DEBUG
 	size_t debug_count = 0;

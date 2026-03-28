@@ -79,9 +79,9 @@ void CanvasGraph::Axis::Paint(wxDC &dc, const AffineTransformMatrix &s) const {
 		return;
 	const bool isXAxis = fabs(s[1] * s[4]) < fabs(s[0] * s[5]);
 
-	wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(200, 200, 200), 1);
-	wxPen *c1 = wxThePenList->FindOrCreatePen(wxColour(150, 150, 150), 1);
-	wxPen *c2 = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1);
+	const wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(200, 200, 200), 1);
+	const wxPen *c1 = wxThePenList->FindOrCreatePen(wxColour(150, 150, 150), 1);
+	const wxPen *c2 = wxThePenList->FindOrCreatePen(wxColour(100, 100, 100), 1);
 
 	wxSize sd = dc.GetSize();
 
@@ -358,7 +358,7 @@ void CanvasGraph::OnPaint(wxPaintEvent &event) {
 			b = (int) q;
 			break;
 		}
-		wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(r, g, b), 2);
+		const wxPen *c0 = wxThePenList->FindOrCreatePen(wxColour(r, g, b), 2);
 		dc.SetPen(*c0);
 		for (size_t n = 0; n < rows; n++) {
 			double x = values->operator()(n, 0);

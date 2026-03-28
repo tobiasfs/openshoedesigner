@@ -47,7 +47,7 @@ void FileGTS::ReadStream(Geometry &geo) {
 	if (!inp->good())
 		throw std::runtime_error("File is not a valid GTS file!");
 
-	std::vector<Vector3> vectors;
+	std::vector<Geometry::Vertex> vectors;
 	vectors.resize(nv);
 	for (size_t i = 0; i < nv; i++) {
 		double x;

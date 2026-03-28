@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLFont.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -37,9 +37,15 @@
  */
 
 #include "BoundingBox.h"
-#include "GeometrySplitter.h"
+#include "Geometry.h"
 
+#include <filesystem>
 #include <map>
+#include <vector>
+
+namespace fs = std::filesystem;
+
+class GeometrySplitter;
 
 class OpenGLFont {
 public:
@@ -55,6 +61,11 @@ public:
 	static std::vector<OpenGLFont> ParseGeometry(GeometrySplitter &geometry,
 			const std::string &glyph_names_, const size_t font_count);
 
+	static std::vector<OpenGLFont> ParseGeometry(const fs::path &filename,
+			const size_t font_count = 4,
+			const std::string &glyph_names_ =
+					"0123456789/°,;.:!?+-_ABCDEFGHI JKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+
 	class Glyph: public Geometry {
 	public:
 		Glyph() = default;
@@ -66,7 +77,7 @@ public:
 			-0.25);
 	void AddGeometry(const Geometry &geometry, const BoundingBox &bb);
 
-	void Paint(const std::string &txt) const;
+	void Write(const std::string &txt) const;
 	BoundingBox Size(const std::string &txt) const;
 	Vector3 GapCenter(const std::string &txt) const;
 

@@ -51,8 +51,10 @@ public:
 	enum class Display : int {
 		Shoe = 0, ///< The 3D view of the shoe is shown on the left
 		Insole = 1,
-		Analytics = 2,
-		Pattern = 3
+		Pattern = 2,
+		Flattening = 3,
+		TestStitch = 4,
+		Analysis = 5
 	};
 	ProjectView();
 	virtual ~ProjectView();

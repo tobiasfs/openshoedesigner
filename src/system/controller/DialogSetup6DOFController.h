@@ -36,27 +36,27 @@
 
 class DialogSetup6DOFController: public GUISetup6DOFController {
 public:
-	DialogSetup6DOFController(wxWindow* parent);
+	explicit DialogSetup6DOFController(wxWindow *parent);
 	virtual ~DialogSetup6DOFController();
 
-	void InsertController(Control3D& control);
+	void InsertController(Control3D &control);
 
 protected:
-	void OnConnect(wxCommandEvent& event);
-	void OnDisconnect(wxCommandEvent& event);
-	void OnClose(wxCommandEvent& event);
-	void OnTimer(wxTimerEvent& event);
+	void OnConnect(wxCommandEvent &event) override;
+	void OnDisconnect(wxCommandEvent &event) override;
+	void OnClose(wxCommandEvent &event) override;
+	void OnTimer(wxTimerEvent &event);
 
-	bool TransferDataToWindow();
+	bool TransferDataToWindow() override;
 
 private:
 	//TODO: The function GetControl() shouldn't be in this controller setup class.
-	Control3D * GetControl() {
+	Control3D* GetControl() {
 		return control;
 	}
 
 protected:
-	Control3D* control; //TODO Convert to shared or weak pointer.
+	Control3D *control = nullptr; //TODO Convert to shared or weak pointer.
 
 private:
 	wxTimer timer;

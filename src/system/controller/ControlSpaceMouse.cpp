@@ -25,10 +25,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ControlSpaceMouse.h"
-#include <string>
+#include <string.h>
 #include <stdint.h>
-
-#include <wx/log.h>
 
 ControlSpaceMouse::ControlSpaceMouse() {
 	InBuffer[0] = 0;
@@ -57,7 +55,6 @@ void ControlSpaceMouse::InitDevice() {
 bool ControlSpaceMouse::ProcessPacket() {
 	//static unsigned char spaceorb_errors[7][256] = { "EEPROM storing 0 failed", "Receive queue overflow", "Transmit queue timeout","Bad packet", "Power brown-out", "EEPROM checksum error", "Hardware fault" };
 	//unsigned char c = 0;
-	unsigned char i;
 
 	// TODO: Find a more general was to initialize the device.
 	// The initialize function is called after the first packet is received. If
@@ -77,7 +74,7 @@ bool ControlSpaceMouse::ProcessPacket() {
 	unsigned char c;
 
 	const unsigned char check[17] = "0AB3D56GH9:K<MN?";
-	for (i = 0; i < (idx - 1); i++) {
+	for (uint8_t i = 0; i < (idx - 1); i++) {
 		c = InBuffer[i + 1];
 		if (check[c & 15] != c)
 			error = true;
@@ -95,12 +92,12 @@ bool ControlSpaceMouse::ProcessPacket() {
 	case 'd':
 		if (idx != 25)
 			break;
-		Axis[0] = data[0] - (1 << 15);
-		Axis[1] = data[1] - (1 << 15);
-		Axis[2] = data[2] - (1 << 15);
-		Axis[3] = data[3] - (1 << 15);
-		Axis[4] = data[4] - (1 << 15);
-		Axis[5] = data[5] - (1 << 15);
+		axis[0] = data[0] - (1 << 15);
+		axis[1] = data[1] - (1 << 15);
+		axis[2] = data[2] - (1 << 15);
+		axis[3] = data[3] - (1 << 15);
+		axis[4] = data[4] - (1 << 15);
+		axis[5] = data[5] - (1 << 15);
 
 		//std::cout << data[0] << data[1] << data[2] <<
 		//	<< data[3] << data[4] << data[5] << '\n';
@@ -115,15 +112,15 @@ bool ControlSpaceMouse::ProcessPacket() {
 		hasChanged = true;
 		break;
 	case 'k':
-		Button[0] = (data[0] & (1 << 8));
-		Button[1] = (data[0] & (1 << 9));
-		Button[2] = (data[0] & (1 << 10));
-		Button[3] = (data[0] & (1 << 11));
-		Button[4] = (data[0] & (1 << 4));
-		Button[5] = (data[0] & (1 << 5));
-		Button[6] = (data[0] & (1 << 6));
-		Button[7] = (data[0] & (1 << 7));
-		Button[8] = (data[0] & (1 << 0));
+		button[0] = (data[0] & (1 << 8));
+		button[1] = (data[0] & (1 << 9));
+		button[2] = (data[0] & (1 << 10));
+		button[3] = (data[0] & (1 << 11));
+		button[4] = (data[0] & (1 << 4));
+		button[5] = (data[0] & (1 << 5));
+		button[6] = (data[0] & (1 << 6));
+		button[7] = (data[0] & (1 << 7));
+		button[8] = (data[0] & (1 << 0));
 		hasChanged = true;
 		break;
 	}

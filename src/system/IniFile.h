@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : IniFile.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -42,33 +42,33 @@ public:
 	public:
 		class Parameter {
 		public:
-			Parameter(std::string name, std::string value);
+			Parameter(const std::string &name, const std::string &value);
 			std::string name;
 			std::string value;
 		};
 	public:
-		Section(std::string name);
+		explicit Section(const std::string &name);
 		std::string name;
 		std::vector<Parameter> param;
-		std::string GetParameter(std::string name,
-				std::string defaultvalue = "") const;
+		std::string GetParameter(const std::string &name,
+				const std::string &defaultvalue = "") const;
 	};
 
 public:
-	IniFile(bool casesensitive = true);
-	IniFile(std::string filename, bool casesensitive = true);
+	explicit IniFile(bool casesensitive = true);
+	explicit IniFile(const std::string &filename, bool casesensitive = true);
 	virtual ~IniFile() = default;
 
-	void ReadFile(std::string filename);
+	void ReadFile(const std::string &filename);
 
-	const Section* FindSection(std::string name) const;
+	const Section* FindSection(const std::string &name) const;
 	const Section* NextSection(const IniFile::Section *lastsection) const;
 
 	std::vector<Section> section;
 	bool casesensitive;
 
 private:
-	static std::string CleanString(std::string text);
+	static std::string CleanString(const std::string &text);
 	static bool StringCmp(const std::string &lhs, const std::string &rhs);
 	static bool StringCmpI(const std::string &lhs, const std::string &rhs);
 

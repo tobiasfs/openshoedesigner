@@ -306,7 +306,7 @@ public:
 	 * \{
 	 */
 
-	void Clear();
+	void Clear() override;
 
 	/**\brief Setup the basic patch structure that makes up the surface
 	 *
@@ -338,7 +338,7 @@ public:
 	 * Boundary conditions are stored internally and applied on solving the
 	 * surface. The process is two-step, because the solving is more efficient,
 	 * if done piece by piece.
-	 *
+	 * \{
 	 */
 
 	void ClearBoundaries();
@@ -405,7 +405,7 @@ public:
 	 */
 	void Update();
 
-	void Paint() const;
+	void Paint() const override;
 
 	Geometry ExtractByUVPlane(double u, double v, double d = 1.0);
 
@@ -430,7 +430,7 @@ private:
 	 * Since the B matrix is only a nx3 matrix for n cases to solve for, only
 	 * the row number is needed as a parameter.
 	 */
-	void SetB(const Vector3 value, size_t row);
+	void SetB(const Vector3 &value, size_t row);
 
 	/**\brief Mapping function into the column number of the A-matrix.
 	 *

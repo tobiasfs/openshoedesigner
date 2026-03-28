@@ -60,3 +60,20 @@ void MidiSignalMap::Set(double v) {
 void MidiSignalMap::Reset() {
 	Set(v0);
 }
+
+void MidiSignalMap::Increment(int diff) {
+	if (md.use_count() == 0)
+		return;
+	if (diff > 0) {
+		if (md->cc[channel] + diff < 127)
+			md->cc[channel] += diff;
+		else
+			md->cc[channel] = 127;
+	}
+	if (diff < 0) {
+		if (md->cc[channel] + diff > 0)
+			md->cc[channel] += diff;
+		else
+			md->cc[channel] = 0;
+	}
+}

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name               : LastConstruct.h
+// Name               : DesignSolve.h
 // Purpose            :
-// Thread Safe        : No
+// Thread Safe        : Yes
 // Platform dependent : No
-// Compiler Options   : -lm
+// Compiler Options   :
 // Author             : Tobias Schaefer
-// Created            : 12.01.2025
-// Copyright          : (C) 2025 Tobias Schaefer <tobiassch@users.sourceforge.net>
+// Created            : 18.03.2026
+// Copyright          : (C) 2026 Tobias Schaefer <tobiassch@users.sourceforge.net>
 // Licence            : GNU General Public License version 3.0 (GPLv3)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,31 +23,30 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
-#define SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_
 
-/**\class LastConstruct
- * \brief Construct last
- * \ingroup ObjectOperations
- * \code #include "LastConstruct.h"\endcode
+#ifndef SRC_PROJECT_OPERATION_DESIGNSOLVE_H_
+#define SRC_PROJECT_OPERATION_DESIGNSOLVE_H_
+
+/*!\class DesignSolve
+ * \brief ...
  *
- * In the current implementation, the last is constructed from the coordinate
- * system and the insole as the lower cap of the coordinate system. The last
- * is cut off at the ankle.
+ * ...
  */
 
+#include "../../3D/Surface.h"
 #include "../CoordinateSystem.h"
-#include "../object/Insole.h"
+#include "../Design.h"
+#include "../object/DesignSolution.h"
 #include "../object/ObjectGeometry.h"
+#include "../object/Upper.h"
 #include "Operation.h"
-#include "../ParameterFormula.h"
 
 #include <memory>
 
-class LastConstruct: public Operation {
+class DesignSolve: public Operation {
 public:
-	LastConstruct();
-	virtual ~LastConstruct() = default;
+	DesignSolve();
+	virtual ~DesignSolve() = default;
 
 	virtual std::string GetName() const override;
 	virtual bool CanRun() override;
@@ -55,11 +54,15 @@ public:
 	virtual bool HasToRun() override;
 	virtual void Run() override;
 
+	/**\brief Use the edges to fill the patches with a grid of points.
+	 */
+	void UpdatePatches(double res, const Polynomial &scaleU =
+			Polynomial::ByValue(-M_PI, -0.28, M_PI, 0.28),
+			const Polynomial &scaleV = Polynomial::ByValue(0, 0, 1, 0.12));
+
 public:
-	std::shared_ptr<ParameterFormula> upperLevel;
-	std::shared_ptr<Insole> insole_in;
-	std::shared_ptr<CoordinateSystem> cs_in;
-	std::shared_ptr<ObjectGeometry> out;
+	std::shared_ptr<Design> design;
+	std::shared_ptr<DesignSolution> out;
 };
 
-#endif /* SRC_PROJECT_OPERATION_LASTCONSTRUCT_H_ */
+#endif /* SRC_PROJECT_OPERATION_DESIGNSOLVE_H_ */

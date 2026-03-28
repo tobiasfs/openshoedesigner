@@ -1,5 +1,5 @@
 /* XPM */
-static char * FootMeasurements_xpm[] = {
+static char const * const FootMeasurements_xpm[] = {
 "450 193 2335 2",
 "  	c None",
 ". 	c #000000",

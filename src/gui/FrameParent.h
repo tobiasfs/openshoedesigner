@@ -86,11 +86,11 @@ public:
 	void OnHelp(wxCommandEvent&WXUNUSED(event));
 
 public:
-	wxConfig *config;
+	wxConfig *config = nullptr;
 
-	wxLogWindow *logWindow;
-	wxHelpController *m_helpController;
-	DialogSetupStereo3D *dialogSetupStereo3D;
+	wxLogWindow *logWindow = nullptr;
+	wxHelpController *m_helpController = nullptr;
+	DialogSetupStereo3D *dialogSetupStereo3D = nullptr;
 	SettingsStereo3D settingsStereo3D;
 	CollectionUnits units;
 	CollectionFilepaths filepaths;
@@ -105,11 +105,17 @@ public:
 #endif
 
 	wxTimer timer; ///> Animation timer
-	float t;
-	float dt;
+	float t = 0.0;
+	float dt = 1.0;
 
 	wxDECLARE_EVENT_TABLE();
 	DECLARE_NO_COPY_CLASS(FrameParent);
 };
+
+#ifdef DEBUG
+#define DEBUGOUT std::cout
+#else
+#define DEBUGOUT if(false) std::cout
+#endif
 
 #endif /* FRAMEPARENT_H */

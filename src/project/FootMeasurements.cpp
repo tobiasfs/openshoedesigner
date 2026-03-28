@@ -85,10 +85,10 @@ FootMeasurements::FootMeasurements() {
 			ID_MEASUREMENT_ANGLEMIXING);
 
 	belowCrotchGirth = std::make_shared<ParameterFormula>("belowCrotchGirth",
-			"footLength*2.5", "Below crotch girth",
+			"footLength*1.8", "Below crotch girth",
 			ID_MEASUREMENT_BELOWCROTCHGIRTH);
 	belowCrotchLevel = std::make_shared<ParameterFormula>("belowCrotchLevel",
-			"footLength*3", "Below crotch level",
+			"footLength*2.8", "Below crotch level",
 			ID_MEASUREMENT_BELOWCROTCHLEVEL);
 	middleOfThighGirth = std::make_shared<ParameterFormula>("middleOfThighGirth",
 			"(belowCrotchGirth+footLength)/2", "Middle of thigh girth",

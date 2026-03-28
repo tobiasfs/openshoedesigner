@@ -83,7 +83,7 @@ public:
 	class Point: public Vector3 {
 	public:
 		Point() = default;
-		Point(double x_, double y_ = 0.0, double z_ = 0.0);
+		explicit Point(double x_, double y_ = 0.0, double z_ = 0.0);
 		Point& operator=(const Vector3 &v);
 
 		Continuity continuity = Continuity::Free;

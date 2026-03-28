@@ -27,7 +27,6 @@
 #include "BoundingBox.h"
 
 #include "AffineTransformMatrix.h"
-#include "Triangle.h"
 #include "Vector3.h"
 
 #include <cstdint>
@@ -113,12 +112,6 @@ void BoundingBox::Insert(const Vector3 &point) {
 		zmax = point.z;
 	if (point.z < zmin)
 		zmin = point.z;
-}
-
-void BoundingBox::Insert(const Triangle &tri) {
-	for (auto &p : tri.p) {
-		this->Insert(p);
-	}
 }
 
 BoundingBox& BoundingBox::operator +=(const BoundingBox &rhs) {

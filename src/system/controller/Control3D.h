@@ -32,7 +32,7 @@
 #include "ControlSpaceOrb.h"
 #include "ControlSpaceMouse.h"
 
-#include <wx/config.h>
+//#include <wx/config.h>
 
 #include <string>
 
@@ -47,27 +47,34 @@ public:
 	virtual ~Control3D();
 
 public:
-	bool Open(std::string connection);
+	void Init(const std::string &type, const std::string &port, bool activate);
+
+	bool SetType(uint8_t id);
+	bool SetTypeString(const std::string &type);
+	bool SetPort(const std::string &port);
+
+	uint8_t GetType() const;
+	std::string GetTypeString() const;
+	std::string GetPort() const;
+
+	bool Open(const std::string &connection);
 	bool Open();
 	void Close();
+
 	bool IsOpen() const;
+	bool IsActive() const;
+	bool IsIdle() const;
+	bool HasChanged() const;
+	int GetButton(unsigned char i) const;
+	int GetAxis(unsigned char i) const;
 
-	bool SetType(char id);
-	char GetType();
-
-	bool HasChanged();
-	bool IsIdle();
-	int GetButton(unsigned char i);
-	int GetAxis(unsigned char i);
-	std::string GetPort();
-	bool SetPort(std::string port);
-	bool Load(wxConfig *config);
-	bool Save(wxConfig *config);
+//	bool Load(wxConfig *config);
+//	bool Save(wxConfig *config);
 
 	bool Pump();
 
 protected:
-	Control3DAbstract *controller;
+	Control3DAbstract *controller = nullptr;
 };
 
 #endif /* CONTROL3D_H */

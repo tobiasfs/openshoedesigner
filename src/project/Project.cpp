@@ -31,7 +31,6 @@
 #include "../math/MathParser.h"
 #include "WorkerThread.h"
 
-#include <wx/log.h>
 #include <wx/txtstrm.h>
 #if wxUSE_STD_IOSTREAM
 #include <wx/wfstream.h>
@@ -144,6 +143,12 @@ void Project::CheckNeeded() {
 				insoleFlatL->MarkNeeded(true);
 			if (projectview->showRight)
 				insoleFlatR->MarkNeeded(true);
+		}
+		if (projectview->display == ProjectView::Display::Flattening) {
+			if (projectview->showLeft)
+				flatteningL->MarkNeeded(true);
+			if (projectview->showRight)
+				flatteningR->MarkNeeded(true);
 		}
 	}
 }

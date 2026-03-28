@@ -115,7 +115,7 @@
 class EnergyRelease {
 public:
 	EnergyRelease() = default;
-	EnergyRelease(Geometry &other);
+	explicit EnergyRelease(Geometry &other);
 	virtual ~EnergyRelease() = default;
 
 	/**\brief Use a PCA to init the UV values

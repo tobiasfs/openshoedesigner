@@ -1,5 +1,5 @@
 /* XPM */
-static char * ButtonLastPosition_xpm[] = {
+static char const * const ButtonLastPosition_xpm[] = {
 "100 50 517 2",
 "  	c None",
 ". 	c #636363",

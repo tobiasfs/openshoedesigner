@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : TransformationMixer.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -90,15 +90,16 @@ public:
 			std::function<Vector3(Vector3)> transformation =
 					AffineTransformMatrix::Identity());
 
-	size_t AddSphere(Vector3 center, const std::function<double(double)> kernel,
+	size_t AddSphere(const Vector3 &center,
+			const std::function<double(double)> kernel,
 			std::function<Vector3(Vector3)> transformation);
-	size_t AddCylinder(Vector3 center, Vector3 normal,
+	size_t AddCylinder(const Vector3 &center, const Vector3 &normal,
 			std::function<double(double)> kernel,
 			std::function<Vector3(Vector3)> transformation);
-	size_t AddPlane(double distance, Vector3 normal,
+	size_t AddPlane(double distance, const Vector3 &normal,
 			std::function<double(double)> kernel,
 			std::function<Vector3(Vector3)> transformation);
-	size_t AddPlane(Vector3 pointonplane, Vector3 normal,
+	size_t AddPlane(const Vector3 &pointonplane, const Vector3 &normal,
 			std::function<double(double)> kernel,
 			std::function<Vector3(Vector3)> transformation);
 

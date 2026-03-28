@@ -57,6 +57,8 @@ MatlabFile::MatlabFile(const MatlabFile &other) {
 }
 
 MatlabFile& MatlabFile::operator=(const MatlabFile &other) {
+	if (this == &other)
+		return *this;
 	if (fhd != nullptr)
 		fclose(fhd);
 	this->fhd = nullptr;

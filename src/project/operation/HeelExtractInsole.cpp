@@ -87,9 +87,9 @@ bool HeelExtractInsole::HasToRun() {
 void HeelExtractInsole::Run() {
 
 	if (in->PassedSelfCheck()) {
-		DEBUGOUT << "in is OK\n";
+		DEBUGOUT << "\t\"in\" is OK\n";
 	} else {
-		DEBUGOUT << "in is NOK\n";
+		DEBUGOUT << "\t\"in\" is NOK\n";
 	}
 
 	const Vector3 up(0.707, 0.0, 0.707);
@@ -100,9 +100,9 @@ void HeelExtractInsole::Run() {
 	out->Clear();
 	out->AddSelectedFrom(*in);
 	if (out->PassedSelfCheck()) {
-		DEBUGOUT << "out is OK\n";
+		DEBUGOUT << "\t\"out\" is OK\n";
 	} else {
-		DEBUGOUT << "out is NOK\n";
+		DEBUGOUT << "\t\"out\" is NOK\n";
 	}
 
 #ifdef DEBUG

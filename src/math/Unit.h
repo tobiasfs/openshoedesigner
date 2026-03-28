@@ -171,7 +171,7 @@ public:
 	bool operator!=(const std::string &rhs) const;
 
 	bool NoUnit() const; ///< Check if the unit is empty. The conversion factor can differ from 1.0, but the base-unit-powers have to be 0.
-	static bool IsUnit(std::string txt); ///< Check a string, if it can be parsed as a unit.
+	static bool IsUnit(const std::string &txt); ///< Check a string, if it can be parsed as a unit.
 
 	/**\brief Generate a unit string conforming to the Modelica requirements
 	 *
@@ -214,7 +214,7 @@ private:
 		int Compare(const std::array<int, unitcount> &rhs) const;
 		int Diff(const std::array<int, unitcount> &rhs, int factor) const;
 		std::string name;
-		std::array<int, unitcount> exp;
+		std::array<int, unitcount> exp = { 0, 0, 0, 0, 0, 0, 0 };
 	};
 	static const size_t derivedunitcount = 23;
 	static std::array<DerivedUnit, derivedunitcount> InitDerivedUnits();

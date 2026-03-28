@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogSetupMidi.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -44,8 +44,7 @@
 
 class DialogSetupMidi: public GUIDialogMidiSetup {
 public:
-	DialogSetupMidi(wxWindow *parent);
-	virtual ~DialogSetupMidi() = default;
+	explicit DialogSetupMidi(wxWindow *parent);
 
 	void UpdateDevices();
 	void OnConnectDisconnect(wxCommandEvent &event) override;

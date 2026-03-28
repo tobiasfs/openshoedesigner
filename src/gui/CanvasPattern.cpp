@@ -55,9 +55,10 @@ CanvasPattern::~CanvasPattern() {
 void PaintLine(wxPaintDC &dc, const AffineTransformMatrix &sp,
 		const Geometry::Vertex &v0, const Geometry::Vertex &v1, double shift) {
 
-	wxPen *penBezier = wxThePenList->FindOrCreatePen(wxColour(0, 0, 0), 2);
-	wxPen *penBezierSides = wxThePenList->FindOrCreatePen(wxColour(0, 0, 0), 1,
-			wxPENSTYLE_DOT);
+	const wxPen *penBezier = wxThePenList->FindOrCreatePen(wxColour(0, 0, 0),
+			2);
+	const wxPen *penBezierSides = wxThePenList->FindOrCreatePen(
+			wxColour(0, 0, 0), 1, wxPENSTYLE_DOT);
 
 	if (fabs(v0.u + shift - M_PI) < FLT_EPSILON
 			&& fabs(v1.u + shift - M_PI) < FLT_EPSILON) {
@@ -117,10 +118,11 @@ void CanvasPattern::OnPaint(wxPaintEvent &event) {
 	if (!design)
 		return;
 
-//	wxPen *penBezier = wxThePenList->FindOrCreatePen(wxColour(0, 0, 0), 2);
-	wxPen *penEdge = wxThePenList->FindOrCreatePen(wxColour(60, 60, 60), 1,
-			wxPENSTYLE_SHORT_DASH);
-	wxPen *penVertex = wxThePenList->FindOrCreatePen(wxColour(60, 255, 60), 1);
+//	const wxPen *penBezier = wxThePenList->FindOrCreatePen(wxColour(0, 0, 0), 2);
+	const wxPen *penEdge = wxThePenList->FindOrCreatePen(wxColour(60, 60, 60),
+			1, wxPENSTYLE_SHORT_DASH);
+	const wxPen *penVertex = wxThePenList->FindOrCreatePen(
+			wxColour(60, 255, 60), 1);
 
 	AffineTransformMatrix sp = camera
 			* AffineTransformMatrix::Scaling(0.1 / M_PI, 0.1, 1);
@@ -153,7 +155,7 @@ void CanvasPattern::OnPaint(wxPaintEvent &event) {
 		}
 	}
 
-	for (auto &e : design->edges) {
+	for (const auto &e : design->edges) {
 		std::vector<wxPoint> pl;
 		pl.clear();
 		for (size_t idx : e.vidx) {

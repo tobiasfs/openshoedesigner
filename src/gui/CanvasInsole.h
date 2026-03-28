@@ -42,17 +42,15 @@
 
 class CanvasInsole: public CanvasMeasurementGrid {
 public:
-	CanvasInsole(wxWindow *parent,
-            wxWindowID id = wxID_ANY,
-            const wxPoint& pos = wxDefaultPosition,
-            const wxSize& size = wxDefaultSize,
-            long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-            const wxString& name = wxPanelNameStr);
+	explicit CanvasInsole(wxWindow *parent, wxWindowID id = wxID_ANY,
+			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
+					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+			const wxString &name = wxPanelNameStr);
 	virtual ~CanvasInsole();
 
 protected:
-	void OnPaint(wxPaintEvent &event);
-	void OnSize(wxSizeEvent &event);
+	void OnPaint(wxPaintEvent &event) override;
+	void OnSize(wxSizeEvent &event) override;
 
 	AffineTransformMatrix cameraXUp; ///< Mapping from SI-units to screen pixels.
 

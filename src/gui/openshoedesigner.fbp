@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <wxFormBuilder_Project>
-  <FileVersion major="1" minor="18"/>
+  <FileVersion major="1" minor="19"/>
   <object class="Project" expanded="true">
     <property name="code_generation">C++</property>
     <property name="cpp_class_decoration">; </property>
@@ -31,7 +31,7 @@
     <property name="relative_path">1</property>
     <property name="use_microsoft_bom">0</property>
     <property name="use_native_eol">0</property>
-    <object class="Frame" expanded="false">
+    <object class="Frame" expanded="true">
       <property name="aui_managed">0</property>
       <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
       <property name="bg"></property>
@@ -2546,13 +2546,13 @@
                                                 <property name="flag"></property>
                                                 <property name="proportion">0</property>
                                                 <object class="wxStaticBoxSizer" expanded="false">
-                                                  <property name="id">wxID_ANY</property>
                                                   <property name="label">Shoesizes</property>
                                                   <property name="minimum_size"></property>
                                                   <property name="name">sbSizerShoeSizes</property>
                                                   <property name="orient">wxVERTICAL</property>
                                                   <property name="parent">1</property>
                                                   <property name="permission">none</property>
+                                                  <property name="staticbox"></property>
                                                   <object class="sizeritem" expanded="false">
                                                     <property name="border">5</property>
                                                     <property name="flag">wxALIGN_CENTER_HORIZONTAL</property>
@@ -5374,13 +5374,13 @@
                                     <property name="window_name"></property>
                                     <property name="window_style">wxTAB_TRAVERSAL</property>
                                     <object class="wxStaticBoxSizer" expanded="false">
-                                      <property name="id">wxID_ANY</property>
                                       <property name="label">Insole shape</property>
                                       <property name="minimum_size"></property>
                                       <property name="name">sbSizerShapeParameter</property>
                                       <property name="orient">wxVERTICAL</property>
                                       <property name="parent">1</property>
                                       <property name="permission">none</property>
+                                      <property name="staticbox"></property>
                                       <object class="sizeritem" expanded="false">
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
@@ -7555,13 +7555,13 @@
                               <property name="flag">wxEXPAND</property>
                               <property name="proportion">0</property>
                               <object class="wxStaticBoxSizer" expanded="false">
-                                <property name="id">wxID_ANY</property>
                                 <property name="label">Heel style</property>
                                 <property name="minimum_size"></property>
                                 <property name="name">sbSizerHeelStyle</property>
                                 <property name="orient">wxVERTICAL</property>
                                 <property name="parent">1</property>
                                 <property name="permission">none</property>
+                                <property name="staticbox"></property>
                                 <object class="sizeritem" expanded="false">
                                   <property name="border">5</property>
                                   <property name="flag">wxALL|wxEXPAND</property>
@@ -8177,13 +8177,13 @@
                               <property name="flag">wxEXPAND</property>
                               <property name="proportion">0</property>
                               <object class="wxStaticBoxSizer" expanded="false">
-                                <property name="id">wxID_ANY</property>
                                 <property name="label">Shoe style</property>
                                 <property name="minimum_size"></property>
                                 <property name="name">sbSizerShoeStyle</property>
                                 <property name="orient">wxVERTICAL</property>
                                 <property name="parent">1</property>
                                 <property name="permission">none</property>
+                                <property name="staticbox"></property>
                                 <object class="sizeritem" expanded="false">
                                   <property name="border">5</property>
                                   <property name="flag">wxALL|wxEXPAND</property>
@@ -9544,13 +9544,13 @@
                               <property name="flag">wxEXPAND</property>
                               <property name="proportion">0</property>
                               <object class="wxStaticBoxSizer" expanded="false">
-                                <property name="id">wxID_ANY</property>
                                 <property name="label">Walkcycle Support Heel</property>
                                 <property name="minimum_size"></property>
                                 <property name="name">sbSizerWalkcycleSupport</property>
                                 <property name="orient">wxVERTICAL</property>
                                 <property name="parent">1</property>
                                 <property name="permission">none</property>
+                                <property name="staticbox"></property>
                                 <object class="sizeritem" expanded="false">
                                   <property name="border">5</property>
                                   <property name="flag">wxEXPAND</property>
@@ -11472,13 +11472,13 @@
                                   <property name="flag">wxEXPAND</property>
                                   <property name="proportion">0</property>
                                   <object class="wxStaticBoxSizer" expanded="false">
-                                    <property name="id">wxID_ANY</property>
                                     <property name="label">Properties</property>
                                     <property name="minimum_size"></property>
                                     <property name="name">sbSizerPatternElementProperties</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="parent">1</property>
                                     <property name="permission">none</property>
+                                    <property name="staticbox"></property>
                                     <object class="sizeritem" expanded="false">
                                       <property name="border">5</property>
                                       <property name="flag">wxEXPAND|wxALL</property>
@@ -11494,7 +11494,6 @@
                                         <property name="aui_row">0</property>
                                         <property name="best_size"></property>
                                         <property name="bg"></property>
-                                        <property name="bitmap"></property>
                                         <property name="caption"></property>
                                         <property name="caption_visible">1</property>
                                         <property name="center_pane">0</property>
@@ -11572,13 +11571,13 @@
                                   <property name="flag">wxEXPAND</property>
                                   <property name="proportion">1</property>
                                   <object class="wxStaticBoxSizer" expanded="false">
-                                    <property name="id">wxID_ANY</property>
                                     <property name="label">Fabrics</property>
                                     <property name="minimum_size"></property>
                                     <property name="name">sbSizerFabric</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="parent">1</property>
                                     <property name="permission">none</property>
+                                    <property name="staticbox"></property>
                                     <object class="sizeritem" expanded="false">
                                       <property name="border">5</property>
                                       <property name="flag">wxALL|wxEXPAND</property>
@@ -11776,7 +11775,7 @@
                       <object class="notebookpage" expanded="false">
                         <property name="bitmap"></property>
                         <property name="label">3D</property>
-                        <property name="select">0</property>
+                        <property name="select">1</property>
                         <object class="wxPanel" expanded="false">
                           <property name="BottomDockable">1</property>
                           <property name="LeftDockable">1</property>
@@ -11854,10 +11853,12 @@
                                 <property name="center_pane">0</property>
                                 <property name="class">Canvas3D</property>
                                 <property name="close_button">1</property>
-                                <property name="construction"></property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
-                                <property name="declaration"></property>
+                                <property name="cpp_construction"></property>
+                                <property name="cpp_declaration"></property>
+                                <property name="cpp_include">#include &quot;Canvas3D.h&quot;</property>
+                                <property name="cpp_settings"></property>
                                 <property name="default_pane">0</property>
                                 <property name="dock">Dock</property>
                                 <property name="dock_fixed">0</property>
@@ -11870,7 +11871,9 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="include">#include &quot;Canvas3D.h&quot;</property>
+                                <property name="lua_construction"></property>
+                                <property name="lua_require">#include &quot;Canvas3D.h&quot;</property>
+                                <property name="lua_settings"></property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
@@ -11883,10 +11886,15 @@
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
                                 <property name="permission">protected</property>
+                                <property name="php_construction"></property>
+                                <property name="php_require">#include &quot;Canvas3D.h&quot;</property>
+                                <property name="php_settings"></property>
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
+                                <property name="python_construction"></property>
+                                <property name="python_import">#include &quot;Canvas3D.h&quot;</property>
+                                <property name="python_settings"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="settings"></property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="subclass"></property>
@@ -11982,10 +11990,12 @@
                                 <property name="center_pane">0</property>
                                 <property name="class">CanvasInsole</property>
                                 <property name="close_button">1</property>
-                                <property name="construction"></property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
-                                <property name="declaration"></property>
+                                <property name="cpp_construction"></property>
+                                <property name="cpp_declaration"></property>
+                                <property name="cpp_include">#include &quot;CanvasInsole.h&quot;</property>
+                                <property name="cpp_settings"></property>
                                 <property name="default_pane">0</property>
                                 <property name="dock">Dock</property>
                                 <property name="dock_fixed">0</property>
@@ -11998,7 +12008,9 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="include">#include &quot;CanvasInsole.h&quot;</property>
+                                <property name="lua_construction"></property>
+                                <property name="lua_require">#include &quot;CanvasInsole.h&quot;</property>
+                                <property name="lua_settings"></property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
@@ -12011,10 +12023,15 @@
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
                                 <property name="permission">protected</property>
+                                <property name="php_construction"></property>
+                                <property name="php_require">#include &quot;CanvasInsole.h&quot;</property>
+                                <property name="php_settings"></property>
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
+                                <property name="python_construction"></property>
+                                <property name="python_import">#include &quot;CanvasInsole.h&quot;</property>
+                                <property name="python_settings"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="settings"></property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="subclass">; ; forward_declare</property>
@@ -12031,7 +12048,7 @@
                       <object class="notebookpage" expanded="false">
                         <property name="bitmap"></property>
                         <property name="label">Pattern</property>
-                        <property name="select">1</property>
+                        <property name="select">0</property>
                         <object class="wxPanel" expanded="false">
                           <property name="BottomDockable">1</property>
                           <property name="LeftDockable">1</property>
@@ -12109,10 +12126,12 @@
                                 <property name="center_pane">0</property>
                                 <property name="class">CanvasPattern</property>
                                 <property name="close_button">1</property>
-                                <property name="construction"></property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
-                                <property name="declaration"></property>
+                                <property name="cpp_construction"></property>
+                                <property name="cpp_declaration"></property>
+                                <property name="cpp_include">#include &quot;CanvasPattern.h&quot;</property>
+                                <property name="cpp_settings"></property>
                                 <property name="default_pane">0</property>
                                 <property name="dock">Dock</property>
                                 <property name="dock_fixed">0</property>
@@ -12125,7 +12144,9 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="include">#include &quot;CanvasPattern.h&quot;</property>
+                                <property name="lua_construction"></property>
+                                <property name="lua_require">#include &quot;CanvasPattern.h&quot;</property>
+                                <property name="lua_settings"></property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
@@ -12138,10 +12159,15 @@
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
                                 <property name="permission">protected</property>
+                                <property name="php_construction"></property>
+                                <property name="php_require">#include &quot;CanvasPattern.h&quot;</property>
+                                <property name="php_settings"></property>
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
+                                <property name="python_construction"></property>
+                                <property name="python_import">#include &quot;CanvasPattern.h&quot;</property>
+                                <property name="python_settings"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="settings"></property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="subclass"></property>
@@ -12236,10 +12262,12 @@
                                 <property name="center_pane">0</property>
                                 <property name="class">CanvasFlattening</property>
                                 <property name="close_button">1</property>
-                                <property name="construction"></property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
-                                <property name="declaration"></property>
+                                <property name="cpp_construction"></property>
+                                <property name="cpp_declaration"></property>
+                                <property name="cpp_include">#include &quot;CanvasFlattening.h&quot;</property>
+                                <property name="cpp_settings"></property>
                                 <property name="default_pane">0</property>
                                 <property name="dock">Dock</property>
                                 <property name="dock_fixed">0</property>
@@ -12252,7 +12280,9 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">1</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="include">#include &quot;CanvasFlattening.h&quot;</property>
+                                <property name="lua_construction"></property>
+                                <property name="lua_require">#include &quot;CanvasFlattening.h&quot;</property>
+                                <property name="lua_settings"></property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
@@ -12265,10 +12295,15 @@
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
                                 <property name="permission">protected</property>
+                                <property name="php_construction"></property>
+                                <property name="php_require">#include &quot;CanvasFlattening.h&quot;</property>
+                                <property name="php_settings"></property>
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
+                                <property name="python_construction"></property>
+                                <property name="python_import">#include &quot;CanvasFlattening.h&quot;</property>
+                                <property name="python_settings"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="settings"></property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="subclass">; ; forward_declare</property>
@@ -12299,10 +12334,12 @@
                                 <property name="center_pane">0</property>
                                 <property name="class">CanvasGraph</property>
                                 <property name="close_button">1</property>
-                                <property name="construction"></property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
-                                <property name="declaration"></property>
+                                <property name="cpp_construction"></property>
+                                <property name="cpp_declaration"></property>
+                                <property name="cpp_include">#include &quot;CanvasGraph.h&quot;</property>
+                                <property name="cpp_settings"></property>
                                 <property name="default_pane">0</property>
                                 <property name="dock">Dock</property>
                                 <property name="dock_fixed">0</property>
@@ -12315,7 +12352,9 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="include">#include &quot;CanvasGraph.h&quot;</property>
+                                <property name="lua_construction"></property>
+                                <property name="lua_require">#include &quot;CanvasGraph.h&quot;</property>
+                                <property name="lua_settings"></property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
@@ -12328,10 +12367,15 @@
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
                                 <property name="permission">protected</property>
+                                <property name="php_construction"></property>
+                                <property name="php_require">#include &quot;CanvasGraph.h&quot;</property>
+                                <property name="php_settings"></property>
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
+                                <property name="python_construction"></property>
+                                <property name="python_import">#include &quot;CanvasGraph.h&quot;</property>
+                                <property name="python_settings"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="settings"></property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="subclass"></property>
@@ -12426,10 +12470,12 @@
                                 <property name="center_pane">0</property>
                                 <property name="class">CanvasTestStitch</property>
                                 <property name="close_button">1</property>
-                                <property name="construction"></property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
-                                <property name="declaration"></property>
+                                <property name="cpp_construction"></property>
+                                <property name="cpp_declaration"></property>
+                                <property name="cpp_include">#include &quot;CanvasTestStitch.h&quot;</property>
+                                <property name="cpp_settings"></property>
                                 <property name="default_pane">0</property>
                                 <property name="dock">Dock</property>
                                 <property name="dock_fixed">0</property>
@@ -12442,7 +12488,9 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="include">#include &quot;CanvasTestStitch.h&quot;</property>
+                                <property name="lua_construction"></property>
+                                <property name="lua_require">#include &quot;CanvasTestStitch.h&quot;</property>
+                                <property name="lua_settings"></property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
@@ -12455,10 +12503,15 @@
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
                                 <property name="permission">protected</property>
+                                <property name="php_construction"></property>
+                                <property name="php_require">#include &quot;CanvasTestStitch.h&quot;</property>
+                                <property name="php_settings"></property>
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
+                                <property name="python_construction"></property>
+                                <property name="python_import">#include &quot;CanvasTestStitch.h&quot;</property>
+                                <property name="python_settings"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="settings"></property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="subclass">; ; forward_declare</property>
@@ -12553,10 +12606,12 @@
                                 <property name="center_pane">0</property>
                                 <property name="class">CanvasSupport</property>
                                 <property name="close_button">1</property>
-                                <property name="construction"></property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>
-                                <property name="declaration"></property>
+                                <property name="cpp_construction"></property>
+                                <property name="cpp_declaration"></property>
+                                <property name="cpp_include">#include &quot;CanvasSupport.h&quot;</property>
+                                <property name="cpp_settings"></property>
                                 <property name="default_pane">0</property>
                                 <property name="dock">Dock</property>
                                 <property name="dock_fixed">0</property>
@@ -12569,7 +12624,9 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="include">#include &quot;CanvasSupport.h&quot;</property>
+                                <property name="lua_construction"></property>
+                                <property name="lua_require">#include &quot;CanvasSupport.h&quot;</property>
+                                <property name="lua_settings"></property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
                                 <property name="maximum_size"></property>
@@ -12582,10 +12639,15 @@
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
                                 <property name="permission">protected</property>
+                                <property name="php_construction"></property>
+                                <property name="php_require">#include &quot;CanvasSupport.h&quot;</property>
+                                <property name="php_settings"></property>
                                 <property name="pin_button">1</property>
                                 <property name="pos"></property>
+                                <property name="python_construction"></property>
+                                <property name="python_import">#include &quot;CanvasSupport.h&quot;</property>
+                                <property name="python_settings"></property>
                                 <property name="resize">Resizable</property>
-                                <property name="settings"></property>
                                 <property name="show">1</property>
                                 <property name="size"></property>
                                 <property name="subclass"></property>
@@ -12610,13 +12672,13 @@
                                   <property name="flag">wxEXPAND</property>
                                   <property name="proportion">1</property>
                                   <object class="wxStaticBoxSizer" expanded="false">
-                                    <property name="id">wxID_ANY</property>
                                     <property name="label">Walkcycle</property>
                                     <property name="minimum_size"></property>
                                     <property name="name">sbSizerCycle</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="parent">1</property>
                                     <property name="permission">none</property>
+                                    <property name="staticbox"></property>
                                     <object class="sizeritem" expanded="false">
                                       <property name="border">5</property>
                                       <property name="flag">wxALL|wxEXPAND</property>
@@ -12637,10 +12699,12 @@
                                         <property name="center_pane">0</property>
                                         <property name="class">CanvasWalkcycle</property>
                                         <property name="close_button">1</property>
-                                        <property name="construction"></property>
                                         <property name="context_help"></property>
                                         <property name="context_menu">1</property>
-                                        <property name="declaration"></property>
+                                        <property name="cpp_construction"></property>
+                                        <property name="cpp_declaration"></property>
+                                        <property name="cpp_include">#include &quot;CanvasWalkcycle.h&quot;</property>
+                                        <property name="cpp_settings"></property>
                                         <property name="default_pane">0</property>
                                         <property name="dock">Dock</property>
                                         <property name="dock_fixed">0</property>
@@ -12653,7 +12717,9 @@
                                         <property name="gripper">0</property>
                                         <property name="hidden">0</property>
                                         <property name="id">wxID_ANY</property>
-                                        <property name="include">#include &quot;CanvasWalkcycle.h&quot;</property>
+                                        <property name="lua_construction"></property>
+                                        <property name="lua_require">#include &quot;CanvasWalkcycle.h&quot;</property>
+                                        <property name="lua_settings"></property>
                                         <property name="max_size"></property>
                                         <property name="maximize_button">0</property>
                                         <property name="maximum_size"></property>
@@ -12666,10 +12732,15 @@
                                         <property name="pane_position"></property>
                                         <property name="pane_size"></property>
                                         <property name="permission">protected</property>
+                                        <property name="php_construction"></property>
+                                        <property name="php_require">#include &quot;CanvasWalkcycle.h&quot;</property>
+                                        <property name="php_settings"></property>
                                         <property name="pin_button">1</property>
                                         <property name="pos"></property>
+                                        <property name="python_construction"></property>
+                                        <property name="python_import">#include &quot;CanvasWalkcycle.h&quot;</property>
+                                        <property name="python_settings"></property>
                                         <property name="resize">Resizable</property>
-                                        <property name="settings"></property>
                                         <property name="show">1</property>
                                         <property name="size"></property>
                                         <property name="subclass"></property>
@@ -12900,13 +12971,13 @@
                                   <property name="flag">wxEXPAND</property>
                                   <property name="proportion">1</property>
                                   <object class="wxStaticBoxSizer" expanded="false">
-                                    <property name="id">wxID_ANY</property>
                                     <property name="label">Forces, Moments</property>
                                     <property name="minimum_size"></property>
                                     <property name="name">sbSizerPlot</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="parent">1</property>
                                     <property name="permission">none</property>
+                                    <property name="staticbox"></property>
                                     <object class="sizeritem" expanded="false">
                                       <property name="border">5</property>
                                       <property name="flag">wxALL|wxEXPAND</property>
@@ -13744,10 +13815,12 @@
             <property name="center_pane">0</property>
             <property name="class">CanvasFootModel</property>
             <property name="close_button">1</property>
-            <property name="construction">m_canvasFootModel = new CanvasFootModel(this);</property>
             <property name="context_help"></property>
             <property name="context_menu">1</property>
-            <property name="declaration">CanvasFootModel * m_canvasFootModel;</property>
+            <property name="cpp_construction">m_canvasFootModel = new CanvasFootModel(this);</property>
+            <property name="cpp_declaration">CanvasFootModel * m_canvasFootModel;</property>
+            <property name="cpp_include">#include &quot;CanvasFootModel.h&quot;</property>
+            <property name="cpp_settings"></property>
             <property name="default_pane">0</property>
             <property name="dock">Dock</property>
             <property name="dock_fixed">0</property>
@@ -13760,7 +13833,9 @@
             <property name="gripper">0</property>
             <property name="hidden">0</property>
             <property name="id">wxID_ANY</property>
-            <property name="include">#include &quot;CanvasFootModel.h&quot;</property>
+            <property name="lua_construction">m_canvasFootModel = new CanvasFootModel(this);</property>
+            <property name="lua_require">#include &quot;CanvasFootModel.h&quot;</property>
+            <property name="lua_settings"></property>
             <property name="max_size"></property>
             <property name="maximize_button">0</property>
             <property name="maximum_size"></property>
@@ -13773,10 +13848,15 @@
             <property name="pane_position"></property>
             <property name="pane_size"></property>
             <property name="permission">protected</property>
+            <property name="php_construction">m_canvasFootModel = new CanvasFootModel(this);</property>
+            <property name="php_require">#include &quot;CanvasFootModel.h&quot;</property>
+            <property name="php_settings"></property>
             <property name="pin_button">1</property>
             <property name="pos"></property>
+            <property name="python_construction">m_canvasFootModel = new CanvasFootModel(this);</property>
+            <property name="python_import">#include &quot;CanvasFootModel.h&quot;</property>
+            <property name="python_settings"></property>
             <property name="resize">Resizable</property>
-            <property name="settings"></property>
             <property name="show">1</property>
             <property name="size"></property>
             <property name="subclass"></property>
@@ -14079,7 +14159,7 @@
                 <property name="resize">Resizable</property>
                 <property name="show">1</property>
                 <property name="size"></property>
-                <property name="style">wxTE_RIGHT</property>
+                <property name="style">wxTE_PROCESS_ENTER|wxTE_RIGHT</property>
                 <property name="subclass"></property>
                 <property name="toolbar_pane">0</property>
                 <property name="tooltip"></property>
@@ -15421,7 +15501,7 @@
             <property name="resize">Resizable</property>
             <property name="show">1</property>
             <property name="size"></property>
-            <property name="style"></property>
+            <property name="style">wxTE_PROCESS_ENTER</property>
             <property name="subclass"></property>
             <property name="toolbar_pane">0</property>
             <property name="tooltip">Enter formula or value. &#x0A;Allowed operations are: +, -, *, /, ^, cos, sin, tan, acos, asin, atan, exp, log, sqrt, cbrt, ceil, floor, round, abs</property>
@@ -15487,7 +15567,7 @@
             <property name="resize">Resizable</property>
             <property name="show">1</property>
             <property name="size"></property>
-            <property name="style">wxTE_READONLY</property>
+            <property name="style">wxTE_PROCESS_ENTER|wxTE_READONLY</property>
             <property name="subclass"></property>
             <property name="toolbar_pane">0</property>
             <property name="tooltip">Result</property>
@@ -15862,13 +15942,13 @@
           <property name="flag">wxALIGN_CENTER_HORIZONTAL</property>
           <property name="proportion">0</property>
           <object class="wxStaticBoxSizer" expanded="false">
-            <property name="id">wxID_ANY</property>
             <property name="label">Units </property>
             <property name="minimum_size"></property>
             <property name="name">sbSizer6</property>
             <property name="orient">wxVERTICAL</property>
             <property name="parent">1</property>
             <property name="permission">none</property>
+            <property name="staticbox"></property>
             <object class="sizeritem" expanded="false">
               <property name="border">5</property>
               <property name="flag"></property>
@@ -17412,7 +17492,7 @@
                     <property name="resize">Resizable</property>
                     <property name="show">1</property>
                     <property name="size"></property>
-                    <property name="style"></property>
+                    <property name="style">wxTE_PROCESS_ENTER</property>
                     <property name="subclass"></property>
                     <property name="toolbar_pane">0</property>
                     <property name="tooltip"></property>
@@ -17611,7 +17691,7 @@
                     <property name="resize">Resizable</property>
                     <property name="show">1</property>
                     <property name="size"></property>
-                    <property name="style"></property>
+                    <property name="style">wxTE_PROCESS_ENTER</property>
                     <property name="subclass"></property>
                     <property name="toolbar_pane">0</property>
                     <property name="tooltip"></property>
@@ -17810,7 +17890,7 @@
                     <property name="resize">Resizable</property>
                     <property name="show">1</property>
                     <property name="size"></property>
-                    <property name="style"></property>
+                    <property name="style">wxTE_PROCESS_ENTER</property>
                     <property name="subclass"></property>
                     <property name="toolbar_pane">0</property>
                     <property name="tooltip"></property>
@@ -19391,10 +19471,12 @@
             <property name="center_pane">0</property>
             <property name="class">CanvasAnisotropy</property>
             <property name="close_button">1</property>
-            <property name="construction">m_canvasAnisotropy = new CanvasAnisotropy(this);</property>
             <property name="context_help"></property>
             <property name="context_menu">1</property>
-            <property name="declaration">CanvasAnisotropy* m_canvasAnisotropy;</property>
+            <property name="cpp_construction">m_canvasAnisotropy = new CanvasAnisotropy(this);</property>
+            <property name="cpp_declaration">CanvasAnisotropy* m_canvasAnisotropy;</property>
+            <property name="cpp_include">#include &quot;CanvasAnisotropy.h&quot;</property>
+            <property name="cpp_settings"></property>
             <property name="default_pane">0</property>
             <property name="dock">Dock</property>
             <property name="dock_fixed">0</property>
@@ -19407,7 +19489,9 @@
             <property name="gripper">0</property>
             <property name="hidden">1</property>
             <property name="id">wxID_ANY</property>
-            <property name="include">#include &quot;CanvasAnisotropy.h&quot;</property>
+            <property name="lua_construction">m_canvasAnisotropy = new CanvasAnisotropy(this);</property>
+            <property name="lua_require">#include &quot;CanvasAnisotropy.h&quot;</property>
+            <property name="lua_settings"></property>
             <property name="max_size"></property>
             <property name="maximize_button">0</property>
             <property name="maximum_size"></property>
@@ -19420,10 +19504,15 @@
             <property name="pane_position"></property>
             <property name="pane_size"></property>
             <property name="permission">protected</property>
+            <property name="php_construction">m_canvasAnisotropy = new CanvasAnisotropy(this);</property>
+            <property name="php_require">#include &quot;CanvasAnisotropy.h&quot;</property>
+            <property name="php_settings"></property>
             <property name="pin_button">1</property>
             <property name="pos"></property>
+            <property name="python_construction">m_canvasAnisotropy = new CanvasAnisotropy(this);</property>
+            <property name="python_import">#include &quot;CanvasAnisotropy.h&quot;</property>
+            <property name="python_settings"></property>
             <property name="resize">Resizable</property>
-            <property name="settings"></property>
             <property name="show">1</property>
             <property name="size"></property>
             <property name="subclass"></property>
@@ -19981,10 +20070,12 @@
                                           <property name="center_pane">0</property>
                                           <property name="class">CanvasGraph</property>
                                           <property name="close_button">1</property>
-                                          <property name="construction"></property>
                                           <property name="context_help"></property>
                                           <property name="context_menu">1</property>
-                                          <property name="declaration"></property>
+                                          <property name="cpp_construction"></property>
+                                          <property name="cpp_declaration"></property>
+                                          <property name="cpp_include">#include &quot;CanvasGraph.h&quot;</property>
+                                          <property name="cpp_settings"></property>
                                           <property name="default_pane">0</property>
                                           <property name="dock">Dock</property>
                                           <property name="dock_fixed">0</property>
@@ -19997,7 +20088,9 @@
                                           <property name="gripper">0</property>
                                           <property name="hidden">0</property>
                                           <property name="id">wxID_ANY</property>
-                                          <property name="include">#include &quot;CanvasGraph.h&quot;</property>
+                                          <property name="lua_construction"></property>
+                                          <property name="lua_require">#include &quot;CanvasGraph.h&quot;</property>
+                                          <property name="lua_settings"></property>
                                           <property name="max_size"></property>
                                           <property name="maximize_button">0</property>
                                           <property name="maximum_size"></property>
@@ -20010,10 +20103,15 @@
                                           <property name="pane_position"></property>
                                           <property name="pane_size"></property>
                                           <property name="permission">protected</property>
+                                          <property name="php_construction"></property>
+                                          <property name="php_require">#include &quot;CanvasGraph.h&quot;</property>
+                                          <property name="php_settings"></property>
                                           <property name="pin_button">1</property>
                                           <property name="pos"></property>
+                                          <property name="python_construction"></property>
+                                          <property name="python_import">#include &quot;CanvasGraph.h&quot;</property>
+                                          <property name="python_settings"></property>
                                           <property name="resize">Resizable</property>
-                                          <property name="settings"></property>
                                           <property name="show">1</property>
                                           <property name="size"></property>
                                           <property name="subclass">; ; forward_declare</property>
@@ -20398,10 +20496,12 @@
                                           <property name="center_pane">0</property>
                                           <property name="class">Canvas3D</property>
                                           <property name="close_button">1</property>
-                                          <property name="construction"></property>
                                           <property name="context_help"></property>
                                           <property name="context_menu">1</property>
-                                          <property name="declaration"></property>
+                                          <property name="cpp_construction"></property>
+                                          <property name="cpp_declaration"></property>
+                                          <property name="cpp_include">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="cpp_settings"></property>
                                           <property name="default_pane">0</property>
                                           <property name="dock">Dock</property>
                                           <property name="dock_fixed">0</property>
@@ -20414,7 +20514,9 @@
                                           <property name="gripper">0</property>
                                           <property name="hidden">0</property>
                                           <property name="id">wxID_ANY</property>
-                                          <property name="include">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="lua_construction"></property>
+                                          <property name="lua_require">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="lua_settings"></property>
                                           <property name="max_size"></property>
                                           <property name="maximize_button">0</property>
                                           <property name="maximum_size"></property>
@@ -20427,10 +20529,15 @@
                                           <property name="pane_position"></property>
                                           <property name="pane_size"></property>
                                           <property name="permission">protected</property>
+                                          <property name="php_construction"></property>
+                                          <property name="php_require">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="php_settings"></property>
                                           <property name="pin_button">1</property>
                                           <property name="pos"></property>
+                                          <property name="python_construction"></property>
+                                          <property name="python_import">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="python_settings"></property>
                                           <property name="resize">Resizable</property>
-                                          <property name="settings"></property>
                                           <property name="show">1</property>
                                           <property name="size"></property>
                                           <property name="subclass">; ; forward_declare</property>
@@ -21073,10 +21180,12 @@
                                           <property name="center_pane">0</property>
                                           <property name="class">Canvas3D</property>
                                           <property name="close_button">1</property>
-                                          <property name="construction"></property>
                                           <property name="context_help"></property>
                                           <property name="context_menu">1</property>
-                                          <property name="declaration"></property>
+                                          <property name="cpp_construction"></property>
+                                          <property name="cpp_declaration"></property>
+                                          <property name="cpp_include">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="cpp_settings"></property>
                                           <property name="default_pane">0</property>
                                           <property name="dock">Dock</property>
                                           <property name="dock_fixed">0</property>
@@ -21089,7 +21198,9 @@
                                           <property name="gripper">0</property>
                                           <property name="hidden">0</property>
                                           <property name="id">wxID_ANY</property>
-                                          <property name="include">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="lua_construction"></property>
+                                          <property name="lua_require">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="lua_settings"></property>
                                           <property name="max_size"></property>
                                           <property name="maximize_button">0</property>
                                           <property name="maximum_size"></property>
@@ -21102,10 +21213,15 @@
                                           <property name="pane_position"></property>
                                           <property name="pane_size"></property>
                                           <property name="permission">protected</property>
+                                          <property name="php_construction"></property>
+                                          <property name="php_require">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="php_settings"></property>
                                           <property name="pin_button">1</property>
                                           <property name="pos"></property>
+                                          <property name="python_construction"></property>
+                                          <property name="python_import">#include &quot;Canvas3D.h&quot;</property>
+                                          <property name="python_settings"></property>
                                           <property name="resize">Resizable</property>
-                                          <property name="settings"></property>
                                           <property name="show">1</property>
                                           <property name="size"></property>
                                           <property name="subclass">; ; forward_declare</property>
@@ -22077,7 +22193,6 @@
                       <property name="aui_row">0</property>
                       <property name="best_size"></property>
                       <property name="bg"></property>
-                      <property name="bitmap"></property>
                       <property name="caption"></property>
                       <property name="caption_visible">1</property>
                       <property name="center_pane">0</property>

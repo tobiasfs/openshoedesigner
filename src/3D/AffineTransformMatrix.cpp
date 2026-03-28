@@ -455,7 +455,8 @@ AffineTransformMatrix AffineTransformMatrix::Translation(double x, double y,
 	return ret;
 }
 
-AffineTransformMatrix AffineTransformMatrix::Translation(Vector3 translation) {
+AffineTransformMatrix AffineTransformMatrix::Translation(
+		const Vector3 &translation) {
 	AffineTransformMatrix ret;
 	ret[12] = translation.x;
 	ret[13] = translation.y;
@@ -480,7 +481,7 @@ AffineTransformMatrix AffineTransformMatrix::Scaling(double x, double y,
 	return ret;
 }
 
-AffineTransformMatrix AffineTransformMatrix::Scaling(Vector3 scale) {
+AffineTransformMatrix AffineTransformMatrix::Scaling(const Vector3 &scale) {
 	AffineTransformMatrix ret;
 	ret[0] = scale.x;
 	ret[5] = scale.y;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Upper.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -27,7 +27,6 @@
 #include "Upper.h"
 
 Upper::Upper() {
-	// TODO Auto-generated constructor stub
 
 }
 

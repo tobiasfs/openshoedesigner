@@ -88,7 +88,6 @@
 //	p0.Set(v3 + d2 * 2, n3.Scale( {1, -1, 1}), v4 + (d + d2) * 2, n4.Scale( {-1,
 //			-1, 1}), v1 + d * 2, n1.Scale( {-1, 1, 1}), v2, n2);
 //	p0.Paint();
-
 #include "Vector3.h"
 
 class NagataPatch {
@@ -115,7 +114,7 @@ private:
 	Vector3 c21;
 	Vector3 c12;
 
-	static Vector3 c(const Vector3 &d, const Vector3 &n0, const Vector3 n1);
+	static Vector3 c(const Vector3 &d, const Vector3 &n0, const Vector3 &n1);
 };
 
 #endif /* L3D_NAGATAPATCH_H */

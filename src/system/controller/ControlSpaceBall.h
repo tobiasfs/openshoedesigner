@@ -34,21 +34,20 @@
 class ControlSpaceBall: public Control3DAbstract {
 public:
 	ControlSpaceBall();
-	virtual ~ControlSpaceBall() = default;
 
-	uint8_t ReturnID() const {
+	uint8_t ReturnID() const override {
 		return CONTROLSPACEBALL_ID;
 	}
 
 protected:
-	void InitDevice();
-	bool ProcessPacket();
-	void DataIn(uint8_t c);
+	void InitDevice() override;
+	bool ProcessPacket() override;
+	void DataIn(uint8_t c) override;
 
 private:
 	static const size_t maxDataLength = 256;
-	unsigned char InBuffer[maxDataLength];
-	int idx;
+	std::array<unsigned char, maxDataLength> InBuffer;
+	int idx = 0;
 };
 
 #endif // CONTROLSPACEBALL_H

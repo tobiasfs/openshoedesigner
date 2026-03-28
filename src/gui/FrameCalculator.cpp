@@ -295,7 +295,7 @@ void FrameCalculator::OnThreadUpdate(wxThreadEvent &evt) {
 		const int Ny = 100;
 		if (plots > 0) {
 			for (size_t m = 0; m < plots; m++) {
-				std::vector<Vector3> verts(rows);
+				std::vector<Geometry::Vertex> verts(rows);
 				for (size_t n = 0; n < rows; n++) {
 					verts[n].x = values2D->operator()(n, 0);
 					verts[n].y = values2D->operator()(n, 1);
@@ -399,7 +399,7 @@ void FrameCalculator::OnTextEnter(wxCommandEvent &event) {
 		break;
 
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		event.Skip();
 	}
@@ -442,7 +442,7 @@ void FrameCalculator::OnKillFocus(wxFocusEvent &event) {
 		break;
 
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		event.Skip();
 	}
@@ -547,7 +547,7 @@ void FrameCalculator::OnButton(wxCommandEvent &event) {
 	}
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		event.Skip();
 		break;
@@ -567,7 +567,7 @@ void FrameCalculator::OnCheckBox(wxCommandEvent &event) {
 		CodeRun();
 		break;
 	default:
-		DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( "
+		std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		event.Skip();
 	}

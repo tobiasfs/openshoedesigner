@@ -61,7 +61,8 @@ public:
 		ByBends, ///< Calculate normals by examining the bends in the polygon
 		InPlaneXY, ///< Calculate the normal as if the polygon is projected into the XY plane
 		InPlaneYZ, ///< Calculate the normal as if the polygon is projected into the YZ plane
-		InPlaneZX ///< Calculate the normal as if the polygon is projected into the ZX plane
+		InPlaneZX, ///< Calculate the normal as if the polygon is projected into the ZX plane
+		Geometry ///< Use the method from the base class
 	};
 
 	/**\brief Result for the At() method.
@@ -78,10 +79,13 @@ public:
 		double rel = 0.0;
 	};
 
-	Polygon3();
+	Polygon3() = default;
+	Polygon3(const Geometry &geo) :
+			Geometry(geo) {
+	}
 
 public:
-	void Clear(); ///< Clear all points from the Polygon
+	void Clear() override; ///< Clear all points from the Polygon
 
 	/**
 	 * \name Initializing
@@ -157,8 +161,8 @@ public:
 //	const Polygon3 operator/(const double val);
 
 	size_t Size() const; ///< Get the number of vertices
-	Vertex& operator[](size_t index); ///< Manipulate a vertex
-	const Vertex& operator[](size_t index) const; ///< Const inspect a vertex
+	Vertex& operator[](size_t index) override; ///< Manipulate a vertex
+	const Vertex& operator[](size_t index) const override; ///< Const inspect a vertex
 
 	/** \brief Direction away from a vertex
 	 *
@@ -315,7 +319,7 @@ public:
 	 * This approach stops working, if the hole is outside the area. In this
 	 * case it is still subtracted.
 	 */
-	double GetArea() const;
+	double GetArea() const override;
 
 	/** \brief Get rotational axis
 	 *

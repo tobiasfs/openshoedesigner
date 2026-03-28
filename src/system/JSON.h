@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : JSON.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   :
@@ -38,13 +38,16 @@
  */
 
 // https://esprima.org/
-#include <stddef.h>
+#include <array>
+#include <filesystem>
 #include <istream>
-#include <ostream>
 #include <map>
+#include <ostream>
+#include <stddef.h>
 #include <string>
 #include <vector>
-#include <array>
+
+namespace fs = std::filesystem;
 
 class JSON {
 private:
@@ -54,7 +57,7 @@ private:
 public:
 	JSON() = default;
 
-	static JSON Load(const std::string &filename);
+	static JSON Load(const fs::path &filename);
 	static JSON Load(std::istream &in);
 	void Save(const std::string &filename, bool usenewline = true,
 			size_t indent = 0);

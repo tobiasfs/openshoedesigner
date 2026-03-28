@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #endif
 
+#include <array>
 #include <string>
 
 class SerialPort {
@@ -118,7 +119,7 @@ public:
 	size_t ReadData(char *buffer, size_t limit);
 
 	size_t SendData(const char *buffer, size_t size);
-	size_t SendData(std::string data);
+	size_t SendData(const std::string &data);
 
 	size_t ReadDataWaiting();
 	void FlushData();
@@ -159,7 +160,7 @@ private:
 	int res;
 	size_t buffer_RD;
 	size_t buffer_WR;
-	char m_buffer[BUFFER_LEN];
+	std::array<char, BUFFER_LEN> m_buffer;
 	struct termios oldtio;
 	struct termios newtio;
 #endif

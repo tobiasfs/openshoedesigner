@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameSetupBackgroundImages.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -38,8 +38,8 @@
 
 class FrameSetupBackgroundImages: public GUIFrameSetupBackgroundImages {
 public:
-	FrameSetupBackgroundImages(wxWindow *parent, wxWindowID id = wxID_ANY,
-			const wxString &title = _("Setup background images"),
+	explicit FrameSetupBackgroundImages(wxWindow *parent, wxWindowID id =
+			wxID_ANY, const wxString &title = _("Setup background images"),
 			const wxPoint &pos = wxDefaultPosition,
 			const wxSize &size = wxSize(582, 561),
 			long style = wxDEFAULT_FRAME_STYLE | wxRESIZE_BORDER | wxSTAY_ON_TOP
@@ -54,7 +54,7 @@ public:
 	void OnScroll(wxScrollEvent &event) override;
 
 protected:
-	virtual void OnCheckBox(wxCommandEvent &event);
+	void OnCheckBox(wxCommandEvent &event) override;
 };
 
 #endif /* GUI_FRAMESETUPBACKGROUNDIMAGES_H */

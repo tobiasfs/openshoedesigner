@@ -136,7 +136,7 @@ void NURBS::Initialize(size_t nu, size_t nv, bool cyclicU, bool cyclicV,
 	}
 }
 
-void NURBS::InsertData(Vector3 v, double w) {
+void NURBS::InsertData(const Vector3 &v, double w) {
 	this->c[insertpos] = v;
 	this->w[insertpos] = w;
 	insertpos++;

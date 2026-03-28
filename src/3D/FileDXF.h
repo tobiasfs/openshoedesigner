@@ -86,10 +86,10 @@ private:
 	std::string variableName;
 	int colorNumber = 0;
 
-	std::array<Vector3, 9> points;
-	std::array<double, 9> values;
-	std::array<double, 9> angles;
-	std::array<int, 9> integers;
+	std::array<Geometry::Vertex, 9> points;
+	std::array<double, 9> values = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	std::array<double, 9> angles = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	std::array<int, 9> integers = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	double value = 0.0;
 	float thickness = 0.0;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameMain.h
-// Purpose            : 
+// Purpose            : Main window
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -57,7 +57,6 @@ class ProjectView;
 class FrameMain: public GUIFrameMain {
 	friend class ProjectView;
 public:
-
 
 	FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 			wxDocParentFrame *parent);

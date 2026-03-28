@@ -41,11 +41,12 @@
 		throw std::runtime_error(err.str()); \
 	}
 
-IniFile::Section::Parameter::Parameter(std::string name, std::string value) :
+IniFile::Section::Parameter::Parameter(const std::string &name,
+		const std::string &value) :
 		name(name), value(value) {
 }
 
-IniFile::Section::Section(std::string name) :
+IniFile::Section::Section(const std::string &name) :
 		name(name) {
 }
 
@@ -53,12 +54,12 @@ IniFile::IniFile(bool casesensitive) :
 		casesensitive(casesensitive) {
 }
 
-IniFile::IniFile(std::string filename, bool casesensitive) :
+IniFile::IniFile(const std::string &filename, bool casesensitive) :
 		casesensitive(casesensitive) {
 	ReadFile(filename);
 }
 
-void IniFile::ReadFile(std::string filename) {
+void IniFile::ReadFile(const std::string &filename) {
 	std::ifstream text(filename);
 	if (!text.is_open() || !text.good())
 		ERROR("The file " << filename << " could not be opened for reading.");
@@ -126,8 +127,8 @@ void IniFile::ReadFile(std::string filename) {
 	}
 }
 
-std::string IniFile::Section::GetParameter(std::string name,
-		std::string defaultvalue) const {
+std::string IniFile::Section::GetParameter(const std::string &name,
+		const std::string &defaultvalue) const {
 	for (size_t n = 0; n < param.size(); n++) {
 		if (StringCmpI(param[n].name, name)) {
 			return param[n].value;
@@ -136,7 +137,7 @@ std::string IniFile::Section::GetParameter(std::string name,
 	return defaultvalue;
 }
 
-const IniFile::Section* IniFile::FindSection(std::string name) const {
+const IniFile::Section* IniFile::FindSection(const std::string &name) const {
 	if (IniFile::casesensitive) {
 		for (size_t n = 0; n < section.size(); n++)
 			if (StringCmp(section[n].name, name))
@@ -171,15 +172,14 @@ const IniFile::Section* IniFile::NextSection(
 	return nullptr;
 }
 
-std::string IniFile::CleanString(std::string text) {
+std::string IniFile::CleanString(const std::string &text) {
 	const size_t n0 = text.find_first_of("\"");
 	const size_t n1 = text.find_last_of("\"");
 	if (n0 == std::string::npos || n1 == std::string::npos)
 		return text;
 	if (n0 == n1)
 		return text;
-	text = text.substr(n0, n1 - n0);
-	return text;
+	return text.substr(n0, n1 - n0);
 }
 
 bool IniFile::StringCmp(const std::string &lhs, const std::string &rhs) {

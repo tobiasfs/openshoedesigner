@@ -174,18 +174,18 @@ void LastModel::Paint() const {
 		Vector3 heelp = planeXZ[idxHeelCenter];
 		Vector3 temp = heelp - Vector3(cos(heela), 0, sin(heela)) * 2.0;
 		glBegin(GL_TRIANGLES);
-		glVertex3f(heelp.x, heelp.y, heelp.z);
-		glVertex3f(temp.x, temp.y, temp.z);
-		glVertex3f(temp.x, temp.y, heelp.z);
+		glVertex3d(heelp.x, heelp.y, heelp.z);
+		glVertex3d(temp.x, temp.y, temp.z);
+		glVertex3d(temp.x, temp.y, heelp.z);
 		glEnd();
 	}
 	if (planeXZ.Size() > idxToeCenter) {
 		Vector3 toep = planeXZ[idxToeCenter];
 		Vector3 temp = toep + Vector3(cos(toea), 0, sin(toea)) * 2.0;
 		glBegin(GL_TRIANGLES);
-		glVertex3f(toep.x, toep.y, toep.z);
-		glVertex3f(temp.x, temp.y, toep.z);
-		glVertex3f(temp.x, temp.y, temp.z);
+		glVertex3d(toep.x, toep.y, toep.z);
+		glVertex3d(temp.x, temp.y, toep.z);
+		glVertex3d(temp.x, temp.y, temp.z);
 		glEnd();
 	}
 	glEnable(GL_CULL_FACE);
@@ -211,29 +211,29 @@ void LastModel::Paint() const {
 	glRotatef(90, 1, 0, 0);
 	//	last->angleXZ.Paint();
 
-	glTranslatef(0, 0, 0.001);
+	glTranslated(0, 0, 0.001);
 	OpenGLMaterial(OpenGLMaterial::Preset::GreenPlastic).UseColor(1.0);
 	debugA.Paint();
 
-	glTranslatef(0, 0, 0.001);
+	glTranslated(0, 0, 0.001);
 	OpenGLMaterial(OpenGLMaterial::Preset::cFuchsia).UseColor(1.0);
 	debugB.Paint();
 
-	glTranslatef(0, 0, 0.001);
+	glTranslated(0, 0, 0.001);
 	OpenGLMaterial(OpenGLMaterial::Preset::Obsidian).UseColor(1.0);
 	debugC.Paint();
 
 	glRotatef(90, 0, 0, 1);
 
-	glTranslatef(0, 0, 0.001);
+	glTranslated(0, 0, 0.001);
 	OpenGLMaterial(OpenGLMaterial::Preset::CyanPlastic).UseColor(1.0);
 	debug0.Paint();
 
-	glTranslatef(0, 0, 0.001);
+	glTranslated(0, 0, 0.001);
 	OpenGLMaterial(OpenGLMaterial::Preset::RedPlastic).UseColor(1.0);
 	debug1.Paint();
 
-	glTranslatef(0, 0, 0.001);
+	glTranslated(0, 0, 0.001);
 	OpenGLMaterial(OpenGLMaterial::Preset::Copper).UseColor(1.0);
 	debug2.Paint();
 
@@ -278,13 +278,13 @@ void LastModel::PaintMarker(const size_t idx, const OpenGLText &font,
 	const Vector3 pos = planeXZ[idx];
 	const Vector3 pos2 = pos + normal * 0.5;
 	glBegin(GL_LINES);
-	glVertex3f(pos.x, pos.y, pos.z);
-	glVertex3f(pos2.x, pos2.y, pos2.z);
+	glVertex3d(pos.x, pos.y, pos.z);
+	glVertex3d(pos2.x, pos2.y, pos2.z);
 	glEnd();
 	glPushMatrix();
-	glTranslatef(pos2.x, pos2.y, pos2.z);
-	glScalef(0.1, 0.1, 0.1);
-	font.Paint(text);
+	glTranslated(pos2.x, pos2.y, pos2.z);
+	glScaled(0.1, 0.1, 0.1);
+	font.Write(text);
 	glPopMatrix();
 
 }
@@ -910,8 +910,12 @@ void LastModel::Transform(std::function<Vector3(Vector3)> func) {
 	for (auto &p : tg.p)
 		p = func(p);
 
-	for (size_t n = 0; n < CountVertices(); n++)
-		v[n] = func(v[n]);
+	for (size_t n = 0; n < CountVertices(); n++) {
+		Vector3 temp = func(v[n]);
+		v[n].x = temp.x;
+		v[n].y = temp.y;
+		v[n].z = temp.z;
+	}
 }
 
 void LastModel::Mirror() {

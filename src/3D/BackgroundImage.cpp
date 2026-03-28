@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : BackgroundImage.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -43,28 +43,28 @@ void BackgroundImage::Paint() const {
 	case Orientation::Top:
 		break;
 	case Orientation::Bottom:
-		glRotatef(180, 1, 0, 0);
+		glRotated(180, 1, 0, 0);
 		break;
 	case Orientation::Right:
-		glRotatef(90, 1, 0, 0);
+		glRotated(90, 1, 0, 0);
 		break;
 	case Orientation::Left:
-		glRotatef(90, 1, 0, 0);
-		glRotatef(180, 0, 0, 1);
+		glRotated(90, 1, 0, 0);
+		glRotated(180, 0, 0, 1);
 		break;
 	case Orientation::Front:
-		glRotatef(90, 1, 0, 0);
-		glRotatef(90, 0, 0, 1);
+		glRotated(90, 1, 0, 0);
+		glRotated(90, 0, 0, 1);
 		break;
 	case Orientation::Back:
-		glRotatef(90, 1, 0, 0);
-		glRotatef(-90, 0, 0, 1);
+		glRotated(90, 1, 0, 0);
+		glRotated(-90, 0, 0, 1);
 		break;
 	}
 
-	glRotatef(rotate, 0.0, 0.0, 1.0);
-	glScalef(scale, scale, 1.0);
-	glTranslatef(-centerx, -centery, 0.0);
+	glRotated(rotate, 0.0, 0.0, 1.0);
+	glScaled(scale, scale, 1.0);
+	glTranslated(-centerx, -centery, 0.0);
 	OpenGLImage::Paint();
 	glPopMatrix();
 

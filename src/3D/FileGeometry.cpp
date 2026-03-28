@@ -75,6 +75,9 @@ void FileGeometry::Read(Geometry &geometry) {
 		inp = nullptr;
 		tempstream.close();
 	}
+	if (cleanup) {
+		GenerateMissingEdges(geometry);
+	}
 }
 
 void FileGeometry::Write(const Geometry &geometry) {
@@ -125,10 +128,37 @@ void FileGeometry::WriteStream(const Geometry &geometry) {
 					+ " - Not implemented for this type of file.");
 }
 
-std::string FileGeometry::StringTrim(const std::string &x) const {
+std::string FileGeometry::StringTrim(const std::string &x) {
 	const size_t pos0 = x.find_first_not_of(" \t\r\n");
 	const size_t pos1 = x.find_last_not_of(" \t\r\n");
 	if (pos0 == std::string::npos)
 		return std::string();
 	return x.substr(pos0, pos1 - pos0 + 1);
+}
+
+void FileGeometry::GenerateMissingEdges(Geometry &geo) {
+	geo.Join();
+	const size_t ec = geo.CountEdges();
+	for (size_t n = 0; n < geo.CountTriangles(); n++) {
+		Geometry::Triangle &tri = geo.GetTriangle(n);
+		if (tri.ea >= ec) {
+			const size_t eidx = geo.CountEdges();
+			geo.AddEdge(tri.va, tri.vb);
+			tri.ea = eidx;
+			geo.GetEdge(eidx).ta = n;
+		}
+		if (tri.eb >= ec) {
+			const size_t eidx = geo.CountEdges();
+			geo.AddEdge(tri.vb, tri.vc);
+			tri.eb = eidx;
+			geo.GetEdge(eidx).ta = n;
+		}
+		if (tri.ec >= ec) {
+			const size_t eidx = geo.CountEdges();
+			geo.AddEdge(tri.va, tri.vc);
+			tri.ec = eidx;
+			geo.GetEdge(eidx).ta = n;
+		}
+	}
+	geo.Join();
 }

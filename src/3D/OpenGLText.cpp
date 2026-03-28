@@ -41,7 +41,7 @@ OpenGLText::OpenGLText() :
 OpenGLText::~OpenGLText() {
 }
 
-void OpenGLText::Paint(const std::string &text) const {
+void OpenGLText::Write(const std::string &text) const {
 	if (text.empty())
 		return;
 	Update();

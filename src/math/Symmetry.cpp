@@ -66,7 +66,7 @@ void Symmetry::AddTransform(const FourierTransform &transform) {
 
 void Symmetry::Normalize() {
 	KernelDensityEstimator::Normalize();
-	this->operator/=(Kernel::Epanechnikov(0) / sigma);
+	Matrix::operator/=(Kernel::Epanechnikov(0) / sigma);
 }
 
 void Symmetry::Paint() const {

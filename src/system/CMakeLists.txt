@@ -9,6 +9,9 @@ if(wxWidgets_USE_FILE) # not defined in CONFIG mode
     include(${wxWidgets_USE_FILE})
 endif()
 
+target_compile_definitions(library_system PRIVATE USE_LIBZIP)
+
 target_link_libraries(library_system
 	${wxWidgets_LIBRARIES}
+	zip
 )

@@ -34,23 +34,22 @@
 class ControlSpaceMouse: public Control3DAbstract {
 public:
 	ControlSpaceMouse();
-	virtual ~ControlSpaceMouse() = default;
 
-	uint8_t ReturnID() const {
+	uint8_t ReturnID() const override {
 		return CONTROLSPACEMOUSE_ID;
 	}
 
 protected:
-	bool isInitialized;
-	void InitDevice();
-	bool Open();
-	bool ProcessPacket();
-	void DataIn(uint8_t c);
+	bool isInitialized = false;
+	void InitDevice() override;
+	bool Open() override;
+	bool ProcessPacket() override;
+	void DataIn(uint8_t c) override;
 
 private:
 	static const size_t maxDataLength = 256;
-	unsigned char InBuffer[maxDataLength];
-	int idx;
+	std::array<unsigned char, maxDataLength> InBuffer;
+	int idx = 0;
 };
 
 #endif /* CONTROLSPACEMOUSE_H */

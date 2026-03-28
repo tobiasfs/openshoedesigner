@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : SemaphoreTryLocker.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -38,7 +38,7 @@
 class SemaphoreTryLocker {
 public:
 	SemaphoreTryLocker() = delete;
-	SemaphoreTryLocker(wxSemaphore &semaphore_) :
+	explicit SemaphoreTryLocker(wxSemaphore &semaphore_) :
 			semaphore(semaphore_), isOK(false) {
 		isOK = (semaphore_.TryWait() == wxSEMA_NO_ERROR);
 	}

@@ -31,20 +31,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define OPENSHOEDESIGNER_VERSION "0.2"
+#define OPENSHOEDESIGNER_VERSION "0.3"
 #define OPENSHOEDESIGNER_AUTHORS "Tobias Schaefer"
 
-#ifdef DEBUG
-#define DEBUGOUT std::cout
-#else
-#define DEBUGOUT if(false) std::cout
-#endif
-
-//#define USE_PORTMIDI
-//#define USE_GLAD
 #define USE_UNIT
 #define USE_3DPICKING
 //#define USE_6DOFCONTROLLER
-//#define USE_MULTITHREADING
 
 #endif /* CONFIG_H */

@@ -157,7 +157,7 @@ void Insole::ToOpenGL(const Point &p, const std::string &label) const {
 	glScaled(0.01, 0.01, 0.01);
 	glNormal3d(0.0, -1.0, 0.0);
 	OpenGLText txt;
-	txt.Paint(label);
+	txt.Write(label);
 	glBegin(GL_POINTS);
 	glVertex3d(0, 0, 0);
 	glEnd();

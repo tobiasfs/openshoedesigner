@@ -185,9 +185,9 @@ void FileOBJ::ReadStream(Geometry &geo) {
 					size_t n1 = (ids[(i - 1) * w + 2] - 1) * vn_width - vn_offs;
 					size_t n2 = (ids[i * w + 2] - 1) * vn_width - vn_offs;
 
-					Vector3 a(v[p0], v[p0 + 1], v[p0 + 2]);
-					Vector3 b(v[p1], v[p1 + 1], v[p1 + 2]);
-					Vector3 c(v[p2], v[p2 + 1], v[p2 + 2]);
+					Geometry::Vertex a(v[p0], v[p0 + 1], v[p0 + 2]);
+					Geometry::Vertex b(v[p1], v[p1 + 1], v[p1 + 2]);
+					Geometry::Vertex c(v[p2], v[p2 + 1], v[p2 + 2]);
 					Vector3 ca(v[p0 + 3], v[p0 + 4], v[p0 + 5]);
 					Vector3 cb(v[p1 + 3], v[p1 + 4], v[p1 + 5]);
 					Vector3 cc(v[p2 + 3], v[p2 + 4], v[p2 + 5]);
@@ -220,9 +220,9 @@ void FileOBJ::ReadStream(Geometry &geo) {
 					size_t n1 = (ids[(i - 1) * w + 2] - 1) * vn_width - vn_offs;
 					size_t n2 = (ids[i * w + 2] - 1) * vn_width - vn_offs;
 
-					Vector3 a(v[p0], v[p0 + 1], v[p0 + 2]);
-					Vector3 b(v[p1], v[p1 + 1], v[p1 + 2]);
-					Vector3 c(v[p2], v[p2 + 1], v[p2 + 2]);
+					Geometry::Vertex a(v[p0], v[p0 + 1], v[p0 + 2]);
+					Geometry::Vertex b(v[p1], v[p1 + 1], v[p1 + 2]);
+					Geometry::Vertex c(v[p2], v[p2 + 1], v[p2 + 2]);
 					Vector3 na(vn[n0], vn[n0 + 1], vn[n0 + 2]);
 					Vector3 nb(vn[n1], vn[n1 + 1], vn[n1 + 2]);
 					Vector3 nc(vn[n2], vn[n2 + 1], vn[n2 + 2]);

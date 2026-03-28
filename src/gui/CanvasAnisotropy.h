@@ -37,7 +37,7 @@
 
 class CanvasAnisotropy: public wxPanel {
 public:
-	CanvasAnisotropy(wxWindow *parent,
+	explicit CanvasAnisotropy(wxWindow *parent,
             wxWindowID id = wxID_ANY,
             const wxPoint& pos = wxDefaultPosition,
             const wxSize& size = wxDefaultSize,

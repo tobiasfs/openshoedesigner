@@ -28,7 +28,6 @@
 
 #include <sstream>
 #include <stdexcept>
-
 UpperConstruct::UpperConstruct() {
 	out = std::make_shared<Upper>();
 }
@@ -41,7 +40,7 @@ bool UpperConstruct::CanRun() {
 	std::string missing;
 
 	if (!design_in)
-		missing += missing.empty() ? "\"design_in\"" : ", \"design_in\"";
+		missing = "\"design_in\"";
 	if (!cs_in)
 		missing += missing.empty() ? "\"cs_in\"" : ", \"cs_in\"";
 	if (!out)
@@ -86,19 +85,19 @@ bool UpperConstruct::HasToRun() {
 
 void UpperConstruct::Run() {
 	out->patches.clear();
-	design_in->Update();
 
 //	for (const Design::Edge &e : design_in->edges) {
 //		out->patches.push_back(e.geo);
 //	}
-	for (const Design::Patch &p : design_in->patches) {
+	for (const DesignSolution::Patch &p : design_in->patches) {
 		const Geometry *g = dynamic_cast<const Geometry*>(&p);
 		out->patches.push_back(*g);
 	}
 
 	for (Geometry &geo : out->patches) {
 //		geo.paintEdges = true;
-		geo.FlagUV(true, false);
+		geo.verticesHaveTexture = true;
+		geo.trianglesHaveTexture = false;
 
 		cs_in->Apply(geo);
 

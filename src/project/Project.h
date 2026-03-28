@@ -68,7 +68,7 @@
 
 #include "Builder.h"
 #include "Configuration.h"
-#include "object/Design.h"
+#include "Design.h"
 #include "foot/FootModel.h"
 #include "FootMeasurements.h"
 #include "object/Insole.h"
@@ -144,8 +144,6 @@ public:
 	std::shared_ptr<Upper> flatteningL;
 	std::shared_ptr<Upper> flatteningR;
 
-
-
 //	FootModel footL;
 //	FootModel footR;
 
@@ -154,8 +152,8 @@ public:
 
 private:
 	bool useMultiThreading = false;
-	WorkerThread *thread0;
-	WorkerThread *thread1;
+	WorkerThread *thread0 = nullptr;
+	WorkerThread *thread1 = nullptr;
 
 	wxCriticalSection CS;
 	wxCriticalSection CSLeft;

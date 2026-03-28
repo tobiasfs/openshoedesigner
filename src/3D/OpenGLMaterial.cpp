@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLMaterial.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -395,7 +395,8 @@ void OpenGLMaterial::SetSimpleColor(float r, float g, float b, float emit,
 	opacity = opacity_;
 }
 
-void OpenGLMaterial::SetSimpleColor(Vector3 c, float emit, float opacity_) {
+void OpenGLMaterial::SetSimpleColor(const Vector3 &c, float emit,
+		float opacity_) {
 	SetSimpleColor(c.x, c.y, c.z, emit, opacity_);
 }
 
@@ -466,7 +467,7 @@ void OpenGLMaterial::EnableColors() {
 	if (!ColorsAllowed())
 		return;
 	glEnable(GL_COLOR_MATERIAL);
-	GLfloat buffer[] = { 0, 0, 0, 1 };
+	const GLfloat buffer[] = { 0, 0, 0, 1 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, buffer);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, buffer);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0);

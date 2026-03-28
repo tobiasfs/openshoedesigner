@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameDebugParser.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -39,11 +39,10 @@
 
 class FrameDebugParser: public GUIFrameDebugParser {
 public:
-	FrameDebugParser(wxWindow *parent);
-	virtual ~FrameDebugParser() = default;
+	explicit FrameDebugParser(wxWindow *parent);
 
-	virtual void OnCloseX(wxCloseEvent &event) override;
-	virtual void OnText(wxCommandEvent &event) override;
+	void OnCloseX(wxCloseEvent &event) override;
+	void OnText(wxCommandEvent &event) override;
 
 	MathParser parser;
 };

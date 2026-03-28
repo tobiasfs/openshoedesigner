@@ -41,8 +41,8 @@ DialogSetupMidi::DialogSetupMidi(wxWindow *parent) :
 }
 
 void DialogSetupMidi::UpdateDevices() {
-	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
-	std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
+	const FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	const std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
 
 	if (!midiport)
 		return;
@@ -117,9 +117,9 @@ void DialogSetupMidi::Save(wxConfig *config) {
 	if (config == nullptr)
 		return;
 
-	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
-	std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
-	std::shared_ptr<MidiDevice> &mididevice = parentframe->mididevice;
+	const FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
+	const std::shared_ptr<MidiPort> &midiport = parentframe->midiport;
+	const std::shared_ptr<MidiDevice> &mididevice = parentframe->mididevice;
 	if (!midiport) {
 		config->Write(_T("MidiConnected"), (bool) false);
 		return;

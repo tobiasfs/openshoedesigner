@@ -42,7 +42,7 @@ public:
 			u(u_), v(v_) {
 	}
 
-	/**\}
+	/**
 	 * \name Operators
 	 * \{
 	 */

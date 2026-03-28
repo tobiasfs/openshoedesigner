@@ -150,8 +150,8 @@ void InsoleFlatten::Run() {
 	Eigen::MatrixXd V = svd.matrixV();
 	// Eigen guarantees, that the eigenvalues are always in descending order.
 
-	DEBUGOUT << "Eigenvalues:\n" << S << '\n';
-	DEBUGOUT << "V - Matrix:\n" << V << '\n';
+	DEBUGOUT << "\tEigenvalues:\n" << S << '\n';
+	DEBUGOUT << "\tV - Matrix:\n" << V << '\n';
 
 	// The column in V for which the eigenvalue in S is smallest is the axis
 	// that is least (or not at all) bent. The major eigenvalue points in the
@@ -183,7 +183,9 @@ void InsoleFlatten::Run() {
 		v.z = 0.0;
 	}
 	// Move the UV values from the vertices to the triangles
-	out->FlagUV(true, false);
+	out->verticesHaveTexture = true;
+	out->trianglesHaveTexture = false;
+
 	out->CalculateUVCoordinateSystems();
 
 	// Fix the normal vectors for the triangles

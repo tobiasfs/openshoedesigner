@@ -115,8 +115,10 @@ bool MidiDevice::Poll() {
 	if (input != nullptr) {
 		while (Pm_Poll(input)) {
 			if (Pm_Read(input, buffer, 1) > 0) {
-				uint8_t ch = Pm_MessageData1(buffer[0].message);
-				uint8_t val = Pm_MessageData2(buffer[0].message);
+				uint8_t ch = static_cast<uint8_t>(Pm_MessageData1(
+						buffer[0].message));
+				uint8_t val = static_cast<uint8_t>(Pm_MessageData2(
+						buffer[0].message));
 				flag |= (val != cc[ch]);
 				cc[ch] = ccold[ch] = val;
 			}
@@ -143,9 +145,9 @@ bool MidiDevice::PollEvent(uint8_t *data0, uint8_t *data1, uint8_t *data2) {
 	if (!Pm_Poll(input))
 		return false;
 	if (Pm_Read(input, buffer, 1) > 0) {
-		*data0 = Pm_MessageStatus(buffer[0].message);
-		*data1 = Pm_MessageData1(buffer[0].message);
-		*data2 = Pm_MessageData2(buffer[0].message);
+		*data0 = static_cast<uint8_t>(Pm_MessageStatus(buffer[0].message));
+		*data1 = static_cast<uint8_t>(Pm_MessageData1(buffer[0].message));
+		*data2 = static_cast<uint8_t>(Pm_MessageData2(buffer[0].message));
 		return true;
 	}
 #endif
@@ -200,8 +202,8 @@ std::shared_ptr<MidiDevice> MidiPort::Open(const std::string &name,
 				&& (direction == Direction::Input
 						|| direction == Direction::Bidirectional)) {
 			if (temp->input == nullptr) {
-				PmError err = Pm_OpenInput(&(temp->input), id, nullptr, 100, nullptr,
-				nullptr);
+				PmError err = Pm_OpenInput(&(temp->input), id, nullptr, 100,
+						nullptr, nullptr);
 				if (err != pmNoError) {
 					std::cerr << "Error opening MIDI input: "
 							<< DecodeError(err) << '\n';
@@ -214,8 +216,7 @@ std::shared_ptr<MidiDevice> MidiPort::Open(const std::string &name,
 						|| direction == Direction::Bidirectional)) {
 			if (temp->output == nullptr) {
 				PmError err = Pm_OpenOutput(&(temp->output), id, nullptr, 100,
-				nullptr,
-				nullptr, 0);
+						nullptr, nullptr, 0);
 				if (err != pmNoError) {
 					std::cerr << "Error opening MIDI output: "
 							<< DecodeError(err) << '\n';

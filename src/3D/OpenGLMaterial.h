@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : OpenGLMaterial.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -103,7 +103,8 @@ public:
 
 	void SetSimpleColor(float r, float g, float b, float emit = 0.0,
 			float opacity = 1.0); ///< Equivalent to using the glColor command.
-	void SetSimpleColor(Vector3 c, float emit = 0.0, float opacity = 1.0); ///< Uses x,y,z of a vector as the color components.
+	void SetSimpleColor(const Vector3 &c, float emit = 0.0,
+			float opacity = 1.0); ///< Uses x,y,z of a vector as the color components.
 
 	void UseMaterial() const; ///< Start using this material. Turns off glColor command.
 	void UseColor() const; ///< Activates glColor and sets the diffuse color of this material.

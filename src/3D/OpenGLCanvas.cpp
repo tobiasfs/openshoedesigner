@@ -164,11 +164,12 @@ OpenGLCanvas::Context::Context(wxGLCanvas *canvas) :
 	}
 #endif
 #endif
-
-	DEBUGOUT << "GL_VERSION: ";
+#ifdef DEBUG
+	std::cout << "GL_VERSION: ";
 	// If this line fails, glad was probably not initialized correctly.
-	DEBUGOUT << glGetString(GL_VERSION);
-	DEBUGOUT << '\n';
+	std::cout << glGetString(GL_VERSION);
+	std::cout << '\n';
+#endif
 }
 
 void OpenGLCanvas::OnEnterWindow(wxMouseEvent&WXUNUSED(event)) {
@@ -356,7 +357,7 @@ void OpenGLCanvas::OnPaint(wxPaintEvent&WXUNUSED(event)) {
 		glLoadIdentity();
 
 		// Reset materials
-		GLfloat params[4] = { 0, 0, 0, 1 };
+		const GLfloat params[4] = { 0, 0, 0, 1 };
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, params);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, params);
 		glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 0);
@@ -696,22 +697,22 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 	GLenum err = glGetError();
 	result.SetHits(0);
 	if (err) {
-		DEBUGOUT << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__
+		std::cerr << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__
 				<< " - Error: " << err;
 		switch (err) {
 		case GL_INVALID_VALUE:
-			DEBUGOUT << " (GL_INVALID_VALUE)\n";
+			std::cerr << " (GL_INVALID_VALUE)\n";
 			break;
 		case GL_INVALID_OPERATION:
-			DEBUGOUT << " (GL_INVALID_OPERATION)\n";
+			std::cerr << " (GL_INVALID_OPERATION)\n";
 			break;
 		default:
-			DEBUGOUT << '\n';
+			std::cerr << '\n';
 		}
 		return;
 	}
 	if (hits == (GLint) 0xFFFFFFFF) {
-		DEBUGOUT
+		std::cerr
 				<< "OpenGLCanvas::OnPick - Buffer Overflow (increase buffer size).\n";
 		return;
 	}
@@ -719,6 +720,9 @@ void OpenGLCanvas::OnPick(OpenGLPick &result, wxPoint pos) {
 		result.SetHits(hits);
 }
 #endif
+
+void OpenGLCanvas::Render() {
+}
 
 void OpenGLCanvas::RenderPick() {
 	this->Render();

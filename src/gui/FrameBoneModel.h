@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameBoneModel.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -36,11 +36,10 @@
 
 class FrameBoneModel: public GUIFrameBoneModel {
 public:
-	FrameBoneModel(wxWindow *parent, wxWindowID id = wxID_ANY,
+	explicit FrameBoneModel(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxString &title = _("Bone Model Setup"), const wxPoint &pos =
 					wxDefaultPosition, const wxSize &size = wxSize(672, 458),
 			long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
-	virtual ~FrameBoneModel() = default;
 
 	bool TransferDataToWindow() override;
 	bool TransferDataFromWindow() override;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : DialogEditorFootModel.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -40,7 +40,7 @@
 
 class DialogEditorFootModel: public GUIFrameEditorFootModel {
 public:
-	DialogEditorFootModel(wxWindow *parent);
+	explicit DialogEditorFootModel(wxWindow *parent);
 	virtual ~DialogEditorFootModel();
 
 	void OnLoad(wxCommandEvent &event) override;

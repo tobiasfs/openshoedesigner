@@ -63,31 +63,31 @@ bool ControlSpaceBall::ProcessPacket() {
 	case 'D':
 		if (idx != 15)
 			break;
-		Axis[0] = (InBuffer[3] << 8) | (InBuffer[4]);
-		Axis[1] = (InBuffer[5] << 8) | (InBuffer[6]);
-		Axis[2] = (InBuffer[7] << 8) | (InBuffer[8]);
-		Axis[3] = (InBuffer[9] << 8) | (InBuffer[10]);
-		Axis[4] = (InBuffer[11] << 8) | (InBuffer[12]);
-		Axis[5] = (InBuffer[13] << 8) | (InBuffer[14]);
+		axis[0] = (InBuffer[3] << 8) | (InBuffer[4]);
+		axis[1] = (InBuffer[5] << 8) | (InBuffer[6]);
+		axis[2] = (InBuffer[7] << 8) | (InBuffer[8]);
+		axis[3] = (InBuffer[9] << 8) | (InBuffer[10]);
+		axis[4] = (InBuffer[11] << 8) | (InBuffer[12]);
+		axis[5] = (InBuffer[13] << 8) | (InBuffer[14]);
 
 		for (i = 0; i < 6; i++)
-			Axis[i] = (((int16_t) Axis[i]) << 16) >> 16;
+			axis[i] = (((int16_t) axis[i]) << 16) >> 16;
 
 		// Right Handed Coordinate System
-		Axis[2] = -Axis[2]; // Tz = -Tz
-		Axis[5] = -Axis[5]; // Rz = -Rz
+		axis[2] = -axis[2]; // Tz = -Tz
+		axis[5] = -axis[5]; // Rz = -Rz
 		hasChanged = true;
 		break;
 	case 'K':
-		Button[0] = (InBuffer[2] & 1);
-		Button[1] = (InBuffer[2] & 2);
-		Button[2] = (InBuffer[2] & 4);
-		Button[3] = (InBuffer[2] & 8);
-		Button[4] = (InBuffer[1] & 1);
-		Button[5] = (InBuffer[1] & 2);
-		Button[6] = (InBuffer[1] & 4);
-		Button[7] = (InBuffer[1] & 8);
-		Button[8] = (InBuffer[1] & 16);
+		button[0] = (InBuffer[2] & 1);
+		button[1] = (InBuffer[2] & 2);
+		button[2] = (InBuffer[2] & 4);
+		button[3] = (InBuffer[2] & 8);
+		button[4] = (InBuffer[1] & 1);
+		button[5] = (InBuffer[1] & 2);
+		button[6] = (InBuffer[1] & 4);
+		button[7] = (InBuffer[1] & 8);
+		button[8] = (InBuffer[1] & 16);
 		hasChanged = true;
 		break;
 	}

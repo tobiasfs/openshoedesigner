@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FrameBoneModel.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -140,26 +140,26 @@ bool FrameBoneModel::TransferDataFromWindow() {
 }
 
 void FrameBoneModel::OnCellChange(wxGridEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameBoneModel::OnReset(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameBoneModel::OnLoad(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameBoneModel::OnSaveAs(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }
 
 void FrameBoneModel::OnSave(wxCommandEvent &event) {
-	DEBUGOUT << "Line " << __LINE__ << ": " << __FUNCTION__ << "( " << event.GetId()
-			<< " )\n";
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+			<< event.GetId() << " )\n";
 }

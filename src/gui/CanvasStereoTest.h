@@ -38,7 +38,7 @@
 
 class CanvasStereoTest: public OpenGLCanvas {
 public:
-	CanvasStereoTest(wxWindow *parent, wxWindowID id = wxID_ANY,
+	explicit CanvasStereoTest(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style = 0,
 			const wxString &name = _T("CanvasStereoTest"));

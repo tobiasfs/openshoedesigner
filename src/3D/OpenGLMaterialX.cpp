@@ -339,7 +339,7 @@ OpenGLMaterialX::Image::~Image() {
 		glDeleteTextures(1, &textureID);
 }
 
-void OpenGLMaterialX::Image::LoadFromString(std::string &imagedata) {
+void OpenGLMaterialX::Image::LoadFromString(const std::string &imagedata) {
 
 	if (imagedata.substr(0, 3) == "\xff\xd8\xff") {
 #ifdef USE_LIBJPEG
@@ -348,7 +348,7 @@ void OpenGLMaterialX::Image::LoadFromString(std::string &imagedata) {
 		struct jpeg_decompress_struct cinfo;
 		cinfo.err = jpeg_std_error(&jerr);
 		jpeg_create_decompress(&cinfo);
-		jpeg_mem_src(&cinfo, reinterpret_cast<unsigned char*>(imagedata.data()),
+		jpeg_mem_src(&cinfo, reinterpret_cast<const unsigned char*>(imagedata.data()),
 				imagedata.size());
 		(void) jpeg_read_header(&cinfo, TRUE);
 		(void) jpeg_start_decompress(&cinfo);
@@ -530,8 +530,8 @@ GLuint OpenGLMaterialX::Image::LoadIntoGPU() {
 	return textureUnit;
 }
 
-OpenGLMaterialX::Variable::Variable(Direction dir_, std::string type_,
-		std::string name_, int location_) :
+OpenGLMaterialX::Variable::Variable(Direction dir_, const std::string &type_,
+		const std::string &name_, int location_) :
 		dir(dir_), type(type_), name(name_), location(location_) {
 }
 

@@ -44,7 +44,7 @@
 
 class CanvasWalkcycle: public wxPanel {
 public:
-	CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
+	explicit CanvasWalkcycle(wxWindow *parent, wxWindowID id = wxID_ANY,
 			const wxPoint &pos = wxDefaultPosition, const wxSize &size =
 					wxDefaultSize, long style = wxTAB_TRAVERSAL | wxNO_BORDER,
 			const wxString &name = wxPanelNameStr);
