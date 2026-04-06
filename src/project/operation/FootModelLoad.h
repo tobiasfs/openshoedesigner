@@ -36,8 +36,8 @@
  * system.
  */
 
+#include "../configuration/ParameterString.h"
 #include "../foot/FootModel.h"
-#include "../ParameterString.h"
 #include "Operation.h"
 
 #include <filesystem>

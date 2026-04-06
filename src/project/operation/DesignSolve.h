@@ -34,8 +34,8 @@
  */
 
 #include "../../3D/Surface.h"
-#include "../CoordinateSystem.h"
-#include "../Design.h"
+#include "../configuration/Design.h"
+#include "../object/CoordinateSystem.h"
 #include "../object/DesignSolution.h"
 #include "../object/ObjectGeometry.h"
 #include "../object/Upper.h"

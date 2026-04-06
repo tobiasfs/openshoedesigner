@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastUpdate.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -23,10 +23,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #include "LastUpdate.h"
 
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 LastUpdate::LastUpdate() {
 	out = std::make_shared<LastModel>();
@@ -121,6 +124,7 @@ bool LastUpdate::HasToRun() {
 void LastUpdate::Run() {
 	*out = *in;
 
+	std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
 	std::cerr << GetName() << ": Operation not implemented.\n";
 
 	out->MarkValid(true);

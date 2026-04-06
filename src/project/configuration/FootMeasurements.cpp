@@ -26,8 +26,8 @@
 
 #include "FootMeasurements.h"
 
-#include "../gui/gui.h"
-#include "../system/JSON.h"
+#include "../../gui/gui.h"
+#include "../../system/JSON.h"
 
 #include <cmath>
 #include <stdexcept>

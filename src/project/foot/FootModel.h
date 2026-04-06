@@ -89,17 +89,16 @@
  *
  */
 
-#include "Skeleton.h"
-
 #include "../../3D/AffineTransformMatrix.h"
 #include "../../3D/BoundingBox.h"
 #include "../../3D/Volume.h"
 #include "../../math/NelderMeadOptimizer.h"
 #include "../object/Object.h"
+#include "Skeleton.h"
 //#include "../FootMeasurements.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
 class FootMeasurements;
 class Shoe;

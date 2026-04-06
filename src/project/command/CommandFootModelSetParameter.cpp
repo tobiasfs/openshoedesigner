@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CommandFootModelSetParameter.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -43,7 +43,7 @@ CommandFootModelSetParameter::CommandFootModelSetParameter(const wxString &name,
 }
 
 bool CommandFootModelSetParameter::Do() {
-	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << " not implemented.\n";
+	std::cerr  << __FUNCTION__ << ": " << __FILE__ << " not implemented.\n";
 	if (project == NULL)
 		return false;
 	return false;
@@ -119,7 +119,7 @@ bool CommandFootModelSetParameter::Do() {
 }
 
 bool CommandFootModelSetParameter::Undo() {
-	DEBUGOUT << __FUNCTION__ << ": " << __FILE__ << " not implemented.\n";
+	std::cerr << __FUNCTION__ << ": " << __FILE__ << " not implemented.\n";
 	if (project == NULL)
 		return false;
 	return false;

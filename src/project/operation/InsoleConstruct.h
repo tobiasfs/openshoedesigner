@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : InsoleConstruct.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -50,12 +50,13 @@
  *
  */
 
-#include "../FootMeasurements.h"
+#include "../configuration/FootMeasurements.h"
+#include "../configuration/ParameterFormula.h"
 #include "../object/Insole.h"
-#include "../ParameterFormula.h"
 #include "Operation.h"
 
 #include <memory>
+
 class InsoleConstruct: public Operation {
 public:
 	InsoleConstruct();

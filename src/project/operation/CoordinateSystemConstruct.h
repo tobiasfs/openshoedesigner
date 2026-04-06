@@ -38,9 +38,9 @@
 #include "Operation.h"
 
 #include "../../3D/Bezier3.h"
-#include "../CoordinateSystem.h"
+#include "../configuration/ParameterFormula.h"
+#include "../object/CoordinateSystem.h"
 #include "../object/Insole.h"
-#include "../ParameterFormula.h"
 
 #include <memory>
 class CoordinateSystemConstruct: public Operation {

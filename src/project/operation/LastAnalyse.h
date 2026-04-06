@@ -36,8 +36,8 @@
 
 #include "../../3D/Polygon3.h"
 #include "../../math/MEstimator.h"
+#include "../configuration/ParameterEnum.h"
 #include "../object/LastModel.h"
-#include "../ParameterEnum.h"
 #include "Operation.h"
 
 #include <memory>

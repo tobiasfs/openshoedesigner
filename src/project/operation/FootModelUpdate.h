@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FootModelUpdate.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -36,8 +36,8 @@
  */
 
 #include "../../math/NelderMeadOptimizer.h"
+#include "../configuration/ParameterFormula.h"
 #include "../foot/FootModel.h"
-#include "../ParameterFormula.h"
 #include "Operation.h"
 
 #include <memory>

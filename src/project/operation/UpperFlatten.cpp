@@ -82,14 +82,24 @@ bool UpperFlatten::HasToRun() {
 void UpperFlatten::Run() {
 	*out = *in;
 
-	for (Geometry &geo : out->patches) {
-		for (size_t vidx = 0; vidx < geo.CountVertices(); vidx++) {
-			Geometry::Vertex &v = geo.GetVertex(vidx);
-			v.u = v.u / 10.0;
-			v.v = v.v / 2.0;
-		}
-	}
+	for (Geometry &geo : out->patches)
+		FlattenPatch(geo);
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);
+}
+
+void UpperFlatten::FlattenPatch(Geometry &p) {
+
+	std::set<size_t> triangles;
+	for (size_t n = 0; n < p.CountTriangles(); n++)
+		triangles.insert(triangles.end(), n);
+
+	for (size_t vidx = 0; vidx < p.CountVertices(); vidx++) {
+		Geometry::Vertex &v = p.GetVertex(vidx);
+		v.x = v.u / 10.0;
+		v.y = v.v / 2.0;
+		v.z = 0.0;
+	}
+
 }

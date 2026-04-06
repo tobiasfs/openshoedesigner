@@ -35,12 +35,12 @@
  * surface.
  */
 
+#include "../../math/Matrix.h"
+#include "../configuration/ParameterFormula.h"
 #include "../object/Insole.h"
 #include "../object/ObjectGeometry.h"
 #include "Operation.h"
 
-#include "../../math/Matrix.h"
-#include "../ParameterFormula.h"
 #include <memory>
 
 class HeelExtractInsole: public Operation {

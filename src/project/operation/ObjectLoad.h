@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : ObjectLoad.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -43,8 +43,8 @@
  */
 
 #include "../../3D/Geometry.h"
+#include "../configuration/ParameterString.h"
 #include "../object/ObjectGeometry.h"
-#include "../ParameterString.h"
 #include "Operation.h"
 
 #include <filesystem>

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : InsoleTransform.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -40,8 +40,8 @@
  * rotated.
  */
 
+#include "../configuration/ParameterFormula.h"
 #include "../object/Insole.h"
-#include "../ParameterFormula.h"
 #include "Operation.h"
 
 #include <memory>

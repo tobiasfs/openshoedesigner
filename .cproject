@@ -94,6 +94,15 @@
 							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1754340209" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.2097012802.1442959887" name="Design.cpp" rcbsApplicability="disable" resourcePath="src/project/configuration/Design.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.383426711">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.383426711" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377">
+							<option id="gnu.cpp.compiler.option.other.other.1137293078" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -isystem /usr/include/eigen3" valueType="string"/>
+							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.869206119" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="/usr/include/eigen3"/>
+							</option>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.830590573" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.2097012802.294553152" name="InsoleFlatten.cpp" rcbsApplicability="disable" resourcePath="src/project/operation/InsoleFlatten.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.1021781065">
 						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.1021781065" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377">
 							<option id="gnu.cpp.compiler.option.other.other.101563148" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -isystem /usr/include/eigen3" valueType="string"/>
@@ -101,15 +110,6 @@
 								<listOptionValue builtIn="false" value="/usr/include/eigen3"/>
 							</option>
 							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.511286889" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-						</tool>
-					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.2097012802.1442959887" name="Design.cpp" rcbsApplicability="disable" resourcePath="src/project/Design.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.383426711">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.383426711" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377">
-							<option id="gnu.cpp.compiler.option.other.other.1137293078" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -isystem /usr/include/eigen3" valueType="string"/>
-							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.869206119" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="/usr/include/eigen3"/>
-							</option>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.830590573" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.2097012802.1684550346" name="SVD.cpp" rcbsApplicability="disable" resourcePath="src/math/SVD.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1179186377.1527043514">

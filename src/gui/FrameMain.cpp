@@ -129,6 +129,19 @@ FrameMain::FrameMain(wxDocument *doc, wxView *view, wxConfig *config,
 	m_editorCode->SetWrapVisualFlags(wxSTC_WRAPVISUALFLAG_END);
 	m_editorCode->StyleSetForeground(wxSTC_C_NUMBER, wxColour("BLUE"));
 
+#ifdef DEBUG
+	{
+		Project *project = wxStaticCast(GetDocument(), Project);
+		ProjectView *projectview = wxStaticCast(GetView(), ProjectView);
+
+		int newPage = m_notebookCanvas->GetSelection();
+		if (newPage >= (int) ProjectView::Display::Shoe
+				&& newPage <= (int) ProjectView::Display::Analysis) {
+			projectview->display = (ProjectView::Display) newPage;
+		}
+	}
+#endif
+
 	TransferDataToWindow();
 
 	this->Connect(ID_REFRESHVIEW3D, wxEVT_COMMAND_MENU_SELECTED,
@@ -214,9 +227,14 @@ bool FrameMain::TransferDataToWindow() {
 	m_canvasInsole->dL = project->footL.ballWidth->ToDouble() * 0.75;
 	m_canvasInsole->dR = project->footR.ballWidth->ToDouble() * 0.75;
 
+	m_canvasFlattening->flatteningL =
+			(projectview->showLeft) ? project->flatteningL : nullptr;
+	m_canvasFlattening->flatteningR =
+			(projectview->showRight) ? project->flatteningR : nullptr;
+
 	m_canvasPattern->design = project->design;
 
-	// Set checkboxes and selections in main menu
+// Set checkboxes and selections in main menu
 
 	m_menuFootParameters->Check(ID_MEASUREMENTS,
 			config.measurementSource->IsSelection("measurementBased"));
@@ -361,7 +379,7 @@ bool FrameMain::TransferDataToWindow() {
 	TransferParameterToTextCtrl(meas->overAnkleBoneLevel,
 			m_textCtrlOverAnkleBoneLevel, UnitType::Distance);
 
-	// On page "Last":
+// On page "Last":
 
 	m_choicebookLastConstructionType->SetSelection(
 			config.lastConstructionType->GetSelectionIdx());
@@ -725,7 +743,7 @@ void FrameMain::OnTimer(wxTimerEvent &event) {
 #ifdef USE_PORTMIDI
 	wxDocument *doc = GetDocument();
 	if (!doc || !doc->GetClassInfo()->IsKindOf(&Project::ms_classInfo))
-		return;
+	return;
 	Project *project = wxStaticCast(doc, Project);
 
 	FrameParent *parentframe = wxStaticCast(GetParent(), FrameParent);
@@ -827,7 +845,7 @@ void FrameMain::OnChoice(wxCommandEvent &event) {
 		key = "HeelVariant";
 		break;
 	default:
-		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
+		std::cerr << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";
 		event.Skip();
 		return;

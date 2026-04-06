@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Configuration.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -23,9 +23,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #include "Configuration.h"
 
-#include "../gui/gui.h"
+#include "../../gui/gui.h"
 
 #include <stdexcept>
 #include <sstream>

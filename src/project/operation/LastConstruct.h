@@ -36,11 +36,11 @@
  * is cut off at the ankle.
  */
 
-#include "../CoordinateSystem.h"
+#include "../configuration/ParameterFormula.h"
+#include "../object/CoordinateSystem.h"
 #include "../object/Insole.h"
 #include "../object/ObjectGeometry.h"
 #include "Operation.h"
-#include "../ParameterFormula.h"
 
 #include <memory>
 

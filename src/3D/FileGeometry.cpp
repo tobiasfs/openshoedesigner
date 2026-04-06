@@ -26,10 +26,12 @@
 
 #include "FileGeometry.h"
 
+#include <cerrno>
 #include <cstring>
-#include <exception>
 #include <fstream>
-#include <string>
+#include <sstream>
+#include <stddef.h>
+#include <stdexcept>
 
 #define UNUSED(var) [&var]{}()
 
@@ -116,16 +118,19 @@ size_t FileGeometry::GeometriesInFile() const {
 
 void FileGeometry::ReadStream(Geometry &geometry) {
 	UNUSED(geometry);
-	throw std::logic_error(
-			std::string(__FUNCTION__)
-					+ " - Not implemented for this type of file.");
+
+	std::ostringstream out;
+	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+	out << " Not implemented for this type of file.";
+	throw std::logic_error(out.str());
 }
 
 void FileGeometry::WriteStream(const Geometry &geometry) {
 	UNUSED(geometry);
-	throw std::logic_error(
-			std::string(__FUNCTION__)
-					+ " - Not implemented for this type of file.");
+	std::ostringstream out;
+	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+	out << " Not implemented for this type of file.";
+	throw std::logic_error(out.str());
 }
 
 std::string FileGeometry::StringTrim(const std::string &x) {

@@ -1225,9 +1225,7 @@ GUIFrameMain::GUIFrameMain(wxDocument* doc, wxView* view, wxDocParentFrame* pare
 	bSizerCanvasFlattening = new wxBoxSizer( wxVERTICAL );
 
 	m_canvasFlattening = new CanvasFlattening( m_panelFlattening, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
-	m_canvasFlattening->Hide();
-
-	bSizerCanvasFlattening->Add( m_canvasFlattening, 1, wxALL|wxEXPAND, 5 );
+	bSizerCanvasFlattening->Add( m_canvasFlattening, 6, wxALL|wxEXPAND, 5 );
 
 	m_canvasGraph = new CanvasGraph( m_panelFlattening, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	bSizerCanvasFlattening->Add( m_canvasGraph, 1, wxALL|wxEXPAND, 5 );

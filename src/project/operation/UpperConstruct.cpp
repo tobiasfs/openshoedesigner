@@ -28,6 +28,7 @@
 
 #include <sstream>
 #include <stdexcept>
+
 UpperConstruct::UpperConstruct() {
 	out = std::make_shared<Upper>();
 }

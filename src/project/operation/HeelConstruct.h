@@ -36,13 +36,13 @@
  * generate the heel of the shoe.
  */
 
-#include "Operation.h"
-
+#include "../configuration/ParameterString.h"
 #include "../object/Insole.h"
 #include "../object/ObjectGeometry.h"
-#include "../ParameterString.h"
+#include "Operation.h"
 
 #include <memory>
+
 class HeelConstruct: public Operation {
 public:
 	HeelConstruct();

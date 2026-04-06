@@ -36,7 +36,9 @@
  */
 
 #include "CanvasMeasurementGrid.h"
+#include "../project/object/Upper.h"
 
+#include <memory>
 class CanvasFlattening: public CanvasMeasurementGrid {
 public:
 	explicit CanvasFlattening(wxWindow *parent, wxWindowID id = wxID_ANY,
@@ -47,6 +49,13 @@ public:
 
 	void OnPaint(wxPaintEvent &event) override;
 
+
+
+public:
+	std::shared_ptr<Upper> flatteningL;
+	double dL = 0.1;
+	std::shared_ptr<Upper> flatteningR;
+	double dR = 0.1;
 };
 
 #endif /* SRC_GUI_CANVASFLATTENING_H_ */

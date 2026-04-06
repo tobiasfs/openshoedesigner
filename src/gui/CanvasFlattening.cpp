@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CanvasFlattening.cpp
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -42,8 +42,55 @@ CanvasFlattening::~CanvasFlattening() {
 
 void CanvasFlattening::OnPaint(wxPaintEvent &event) {
 	CanvasMeasurementGrid::OnPaint(event);
+
 	wxPaintDC dc(this);
+
 #ifdef DEBUG
 	dc.DrawText(_T("CanvasFlattening"), 10, 30);
 #endif
+
+	wxPen *c = wxThePenList->FindOrCreatePen(wxColour(240, 240, 240), 1);
+	wxPen *a = wxThePenList->FindOrCreatePen(wxColour(80, 80, 80), 1);
+
+	if (flatteningL) {
+		for (Geometry &p : flatteningL->patches) {
+			const AffineTransformMatrix &m = p.matrix * camera;
+			auto mapUV = [&m](const Geometry::Vertex &p) {
+				return m.Transform(p.x, p.y);
+			};
+
+			for (size_t eidx = 0; eidx < p.CountEdges(); eidx++) {
+				const Geometry::Edge &ed = p.GetEdge(eidx);
+				if (ed.trianglecount <= 1) {
+					const Geometry::Vertex &v0 = p.GetVertex(ed.va);
+					const Geometry::Vertex &v1 = p.GetVertex(ed.vb);
+					Vector3 p2 = mapUV(v0);
+					Vector3 p3 = mapUV(v1);
+					dc.SetPen(*a);
+					dc.DrawLine(p2.x, p2.y, p3.x, p3.y);
+				}
+			}
+		}
+	}
+	if (flatteningR) {
+		for (Geometry &p : flatteningR->patches) {
+			const AffineTransformMatrix &m = p.matrix * camera;
+			auto mapUV = [&m](const Geometry::Vertex &p) {
+				return m.Transform(p.x, p.y);
+			};
+
+			for (size_t eidx = 0; eidx < p.CountEdges(); eidx++) {
+				const Geometry::Edge &ed = p.GetEdge(eidx);
+				if (ed.trianglecount <= 1) {
+					const Geometry::Vertex &v0 = p.GetVertex(ed.va);
+					const Geometry::Vertex &v1 = p.GetVertex(ed.vb);
+					Vector3 p2 = mapUV(v0);
+					Vector3 p3 = mapUV(v1);
+					dc.SetPen(*c);
+					dc.DrawLine(p2.x, p2.y, p3.x, p3.y);
+				}
+			}
+		}
+	}
+	dc.SetPen(*wxBLACK_PEN);
 }

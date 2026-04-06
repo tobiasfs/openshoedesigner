@@ -36,9 +36,9 @@
  */
 
 #include "../../math/NelderMeadOptimizer.h"
+#include "../configuration/ParameterEnum.h"
+#include "../configuration/ParameterFormula.h"
 #include "../object/LastModel.h"
-#include "../ParameterEnum.h"
-#include "../ParameterFormula.h"
 #include "Operation.h"
 
 #include <memory>

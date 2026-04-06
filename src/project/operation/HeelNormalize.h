@@ -36,8 +36,8 @@
  * at the upper part of the heel.
  */
 
+#include "../configuration/ParameterEnum.h"
 #include "../object/ObjectGeometry.h"
-#include "../ParameterEnum.h"
 #include "Operation.h"
 
 #include <memory>

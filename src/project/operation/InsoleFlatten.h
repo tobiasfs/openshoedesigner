@@ -38,9 +38,9 @@
  * as the XY coordinates.
  */
 
-#include "Operation.h"
+#include "../configuration/ParameterValue.h"
 #include "../object/Insole.h"
-#include "../ParameterValue.h"
+#include "Operation.h"
 
 #include <memory>
 

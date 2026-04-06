@@ -34,7 +34,7 @@
  */
 
 #include "../3D/AffineTransformMatrix.h"
-#include "../project/ParameterFormula.h"
+#include "../project/configuration/ParameterFormula.h"
 
 #include <wx/panel.h>
 #include <wx/timer.h>

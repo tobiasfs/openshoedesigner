@@ -32,8 +32,8 @@
  * Surface based coordinate system to project the pattern onto.
  */
 
-#include "../3D/Surface.h"
-#include "object/Object.h"
+#include "../../3D/Surface.h"
+#include "Object.h"
 
 class CoordinateSystem: public Surface, public Object {
 public:

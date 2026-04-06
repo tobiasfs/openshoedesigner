@@ -23,9 +23,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #include "Bezier3.h"
+#include "../math/Polynomial.h"
 
 #include <cfloat>
+#include <sstream>
+#include <stddef.h>
+#include <stdexcept>
 
 Bezier3::Point::Point(double x_, double y_, double z_) :
 		Vector3(x_, y_, z_) {
@@ -172,7 +177,12 @@ void Bezier3::UpdateSegments() {
 		} else {
 			// Algorithm to compensate for the length of the polynomial.
 			// If maxUMapOrder > 0, then u is the length on the polynomial.
-			throw std::runtime_error("Not implemented.");
+
+			 std::ostringstream out;
+			 out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+			 out << "Algorithm to compensate for the length of the polynomial: ";
+			 out << "Not implemented.";
+			 throw std::runtime_error(out.str());
 		}
 
 	}

@@ -33,9 +33,9 @@
  * ...
  */
 
-#include "Object.h"
 #include "../../3D/Polygon3.h"
-#include "../Design.h"
+#include "../configuration/Design.h"
+#include "Object.h"
 
 class DesignSolution: public Object {
 public:

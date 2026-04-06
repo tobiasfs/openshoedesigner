@@ -125,16 +125,17 @@ Download the source-files from one of the forges:
 
 Change into the folder of the sources
 
-Run CMake to create the build-directory and build the software within this
-folder:
+Run CMake to create the build-tree and build the software:
 
 ```shell
 cmake -B build
-cmake --build build -j
+cmake --build build -t install -j
 ```
+
+(`-t install` means: Copy executable from build-tree into checkout root-folder.)
 
 Running OpenShoeDesigner:
 
 ```shell
-./build/src/openshoedesigner
+./openshoedesigner
 ```

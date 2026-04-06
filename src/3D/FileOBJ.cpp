@@ -26,7 +26,14 @@
 
 #include "FileOBJ.h"
 
-#include <fstream>
+#include "Geometry.h"
+
+#include <cstdlib>
+#include <sstream>
+#include <stddef.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 FileOBJ::FileOBJ(const std::string &filename_) :
 		FileGeometry(filename_) {
@@ -286,6 +293,9 @@ void FileOBJ::ReadStream(Geometry &geo) {
 }
 
 void FileOBJ::WriteStream(const Geometry &geo) {
-	throw std::runtime_error("FileOBJ::WriteStream - Not implemented.");
+	std::ostringstream out;
+	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+	out << "Not implemented.";
+	throw std::runtime_error(out.str());
 }
 

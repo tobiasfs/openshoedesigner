@@ -26,11 +26,22 @@
 
 #include "EnergyRelease.h"
 
-#include "PCA.h"
-#include "Matrix.h"
 #include "Exporter.h"
+#include "Matrix.h"
+#include "PCA.h"
+#include "../3D/AffineTransformMatrix.h"
+#include "../3D/Vector3.h"
 
+#include <bits/stdint-uintn.h>
+#include <cmath>
+#include <cstdint>
 #include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 static const size_t nothing = (size_t) -1;
 
@@ -117,7 +128,10 @@ void EnergyRelease::InitByUniformDimension(Geometry &geo,
 }
 
 void EnergyRelease::InitByConstruction(Geometry &geo) {
-	throw std::runtime_error("Not implemented.");
+	std::ostringstream out;
+	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+	out << "Not implemented.";
+	throw std::runtime_error(out.str());
 }
 
 void EnergyRelease::Calculate(Geometry &geo) {

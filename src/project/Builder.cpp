@@ -26,7 +26,7 @@
 #include "Builder.h"
 
 #include "Project.h"
-#include "Configuration.h"
+#include "configuration/Configuration.h"
 
 #include "../system/StopWatch.h"
 #include <iostream>

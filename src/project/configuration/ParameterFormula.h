@@ -39,8 +39,8 @@
  * \todo Remove the error mechanism and only rely on Exceptions.
  */
 
+#include "../../math/MathParser.h"
 #include "Parameter.h"
-#include "../math/MathParser.h"
 
 #include <map>
 #include <string>

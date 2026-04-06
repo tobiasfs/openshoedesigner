@@ -30,12 +30,11 @@
 #include <iostream>
 
 #include "../../3D/Bender.h"
-#include "../../math/DependentVector.h"
-#include "../Configuration.h"
-#include "../FootMeasurements.h"
-
 #include "../../3D/OpenGL.h"
 #include "../../3D/OpenGLText.h"
+#include "../../math/DependentVector.h"
+#include "../configuration/Configuration.h"
+#include "../configuration/FootMeasurements.h"
 
 void Insole::Point::SetDirection(const Point &p0, const Point &p1) {
 	dir = (Vector3(p1.u, p1.v) - Vector3(p0.u, p0.v)).Normal();

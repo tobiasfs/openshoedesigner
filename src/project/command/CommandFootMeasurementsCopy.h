@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : CommandFootMeasurementsCopy.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -37,7 +37,7 @@
 #include <wx/cmdproc.h>
 #include <wx/string.h>
 
-#include "../Parameter.h"
+#include "../configuration/Parameter.h"
 #include "../Project.h"
 #include "../ProjectView.h"
 

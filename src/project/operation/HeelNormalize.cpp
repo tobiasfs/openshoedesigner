@@ -23,6 +23,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #include "HeelNormalize.h"
 
 #include "../../3D/Polygon3.h"

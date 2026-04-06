@@ -107,10 +107,10 @@
  *     [Homepage](https://meche.mit.edu/people/faculty/kjb@mit.edu)
  */
 
-#include <stddef.h>
-#include <cfloat>
-
 #include "../3D/Geometry.h"
+
+#include <cfloat>
+#include <stddef.h>
 
 class EnergyRelease {
 public:

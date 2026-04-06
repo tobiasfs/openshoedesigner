@@ -23,11 +23,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #include "Spline3.h"
 
-#include <math.h>
-
 #include "OpenGL.h"
+
+#include <math.h>
+#include <sstream>
+#include <stddef.h>
+#include <stdexcept>
 
 Spline3::Spline3() {
 	color.Set(1.0, 1.0, 1.0);
@@ -218,7 +222,11 @@ Vector3 Spline3::Evaluate(double r) {
 	if (symmetric)
 		m = ((N - 1) / 2) + 1;
 	for (size_t n = 0; n < N; n++) {
-		throw(std::logic_error(__FILE__ "Not implemented."));
+
+		std::ostringstream out;
+		out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+		out << "Not implemented.";
+		throw std::logic_error(out.str());
 	}
 	return temp;
 }

@@ -26,13 +26,14 @@
 
 #include "DependentVector.h"
 
+#include "../3D/OpenGL.h"
+
 #include <algorithm>
 #include <cfloat>
 #include <iterator>
 #include <numeric>
+#include <sstream>
 #include <stdexcept>
-
-#include "../3D/OpenGL.h"
 
 DependentVector::DependentVector(size_t N, size_t NAxes) {
 	SetSize(N, NAxes);
@@ -102,8 +103,11 @@ void DependentVector::Clear() {
 
 void DependentVector::SetSize(size_t N, size_t NAxes, size_t S2, size_t S3) {
 	if (!empty() && N != 0 && NAxes != 0) {
-		throw std::runtime_error(
-				"Not implemented (implement in Matrix::SetSize()");
+		std::ostringstream out;
+		out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+		out << "Not implemented (implement in Matrix::SetSize()";
+		throw std::runtime_error(out.str());
+
 	}
 	Matrix::SetSize(N, NAxes, S2, S3);
 	Sync();

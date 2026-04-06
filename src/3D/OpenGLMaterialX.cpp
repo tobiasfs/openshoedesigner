@@ -348,7 +348,8 @@ void OpenGLMaterialX::Image::LoadFromString(const std::string &imagedata) {
 		struct jpeg_decompress_struct cinfo;
 		cinfo.err = jpeg_std_error(&jerr);
 		jpeg_create_decompress(&cinfo);
-		jpeg_mem_src(&cinfo, reinterpret_cast<const unsigned char*>(imagedata.data()),
+		jpeg_mem_src(&cinfo,
+				reinterpret_cast<const unsigned char*>(imagedata.data()),
 				imagedata.size());
 		(void) jpeg_read_header(&cinfo, TRUE);
 		(void) jpeg_start_decompress(&cinfo);
@@ -375,8 +376,12 @@ void OpenGLMaterialX::Image::LoadFromString(const std::string &imagedata) {
 				(void) jpeg_read_scanlines(&cinfo, &rowPointer, 1);
 			}
 		} else {
-			throw std::runtime_error(
-					" : 12 bit JPEGs are not implemented/tested.");
+
+			std::ostringstream out;
+			out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+			out << "12 bit JPEGs are not implemented/tested.";
+			throw std::runtime_error(out.str());
+
 //				int little_endian = 1;
 			/* Make a one-row-high sample array that will go away when done with image */
 //			if (cinfo.data_precision == 12)
@@ -556,8 +561,11 @@ std::string OpenGLMaterialX::Variable::operator ()() const {
 	} else if (dir == Direction::UNIFORM) {
 		out << "uni_";
 	} else {
-		throw std::runtime_error(
-				"OpenGLMaterialX::Variable::ToString - This Direction enum was not implemented.");
+		std::ostringstream out;
+		out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+		out << "This Direction enum was not implemented.";
+		throw std::runtime_error(out.str());
+
 	}
 	out << name;
 	return out.str();
@@ -579,8 +587,11 @@ std::string OpenGLMaterialX::Variable::ToDeclaration() const {
 		out << "uniform ";
 	} else if (dir == Direction::VAR) {
 	} else {
-		throw std::runtime_error(
-				"OpenGLMaterialX::Variable::ToDeclaration - This Direction is not used in the Declaration.");
+		std::ostringstream out;
+		out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+		out << "This Direction is not used in the Declaration.";
+		throw std::runtime_error(out.str());
+
 	}
 	if (!type.empty())
 		out << type << ' ';

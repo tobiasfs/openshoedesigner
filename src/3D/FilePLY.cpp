@@ -26,8 +26,14 @@
 
 #include "FilePLY.h"
 
-#include <fstream>
-#include <istream>
+#include "Geometry.h"
+
+#include <bits/stdint-intn.h>
+#include <bits/stdint-uintn.h>
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <stddef.h>
 #include <stdexcept>
 #include <string>
 
@@ -661,7 +667,10 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 }
 
 void FilePLY::ReadStreamBinaryBE(std::istream &stream, Geometry &geometry) {
-	throw std::runtime_error("FilePLY::ReadStreamBinaryBE - Not implemented.");
+	std::ostringstream out;
+	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
+	out << "Not implemented.";
+	throw std::runtime_error(out.str());
 }
 
 void FilePLY::WriteStream(const Geometry &geometry) {

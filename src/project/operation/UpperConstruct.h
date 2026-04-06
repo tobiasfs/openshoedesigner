@@ -33,12 +33,12 @@
  * ...
  */
 
-#include "Operation.h"
 #include "../../3D/Surface.h"
-#include "../CoordinateSystem.h"
+#include "../object/CoordinateSystem.h"
 #include "../object/DesignSolution.h"
 #include "../object/ObjectGeometry.h"
 #include "../object/Upper.h"
+#include "Operation.h"
 
 #include <memory>
 class UpperConstruct: public Operation {

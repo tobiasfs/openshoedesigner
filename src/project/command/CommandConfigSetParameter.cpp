@@ -27,7 +27,7 @@
 #include "CommandConfigSetParameter.h"
 
 #include "../../gui/gui.h"
-#include "../ParameterFormula.h"
+#include "../configuration/ParameterFormula.h"
 #include "../Project.h"
 
 #include <exception>

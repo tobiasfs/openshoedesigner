@@ -44,8 +44,7 @@
 #include "../../math/NelderMeadOptimizer.h"
 #include "../../math/ParameterLimits.h"
 #include "../../math/PCA.h"
-
-#include "../FootMeasurements.h"
+#include "../configuration/FootMeasurements.h"
 #include "../object/Insole.h"
 
 #include <algorithm>

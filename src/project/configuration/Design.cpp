@@ -23,15 +23,17 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
-#include "Design.h"
-#include "../3D/FilePLY.h"
-#include "../math/Exporter.h"
-#include "../math/Polynomial.h"
 
-#include <iostream>
+#include "Design.h"
+
+#include "../../3D/FilePLY.h"
+#include "../../math/Exporter.h"
+#include "../../math/Polynomial.h"
+
 #include <cfloat>
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <iostream>
 
 static const size_t nothing = (size_t) -1;
 

@@ -34,7 +34,7 @@
  */
 
 #include "CanvasMeasurementGrid.h"
-#include "../project/Design.h"
+#include "../project/configuration/Design.h"
 
 #include <memory>
 #include <wx/panel.h>

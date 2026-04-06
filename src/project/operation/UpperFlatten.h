@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : UpperFlatten.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -51,6 +51,8 @@ public:
 	std::shared_ptr<Upper> in;
 	std::shared_ptr<Upper> out;
 
+private:
+	void FlattenPatch(Geometry &p);
 };
 
 #endif /* SRC_PROJECT_OPERATION_UPPERFLATTEN_H_ */

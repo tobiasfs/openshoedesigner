@@ -95,10 +95,10 @@
  *
  */
 
-#include "../3D/Geometry.h"
-#include "../3D/Polygon3.h"
-#include "../math/Polynomial.h"
-#include "../3D/Vector2.h"
+#include "../../3D/Geometry.h"
+#include "../../3D/Polygon3.h"
+#include "../../3D/Vector2.h"
+#include "../../math/Polynomial.h"
 
 #include <initializer_list>
 #include <string>

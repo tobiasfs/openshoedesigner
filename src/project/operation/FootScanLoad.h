@@ -34,13 +34,12 @@
  * Load a foot-scan from a file and use it instead of the measurements.
  */
 
+#include "../configuration/ParameterString.h"
+#include "../foot/FootModel.h"
 #include "Operation.h"
 
-#include "../foot/FootModel.h"
-#include "../ParameterString.h"
-
-#include <memory>
 #include <filesystem>
+#include <memory>
 
 class FootScanLoad: public Operation {
 public:

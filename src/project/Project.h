@@ -64,16 +64,15 @@
 #include "../3D/OrientedMatrix.h"
 #include "../3D/PointCloud.h"
 #include "../3D/Polygon3.h"
-#include "CoordinateSystem.h"
-
 #include "Builder.h"
-#include "Configuration.h"
-#include "Design.h"
+#include "configuration/Configuration.h"
+#include "configuration/Design.h"
+#include "configuration/FootMeasurements.h"
+#include "configuration/ParameterEvaluator.h"
 #include "foot/FootModel.h"
-#include "FootMeasurements.h"
+#include "object/CoordinateSystem.h"
 #include "object/Insole.h"
 #include "object/LastModel.h"
-#include "ParameterEvaluator.h"
 #include "object/Upper.h"
 
 class WorkerThread;

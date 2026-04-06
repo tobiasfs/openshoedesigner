@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Configuration.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -41,15 +41,15 @@
  * well.
  */
 
-#include "../3D/PointCloud.h"
-#include "../system/JSON.h"
+#include "../../3D/PointCloud.h"
+#include "../../system/JSON.h"
 #include "FootMeasurements.h"
 #include "ParameterEnum.h"
 #include "ParameterEvaluator.h"
 #include "ParameterFormula.h"
 #include "ParameterString.h"
-
 #include "ParameterValue.h"
+
 #include <memory>
 
 class Configuration {

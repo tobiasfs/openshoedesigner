@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : LastNormalize.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : No
 // Platform dependent : No
 // Compiler Options   : -lm
@@ -37,8 +37,8 @@
 
 #include "../../3D/Polygon3.h"
 #include "../../math/Symmetry.h"
+#include "../configuration/ParameterEnum.h"
 #include "../object/ObjectGeometry.h"
-#include "../ParameterEnum.h"
 #include "Operation.h"
 
 #include <memory>

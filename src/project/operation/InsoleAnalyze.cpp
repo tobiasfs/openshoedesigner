@@ -23,7 +23,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 #include "InsoleAnalyze.h"
+
 #include "../../math/Exporter.h"
 
 #include <sstream>

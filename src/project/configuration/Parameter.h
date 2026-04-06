@@ -27,7 +27,7 @@
 #ifndef MATH_PARAMETER_H
 #define MATH_PARAMETER_H
 
-#include "../math/MathParser.h"
+#include "../../math/MathParser.h"
 
 #include <map>
 #include <string>

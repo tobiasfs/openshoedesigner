@@ -41,12 +41,12 @@
  * the heel geometry. The insoleFlat is centered and reoriented on J.
  */
 
+#include "../configuration/ParameterFormula.h"
+#include "../object/Insole.h"
 #include "Operation.h"
 
-#include "../object/Insole.h"
-#include "../ParameterFormula.h"
-
 #include <memory>
+
 class InsoleAnalyze: public Operation {
 public:
 	InsoleAnalyze();

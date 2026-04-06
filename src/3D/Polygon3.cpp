@@ -410,8 +410,11 @@ void Polygon3::RotateOrigin(const Vector3 &p) {
 }
 
 void Polygon3::RotateOrigin(const Vector3 &p, size_t group) {
-	throw std::runtime_error(
-			"Polygon3::RotateOrigin(const Vector3 &p, size_t group) - Not implemented.");
+	std::ostringstream out;
+	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "(const Vector3 &p, size_t group): ";
+	out << "Not implemented.";
+	throw std::runtime_error(out.str());
+
 //	const size_t minimalIndex = ClosestPoint(p, group);
 }
 

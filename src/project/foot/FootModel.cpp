@@ -24,15 +24,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "FootModel.h"
-
-#include "Bone.h"
-
+#include "../../3D/Polygon3.h"
 #include "../../3D/Vector3.h"
 #include "../../math/MathParser.h"
-#include "../Configuration.h"
-#include "../ParameterFormula.h"
-#include "../../3D/Polygon3.h"
+#include "../configuration/Configuration.h"
+#include "../configuration/ParameterFormula.h"
+#include "Bone.h"
+#include "FootModel.h"
 
 #include <cmath>
 #include <memory>

@@ -37,7 +37,7 @@
 #include <wx/cmdproc.h>
 #include <string>
 
-#include "../Parameter.h"
+#include "../configuration/Parameter.h"
 #include "../Project.h"
 #include "../ProjectView.h"
 

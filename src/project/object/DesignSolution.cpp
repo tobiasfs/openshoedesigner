@@ -25,12 +25,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "DesignSolution.h"
+
 #include "../../3D/FilePLY.h"
+#include "../../Config.h"
 
 #include <cfloat>
-#include <stdexcept>
 #include <sstream>
-#include "../../Config.h"
+#include <stdexcept>
 
 static const size_t nothing = (size_t) -1;
 
