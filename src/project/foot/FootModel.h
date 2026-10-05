@@ -86,7 +86,7 @@
  * | Cuneiforme   | Keilbein          |
  * | Metatarsalis | Mittelfussknochen |
  *
- *
+ * \image html foot.png
  */
 
 #include "../../3D/AffineTransformMatrix.h"

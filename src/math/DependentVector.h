@@ -65,7 +65,7 @@ private:
 	 *
 	 * Synchronizes units vector with axes and ensures, that the Matrix is
 	 * column first orientation. (For insertion operations it is beneficial to
-	 * use row a row first matrix.
+	 * use a row-first-matrix.
 	 */
 	void Sync();
 
@@ -85,7 +85,8 @@ public:
 	/**\brief A vector with Chebyshev node points
 	 *
 	 * [Chebyshev nodes](https://en.wikipedia.org/wiki/Chebyshev_nodes) are
-	 * points spaced in a way, that interpolations based on these minimize
+	 * points spaced in a way, that interpolations based on these points
+	 * minimizes
 	 * [Runge's phenomenon](https://en.wikipedia.org/wiki/Runge%27s_phenomenon).
 	 *
 	 * \param v0 Value of first point
@@ -101,7 +102,7 @@ public:
 	 */
 	void Clear();
 
-	/** \brief Resize all vectors to N points.
+	/** \brief Resize all vectors.
 	 */
 	void SetSize(size_t N, size_t NAxes = 1, size_t S2 = 1,
 			size_t S3 = 1);
@@ -340,7 +341,7 @@ public:
 
 	};
 
-	/**\name Access to the pointer an axis
+	/**\name Access to the pointer in an axis
 	 *
 	 * In the none constant case, the axis accessed is created, it it did
 	 * not exist before.

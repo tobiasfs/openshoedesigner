@@ -50,6 +50,7 @@
  *
  * Third calculate p2 by adding p1 + normal*length
  *
+ * * \image html bones.png
  */
 
 #include "../../3D/AffineTransformMatrix.h"

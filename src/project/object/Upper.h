@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Upper.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -40,9 +40,9 @@
 
 class Upper: public Object {
 public:
-	Upper();
 	virtual ~Upper() = default;
 
+	void SaveSVG(const std::string &filename) const;
 
 	std::vector<Geometry> patches;
 };

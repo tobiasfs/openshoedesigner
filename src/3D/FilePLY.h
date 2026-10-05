@@ -31,9 +31,16 @@
  * \ingroup File3D
  * \brief Reading and writing PLY 3D files
  *
- * https://en.wikipedia.org/wiki/PLY_(file_format)
+ * PLY is a very open file format. New variables can be simply added. There are
+ * a few standard ones, but everything else can be freely added.
  *
- * https://paulbourke.net/dataformats/ply/
+ * Except for using with Meshlab. Meshlabs importer is a little special.
+ * Set ```meshlabCompatibilityMode = true``` to export files that can be read by
+ * Meshlab.
+ *
+ * [Wikipedia: PLY File Format](https://en.wikipedia.org/wiki/PLY_(file_format))
+ *
+ * [Original PLY documentation](https://paulbourke.net/dataformats/ply/)
  *
  */
 
@@ -158,6 +165,20 @@ public:
 	 * but works with Meshlab.
 	 */
 	bool meshlabCompatibilityMode = false;
+
+	/**\brief Reorder the orientation of the vertices in the triangles.
+	 *
+	 * Flag for saving and loading triangles in a way, that software unaware
+	 * of the flipped flag can work with the data.
+	 *
+	 * Triangles in the geometry object are always ordered so that, the index
+	 * of vertices is increasing. If this flag is set to true, the triangles
+	 * vertices in vb and vc are swapped on saving and swapped again on
+	 * loading, if the flipped-flag is available and set.
+	 * The edges are also swapped and unswapped to keep the consistency within
+	 * the triangle.
+	 */
+	bool saveUnflippedTriangles = true;
 
 private:
 	void ReadHeader(std::istream &stream, Geometry &geometry);

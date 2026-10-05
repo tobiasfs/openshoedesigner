@@ -31,6 +31,7 @@
 #include <cfloat>
 #include <cstdint>
 #include <cstdlib>
+#include <numeric>
 #include <sstream>
 #include <stdexcept>
 
@@ -317,9 +318,8 @@ AffineTransformMatrix& AffineTransformMatrix::operator*=(
 	// this:=matrix([[c[0],c[4],c[8],c[12]],[c[1],c[5],c[9],c[13]],[c[2],c[6],c[10],c[14]],[0,0,0,1]]);
 	// b:=matrix([[ba[0],ba[4],ba[8],ba[12]],[ba[1],ba[5],ba[9],ba[13]],[ba[2],ba[6],ba[10],ba[14]],[0,0,0,1]]);
 
-	double c[16];
-	for (uint_fast8_t i = 0; i < 16; i++)
-		c[i] = this->a[i];
+	std::array<double, 16> c;
+	c = this->a;
 
 	this->a[0] = c[0] * b.a[0] + c[4] * b.a[1] + c[8] * b.a[2];
 	this->a[1] = c[1] * b.a[0] + c[5] * b.a[1] + c[9] * b.a[2];
@@ -802,11 +802,14 @@ double AffineTransformMatrix::GlobalZ(double x, double y, double z) const {
 }
 
 double AffineTransformMatrix::Distance(
-		const AffineTransformMatrix &other) const {
-	double temp = 0.0;
-	for (uint_fast8_t n = 0; n < 16; n++)
-		temp += (a[n] - other.a[n]) * (a[n] - other.a[n]);
-	return sqrt(temp);
+		const AffineTransformMatrix &other) const noexcept{
+	return std::sqrt(
+			std::transform_reduce(a.begin(), a.end(), other.a.begin(), 0.0,
+					std::plus<>(), [](double lhs, double rhs) {
+						const double d = lhs - rhs;
+						return d * d;
+					}
+			));
 
 	// For future reference (did not work as expected):
 	// If two matrices are identical, the matrix times the inverse of the other

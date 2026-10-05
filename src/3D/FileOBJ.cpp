@@ -292,7 +292,7 @@ void FileOBJ::ReadStream(Geometry &geo) {
 	}
 }
 
-void FileOBJ::WriteStream(const Geometry &geo) {
+void FileOBJ::WriteStream([[maybe_unused]] const Geometry &geo) {
 	std::ostringstream out;
 	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
 	out << "Not implemented.";

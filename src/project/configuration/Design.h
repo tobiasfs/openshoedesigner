@@ -220,6 +220,7 @@ public:
 		 * Here (n-1)*n multiplications are needed, while the polynomial
 		 * approach only needs (n-1)*2 multiplications (and also less
 		 * algorithmic complexity).
+		 * \{
 		 */
 		Polynomial iu; ///< Interpolation polynomials for U
 		Polynomial iv; ///< Interpolation polynomials for V

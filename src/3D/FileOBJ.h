@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : FileOBJ.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -31,7 +31,7 @@
  * \ingroup File3D
  * \brief Wavefront OBJ file
  *
- * https://en.wikipedia.org/wiki/Wavefront_.obj_file
+ * [Wikipedia: Wavefront OBJ files](https://en.wikipedia.org/wiki/Wavefront_.obj_file)
  *
  */
 

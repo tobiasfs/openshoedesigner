@@ -33,8 +33,9 @@
  *
  * GNU Triangulated Surface file format
  *
- * Documentation on GTS files can be found here:
- * http://gts.sourceforge.net/reference/gts-surfaces.html#GTS-SURFACE-WRITE
+ * Documentation on GTS files can be found in the description of the write
+ * function:
+ * [GNU Triangulated Surface Library: gts_surface_write ()](http://gts.sourceforge.net/reference/gts-surfaces.html#GTS-SURFACE-WRITE)
  */
 
 #include "FileGeometry.h"

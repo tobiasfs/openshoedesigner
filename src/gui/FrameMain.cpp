@@ -1493,6 +1493,10 @@ void FrameMain::OnObjectSave(wxCommandEvent &event) {
 				_("STL file (*.stl)|*.stl|All files|*.*"),
 				wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
+		if (wxDir::Exists(filepaths.lastDirectory)) {
+			dialog.SetDirectory(filepaths.lastDirectory);
+		}
+
 		if (dialog.ShowModal() == wxID_OK) {
 			wxFileName fileName;
 			fileName = dialog.GetPath();
@@ -1512,6 +1516,32 @@ void FrameMain::OnObjectSave(wxCommandEvent &event) {
 		}
 	}
 		break;
+
+	case ID_FLATTENING: {
+		wxFileDialog dialog(this, _("Save flattening..."), _T(""), _T(""),
+				_("SVG file (*.svg)|*.svg|All files|*.*"),
+				wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+		if (wxDir::Exists(filepaths.outputDirectory)) {
+			dialog.SetDirectory(filepaths.outputDirectory);
+		}
+
+		if (dialog.ShowModal() == wxID_OK) {
+			wxFileName fileName;
+			fileName = dialog.GetPath();
+			Project *project = wxStaticCast(GetDocument(), Project);
+
+			try {
+				project->SaveFlattening(fileName.GetFullPath());
+				filepaths.outputDirectory = fileName.GetPath();
+				TransferDataToWindow();
+			} catch (const std::exception &ex) {
+				std::cerr << "Could not save bone-model: " << ex.what() << '\n';
+			}
+		}
+	}
+		break;
+
 	default:
 		DEBUGOUT << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "( "
 				<< event.GetId() << " ) not implemented.\n";

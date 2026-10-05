@@ -33,7 +33,7 @@
  *
  * Class for reading in DXF files
  *
- * https://images.autodesk.com/adsk/files/autocad_2012_pdf_dxf-reference_enu.pdf
+ * [Autodesk Reference PDF](https://images.autodesk.com/adsk/files/autocad_2012_pdf_dxf-reference_enu.pdf)
  *
  */
 

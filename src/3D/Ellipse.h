@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Ellipse.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -32,6 +32,7 @@
  *
  * This class collects routines for working with ellipses as it turns out, the
  * mathematics of ellipses are very tricky.
+ *
  * [Wikipedia: Ellipse](https://en.wikipedia.org/wiki/Ellipse)
  *
  */
@@ -56,6 +57,7 @@ public:
 	 * The Steiner construction of an ellipsis uses an approach of two intersecting
 	 * lines.
 	 * [Wikipedia: Steiner generation](https://en.wikipedia.org/wiki/Ellipse#Steiner_generation)
+	 *
 	 * The analytic solution of this intersection is used to generate (almost)
 	 * equidistant points on the ellipsis. The result is returned as an vector
 	 * of Ellipse::Point.

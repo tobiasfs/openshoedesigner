@@ -25,8 +25,74 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "Upper.h"
+#include "../../3D/BoundingBox.h"
+#include "../../3D/Polygon3.h"
 
-Upper::Upper() {
+#include <iostream>
+#include <fstream>
+
+void Upper::SaveSVG(const std::string &filename) const {
+	std::vector<Polygon3> outlines;
+	outlines.reserve(patches.size());
+
+	BoundingBox global;
+	global.SetSize(0.0, 0.0, 0.0);
+
+	for (const Geometry &patch : patches) {
+		Polygon3 outline;
+		outline.ExtractOutline(patch);
+
+		BoundingBox bb;
+		for (size_t vidx = 0; vidx < outline.CountVertices(); vidx++)
+			bb.Insert(outline[vidx]);
+
+		double padding = 0.01;
+		bb.xmin -= padding;
+		bb.xmax += padding;
+		bb.ymin -= padding;
+		bb.ymax += padding;
+
+		AffineTransformMatrix m;
+		m.TranslateGlobal(-bb.xmin, -bb.ymin + global.ymax, -bb.zmin);
+		outline.Transform(m);
+		bb.Transform(m);
+		global.Insert(bb);
+		outlines.push_back(outline);
+	}
+
+	std::ofstream svg(filename);
+	if (!svg.is_open()) {
+		throw std::runtime_error("Could not open svg file for writing.");
+	}
+
+	svg << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n";
+	svg << "<svg\n";
+	svg << "   version=\"1.1\"\n";
+	svg << "   xmlns=\"http://www.w3.org/2000/svg\"\n";
+	svg << "   viewBox=\"";
+	svg << global.xmin * 1000.0 << " ";
+	svg << global.ymin * 1000.0 << " ";
+	svg << global.GetSizeX() * 1000.0 << " ";
+	svg << global.GetSizeY() * 1000.0 << "\"\n";
+	svg << "   width=\"" << global.GetSizeX() * 1000.0 << "mm\"\n";
+	svg << "   height=\"" << global.GetSizeY() * 1000.0 << "mm\"\n";
+	svg << ">\n";
+
+	for (const Polygon3 &outline : outlines) {
+		if (outline.IsEmpty())
+			continue;
+		svg << "<g fill=\"none\" stroke=\"black\" stroke-width=\"0.5\">\n";
+		svg << "<path d=\"M ";
+		svg << outline[0].x * 1000.0 << " " << outline[0].y * 1000 << " ";
+		for (size_t vidx = 1; vidx < outline.CountVertices(); vidx++) {
+			svg << "L " << outline[vidx].x * 1000.0 << " "
+					<< outline[vidx].y * 1000.0 << " ";
+		}
+		svg << "Z\" />\n";
+		svg << "</g>\n";
+	}
+	svg << "</svg>\n";
+
+	std::cout << "File written.\n";
 
 }
-

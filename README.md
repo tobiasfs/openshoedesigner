@@ -10,18 +10,19 @@ Shoe design for manufacturing.
 > [!CAUTION] 
 > The MVP has not been reached. The software is pretty useless in the current state.
 
-
 | Feature | Status |
 | ------- | ------ |
 | Shoe upper triangulation | Done |
-| Flattening of patches | In Progress |
+| Flattening of patches | Done |
+| Object export | In Progress  |
 | SDF for heel calculation | Open |
 | Last adaption | Open |
-| Exporter | Open |
 | Design editor | Open |
 | Loading and saving | Open |
 
 If this is done, the MVP is reached.
+
+![](doc/images/start.png)
 
 ## Summary
 

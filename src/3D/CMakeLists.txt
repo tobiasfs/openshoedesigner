@@ -21,9 +21,8 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
 find_package(wxWidgets REQUIRED COMPONENTS gl core base html xml adv ribbon propgrid)
-if(wxWidgets_USE_FILE) # not defined in CONFIG mode
-    include(${wxWidgets_USE_FILE})
-endif()
+include(UsewxWidgets)
+
 
 target_link_libraries(library_3d
 	${PNG_LIBRARIES}

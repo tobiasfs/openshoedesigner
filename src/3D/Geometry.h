@@ -138,8 +138,8 @@ public:
 	 * stored in ta.
 	 *
 	 * Derived classes may handle this ordering differently.
-	 * PassedSelfCheck() will not pass in this case if the parameter
-	 * checkWellOrdering is set to true.
+	 * (PassedSelfCheck() will not pass in this case if the parameter
+	 * checkWellOrdering is set to true.)
 	 */
 	class Edge {
 	public:
@@ -209,13 +209,13 @@ public:
 
 	/** \brief Triangle between three vertices
 	 *
-	 * The vertices of the triangle are stored in ascending order. The flip flag
+	 * The vertices of the triangle are stored in ascending order. The flip-flag
 	 * indicates if the order has to be inverted (for painting).
 	 *
 	 * The edges ea, eb, and ec always connect these vertices:
 	 *    ea : va to vb
 	 *    eb : vb to vc
-	 *    ec : va to vc
+	 *    ec : va to vc (flipped, because va < vc)
 	 *
 	 * The flipping of triangles does not affect this ordering or the edge
 	 * association; it only inverts the flipped-flag.
@@ -228,6 +228,7 @@ public:
 		size_t ea = (size_t) -1;
 		size_t eb = (size_t) -1;
 		size_t ec = (size_t) -1;
+
 		double tua = 0.0;
 		double tva = 0.0;
 		double tub = 0.0;
@@ -238,6 +239,7 @@ public:
 		Vector3 n = Vector3();
 		Vector3 t = Vector3();
 		Vector3 b = Vector3();
+
 		Color c = Color();
 		size_t group = (size_t) -1;
 		bool flip = false; ///< A flipped triangle is painted in the order va, vc, vb instead of va, vb, vc.
@@ -689,6 +691,7 @@ public:
 	 */
 	const Vertex& GetEdgeVertex(const size_t indexEdge,
 			int_fast8_t indexVertex) const;
+
 	/** \brief Return the vertices of a triangle.
 	 *
 	 * \param indexTriangle Return a vertex of a given triangle.
@@ -697,6 +700,15 @@ public:
 	 */
 	const Vertex& GetTriangleVertex(const size_t indexTriangle,
 			int_fast8_t indexVertex) const;
+
+	/** \brief Return the edges of a triangle.
+	 *
+	 * \param indexTriangle Return a vertex of a given triangle.
+	 * \param indexEdge 0..2 Counter-clockwise edge starting at the given vertex.
+	 * \return Edge
+	 */
+	const Edge& GetTriangleEdge(const size_t indexTriangle,
+			int_fast8_t indexEdge) const;
 
 	const Edge& GetEdge(const size_t index) const;
 	Edge& GetEdge(const size_t index);
@@ -749,8 +761,6 @@ public:
 
 	/**\brief Area of a triangle
 	 *
-	 * This is used to
-	 *
 	 * \param idx Index of the triangle
 	 * \return Area of the triangle
 	 */
@@ -762,8 +772,8 @@ public:
 	 * volume of the tetraeder the mass distribution of the geometry can be
 	 * analyzed.
 	 *
-	 * Assuming the mass is distributed equally in the volume of the triangle, the
-	 * center/centroid of the triangle is also the center of gravity.
+	 * Assuming the mass is distributed equally in the volume of the triangle,
+	 * the center/centroid of the triangle is also the center of gravity.
 	 *
 	 * \param idx Index of the triangle in the geometry
 	 * \return Vector3 of the center of mass of the tetraeder.

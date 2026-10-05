@@ -4,6 +4,14 @@ openshoedesigner
 *.bak
 *.pdf
 *.blend?
+*.o
+*.obj
+*.exe
+*.a
+*.lib
+*.so
+*.dylib
+
 test*
 gmon.out
 /*.zip
@@ -28,12 +36,28 @@ gmon.out
 /doc/*.backup
 /doc/*.dvi
 
+*.cppcheck
+*-cppcheck-build-dir/
+
 /build
+/bin
 /bin_linux
 /bin_win
 /bin_debug
 /bin_release
+/out
 /Debug_Linux
 /Debug
 /Release
 
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+CMakeFiles/
+CMakeScripts/
+CMakeCache.txt
+CMakePresets.json
+compile_commands.json
+*.cmake

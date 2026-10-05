@@ -26,10 +26,11 @@
 
 #include "InsoleFlatten.h"
 
-#include "../../math/EnergyRelease.h"
+#include "../../math/ARAP.h"
 #include "../../math/Exporter.h"
 #include "../../math/Kernel.h"
 #include "../../math/PCA.h"
+//#include "../../math/EnergyRelease.h"
 #ifdef USE_EIGEN
 #include <Eigen/Dense>
 #else
@@ -174,7 +175,55 @@ void InsoleFlatten::Run() {
 #endif
 	Vector3 uniqueDimension = m.GetEz().Normal();
 	m.Invert();
-	EnergyRelease::InitByUniformDimension(*out, m);
+
+	{
+		// Ordered distance function. Distances are monotone in a.
+		auto dist = [](double a, double b) {
+			if (a < 0.0)
+				return -sqrt(a * a + b * b);
+			return sqrt(a * a + b * b);
+		};
+
+		std::set<size_t> fixed = { 0 };
+		{
+			Geometry::Vertex &vert = out->GetVertex(0);
+			vert.u = 0.0;
+		}
+		bool updated = true;
+		while (updated) {
+			updated = false;
+			for (size_t idx = 0; idx < out->CountEdges(); idx++) {
+				const Geometry::Edge &ed = out->GetEdge(idx);
+				const size_t vidx0 = ed.GetVertexIndex(0);
+				const size_t vidx1 = ed.GetVertexIndex(1);
+				const bool found0 = fixed.find(vidx0) != fixed.end();
+				const bool found1 = fixed.find(vidx1) != fixed.end();
+				if (!found0 && !found1)
+					continue;
+				Geometry::Vertex &v0 = out->GetVertex(vidx0);
+				Geometry::Vertex &v1 = out->GetVertex(vidx1);
+				const Vector3 r0 = m.Transform(out->GetEdgeVertex(idx, 0));
+				const Vector3 r1 = m.Transform(out->GetEdgeVertex(idx, 1));
+				v0.v = r0.z;
+				v1.v = r1.z;
+				const double d = dist(r1.x - r0.x, r1.y - r0.y);
+				if (found0 && !found1) {
+					v1.u = v0.u + d;
+					fixed.insert(vidx1);
+					updated = true;
+					continue;
+				}
+				if (!found0 && found1) {
+					v0.u = v1.u - d;
+					fixed.insert(vidx0);
+					updated = true;
+					continue;
+				}
+			}
+		}
+	}
+
+//	EnergyRelease::InitByUniformDimension(*out, m);
 
 	// The UV coordinates are copied to XY with Z = 0.
 	for (size_t idx = 0; idx < out->CountVertices(); idx++) {

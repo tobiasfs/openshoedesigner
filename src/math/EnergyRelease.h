@@ -32,7 +32,7 @@
  * \brief Calculate a flattening by energy release
  *
  * Work in progress, because it is still unstable for not evenly sized
- * triangle grids. InitByUniformDimension(9 does the trick for insole
+ * triangle grids. InitByUniformDimension() does the trick for insole
  * flattening from a given model for now.
  *
  * Release energy from a 3D grid to produce a flat 2D grid with minimal energy
@@ -109,21 +109,36 @@
 
 #include "../3D/Geometry.h"
 
+#include "MatlabFile.h"
+#include "Polynomial.h"
+
 #include <cfloat>
 #include <stddef.h>
 
-class EnergyRelease {
+class EnergyRelease: public Geometry {
 public:
-	EnergyRelease() = default;
 	explicit EnergyRelease(Geometry &other);
-	virtual ~EnergyRelease() = default;
+	EnergyRelease& operator=(Geometry &other);
 
-	/**\brief Use a PCA to init the UV values
+	/**\brief Record distances in 3D space.
+	 *
+	 */
+	void MeasureDistances();
+
+	void InitByUV();
+
+	/**\brief Use a PCA to initialize the UV values
 	 *
 	 * Use a PCA to calculate UV coordinates close to the correctly
 	 * flattened insole.
 	 */
-	static void InitByPCA(Geometry &geo);
+	void InitByPCA();
+
+	/**\brief Set V along the uniform dimension and U by distance.
+	 *
+	 *  Reduces the UV-mapping to a 2D problem.
+	 */
+	void InitByUniformDimension(const AffineTransformMatrix &m);
 
 	/**\brief Static construction algorithm for UV values.
 	 *
@@ -131,17 +146,24 @@ public:
 	 * Triangles are added to keep the resulting area convex.
 	 * Triangles are added from large to small.
 	 */
-	static void InitByConstruction(Geometry &geo);
+	void InitByConstruction();
 
-	/**\brief Set V along the uniform dimension and U by distance.
+	void RelaxUniform();
+
+	void Calculate();
+	void Calculate2();
+	void Calculate3();
+	void Calculate4();
+
+	void ColorInitScale();
+	void ColorErrors();
+
+	/**\name Physics simulation
 	 *
-	 *  Reduces the UV-mapping to a 2D problem.
+	 * Parameter for the physics simulation
+	 *
+	 * \{
 	 */
-	static void InitByUniformDimension(Geometry &geo,
-			const AffineTransformMatrix &m);
-
-	void Calculate(Geometry &other);
-
 	size_t Nmax = 250; ///< Max number of simulation steps
 	double dt = 0.001; ///< Simulation timestep
 
@@ -151,6 +173,7 @@ public:
 	double accel2 = 1.0; // N/m
 	double accel3 = 1.0; // N/m
 
+	///@}
 	double xEdge = 0.0;
 	double xNormal = 0.0;
 
@@ -166,7 +189,85 @@ public:
 
 	Geometry debug;
 
+	std::vector<double> distances;
+
+	Polynomial errorToColor;
+
 private:
+	std::vector<double> lat_s;
+	std::vector<Vector3> lat_di;
+
+private:
+
+	struct Value {
+	public:
+		double value = 0.0;
+		double derivative = 0.0;
+		double derivative2 = 0.0;
+	};
+
+	/**\brief Sum of the energy stored in the edges of the grid
+	 *
+	 * This function also initialized the internal state for the calculation
+	 * of the backwards pass.
+	 *
+	 * \exception RuntimeException The function MeasureDistance has to called
+	 * 			  before this function can be called. This initializes the
+	 * 			  internal distance list to the reference values.
+	 *
+	 * \returns Cumulated energy (w/o the factor 1/2 and the spring constant)
+	 */
+	double forwards();
+
+	/**\brief Calculate the gradient of the energy field
+	 *
+	 * \return The gradient of the energy field with respect to all the positions.
+	 */
+	std::vector<Vector3> backwards() const;
+
+	/**\brief Calculate the grid energy and derivatives at a shifted position
+	 *
+	 * Calculates the energy in the grid if the grid is deformed by alpha*dv.
+	 *
+	 * E(v + alpha*dv) also calculates dE(...)/dalpha and d^2E(...)/dalpha^2
+	 *
+	 * \returns Value structure with all three values.
+	 */
+	Value E(const std::vector<Vector3> &dv, double alpha) const;
+
+	/**\brief Gradient calculation using finite differences
+	 *
+	 * Finite differences gradient calculation.
+	 *
+	 * Slow gradient calculation to generate a reference gradient for testing
+	 * the faster Gradient() function.
+	 *
+	 * \param delta Difference to move in all directions.
+	 *
+	 * \return Gradient of the energy field.
+	 */
+	std::vector<Vector3> GradientSlow(double delta = 1e-6);
+
+	void LineSearch(const std::vector<Vector3> &g, const double err);
+
+	/**\brief Calculate the area of a triangle in 2D
+	 *
+	 * This function calculates the area of a triangle given 2 coordinates
+	 * for each corner. The points have to be in mathematically positive
+	 * orientation (CCW) for a positive area. Negative otherwise (CW).
+	 *
+	 * The 3D area of a triangle if returned by the Geometry::GetTriangleAreaa()
+	 * function. Note that the area in 3D is always positive.
+	 *
+	 * \param Au First coordinate first point
+	 * \param Av Second coordinate first point
+	 * \param Bu First coordinate second point
+	 * \param Bv Second coordinate second point
+	 * \param Cu First coordinate third point
+	 * \param Cv Second coordinate third point
+	 * \return Area of the triangle
+	 *
+	 */
 	static double CalculateTriangleArea(double Au, double Av, double Bu,
 			double Bv, double Cu, double Cv);
 
@@ -196,14 +297,16 @@ private:
 	static double CalculateAngle2D(const Geometry::Vertex &va,
 			const Geometry::Vertex &vb, const Geometry::Vertex &vc);
 
-	/**\brief Modify an given angle to move the continuity gap away.
+	/**\brief Modify a given angle to move the continuity gap away.
 	 *
-	 * Modify an given angle, so that the gap in the continuity of the
+	 * Modify an given angle _a_, so that the gap in the continuity of the
 	 * angles (-M_PI jumps to M_PI) is on the opposite side of the reference
-	 * angle. This means, that the difference between a and ref is always the
-	 * shortest connection between these two angles.
+	 * angle _ref_. This means, that the difference between a and ref is always
+	 * the shortest connection between these two angles.
 	 *
 	 * Modifies a by adding n*2*M_PI for an integer n.
+	 *
+	 * \return _a_ close to _ref_.
 	 */
 	static double FlipCompensate(double a, double ref);
 
@@ -227,6 +330,9 @@ private:
 	 */
 	static double FlipDet(double dAu, double dAv, double dBu, double dBv,
 			double dCu, double dCv);
+
+	static void ExportToMatlab(MatlabFile &mf, const std::string &name,
+			const std::vector<Vector3> &data);
 };
 
 #endif /* MATH_ENERGYRELEASE_H_ */

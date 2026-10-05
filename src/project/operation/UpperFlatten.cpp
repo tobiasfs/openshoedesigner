@@ -26,6 +26,8 @@
 
 #include "UpperFlatten.h"
 
+#include "../../math/ARAP.h"
+
 #include <sstream>
 #include <stdexcept>
 
@@ -82,8 +84,18 @@ bool UpperFlatten::HasToRun() {
 void UpperFlatten::Run() {
 	*out = *in;
 
-	for (Geometry &geo : out->patches)
-		FlattenPatch(geo);
+	for (Geometry &geo : out->patches) {
+		ARAP flat;
+		flat = geo;
+		flat.MeasureDistances();
+		flat.InitByUV();
+		flat.RelaxUniform();
+		flat.Calculate();
+		geo = flat;
+
+
+
+	}
 
 	out->MarkValid(true);
 	out->MarkNeeded(false);

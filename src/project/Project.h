@@ -97,6 +97,7 @@ public:
 	DocumentIstream& LoadObject(DocumentIstream &istream);
 
 	void SaveFootModel(wxString fileName);
+	void SaveFlattening(wxString fileName);
 	void SaveLast(wxString fileName, bool left, bool right);
 	void SaveSkin(wxString fileName, bool left, bool right);
 

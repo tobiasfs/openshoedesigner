@@ -26,7 +26,6 @@
 
 #include "Surface.h"
 
-#include "../math/Dependencies.h"
 #include "../math/Exporter.h"
 #include "../math/MatlabFile.h"
 #include "../math/Matrix.h"
@@ -1202,7 +1201,7 @@ void Surface::Calculate() {
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_real_distribution<> dis(-0.01, 0.01);
-		for (int n = 0; n < w.Numel(); n++)
+		for (size_t n = 0; n < w.Numel(); n++)
 			w[n] = dis(gen);
 
 		c = J + H * w;

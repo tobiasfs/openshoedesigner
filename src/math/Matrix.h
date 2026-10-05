@@ -120,7 +120,7 @@ public:
 	 * are calculated from the dimensions.
 	 *
 	 * Normal order: This ordering is follows the ordering of the dimensions.
-	 * The first dimension - the column - runs from to to bottom, followed by
+	 * The first dimension - the column - runs from top to bottom, followed by
 	 * the second dimension along the rows. For a NxM matrix with N rows and
 	 * M columns the values in two neighboring rows are also next to each
 	 * other in memory.

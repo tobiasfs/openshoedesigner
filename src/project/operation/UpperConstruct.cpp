@@ -26,6 +26,9 @@
 
 #include "UpperConstruct.h"
 
+#include "../../3D/FilePLY.h"
+
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -90,11 +93,15 @@ void UpperConstruct::Run() {
 //	for (const Design::Edge &e : design_in->edges) {
 //		out->patches.push_back(e.geo);
 //	}
+
+//	std::vector<std::string> names;
 	for (const DesignSolution::Patch &p : design_in->patches) {
 		const Geometry *g = dynamic_cast<const Geometry*>(&p);
 		out->patches.push_back(*g);
+//		names.push_back(p.name);
 	}
 
+	size_t idx = 0;
 	for (Geometry &geo : out->patches) {
 //		geo.paintEdges = true;
 		geo.verticesHaveTexture = true;
@@ -110,6 +117,24 @@ void UpperConstruct::Run() {
 //			v.n = { 0, -1, 0 };
 //		}
 		geo.UpdateNormals(false, true, true);
+
+#ifdef DEBUG
+		{
+
+			std::ostringstream filename;
+			filename << "/tmp/patch_" << idx++ << ".ply";
+			FilePLY ply(filename.str());
+			ply.meshlabCompatibilityMode = true;
+			ply.Write(geo);
+
+			if (geo.PassedSelfCheck(false))
+				std::cout << filename.str() << " has correct geometry.\n";
+			else
+				std::cout << filename.str() << " has broken geometry.\n";
+
+		}
+#endif
+
 	}
 
 	out->MarkValid(true);

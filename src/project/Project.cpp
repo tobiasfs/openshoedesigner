@@ -266,6 +266,14 @@ DocumentOstream& Project::SaveObject(DocumentOstream &ostream) {
 	return ostream;
 }
 
+void Project::SaveFlattening(wxString fileName) {
+	flatteningL->MarkNeeded(true);
+	Update();
+
+	flatteningL->SaveSVG(fileName.ToStdString());
+}
+
+
 void Project::SaveFootModel(wxString fileName) {
 	wxFileOutputStream output(fileName);
 	wxTextOutputStream text(output);

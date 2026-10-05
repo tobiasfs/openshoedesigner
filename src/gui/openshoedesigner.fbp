@@ -61,7 +61,7 @@
       <property name="window_style">wxTAB_TRAVERSAL</property>
       <property name="xrc_skip_sizer">1</property>
       <event name="OnClose">OnClose</event>
-      <object class="wxMenuBar" expanded="false">
+      <object class="wxMenuBar" expanded="true">
         <property name="bg"></property>
         <property name="context_help"></property>
         <property name="context_menu">1</property>
@@ -421,7 +421,7 @@
             <property name="checked">0</property>
             <property name="enabled">0</property>
             <property name="help"></property>
-            <property name="id">ID_PATTERN_SAVE</property>
+            <property name="id">ID_PATTERN</property>
             <property name="kind">wxITEM_NORMAL</property>
             <property name="label">&amp;Save Pattern</property>
             <property name="name">m_menuItemSavePattern</property>
@@ -433,16 +433,16 @@
           <object class="wxMenuItem" expanded="false">
             <property name="bitmap"></property>
             <property name="checked">0</property>
-            <property name="enabled">0</property>
+            <property name="enabled">1</property>
             <property name="help"></property>
             <property name="id">ID_FLATTENING</property>
-            <property name="kind">wxITEM_CHECK</property>
-            <property name="label">Show Flattening</property>
-            <property name="name">m_menuItemShowFlattening</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">Save Flattening</property>
+            <property name="name">m_menuItemSaveFlattening</property>
             <property name="permission">none</property>
             <property name="shortcut"></property>
             <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">OnViewChanged</event>
+            <event name="OnMenuSelection">OnObjectSave</event>
           </object>
         </object>
         <object class="wxMenu" expanded="false">
@@ -518,7 +518,7 @@
             <property name="id">ID_CUTAWAY</property>
             <property name="kind">wxITEM_NORMAL</property>
             <property name="label">Save &amp;Cutaway Object</property>
-            <property name="name">m_menuItemCutaway</property>
+            <property name="name">m_menuItemSaveCutaway</property>
             <property name="permission">none</property>
             <property name="shortcut"></property>
             <property name="unchecked_bitmap"></property>
@@ -799,16 +799,16 @@
           </object>
         </object>
       </object>
-      <object class="wxBoxSizer" expanded="true">
+      <object class="wxBoxSizer" expanded="false">
         <property name="minimum_size"></property>
         <property name="name">bSizer</property>
         <property name="orient">wxVERTICAL</property>
         <property name="permission">none</property>
-        <object class="sizeritem" expanded="true">
+        <object class="sizeritem" expanded="false">
           <property name="border">5</property>
           <property name="flag">wxEXPAND</property>
           <property name="proportion">1</property>
-          <object class="wxSplitterWindow" expanded="true">
+          <object class="wxSplitterWindow" expanded="false">
             <property name="BottomDockable">1</property>
             <property name="LeftDockable">1</property>
             <property name="RightDockable">1</property>
@@ -11655,8 +11655,8 @@
                 </object>
               </object>
             </object>
-            <object class="splitteritem" expanded="true">
-              <object class="wxPanel" expanded="true">
+            <object class="splitteritem" expanded="false">
+              <object class="wxPanel" expanded="false">
                 <property name="BottomDockable">1</property>
                 <property name="LeftDockable">1</property>
                 <property name="RightDockable">1</property>
@@ -11708,16 +11708,16 @@
                 <property name="window_extra_style"></property>
                 <property name="window_name"></property>
                 <property name="window_style">wxTAB_TRAVERSAL</property>
-                <object class="wxBoxSizer" expanded="true">
+                <object class="wxBoxSizer" expanded="false">
                   <property name="minimum_size"></property>
                   <property name="name">bSizerCanvas</property>
                   <property name="orient">wxVERTICAL</property>
                   <property name="permission">none</property>
-                  <object class="sizeritem" expanded="true">
+                  <object class="sizeritem" expanded="false">
                     <property name="border">5</property>
                     <property name="flag">wxEXPAND | wxALL</property>
                     <property name="proportion">1</property>
-                    <object class="wxNotebook" expanded="true">
+                    <object class="wxNotebook" expanded="false">
                       <property name="BottomDockable">1</property>
                       <property name="LeftDockable">1</property>
                       <property name="RightDockable">1</property>
@@ -11775,7 +11775,7 @@
                       <object class="notebookpage" expanded="false">
                         <property name="bitmap"></property>
                         <property name="label">3D</property>
-                        <property name="select">0</property>
+                        <property name="select">1</property>
                         <object class="wxPanel" expanded="false">
                           <property name="BottomDockable">1</property>
                           <property name="LeftDockable">1</property>
@@ -12181,10 +12181,10 @@
                           </object>
                         </object>
                       </object>
-                      <object class="notebookpage" expanded="true">
+                      <object class="notebookpage" expanded="false">
                         <property name="bitmap"></property>
                         <property name="label">Flattening</property>
-                        <property name="select">1</property>
+                        <property name="select">0</property>
                         <object class="wxPanel" expanded="false">
                           <property name="BottomDockable">1</property>
                           <property name="LeftDockable">1</property>

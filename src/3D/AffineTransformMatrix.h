@@ -65,7 +65,7 @@
 
 class Vector3;
 
-class AffineTransformMatrix {
+class alignas(32) AffineTransformMatrix {
 public:
 	enum class Orientation {
 		RHS, ///< Right-handed system
@@ -110,10 +110,10 @@ public:
 	void CalculateEy();
 	void CalculateEz();
 
-	Vector3 GetOrigin() const; ///< Returns the center point of the matrix.
-	Vector3 GetEx() const;
-	Vector3 GetEy() const;
-	Vector3 GetEz() const;
+	[[nodiscard]] Vector3 GetOrigin() const; ///< Returns the center point of the matrix.
+	[[nodiscard]] Vector3 GetEx() const;
+	[[nodiscard]] Vector3 GetEy() const;
+	[[nodiscard]] Vector3 GetEz() const;
 
 	/**\brief Axis of rotation
 	 * Not normalized vector of the axis of rotation.
@@ -122,7 +122,7 @@ public:
 	 *
 	 * If there is no rotation the length of the vector is 0.0.
 	 */
-	Vector3 GetVectorOfRotation() const;
+	[[nodiscard]] Vector3 GetVectorOfRotation() const;
 
 	/**\brief Return the so called "Normal-Matrix"
 	 *
@@ -136,7 +136,7 @@ public:
 	 *
 	 * \return Normal-Matrix
 	 */
-	AffineTransformMatrix GetNormalMatrix() const;
+	[[nodiscard]] AffineTransformMatrix GetNormalMatrix() const;
 
 	/**\brief Returns a normalized matrix
 	 *
@@ -146,7 +146,7 @@ public:
 	 *
 	 * \return Normalized matrix
 	 */
-	AffineTransformMatrix Normal() const;
+	[[nodiscard]] AffineTransformMatrix Normal() const;
 	void Normalize(); ///< Normalizes the matrix.
 
 	/**\brief Normalizes and then orthogonalizes the matrix.
@@ -175,7 +175,7 @@ public:
 	 *
 	 * \return Inverted matrix.
 	 */
-	AffineTransformMatrix Inverse() const;
+	[[nodiscard]] AffineTransformMatrix Inverse() const;
 
 	static AffineTransformMatrix Identity(); ///< Function returning an identity matrix.
 	static AffineTransformMatrix Zero(); ///< Function returning an all-zero matrix.
@@ -194,7 +194,7 @@ public:
 	 * \param phi Angle of rotation.
 	 * \return Rotation matrix.
 	 */
-	static AffineTransformMatrix RotationAroundVector(Vector3 const &vector,
+	[[nodiscard]] static AffineTransformMatrix RotationAroundVector(Vector3 const &vector,
 			double phi);
 
 	/*!\brief An interwoven rotation matrix.
@@ -208,7 +208,7 @@ public:
 	 * This results in a rotation as expected from a 6-DOF controller.
 	 */
 
-	static AffineTransformMatrix RotationInterwoven(double x, double y,
+	[[nodiscard]] static AffineTransformMatrix RotationInterwoven(double x, double y,
 			double z);
 
 	/*! \brief Rotation matrix for rotation by mouse.
@@ -221,11 +221,11 @@ public:
 	 * \param scale Scaling of the movement.
 	 * \return Rotation matrix.
 	 */
-	static AffineTransformMatrix RotationXY(int x, int y, double scale);
+	[[nodiscard]] static AffineTransformMatrix RotationXY(int x, int y, double scale);
 
 	/*! \brief Rotation matrix composed by the Z,Y,X rule.
 	 */
-	static AffineTransformMatrix RotationXYZ(double x, double y, double z);
+	[[nodiscard]] static AffineTransformMatrix RotationXYZ(double x, double y, double z);
 
 	/*!\brief Rotation matrix around a virtual trackball.
 	 *
@@ -236,7 +236,7 @@ public:
 	 * \param r Radius of a sphere in screen units.
 	 * \return Rotational Matrix
 	 */
-	static AffineTransformMatrix RotationTrackball(const double x1,
+	[[nodiscard]] static AffineTransformMatrix RotationTrackball(const double x1,
 			const double y1, const double x2, const double y2, const double r);
 
 	/**\brief Projection matrix for perspective projection.
@@ -249,14 +249,14 @@ public:
 	 *
 	 * [Computer Graphics Projection](https://cg.informatik.uni-freiburg.de/course_notes/graphics_04_projection.pdf)
 	 */
-	static AffineTransformMatrix Perspective(double fovy, double aspect,
+	[[nodiscard]] static AffineTransformMatrix Perspective(double fovy, double aspect,
 			double znear, double zfar);
 
 	/**\brief Projection matrix for orthogonal projection.
 	 *
 	 * [Matrices - projection, view, model](https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/)
 	 */
-	static AffineTransformMatrix Orthogonal(double left, double right,
+	[[nodiscard]] static AffineTransformMatrix Orthogonal(double left, double right,
 			double bottom, double top, double znear, double zfar);
 
 	void TranslateGlobal(double x, double y, double z); ///< Translate matrix in the global coordinate system.
@@ -267,30 +267,39 @@ public:
 
 	void ShiftTransformPosition(const Vector3 &p); ///< Previous rotations and scalings will be transform around the given point p.
 
-	Vector3 Transform(const Vector3 &v) const; ///< Apply the transformation matrix on a given vector.
-	Vector3 Transform(const double x, const double y = 0.0,
+	[[nodiscard]] Vector3 Transform(const Vector3 &v) const; ///< Apply the transformation matrix on a given vector.
+	[[nodiscard]] Vector3 Transform(const double x, const double y = 0.0,
 			const double z = 0.0) const;
-	Vector3 TransformWithoutShift(const Vector3 &v) const; ///< Apply the transformation matrix on a given vector without shifting the vector.
-	Vector3 TransformWithoutShift(const double x, const double y = 0.0,
+	[[nodiscard]] Vector3 TransformWithoutShift(const Vector3 &v) const; ///< Apply the transformation matrix on a given vector without shifting the vector.
+	[[nodiscard]] Vector3 TransformWithoutShift(const double x, const double y = 0.0,
 			const double z = 0.0) const;
-	Vector3 operator*(const Vector3 &v) const;
-	Vector3 operator()(const Vector3 &v) const; ///< Operator reference for Vector3 transformations.
-	Vector3 operator()(const double x, const double y = 0.0, const double z =
+	[[nodiscard]] Vector3 operator*(const Vector3 &v) const;
+	[[nodiscard]] Vector3 operator()(const Vector3 &v) const; ///< Operator reference for Vector3 transformations.
+	[[nodiscard]] Vector3 operator()(const double x, const double y = 0.0, const double z =
 			0.0) const;
 
 	double& operator[](unsigned char index);
 	double operator[](unsigned char index) const;
 
-	double LocalX(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local x.
-	double LocalY(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local y.
-	double LocalZ(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local z.
-	double GlobalX(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global x, given a local point.
-	double GlobalY(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global y, given a local point.
-	double GlobalZ(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global z, given a local point.
+	[[nodiscard]] double LocalX(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local x.
+	[[nodiscard]] double LocalY(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local y.
+	[[nodiscard]] double LocalZ(const Vector3 &v) const; ///< Maps a global point onto the local coordinate system, returns the local z.
+	[[nodiscard]] double GlobalX(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global x, given a local point.
+	[[nodiscard]] double GlobalY(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global y, given a local point.
+	[[nodiscard]] double GlobalZ(double x = 0.0, double y = 0.0, double z = 0.0) const; ///< Calculates the global z, given a local point.
 
-	double Distance(const AffineTransformMatrix &other) const;
+	/**\brief Difference between two matrices (Frobenius norm)
+	 *
+	 * Frobenius matrix norm between this matrix an another matrix.
+	 *
+	 * [Wikipedia: Frobenius Matrix Norm](https://en.wikipedia.org/wiki/Matrix_norm#Frobenius_norm)
+	 *
+	 * \returns Scalar distance between the matrices.
+	 *
+	 */
+	[[nodiscard]] double Distance(const AffineTransformMatrix &other) const noexcept;
 
-	std::string ToString(); ///< Output the 16 values of the matrix as a vector: "[a0, a1, a2, ..., a15]"
+	[[nodiscard]] std::string ToString(); ///< Output the 16 values of the matrix as a vector: "[a0, a1, a2, ..., a15]"
 
 	void GLMultMatrix() const; ///< Multiply the matrix onto the active OpenGL matrix (right multiply)
 	void GLSetUniformMatrix4(int location) const; ///< Set the mat4 as an uniform in a shader.

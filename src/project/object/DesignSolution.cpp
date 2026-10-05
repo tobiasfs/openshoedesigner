@@ -500,14 +500,6 @@ void DesignSolution::Patch::Update(double edgeLength, const Polynomial &U2X,
 		LOGIC_ERROR(
 				"before Triangulate(): Plane check for generated geometry not passed.");
 
-#ifdef DEBUG
-	{
-		FilePLY ply("/tmp/problem.ply");
-		ply.meshlabCompatibilityMode = true;
-		ply.Write(*this);
-	}
-#endif
-
 	Triangulate();
 
 	if (!PassedSelfCheck(false))
@@ -527,6 +519,16 @@ void DesignSolution::Patch::Update(double edgeLength, const Polynomial &U2X,
 				"after Regularize(): Plane check for generated geometry not passed.");
 
 	ResetPresets();
+
+#ifdef DEBUG
+//	{
+//		std::ostringstream filename;
+//		filename << "/tmp/patch_" << name << ".ply";
+//		FilePLY ply(filename.str());
+//		ply.meshlabCompatibilityMode = true;
+//		ply.Write(*this);
+//	}
+#endif
 }
 
 void DesignSolution::Patch::AddSplitEdge(const Design::PatchEdge &ed, double p0,

@@ -88,6 +88,10 @@ void Polygon3::CloseLoopNextGroup() {
 }
 
 void Polygon3::ExtractOutline(const Geometry &other) {
+	if (&other == this) {
+		throw std::runtime_error(
+				"Cannot Polygon3::ExtractOutline from the object itself.");
+	}
 	const Vector3 center = other.GetCenterOfVertices();
 	ResetAddNormal();
 	for (size_t n = 0; n < other.CountEdges(); n++) {
@@ -97,10 +101,11 @@ void Polygon3::ExtractOutline(const Geometry &other) {
 		const Geometry::Vertex &v0 = other.GetEdgeVertex(n, 0);
 		const Geometry::Vertex &v1 = other.GetEdgeVertex(n, 1);
 		Vector3 rot = (v0 - center) * (v1 - v0);
-		if (rot.z > 0.0)
+		//FIXME For importing insoles, this code break without the rotation recalculation. Fix the importers.
+//		if (rot.z > 0.0)
 			AddEdge(v0, v1);
-		else
-			AddEdge(v1, v0);
+//		else
+//			AddEdge(v1, v0);
 		e.back().n = ed.n;
 		e.back().c = ed.c;
 	}
@@ -133,7 +138,7 @@ void Polygon3::SortLoop() {
 	std::vector<size_t> connections(v.size(), 0);
 	for (const Edge &ed : e)
 		connections[ed.vb]++;
-	// Vertices without connections to them are starting points.
+	// Vertices without connections towards them are starting points.
 	std::list<size_t> starting_points;
 	for (size_t idx = 0; idx < connections.size(); idx++)
 		if (connections[idx] == 0)
@@ -409,9 +414,11 @@ void Polygon3::RotateOrigin(const Vector3 &p) {
 	std::rotate(v.begin(), v.begin() + minimalIndex, v.end());
 }
 
-void Polygon3::RotateOrigin(const Vector3 &p, size_t group) {
+void Polygon3::RotateOrigin([[maybe_unused]]const Vector3 &p,
+		[[maybe_unused]]size_t group) {
 	std::ostringstream out;
-	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << "(const Vector3 &p, size_t group): ";
+	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__
+			<< "(const Vector3 &p, size_t group): ";
 	out << "Not implemented.";
 	throw std::runtime_error(out.str());
 
@@ -1061,7 +1068,7 @@ void Polygon3::Triangulate() {
 	{
 		for (size_t vidx = 0; vidx < v.size(); vidx++) {
 			const edgeStat_t &stat = vstat[vidx];
-			int count = stat.right.size();
+			size_t count = stat.right.size();
 			for (size_t eidx : stat.vertical) {
 				if (e[eidx].va == vidx)
 					count++;

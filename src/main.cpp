@@ -36,8 +36,8 @@
 #include <wx/cmdline.h>
 #include <cstdlib>
 
-#include "math/Dependencies.h"
-#include "math/DependentVector.h"
+//#include "math/Dependencies.h"
+//#include "math/DependentVector.h"
 
 IMPLEMENT_APP(openshoedesigner)
 
@@ -50,7 +50,7 @@ void openshoedesigner::OnAbout(wxCommandEvent&) {
 	aboutInfo.SetName(_T("OpenShoeDesigner"));
 	aboutInfo.SetVersion(_T("0.2"));
 	aboutInfo.SetDescription(_("Design software for Lasts and Shoes"));
-	aboutInfo.SetCopyright(_T("(C) 2018-2024"));
+	aboutInfo.SetCopyright(_T("(C) 2018-2026"));
 	aboutInfo.SetWebSite(
 			_T("https://sourceforge.net/projects/openshoedesigner/"));
 	aboutInfo.SetLicence(

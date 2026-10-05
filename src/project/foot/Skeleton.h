@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name               : Skeleton.h
-// Purpose            : 
+// Purpose            :
 // Thread Safe        : Yes
 // Platform dependent : No
 // Compiler Options   :
@@ -32,6 +32,8 @@
  *
  * Bones are enumerated for easier handling. A std::map<std::string, Bone> would be cleaner, but
  * in the end more difficult to use.
+ *
+ * \image html bones.png
  */
 
 #include <cstddef>

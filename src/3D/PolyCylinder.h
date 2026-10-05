@@ -37,6 +37,8 @@
  *
  * Maybe there is some last-scanning system the produces a format that can be
  * interpreted by this class...
+ *
+ * \image html lasts.png
  */
 
 #include <string>

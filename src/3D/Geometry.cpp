@@ -2295,6 +2295,17 @@ const Geometry::Vertex& Geometry::GetTriangleVertex(const size_t indexTriangle,
 	return v[vidx];
 }
 
+const Geometry::Edge& Geometry::GetTriangleEdge(const size_t indexTriangle,
+		int_fast8_t indexEdge) const {
+	const auto &tri = t[indexTriangle];
+	const size_t eidx = tri.GetEdgeIndex(indexEdge);
+	if (eidx >= e.size())
+		throw std::range_error(
+				std::string(__FUNCTION__)
+						+ " - Index not found in edge array.");
+	return e[eidx];
+}
+
 void Geometry::Transform(const AffineTransformMatrix &matrix) {
 	AffineTransformMatrix::Orientation orientation = matrix.CheckOrientation();
 

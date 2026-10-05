@@ -415,13 +415,13 @@ void FilePLY::ReadStreamAscii(std::istream &stream, Geometry &geo) {
 					idx1 = idx2;
 				}
 			}
-			geo.Finish();
-			geo.Sort();
-			if (!geo.PassedSelfCheck(true)) {
-				std::cerr << __FILE__ << " (" << __LINE__ << "): "
-						<< "The file seems to contain data that breaks the Finish() method.\n";
-			}
 		}
+	}
+	geo.Finish();
+	geo.Sort();
+	if (!geo.PassedSelfCheck(true)) {
+		std::cerr << __FILE__ << " (" << __LINE__ << "): "
+				<< "The file seems to contain data that breaks the Finish() method.\n";
 	}
 }
 
@@ -661,12 +661,17 @@ void FilePLY::ReadStreamBinaryLE(std::istream &stream, Geometry &geo) {
 						}
 					}
 				}
+				if (saveUnflippedTriangles && tri.flip) {
+					std::swap(tri.vb, tri.vc);
+					std::swap(tri.ea, tri.ec);
+				}
 			}
 		}
 	}
 }
 
-void FilePLY::ReadStreamBinaryBE(std::istream &stream, Geometry &geometry) {
+void FilePLY::ReadStreamBinaryBE([[maybe_unused]]std::istream &stream,
+		[[maybe_unused]]Geometry &geometry) {
 	std::ostringstream out;
 	out << __FILE__ << ":" << __LINE__ << ": " << __FUNCTION__ << ": ";
 	out << "Not implemented.";
@@ -852,6 +857,9 @@ void FilePLY::WriteStream(const Geometry &geometry) {
 		uint32_t vertex1 = t.va;
 		uint32_t vertex2 = t.vb;
 		uint32_t vertex3 = t.vc;
+		if (saveUnflippedTriangles && t.flip)
+			std::swap(vertex2, vertex3);
+
 		outp->write(reinterpret_cast<char*>(&(vertex1)), sizeof(vertex1));
 		outp->write(reinterpret_cast<char*>(&(vertex2)), sizeof(vertex2));
 		outp->write(reinterpret_cast<char*>(&(vertex3)), sizeof(vertex3));
@@ -862,6 +870,8 @@ void FilePLY::WriteStream(const Geometry &geometry) {
 		uint32_t edge1 = t.ea;
 		uint32_t edge2 = t.eb;
 		uint32_t edge3 = t.ec;
+		if (saveUnflippedTriangles && t.flip)
+			std::swap(edge1, edge3);
 		outp->write(reinterpret_cast<char*>(&(edge1)), sizeof(edge1));
 		outp->write(reinterpret_cast<char*>(&(edge2)), sizeof(edge2));
 		outp->write(reinterpret_cast<char*>(&(edge3)), sizeof(edge3));
